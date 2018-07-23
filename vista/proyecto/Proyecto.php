@@ -26,6 +26,7 @@ Phx.vista.ProyectoPr = {
 			tooltip : '<b>Fases del Proyecto</b><br>Interfaz para el registro de las fases que componen al proyecto'
 		});
     },
+    
 	tabsouth: [{
 		url: '../../../sis_proyectos/vista/proyecto_funcionario/ProyectoFuncionario.php',
 		title: 'Funcionarios del proyecto',

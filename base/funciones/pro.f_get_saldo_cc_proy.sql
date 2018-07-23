@@ -51,10 +51,8 @@ BEGIN
     from conta.trango ran
     inner join param.ttipo_cc tcc
     on tcc.id_tipo_cc = ran.id_tipo_cc
-    inner join param.tcentro_costo cc
-    on cc.id_tipo_cc = tcc.id_tipo_cc
     inner join param.tep ep
-    on ep.id_ep = cc.id_ep
+    on ep.id_ep = tcc.id_ep
     inner join param.tprograma_proyecto_acttividad ppa
     on ppa.id_prog_pory_acti = ep.id_prog_pory_acti
     where ppa.id_proyecto = v_id_proyecto_ep

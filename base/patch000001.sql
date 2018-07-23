@@ -126,3 +126,163 @@ ALTER TABLE pro.tproyecto_activo_detalle
 ALTER TABLE pro.tproyecto_activo_detalle
   DROP COLUMN num_tramite_origen;
 /***********************************F-SCP-RCM-PRO-1-30/10/2017****************************************/
+
+/***********************************I-SCP-RCM-PRO-1-15/05/2018****************************************/
+
+ALTER TABLE pro.tproyecto
+  ADD COLUMN id_moneda INTEGER;
+
+COMMENT ON COLUMN pro.tproyecto.id_moneda
+IS 'Moneda base para el proyecto';
+
+ALTER TABLE pro.tproyecto
+  ADD COLUMN monto_total NUMERIC(18,2);
+
+COMMENT ON COLUMN pro.tproyecto.monto_total
+IS 'Monto total presupuestado del proyecto';
+
+ALTER TABLE pro.tproyecto
+  ADD COLUMN fecha_ini_real DATE;
+
+COMMENT ON COLUMN pro.tproyecto.fecha_ini_real
+IS 'Fecha real de inicio del proyecto';
+
+ALTER TABLE pro.tproyecto
+  ADD COLUMN fecha_fin_real DATE;
+
+COMMENT ON COLUMN pro.tproyecto.fecha_fin_real
+IS 'Fecha real de finalización del proyecto';
+
+ALTER TABLE pro.tproyecto
+  ADD COLUMN descripcion VARCHAR(1000);
+
+COMMENT ON COLUMN pro.tproyecto.descripcion
+IS 'Descripción del proyecto';
+
+ALTER TABLE pro.tproyecto
+  ADD COLUMN id_estado_wf INTEGER;
+
+COMMENT ON COLUMN pro.tproyecto.id_estado_wf
+IS 'Identificador del estado del WF';
+
+ALTER TABLE pro.tproyecto
+  ADD COLUMN nro_tramite VARCHAR(150);
+
+COMMENT ON COLUMN pro.tproyecto.nro_tramite
+IS 'Número identificador del trámite';
+
+ALTER TABLE pro.tproyecto
+  ADD COLUMN estado VARCHAR(20);
+
+COMMENT ON COLUMN pro.tproyecto.estado
+IS 'Estado del proyecto';
+
+ALTER TABLE pro.tfase
+  ADD COLUMN fecha_ini_real DATE;
+
+COMMENT ON COLUMN pro.tfase.fecha_ini_real
+IS 'Fecha real de inicio';
+
+ALTER TABLE pro.tfase
+  ADD COLUMN fecha_fin_real DATE;
+
+COMMENT ON COLUMN pro.tfase.fecha_fin_real
+IS 'Fecha real de finalización';
+
+ALTER TABLE pro.tfase
+  ADD COLUMN id_tipo_cc INTEGER;
+
+COMMENT ON COLUMN pro.tfase.id_tipo_cc
+IS 'Tipo de Centro de Costo asociado, definido previamente en el árbol TCC';
+
+CREATE TABLE pro.tfase_concepto_ingas (
+  id_fase_concepto_ingas SERIAL,
+  id_fase INTEGER NOT NULL,
+  id_concepto_ingas INTEGER NOT NULL,
+  id_unidad_medida INTEGER,
+  descripcion VARCHAR(500) NOT NULL,
+  cantidad NUMERIC(18,2),
+  precio NUMERIC(18,2),
+  precio_mb NUMERIC(18,2),
+  precio_mt NUMERIC(18,2),
+  tipo_cambio_mb NUMERIC(18,2),
+  tipo_cambio_mt NUMERIC(18,2),
+  estado VARCHAR(20),
+  PRIMARY KEY(id_fase_concepto_ingas)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.cantidad
+IS 'Cantidad estimada del concepto ingas a adquirir';
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.precio
+IS 'Precio estimado para adquirir el concepto de gasto';
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.precio_mb
+IS 'Precio estimado en moneda base';
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.precio_mt
+IS 'Precio estimado en moneda transaccional';
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.tipo_cambio_mb
+IS 'Tipo cambio moneda base';
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.tipo_cambio_mt
+IS 'Tipo cambio moneda transaccional';
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.estado
+IS 'Estado de la fase';
+
+CREATE TABLE pro.tinvitacion (
+  id_invitacion SERIAL,
+  id_proyecto INTEGER NOT NULL,
+  codigo VARCHAR,
+  descripcion VARCHAR(200),
+  fecha DATE,
+  fecha_real DATE,
+  id_estado_wf INTEGER,
+  estado VARCHAR(20),
+  nro_tramite VARCHAR(150),
+  PRIMARY KEY(id_invitacion)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN pro.tinvitacion.codigo
+IS 'Código de la invitación';
+
+COMMENT ON COLUMN pro.tinvitacion.fecha
+IS 'Fecha estimada para el lanzamiento de la invitiación';
+
+COMMENT ON COLUMN pro.tinvitacion.fecha_real
+IS 'Fecha real del lanzamiento';
+
+CREATE TABLE pro.tinvitacion_det (
+  id_invitacion_det SERIAL,
+  id_invitacion INTEGER NOT NULL,
+  id_fase_concepto_ingas INTEGER NOT NULL,
+  observaciones VARCHAR(1000),
+  PRIMARY KEY(id_invitacion_det)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+CREATE TABLE pro.tinvitacion_solicitud (
+  id_invitacion_solicitud SERIAL,
+  id_invitacion INTEGER NOT NULL,
+  id_solicitud INTEGER NOT NULL,
+  descripcion VARCHAR(200),
+  PRIMARY KEY(id_invitacion_solicitud)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN pro.tinvitacion_solicitud.descripcion
+IS 'Glosa opcional para detallar si la adquisición es segunda o tercera';
+
+COMMENT ON COLUMN pro.tinvitacion_solicitud.id_solicitud
+IS 'Solicitud de compra del sistema de adquisiciones';
+
+
+/***********************************F-SCP-RCM-PRO-1-15/05/2018****************************************/

@@ -1,7 +1,11 @@
-CREATE OR REPLACE FUNCTION "pro"."ft_fase_sel"(	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
+CREATE OR REPLACE FUNCTION pro.ft_fase_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Proyectos
  FUNCION: 		pro.ft_fase_sel
@@ -46,14 +50,19 @@ BEGIN
 						fase.id_fase,
 						fase.id_proyecto,
 						fase.id_fase_fk,
-						fase.descripcion,
-						fase.estado_reg,
-						fase.fecha_ini,
-						fase.nombre,
 						fase.codigo,
-						fase.estado,
-						fase.fecha_fin,
+						fase.nombre,
+						fase.descripcion,
 						fase.observaciones,
+						fase.fecha_ini,
+						fase.fecha_fin,
+						fase.estado,
+						fase.fecha_ini_real,
+						fase.fecha_fin_real,
+						fase.id_tipo_cc,
+						cc.codigo_tcc,
+						cc.descripcion_tcc
+						fase.estado_reg,
 						fase.id_usuario_reg,
 						fase.usuario_ai,
 						fase.fecha_reg,
@@ -65,7 +74,9 @@ BEGIN
 						from pro.tfase fase
 						inner join segu.tusuario usu1 on usu1.id_usuario = fase.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = fase.id_usuario_mod
-				        where  ';
+						left join param.vcentro_costo cc
+						on cc.id_tipo_cc = fase.id_tipo_cc
+				        where ';
 			
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -115,8 +126,14 @@ BEGIN
 			if(coalesce(v_parametros.node,'id') = 'id') then
 				v_where = ' fase.id_fase_fk is null ';   
 			else
-				v_where = ' fase.id_fase_fk = '||v_parametros.node;
+            	if coalesce(v_parametros.id_ep,0) = 0 then
+                	v_where = ' fase.id_fase_fk = '||v_parametros.node;
+                else
+                	v_where = ' fase.id_tipo_cc = '||v_parametros.node;
+                end if;
 			end if;
+            
+            raise notice 'EP: %',v_parametros.id_ep;
 
 			v_filtro = ' 0=0 ';
               
@@ -150,7 +167,7 @@ BEGIN
 						left join segu.tusuario usu2 on usu2.id_usuario = fase.id_usuario_mod
                         where  '||v_where|| ' and ' || v_parametros.filtro || ' and '||v_filtro;
                         
---            raise notice '%',v_consulta;
+            raise notice '%',v_consulta;
            
             --Devuelve la respuesta
             return v_consulta;
@@ -172,7 +189,9 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "pro"."ft_fase_sel"(integer, integer, character varying, character varying) OWNER TO postgres;

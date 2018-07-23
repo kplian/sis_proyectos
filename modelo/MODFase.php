@@ -23,14 +23,19 @@ class MODFase extends MODbase{
 		$this->captura('id_fase','int4');
 		$this->captura('id_proyecto','int4');
 		$this->captura('id_fase_fk','int4');
-		$this->captura('descripcion','varchar');
-		$this->captura('estado_reg','varchar');
-		$this->captura('fecha_ini','date');
-		$this->captura('nombre','varchar');
 		$this->captura('codigo','varchar');
-		$this->captura('estado','varchar');
-		$this->captura('fecha_fin','date');
+		$this->captura('nombre','varchar');
+		$this->captura('descripcion','varchar');
 		$this->captura('observaciones','varchar');
+		$this->captura('fecha_ini','date');
+		$this->captura('fecha_fin','date');
+		$this->captura('estado','varchar');
+		$this->captura('fecha_ini_real','date');
+		$this->captura('fecha_fin_real','date');
+		$this->captura('id_tipo_cc','int4');
+		$this->captura('codigo_tcc','varchar');
+		$this->captura('descripcion_tcc','varchar');
+		$this->captura('estado_reg','varchar');
 		$this->captura('id_usuario_reg','int4');
 		$this->captura('usuario_ai','varchar');
 		$this->captura('fecha_reg','timestamp');
@@ -57,14 +62,17 @@ class MODFase extends MODbase{
 		//Define los parametros para la funcion
 		$this->setParametro('id_proyecto','id_proyecto','int4');
 		$this->setParametro('id_fase_fk','id_fase_fk','varchar');
-		$this->setParametro('descripcion','descripcion','varchar');
-		$this->setParametro('estado_reg','estado_reg','varchar');
-		$this->setParametro('fecha_ini','fecha_ini','date');
-		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('codigo','codigo','varchar');
-		$this->setParametro('estado','estado','varchar');
-		$this->setParametro('fecha_fin','fecha_fin','date');
+		$this->setParametro('nombre','nombre','varchar');
+		$this->setParametro('descripcion','descripcion','varchar');
 		$this->setParametro('observaciones','observaciones','varchar');
+		$this->setParametro('fecha_ini','fecha_ini','date');
+		$this->setParametro('fecha_fin','fecha_fin','date');
+		$this->setParametro('estado','estado','varchar');
+		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
+		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
+		$this->setParametro('id_tipo_cc','id_tipo_cc','integer');
+		$this->setParametro('estado_reg','estado_reg','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -85,14 +93,17 @@ class MODFase extends MODbase{
 		$this->setParametro('id_fase','id_fase','int4');
 		$this->setParametro('id_proyecto','id_proyecto','int4');
 		$this->setParametro('id_fase_fk','id_fase_fk','int4');
-		$this->setParametro('descripcion','descripcion','varchar');
-		$this->setParametro('estado_reg','estado_reg','varchar');
-		$this->setParametro('fecha_ini','fecha_ini','date');
-		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('codigo','codigo','varchar');
-		$this->setParametro('estado','estado','varchar');
-		$this->setParametro('fecha_fin','fecha_fin','date');
+		$this->setParametro('nombre','nombre','varchar');
+		$this->setParametro('descripcion','descripcion','varchar');
 		$this->setParametro('observaciones','observaciones','varchar');
+		$this->setParametro('fecha_ini','fecha_ini','date');
+		$this->setParametro('fecha_fin','fecha_fin','date');
+		$this->setParametro('estado','estado','varchar');
+		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
+		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
+		$this->setParametro('id_tipo_cc','id_tipo_cc','int4');
+		$this->setParametro('estado_reg','estado_reg','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -127,6 +138,7 @@ class MODFase extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 
 		$this->setParametro('node','node','varchar'); 
+		$this->setParametro('id_ep','id_ep','integer'); 
 
 		//Definicion de la lista del resultado del query
 		$this->captura('id_fase','int4');
@@ -152,8 +164,9 @@ class MODFase extends MODbase{
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		//echo $this->consulta;exit;
 		$this->ejecutarConsulta();
-
+		
 		return $this->respuesta;       
     }
 			

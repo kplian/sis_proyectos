@@ -46,7 +46,7 @@ BEGIN
         begin
 
         	--Verificación del ID de la fase padre
-        	if v_parametros.id_fase_fk = 'id' then
+        	if v_parametros.id_fase_fk = 'id' or coalesce(v_parametros.id_fase_fk,'')='' then
         		v_id_fase_fk = null;
         	else
         		v_id_fase_fk = v_parametros.id_fase_fk::integer;
@@ -56,14 +56,15 @@ BEGIN
         	insert into pro.tfase(
 			id_proyecto,
 			id_fase_fk,
-			descripcion,
-			estado_reg,
-			fecha_ini,
 			nombre,
 			codigo,
-			estado,
-			fecha_fin,
+			descripcion,
 			observaciones,
+			fecha_ini,
+			fecha_fin,
+			estado,
+			id_tipo_cc,
+			estado_reg,
 			id_usuario_reg,
 			usuario_ai,
 			fecha_reg,
@@ -73,14 +74,15 @@ BEGIN
           	) values(
 			v_parametros.id_proyecto,
 			v_id_fase_fk,
-			v_parametros.descripcion,
-			'activo',
-			v_parametros.fecha_ini,
 			v_parametros.nombre,
 			v_parametros.codigo,
-			v_parametros.estado,
-			v_parametros.fecha_fin,
+			v_parametros.descripcion,
 			v_parametros.observaciones,
+			v_parametros.fecha_ini,
+			v_parametros.fecha_fin,
+			v_parametros.estado,
+			v_parametros.id_tipo_cc,
+			'activo',
 			p_id_usuario,
 			v_parametros._nombre_usuario_ai,
 			now(),
@@ -112,13 +114,14 @@ BEGIN
 			update pro.tfase set
 			id_proyecto = v_parametros.id_proyecto,
 			id_fase_fk = v_parametros.id_fase_fk,
-			descripcion = v_parametros.descripcion,
-			fecha_ini = v_parametros.fecha_ini,
-			nombre = v_parametros.nombre,
 			codigo = v_parametros.codigo,
-			estado = v_parametros.estado,
-			fecha_fin = v_parametros.fecha_fin,
+			nombre = v_parametros.nombre,
+			descripcion = v_parametros.descripcion,
 			observaciones = v_parametros.observaciones,
+			fecha_ini = v_parametros.fecha_ini,
+			fecha_fin = v_parametros.fecha_fin,
+			estado = v_parametros.estado,
+			id_tipo_cc = v_parametros.id_tipo_cc,
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
