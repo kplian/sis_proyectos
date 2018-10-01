@@ -17,8 +17,9 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 		Phx.vista.ProyectoBase.superclass.constructor.call(this,config);
 		this.init();
 		this.load({params:{start:0, limit:this.tam_pag}});
+
 	},
-			
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -28,7 +29,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_proyecto'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -78,7 +79,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
@@ -94,7 +95,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
@@ -105,26 +106,31 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config: {
-				name: 'id_proyecto_ep',
-				fieldLabel: 'Proyecto EP',
+				name: 'id_tipo_cc',
+				fieldLabel: 'Centro Costo/Proyecto',
 				allowBlank: false,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
-					url: '../../sis_parametros/control/Proyecto/listarProyecto',
-					id: 'id_proyecto',
+					url: '../../sis_parametros/control/TipoCc/listartipoCcAll',
+					id: 'id_tipo_cc',
 					root: 'datos',
 					sortInfo: {
-						field: 'nombre_proyecto',
+						field: 'codigo',
 						direction: 'ASC'
 					},
 					totalProperty: 'total',
-					fields: ['id_proyecto', 'nombre_proyecto', 'codigo_proyecto'],
+					fields: ['id_tipo_cc', 'codigo', 'descripcion'],
 					remoteSort: true,
-					baseParams: {par_filtro: 'proy.nombre_proyecto#proy.codigo_proyecto'}
+					baseParams: {par_filtro: 'tcc.codigo#tcc.descripcion'}
 				}),
-				valueField: 'id_proyecto',
-				displayField: 'codigo_proyecto',
-				gdisplayField: 'codigo_proyecto',
+				tpl:'<tpl for=".">\
+		                       <div class="x-combo-list-item"><p><b>Codigo:</b>{codigo}</p>\
+		                       <p><b>Descripcion: </b>{descripcion}</p>\
+		                        </div></tpl>',
+
+				valueField: 'id_tipo_cc',
+				displayField: 'codigo',
+				gdisplayField: 'codigo_tcc',
 				forceSelection: true,
 				typeAhead: false,
 				triggerAction: 'all',
@@ -136,15 +142,79 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				gwidth: 150,
 				minChars: 2,
 				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['codigo_proyecto']);
+					return String.format('{0}', record.data['codigo_tcc']);
 				}
 			},
 			type: 'ComboBox',
 			id_grupo: 0,
-			filters: {pfiltro: 'proy.codigo#proy.nombre',type: 'string'},
+			filters: {pfiltro: 'tcc.codigo#tcc.descripcion',type: 'string'},
 			grid: true,
 			form: true
 		},
+
+		{
+			config: {
+				name: 'id_fase_plantilla',
+				fieldLabel: 'Plantilla Proyecto:',
+				allowBlank: false,
+				emptyText: 'Elija una opción...',
+				store: new Ext.data.JsonStore({
+					url: '../../sis_proyectos/control/FasePlantilla/listarFasePlantilla',
+					id: 'id_fase_plantilla',
+					root: 'datos',
+					sortInfo: {
+						field: 'id_fase_plantilla',
+						direction: 'ASC'
+					},
+					totalProperty: 'total',
+					fields: ['id_fase_plantilla', 'codigo', 'nombre'],
+					remoteSort: true,
+
+					baseParams: {par_filtro: 'faspla.id_fase_plantilla#faspla.codigo#faspla.nombre',raiz:'raiz'}
+				}),
+				tpl:'<tpl for=".">\
+		                       <div class="x-combo-list-item"><p><b>Codigo:</b>{codigo}</p>\
+		                       <p><b>Nombre: </b>{nombre}</p>\
+		                        </div></tpl>',
+
+				valueField: 'id_fase_plantilla',
+				displayField: 'nombre',
+				gdisplayField: 'codigo',
+				forceSelection: true,
+				typeAhead: false,
+				triggerAction: 'all',
+				lazyRender: true,
+				mode: 'remote',
+				pageSize: 15,
+				queryDelay: 1000,
+				anchor: '100%',
+				gwidth: 150,
+				minChars: 2,
+
+			},
+			type: 'ComboBox',
+			id_grupo: 0,
+			filters: {pfiltro: 'faspla.id_fase_plantilla#faspla.codigo',type: 'string'},
+			grid: true,
+			form: true
+		},
+		{
+            config:{
+                name: 'id_moneda',
+                origen: 'MONEDA',
+                allowBlank: false,
+                fieldLabel: 'Moneda',
+                anchor: '100%',
+                gdisplayField: 'desc_moneda',//mapea al store del grid
+                gwidth: 50,
+                renderer: function (value, p, record){return String.format('{0}', record.data['desc_moneda']);}
+             },
+            type: 'ComboRec',
+            id_grupo: 1,
+            filters: { pfiltro:'mon.codigo',type:'string'},
+            grid: true,
+            form: true
+        },
 		{
 			config:{
 				name: 'estado_reg',
@@ -182,7 +252,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -243,7 +313,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -253,7 +323,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Proyecto',
 	ActSave:'../../sis_proyectos/control/Proyecto/insertarProyecto',
 	ActDel:'../../sis_proyectos/control/Proyecto/eliminarProyecto',
@@ -265,7 +335,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 		{name:'nombre', type: 'string'},
 		{name:'fecha_ini', type: 'date',dateFormat:'Y-m-d'},
 		{name:'fecha_fin', type: 'date',dateFormat:'Y-m-d'},
-		{name:'id_proyecto_ep', type: 'numeric'},
+		{name:'id_tipo_cc', type: 'numeric'},
 		{name:'estado_reg', type: 'string'},
 		{name:'usuario_ai', type: 'string'},
 		{name:'fecha_reg', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
@@ -275,16 +345,28 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		{name:'codigo_proyecto', type: 'string'},
-		{name:'nombre_proyecto', type: 'string'}
+		{name:'codigo_tcc', type: 'string'},
+		{name:'desc_tcc', type: 'string'},
+		{name:'id_moneda', type: 'numeric'},
+		{name:'desc_moneda', type: 'string'}
 	],
 	sortInfo:{
 		field: 'id_proyecto',
 		direction: 'ASC'
 	},
 	bdel:true,
-	bsave:true
+	bsave:true,
+
+	onButtonNew: function(){
+		Phx.vista.ProyectoBase.superclass.onButtonNew.call(this);
+		this.mostrarComponente(this.Cmp.id_fase_plantilla);
+	},
+	onButtonEdit: function(){
+		Phx.vista.ProyectoBase.superclass.onButtonEdit.call(this);
+		this.Cmp.id_fase_plantilla.allowBlank=true;
+		this.ocultarComponente(this.Cmp.id_fase_plantilla);
+	}
+
 })
 </script>
-		
-		
+

@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "pro"."ft_fase_ime" (	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION pro.ft_fase_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Proyectos
  FUNCION: 		pro.ft_fase_ime
@@ -28,7 +31,7 @@ DECLARE
 	v_mensaje_error         text;
 	v_id_fase				integer;
 	v_id_fase_fk			integer;
-			    
+	v_codigo_fase			varchar;		    
 BEGIN
 
     v_nombre_funcion = 'pro.ft_fase_ime';
@@ -46,25 +49,35 @@ BEGIN
         begin
 
         	--Verificación del ID de la fase padre
-        	if v_parametros.id_fase_fk = 'id' or coalesce(v_parametros.id_fase_fk,'')='' then
+        	if v_parametros.id_fase_fk = 'id' then
         		v_id_fase_fk = null;
         	else
         		v_id_fase_fk = v_parametros.id_fase_fk::integer;
         	end if;
-
+		  
+           v_codigo_fase=upper(v_parametros.codigo);
+          
+          IF EXISTS(
+              select 
+               1
+              from pro.tfase tcc 
+              where tcc.codigo = v_codigo_fase
+                    and tcc.estado_reg = 'activo') THEN                  
+               raise exception 'ya existe el código %',v_codigo_fase;      
+            END IF;
+            
         	--Sentencia de la insercion
         	insert into pro.tfase(
 			id_proyecto,
 			id_fase_fk,
+			descripcion,
+			estado_reg,
+			fecha_ini,
 			nombre,
 			codigo,
-			descripcion,
-			observaciones,
-			fecha_ini,
-			fecha_fin,
 			estado,
-			id_tipo_cc,
-			estado_reg,
+			fecha_fin,
+			observaciones,
 			id_usuario_reg,
 			usuario_ai,
 			fecha_reg,
@@ -74,15 +87,14 @@ BEGIN
           	) values(
 			v_parametros.id_proyecto,
 			v_id_fase_fk,
-			v_parametros.nombre,
-			v_parametros.codigo,
 			v_parametros.descripcion,
-			v_parametros.observaciones,
-			v_parametros.fecha_ini,
-			v_parametros.fecha_fin,
-			v_parametros.estado,
-			v_parametros.id_tipo_cc,
 			'activo',
+			v_parametros.fecha_ini,
+			v_parametros.nombre,
+			v_codigo_fase,
+			v_parametros.estado,
+			v_parametros.fecha_fin,
+			v_parametros.observaciones,
 			p_id_usuario,
 			v_parametros._nombre_usuario_ai,
 			now(),
@@ -114,14 +126,13 @@ BEGIN
 			update pro.tfase set
 			id_proyecto = v_parametros.id_proyecto,
 			id_fase_fk = v_parametros.id_fase_fk,
-			codigo = v_parametros.codigo,
-			nombre = v_parametros.nombre,
 			descripcion = v_parametros.descripcion,
-			observaciones = v_parametros.observaciones,
 			fecha_ini = v_parametros.fecha_ini,
-			fecha_fin = v_parametros.fecha_fin,
+			nombre = v_parametros.nombre,
+			codigo = v_parametros.codigo,
 			estado = v_parametros.estado,
-			id_tipo_cc = v_parametros.id_tipo_cc,
+			fecha_fin = v_parametros.fecha_fin,
+			observaciones = v_parametros.observaciones,
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
@@ -176,7 +187,12 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "pro"."ft_fase_ime"(integer, integer, character varying, character varying) OWNER TO postgres;
+
+ALTER FUNCTION pro.ft_fase_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;

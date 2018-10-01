@@ -24,13 +24,8 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		this.store.baseParams = {
 			id_fase: this.maestro.id_fase
 		};
-		this.load({
-			params: {
-				start: 0,
-				limit: this.tam_pag
-			}
-		});
-
+		//this.load({	params: {start: 0,limit: this.tam_pag}});
+		this.bloquearMenus();
 		this.iniciaEventos();
 	},
 			
@@ -55,6 +50,38 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
+			{
+			config:{
+				name:'id_bien_servicio',
+				fieldLabel:'Bien/Servicio',
+				typeAhead: true,
+				allowBlank:false,
+				triggerAction: 'all',
+				emptyText:'Elija',
+				selectOnFocus:false,
+				forceSelection:true,
+				mode:'local',
+				store:new Ext.data.ArrayStore({
+					fields: ['ID', 'valor'],
+					data :	[
+						['Bien','Bien'],
+						['Servicio','Servicio']
+						
+					]
+				}),
+				valueField:'ID',
+				displayField:'valor',
+				width:250,
+				listeners: {
+					'afterrender': function(combo){			  
+						combo.setValue('Bien');
+					}
+				}						
+			},
+			type:'ComboBox',
+			id_grupo:1,
+			form:true
+		},
 		{
             config:{
                 name: 'id_concepto_ingas',
@@ -74,6 +101,10 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
                     remoteSort: true,
                     baseParams: { par_filtro: 'desc_ingas#par.codigo',movimiento:'gasto'}//, autorizacion: 'viatico'}
                 }),
+                tpl:'<tpl for=".">\
+		                       <div class="x-combo-list-item"><p><b>Concepto de Gasto: </b>{desc_ingas}</p>\
+		                       <p><b>Movimiento:</b>{movimiento}</p>\
+		                        <p><b>Partida:</b>{desc_partida}</p> </div></tpl>',
                	valueField: 'id_concepto_ingas',
 				displayField: 'desc_ingas',
 				gdisplayField: 'desc_ingas',
@@ -92,7 +123,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				minChars:2,
 				anchor:'100%',
 				qtip:'Si el concepto de gasto que necesita no existe por favor comuníquese con el área de presupuestos para solicitar la creación.',
-				tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_ingas}</p></div></tpl>',
+				//tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_ingas}</p></div></tpl>',
 				renderer:function(value, p, record){
 					return String.format('{0}', record.data['desc_ingas']);
 				}
@@ -104,6 +135,22 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
+        
+         {
+			config:{
+				name: 'tipo',
+				fieldLabel: 'Tipo',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:100
+			},
+				type:'TextArea',
+				filters:{pfiltro:'facoing.tipo',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
         {
 			config:{
 				name: 'descripcion',
@@ -121,7 +168,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		},
         {
 			config:{
-				name: 'cantidad',
+				name: 'cantidad_est',
 				fieldLabel: 'Cantidad',
 				allowBlank: true,
 				anchor: '80%',
@@ -129,7 +176,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				maxLength:1179650
 			},
 				type:'NumberField',
-				filters:{pfiltro:'facoing.cantidad',type:'numeric'},
+				filters:{pfiltro:'facoing.cantidad_est',type:'numeric'},
 				id_grupo:1,
 				grid:true,
 				form:true
@@ -405,7 +452,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{name:'tipo_cambio_mb', type: 'numeric'},
 		{name:'estado', type: 'string'},
 		{name:'estado_reg', type: 'string'},
-		{name:'cantidad', type: 'numeric'},
+		{name:'cantidad_est', type: 'numeric'},
 		{name:'precio_mb', type: 'numeric'},
 		{name:'precio', type: 'numeric'},
 		{name:'precio_mt', type: 'numeric'},
@@ -431,19 +478,55 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 
 	iniciaEventos: function(){
 		//Evento para obtener el total
+		
+		this.Cmp.id_bien_servicio.on('select',function(combo,record,index){
+			console.log('tipo',record);
+			
+			
+			this.Cmp.id_concepto_ingas.store.baseParams.tipo=record.data.ID;
+			 this.Cmp.id_concepto_ingas.store.load({params:{start:0,limit:this.tam_pag}, 
+					               callback : function (r) {                        
+					                    if (r.length > 0 ) {                        
+					                    	
+					                       this.Cmp.id_concepto_ingas.setValue(r[0].data.id_concepto_ingas);
+					                    }     
+					                                    
+					                }, scope : this
+					            });
+			
+		},this)
+		
+	 this.Cmp.id_concepto_ingas.on('select',function(combo,record,index){
+			console.log('tipo',record);
+			
+			this.Cmp.id_concepto_ingas.store.baseParams.tipo=this.Cmp.id_bien_servicio.getValue();
+		
+		},this)
+		
 		this.Cmp.precio.on('blur',function(cmp){
 			this.Cmp.precio_total.setValue(0);
-			if(this.Cmp.cantidad.getValue()&&this.Cmp.precio.getValue()){
-				this.Cmp.precio_total.setValue(this.Cmp.precio.getValue()*this.Cmp.cantidad.getValue());
+			if(this.Cmp.cantidad_est.getValue()&&this.Cmp.precio.getValue()){
+				this.Cmp.precio_total.setValue(this.Cmp.precio.getValue()*this.Cmp.cantidad_est.getValue());
 			}
 		},this);
 
-		this.Cmp.cantidad.on('blur',function(cmp){
+		this.Cmp.cantidad_est.on('blur',function(cmp){
 			this.Cmp.precio_total.setValue(0);
-			if(this.Cmp.cantidad.getValue()&&this.Cmp.precio.getValue()){
-				this.Cmp.precio_total.setValue(this.Cmp.precio.getValue()*this.Cmp.cantidad.getValue());
+			if(this.Cmp.cantidad_est.getValue()&&this.Cmp.precio.getValue()){
+				this.Cmp.precio_total.setValue(this.Cmp.precio.getValue()*this.Cmp.cantidad_est.getValue());
 			}
 		},this)
+	},
+	
+	onReloadPage: function (m) {
+				//alert ('asda');
+				  
+		            this.maestro = m;
+		            this.store.baseParams = {id_fase: this.maestro.id_fase};
+		           
+		            this.load({params: {start: 0, limit: 50}})
+		            this.Atributos[1].valorInicial = this.maestro.id_fase;
+		            
 	}
 })
 </script>

@@ -61,13 +61,13 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 
         //Seteo del id_tipo_cc del combo de cuentas
         Ext.apply(this.Cmp.nro_cuenta.getStore().baseParams,{id_tipo_cc: this.maestro.id_tipo_cc});
-        Ext.apply(this.Cmp.id_comprobante.getStore().baseParams,{id_tipo_cc: this.maestro.id_tipo_cc});
+        //Ext.apply(this.Cmp.id_comprobante.getStore().baseParams,{id_tipo_cc: this.maestro.id_tipo_cc});
 
         //Eventos
         this.Cmp.nro_cuenta.on('select',this.onSelectCuenta,this);
-        this.Cmp.id_comprobante.on('select',this.onSelectComprobante,this);
+        //this.Cmp.id_comprobante.on('select',this.onSelectComprobante,this);
 	},
-			
+
 	Atributos:[
 		{
 			config:{
@@ -76,7 +76,7 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_proyecto_activo_detalle'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -85,7 +85,7 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_proyecto_activo'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -94,7 +94,7 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_tipo_cc'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config: {
@@ -181,7 +181,7 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 			grid: true,
 			form: true
 		},*/
-		{
+		/*{
 			config: {
 				name: 'id_comprobante',
 				fieldLabel: 'Comprobante',
@@ -190,7 +190,7 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
    			    resizable:true,
    			    tasignacion:true,
    			    tname:'id_comprobante',
-		        tdisplayField:'nro_tramite',   				
+		        tdisplayField:'nro_tramite',
    				turl:'../../../sis_contabilidad/vista/int_comprobante/IntComprobanteReg.php',
 	   			ttitle:'Comprobantes',
 	   			tconfig:{width:'80%',height:'90%'},
@@ -231,15 +231,52 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 			type: 'TrigguerCombo',
 			id_grupo: 1,
 			filters: {pfiltro: 'com.nro_tramite',type: 'string'},
-			grid: true,	
+			grid: true,
+			form: true
+		},*/
+		{
+			config: {
+				name: 'codigo_partida',
+				fieldLabel: 'Partida',
+				allowBlank: false,
+				emptyText: 'Elija una opción...',
+				store: new Ext.data.JsonStore({
+					url: '../../sis_presupuestos/control/Partida/listarPartida',
+					id: 'codigo',
+					root: 'datos',
+					sortInfo: {
+						field: 'codigo',
+						direction: 'ASC'
+					},
+					totalProperty: 'total',
+					fields: ['codigo','nombre_partida'],
+					remoteSort: true,
+					baseParams: {par_filtro: 'par.codigo#par.nombre_partida'}
+				}),
+				valueField: 'codigo',
+				displayField: 'codigo',
+				gdisplayField: 'desc_partida',
+				tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>Código: </b>{codigo}</p><p><b>Partida: </b> {nombre_partida}</p></div></tpl>',
+				forceSelection: true,
+				typeAhead: false,
+				triggerAction: 'all',
+				lazyRender: true,
+				mode: 'remote',
+				pageSize: 15,
+				queryDelay: 1000,
+				resizable: true,
+				anchor: '100%',
+				gwidth: 150,
+				minChars: 2,
+				renderer: function(value, p, record) {
+					return String.format('{0}',record.data['desc_partida']);
+				}
+			},
+			type: 'ComboBox',
+			id_grupo: 1,
+			grid: true,
 			form: true
 		},
-
-
-
-
-
-
 		{
 			config:{
 				name: 'observaciones',
@@ -312,7 +349,7 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 				anchor: '80%',
 				gwidth: 100,
 				renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                    metaData.css = 'multilineColumn'; 
+                    metaData.css = 'multilineColumn';
                     return String.format('{0}', value);
                 }
 			},
@@ -359,7 +396,7 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 			type:'DateField',
@@ -405,7 +442,7 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 			type:'DateField',
@@ -518,9 +555,9 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 			id_grupo:3,
 			grid:false,
 			form:true
-		}		
+		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Detalle',
 	ActSave:'../../sis_proyectos/control/ProyectoActivoDetalle/insertarProyectoActivoDetalle',
 	ActDel:'../../sis_proyectos/control/ProyectoActivoDetalle/eliminarProyectoActivoDetalle',
@@ -547,7 +584,9 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 		{name:'desc_cuenta', type: 'string'},
 		{name:'fecha', type: 'date',dateFormat:'Y-m-d'},
 		{name:'nro_tramite', type: 'string'},
-		{name:'glosa1', type: 'string'}
+		{name:'glosa1', type: 'string'},
+		{name:'codigo', type: 'string'},
+		{name:'desc_partida', type: 'string'}
 	],
 	sortInfo:{
 		field: 'id_proyecto_activo_detalle',
@@ -600,7 +639,7 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
     	//Inicializa los saldos
     	this.inicializarSaldos('total');
     	//Setea el store del combo de comprobante
-    	Ext.apply(this.Cmp.id_comprobante.getStore().baseParams,{nro_cuenta: record.data.nro_cuenta});
+    	//Ext.apply(this.Cmp.id_comprobante.getStore().baseParams,{nro_cuenta: record.data.nro_cuenta});
     	//Obtiene y carga el saldo total de la cuenta
     	Ext.Ajax.request({
             url: '../../sis_proyectos/control/ProyectoActivoDetalle/obtenerCuentaSaldo',
@@ -667,5 +706,4 @@ Phx.vista.ProyectoActivoDetalle=Ext.extend(Phx.gridInterfaz,{
 	}
 })
 </script>
-		
-		
+

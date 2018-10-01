@@ -1,7 +1,11 @@
-CREATE OR REPLACE FUNCTION "pro"."ft_fase_concepto_ingas_sel"(	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
+CREATE OR REPLACE FUNCTION pro.ft_fase_concepto_ingas_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Proyectos
  FUNCION: 		pro.ft_fase_concepto_ingas_sel
@@ -38,6 +42,10 @@ BEGIN
 	if(p_transaccion='PRO_FACOING_SEL')then
      				
     	begin
+        	
+        	
+        	
+        	
     		--Sentencia de la consulta
 			v_consulta:='select
 						facoing.id_fase_concepto_ingas,
@@ -49,7 +57,7 @@ BEGIN
 						facoing.tipo_cambio_mb,
 						facoing.estado,
 						facoing.estado_reg,
-						facoing.cantidad,
+						facoing.cantidad_est,
 						facoing.precio_mb,
 						facoing.precio,
 						facoing.precio_mt,
@@ -64,18 +72,23 @@ BEGIN
 						cig.desc_ingas,
 						cig.tipo,
 						ume.codigo as desc_unidad_medida,
-						coalesce(facoing.precio*facoing.cantidad) as precio_total
+                        fase.codigo as codigo_fase,
+                        fase.nombre as nombre_fase,
+                        fase.id_proyecto,
+                        ''hoja''::varchar as tipo_nodo,
+						coalesce(facoing.precio*facoing.cantidad_est) as precio_total
 						from pro.tfase_concepto_ingas facoing
 						inner join segu.tusuario usu1 on usu1.id_usuario = facoing.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = facoing.id_usuario_mod
 						inner join param.tconcepto_ingas cig on cig.id_concepto_ingas = facoing.id_concepto_ingas
 						inner join param.tunidad_medida ume on ume.id_unidad_medida = facoing.id_unidad_medida
+                        left join pro.tfase fase on fase.id_fase = facoing.id_fase 
 				        where  ';
-			
+			--raise exception 'v_consulta %',v_consulta;
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-
+		
 			--Devuelve la respuesta
 			return v_consulta;
 						
@@ -98,8 +111,8 @@ BEGIN
 						left join segu.tusuario usu2 on usu2.id_usuario = facoing.id_usuario_mod
 						inner join param.tconcepto_ingas cig
 						on cig.id_concepto_ingas = facoing.id_concepto_ingas
-						inner join param.tunidad_medida ume
-						on ume.id_unidad_medida = facoing.id_unidad_medida
+						inner join param.tunidad_medida ume on ume.id_unidad_medida = facoing.id_unidad_medida
+                        left join pro.tfase fase on fase.id_fase = facoing.id_fase 
 					    where ';
 			
 			--Definicion de la respuesta		    
@@ -125,7 +138,12 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "pro"."ft_fase_concepto_ingas_sel"(integer, integer, character varying, character varying) OWNER TO postgres;
+
+ALTER FUNCTION pro.ft_fase_concepto_ingas_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;

@@ -29,6 +29,8 @@ DECLARE
 	v_resp				varchar;
 	v_where				varchar;
 	v_filtro			varchar;
+    
+    v_where2				varchar;
 			    
 BEGIN
 
@@ -57,11 +59,6 @@ BEGIN
 						fase.fecha_ini,
 						fase.fecha_fin,
 						fase.estado,
-						fase.fecha_ini_real,
-						fase.fecha_fin_real,
-						fase.id_tipo_cc,
-						cc.codigo_tcc,
-						cc.descripcion_tcc
 						fase.estado_reg,
 						fase.id_usuario_reg,
 						fase.usuario_ai,
@@ -74,13 +71,11 @@ BEGIN
 						from pro.tfase fase
 						inner join segu.tusuario usu1 on usu1.id_usuario = fase.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = fase.id_usuario_mod
-						left join param.vcentro_costo cc
-						on cc.id_tipo_cc = fase.id_tipo_cc
-				        where ';
+					    where ';
 			
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			--v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
 			return v_consulta;
@@ -124,21 +119,23 @@ BEGIN
         begin
 			
 			if(coalesce(v_parametros.node,'id') = 'id') then
-				v_where = ' fase.id_fase_fk is null ';   
-			else
-            	if coalesce(v_parametros.id_ep,0) = 0 then
-                	v_where = ' fase.id_fase_fk = '||v_parametros.node;
-                else
-                	v_where = ' fase.id_tipo_cc = '||v_parametros.node;
-                end if;
+				v_where = ' fase.id_fase_fk is null ';
+                v_where2 = ' facoing.id_fase_concepto_ingas is null ';  
+			
+            else
+            	v_where = ' fase.id_fase_fk = '||v_parametros.node;
+            	v_where2 = ' facoing.id_fase = '||v_parametros.node;
 			end if;
+          
             
-            raise notice 'EP: %',v_parametros.id_ep;
+           -- raise notice 'EP: %',v_parametros.id_ep;
 
 			v_filtro = ' 0=0 ';
               
             --Consulta
-            v_consulta:='select
+            v_consulta:='
+                        select					
+            			null::integer as id_fase_concepto_ingas,
                         fase.id_fase,
 						fase.id_proyecto,
 						fase.id_fase_fk,
@@ -159,7 +156,7 @@ BEGIN
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
 						case
-							when coalesce(fase.id_fase_fk,0) = 0 then ''raiz''::varchar
+						when coalesce(fase.id_fase_fk,0) = 0 then ''raiz''::varchar
 							else ''hijo''::varchar
 						end as tipo_nodo
 						from pro.tfase fase
@@ -195,3 +192,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION pro.ft_fase_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;

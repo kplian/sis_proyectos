@@ -25,6 +25,13 @@ Phx.vista.ProyectoPr = {
 			handler : this.openFases,
 			tooltip : '<b>Fases del Proyecto</b><br>Interfaz para el registro de las fases que componen al proyecto'
 		});
+		
+		this.addButton('btnInvitacion',{ 
+       	    text: 'Invitaciones', 
+       	    iconCls: 'blist', 
+       	    disabled: true, 
+       	    handler: this.mostraInvitacion, 
+       	    tooltip: 'Invitaciones'});
     },
     
 	tabsouth: [{
@@ -40,6 +47,7 @@ Phx.vista.ProyectoPr = {
 	}],
 	openFases: function(){
 		var data = this.getSelectedData();
+		console.log('mi data',data)
 		var win = Phx.CP.loadWindows(
 			'../../../sis_proyectos/vista/fase/Fase.php',
 			'Fases', {
@@ -51,14 +59,33 @@ Phx.vista.ProyectoPr = {
 			'Fase'
 		);
 	},
+	
+	mostraInvitacion: function(){
+		var data = this.getSelectedData();
+		console.log('proyecto',data)
+
+		var win = Phx.CP.loadWindows(
+			'../../../sis_proyectos/vista/invitacion/Invitacion.php',
+			'Invitaciones', {
+			    width: '80%',
+			    height: '70%'
+			},
+			data,
+			this.idContenedor,
+			'Invitacion'//clase de la vista
+		);
+	},
 	preparaMenu: function(n){
 		var tb = Phx.vista.ProyectoPr.superclass.preparaMenu.call(this);
 		this.getBoton('btnFases').enable();
+		 this.getBoton('btnInvitacion').enable();
+
 		return tb;
 	},
 	liberaMenu: function(){
 		var tb = Phx.vista.ProyectoPr.superclass.liberaMenu.call(this);
 		this.getBoton('btnFases').disable();
+		this.getBoton('btnInvitacion').disable();
 		return tb;
 	}
 }

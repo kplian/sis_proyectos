@@ -29,7 +29,7 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->captura('tipo_cambio_mb','numeric');
 		$this->captura('estado','varchar');
 		$this->captura('estado_reg','varchar');
-		$this->captura('cantidad','numeric');
+		$this->captura('cantidad_est','numeric');
 		$this->captura('precio_mb','numeric');
 		$this->captura('precio','numeric');
 		$this->captura('precio_mt','numeric');
@@ -44,6 +44,15 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->captura('desc_ingas','varchar');
 		$this->captura('tipo','varchar');
 		$this->captura('desc_unidad_medida','varchar');
+		
+		$this->captura('codigo_fase','varchar');
+		$this->captura('nombre_fase','varchar');
+		
+		$this->captura('id_proyecto','int4');
+		
+		$this->captura('tipo_nodo','varchar');
+		
+		
 		$this->captura('precio_total','numeric');
 		
 		//Ejecuta la instruccion
@@ -69,7 +78,7 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->setParametro('tipo_cambio_mb','tipo_cambio_mb','numeric');
 		$this->setParametro('estado','estado','varchar');
 		$this->setParametro('estado_reg','estado_reg','varchar');
-		$this->setParametro('_cantidad','cantidad','numeric');
+		$this->setParametro('cantidad_est','cantidad_est','numeric');
 		$this->setParametro('precio_mb','precio_mb','numeric');
 		$this->setParametro('precio','precio','numeric');
 		$this->setParametro('precio_mt','precio_mt','numeric');
@@ -98,7 +107,7 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->setParametro('tipo_cambio_mb','tipo_cambio_mb','numeric');
 		$this->setParametro('estado','estado','varchar');
 		$this->setParametro('estado_reg','estado_reg','varchar');
-		$this->setParametro('_cantidad','cantidad','numeric');
+		$this->setParametro('cantidad_est','cantidad_est','numeric');
 		$this->setParametro('precio_mb','precio_mb','numeric');
 		$this->setParametro('precio','precio','numeric');
 		$this->setParametro('precio_mt','precio_mt','numeric');

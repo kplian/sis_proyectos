@@ -8,17 +8,17 @@
 */
 
 class MODFase extends MODbase{
-	
+
 	function __construct(CTParametro $pParam){
 		parent::__construct($pParam);
 	}
-			
+
 	function listarFase(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='pro.ft_fase_sel';
 		$this->transaccion='PRO_FASE_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+
 		//Definicion de la lista del resultado del query
 		$this->captura('id_fase','int4');
 		$this->captura('id_proyecto','int4');
@@ -30,11 +30,7 @@ class MODFase extends MODbase{
 		$this->captura('fecha_ini','date');
 		$this->captura('fecha_fin','date');
 		$this->captura('estado','varchar');
-		$this->captura('fecha_ini_real','date');
-		$this->captura('fecha_fin_real','date');
-		$this->captura('id_tipo_cc','int4');
-		$this->captura('codigo_tcc','varchar');
-		$this->captura('descripcion_tcc','varchar');
+	
 		$this->captura('estado_reg','varchar');
 		$this->captura('id_usuario_reg','int4');
 		$this->captura('usuario_ai','varchar');
@@ -44,21 +40,21 @@ class MODFase extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
-		
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function insertarFase(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='pro.ft_fase_ime';
 		$this->transaccion='PRO_FASE_INS';
 		$this->tipo_procedimiento='IME';
-		
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_proyecto','id_proyecto','int4');
 		$this->setParametro('id_fase_fk','id_fase_fk','varchar');
@@ -82,13 +78,13 @@ class MODFase extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function modificarFase(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='pro.ft_fase_ime';
 		$this->transaccion='PRO_FASE_MOD';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_fase','id_fase','int4');
 		$this->setParametro('id_proyecto','id_proyecto','int4');
@@ -112,13 +108,13 @@ class MODFase extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function eliminarFase(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='pro.ft_fase_ime';
 		$this->transaccion='PRO_FASE_ELI';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_fase','id_fase','int4');
 
@@ -137,10 +133,12 @@ class MODFase extends MODbase{
 		$this->transaccion='PRO_FASEARB_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 
-		$this->setParametro('node','node','varchar'); 
-		$this->setParametro('id_ep','id_ep','integer'); 
+		$this->setParametro('node','node','varchar');
+		//$this->setParametro('id_ep','id_ep','integer');
 
 		//Definicion de la lista del resultado del query
+		//$this->captura('id','int4');
+		$this->captura('id_fase_concepto_ingas','int4');
 		$this->captura('id_fase','int4');
 		$this->captura('id_proyecto','int4');
 		$this->captura('id_fase_fk','int4');
@@ -166,9 +164,9 @@ class MODFase extends MODbase{
 		$this->armarConsulta();
 		//echo $this->consulta;exit;
 		$this->ejecutarConsulta();
-		
-		return $this->respuesta;       
+
+		return $this->respuesta;
     }
-			
+
 }
 ?>

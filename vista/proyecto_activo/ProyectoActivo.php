@@ -13,12 +13,10 @@ Ext.define('Phx.vista.ProyectoActivo', {
     extend: 'Ext.util.Observable',
     columnsMapId: [], //La posición del array tendrá el ID del centro de costo en función a la columma del grid
     id_proyecto: 0,
-    id_proyecto_ep: 0,
     id_proyecto_activo: '',
-    tam_pag: 200,
+    tam_pag: 50,
     columnIndex: -1,
     idProyectoActivo: -1,
-
     constructor: function(config){
         Ext.util.Format.thousandSeparator = '.';
         Ext.util.Format.decimalSeparator = ',';
@@ -26,24 +24,24 @@ Ext.define('Phx.vista.ProyectoActivo', {
         Ext.apply(this,config);
         this.callParent(arguments);
         this.panel = Ext.getCmp(this.idContenedor);
-        
+
         this.id_proyecto = this.maestro.data.id_proyecto;
-        this.id_proyecto_ep = this.maestro.data.id_proyecto_ep;
 
         this.getColumns();
         this.crearVentana();
         this.crearVentanaDetalle();
-
     },
     getColumns: function(){
+        Phx.CP.loadingShow();
         Ext.Ajax.request({
-            url: '../../sis_parametros/control/CentroCosto/listarCentroCostoProyecto',
+            //url: '../../sis_parametros/control/CentroCosto/listarCentroCostoProyecto',
+            url: '../../sis_proyectos/control/ProyectoColumnaTcc/listarProyectoColumnaTcc',
             params: {
                 start: 0,
                 limit: 50,
-                sort: 'cc.id_tipo_cc',
+                sort: 'coltcc.id_tipo_cc',
                 dir: 'ASC',
-                id_proyecto_ep: this.id_proyecto_ep
+                id_proyecto: this.id_proyecto
             },
             success: function(res,params){
                 var response = Ext.decode(res.responseText).datos;
@@ -64,18 +62,68 @@ Ext.define('Phx.vista.ProyectoActivo', {
     onButtonEdit: function(record){
         this.winDatos.setTitle('Editar Activo Fijo');
         //Cargar formulario
-        var rec = this.gridCierre.getSelectionModel().getSelected().data,
-            recClas = new Ext.data.Record({id_clasificacion: rec.id_clasificacion, clasificacion: rec.desc_clasificacion },'id_clasificacion');
+        var rec = this.gridCierre.getSelectionModel().getSelected().data;
 
+        /////////////
+        //Drop downs
+        ////////////
+        //Clasificación
+        var recClas = new Ext.data.Record({id_clasificacion: rec.id_clasificacion, clasificacion: rec.desc_clasificacion },'id_clasificacion');
         this.cmbClasificacion.store.add(recClas);
         this.cmbClasificacion.store.commitChanges();
         this.cmbClasificacion.modificado = true;
         this.cmbClasificacion.setValue(rec.id_clasificacion);
+        //Depto.
+        recClas = new Ext.data.Record({id_depto: rec.id_depto, nombre: rec.desc_depto},'id_depto');
+        this.id_depto.store.add(recClas);
+        this.id_depto.store.commitChanges();
+        this.id_depto.modificado = true;
+        this.id_depto.setValue(rec.id_depto);
+        //Centro costo
+        recClas = new Ext.data.Record({id_centro_costo: rec.id_centro_costo, codigo_cc: rec.desc_centro_costo, movimiento_tipo_pres: 'ingreso_egreso'},'id_centro_costo');
+        this.id_centro_costo.store.add(recClas);
+        this.id_centro_costo.store.commitChanges();
+        this.id_centro_costo.modificado = true;
+        this.id_centro_costo.setValue(rec.id_centro_costo);
+        //Ubicación
+        recClas = new Ext.data.Record({id_ubicacion: rec.id_ubicacion, codigo: rec.desc_ubicacion },'id_ubicacion');
+        this.id_ubicacion.store.add(recClas);
+        this.id_ubicacion.store.commitChanges();
+        this.id_ubicacion.modificado = true;
+        this.id_ubicacion.setValue(rec.id_ubicacion);
+        //Grupo
+        recClas = new Ext.data.Record({id_grupo: rec.id_grupo, nombre: rec.desc_grupo },'id_grupo');
+        this.id_grupo.store.add(recClas);
+        this.id_grupo.store.commitChanges();
+        this.id_grupo.modificado = true;
+        this.id_grupo.setValue(rec.id_grupo);
+        //Grupo Clasificación
+        recClas = new Ext.data.Record({id_grupo_clasif: rec.id_grupo_clasif, nombre: rec.desc_grupo_clasif },'id_grupo_clasif');
+        this.id_grupo_clasif.store.add(recClas);
+        this.id_grupo_clasif.store.commitChanges();
+        this.id_grupo_clasif.modificado = true;
+        this.id_grupo_clasif.setValue(rec.id_grupo_clasif);
+        //Unidad de Medida
+        recClas = new Ext.data.Record({id_unidad_medida: rec.id_unidad_medida, codigo: rec.desc_unmed },'id_unidad_medida');
+        this.id_unidad_medida.store.add(recClas);
+        this.id_unidad_medida.store.commitChanges();
+        this.id_unidad_medida.modificado = true;
+        this.id_unidad_medida.setValue(rec.id_unidad_medida);
 
+        ///Fields
         this.id_proyecto_activo = rec.id_proyecto_activo;
         this.txtDenominacion.setValue(rec.denominacion);
         this.txtDescripcion.setValue(rec.descripcion);
         this.txtObservaciones.setValue(rec.observaciones);
+
+        this.cantidad_det.setValue(rec.cantidad_det);
+        this.estado.setValue(rec.estado);
+        this.ubicacion.setValue(rec.ubicacion);
+        this.nro_serie.setValue(rec.nro_serie);
+        this.marca.setValue(rec.marca);
+        this.fecha_ini_dep.setValue(rec.fecha_ini_dep);
+        this.vida_util_anios.setValue(rec.vida_util_anios);
+        this.codigo_af_rel.setValue(rec.codigo_af_rel);
 
         this.winDatos.show();
     },
@@ -90,6 +138,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
             col1='#c2f0cc',
             col2='#EAA8A8',
             col3='#fafbd9';
+
         //Columnas por defecto
         _cols.push(new Ext.grid.RowNumberer());
         _cols.push({header: 'Denominación', dataIndex: 'denominacion',renderer: function(value,metadata,rec,index){
@@ -143,6 +192,27 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this._colsData.push({name:'observaciones',type:'string'});
         this._colsData.push({name:'desc_clasificacion',type:'string'});
         this._colsData.push({name:'costo',type:'numeric'});
+        this._colsData.push({name:'cantidad_det',type:'numeric'});
+        this._colsData.push({name:'id_depto',type:'numeric'});
+        this._colsData.push({name:'estado',type:'string'});
+        this._colsData.push({name:'id_lugar',type:'numeric'});
+        this._colsData.push({name:'ubicacion',type:'string'});
+        this._colsData.push({name:'id_centro_costo',type:'numeric'});
+        this._colsData.push({name:'id_ubicacion',type:'numeric'});
+        this._colsData.push({name:'id_grupo',type:'numeric'});
+        this._colsData.push({name:'id_grupo_clasif',type:'numeric'});
+        this._colsData.push({name:'nro_serie',type:'string'});
+        this._colsData.push({name:'marca',type:'string'});
+        this._colsData.push({name:'fecha_ini_dep',type:'date',dateFormat:'Y-m-d'});
+        this._colsData.push({name:'desc_depto', type:'string'});
+        this._colsData.push({name:'desc_centro_costo', type:'string'});
+        this._colsData.push({name:'desc_ubicacion', type:'string'});
+        this._colsData.push({name:'desc_grupo', type:'string'});
+        this._colsData.push({name:'desc_clasif_ae', type:'string'});
+        this._colsData.push({name:'vida_util_anios', type: 'numeric'});
+        this._colsData.push({name:'id_unidad_medida', type: 'numeric'});
+        this._colsData.push({name:'codigo_af_rel', type: 'string'});
+        this._colsData.push({name:'desc_unmed', type: 'string'});
 
         //Inicializa los valores del array para mapeo de Ids
         for (var i=0; i<=5; i++) {
@@ -162,7 +232,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
             this._colsData.push({name: 'cc_'+a.id_tipo_cc, type:'numeric'});
 
             //Mapeo de Ids del centro de costo en función del nro. de columna
-            this.columnsMapId.push(a.id_tipo_cc);   
+            this.columnsMapId.push(a.id_tipo_cc);
         },this);
 
         //Creación del column model del grid
@@ -208,6 +278,14 @@ Ext.define('Phx.vista.ProyectoActivo', {
             scope: this
         });
 
+        /*this.tbBtnImp = new Ext.Button({
+            iconCls: 'bact',
+            tooltip: '<b>Importa valoración</b>Importa los activos valorados desde un formato excel (xlsx)',
+            text: 'Importar Valoración',
+            handler: this.SubirArchivo,
+            scope: this
+        });*/
+
         this.tbar = new Ext.Toolbar({
           enableOverflow: true,
           defaults: {
@@ -230,9 +308,8 @@ Ext.define('Phx.vista.ProyectoActivo', {
             baseParams: {
                 sort: 'id_proyecto_activo',
                 start: 0,
-                limit: 200,
+                limit: this.tam_pag,
                 dir: 'asc',
-                id_proyecto_ep: this.id_proyecto_ep,
                 id_proyecto: this.id_proyecto
             }
         });
@@ -261,7 +338,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         //Cargar store
         this.storeGrid.load();
 
-       
+
 
         //Eevntos grid
         this.gridCierre.on('celldblclick',this.editCell,this);
@@ -271,6 +348,8 @@ Ext.define('Phx.vista.ProyectoActivo', {
         //Render del panel con el grid creado
         this.panel.add(this.gridCierre);
         this.panel.doLayout();
+
+        //Phx.CP.loadingHide();
     },
     crearVentana: function(){
         //Componentes
@@ -335,6 +414,274 @@ Ext.define('Phx.vista.ProyectoActivo', {
             anchor: '97%'
         });
 
+        this.cantidad_det = new Ext.form.NumberField({
+          fieldLabel: 'Cantidad',
+          name: 'cantidad_det',
+          allowBlank: true,
+          maxLength: 100,
+          anchor: '97%',
+          minValue: 1
+        });
+
+        this.id_depto = new Ext.form.ComboBox({
+            name: 'id_depto',
+            fieldLabel: 'Depto.',
+            allowBlank: true,
+            emptyText:'Seleccione un registro...',
+            store: new Ext.data.JsonStore({
+                url: '../../sis_parametros/control/Depto/listarDeptoFiltradoDeptoUsuario',
+                id: 'id_depto',
+                root: 'datos',
+                fields: ['id_depto','codigo','nombre'],
+                totalProperty: 'total',
+                sortInfo: {
+                    field: 'codigo',
+                    direction: 'ASC'
+                },
+                baseParams:{
+                    start: 0,
+                    limit: 10,
+                    sort: 'codigo',
+                    dir: 'ASC',
+                    codigo_subsistema: 'KAF',
+                    par_filtro:'DEPPTO.codigo#DEPPTO.nombre'
+                }
+            }),
+            valueField: 'id_depto',
+            displayField: 'nombre',
+            gdisplayField: 'codigo_depto',
+            hiddenName: 'id_depto',
+            mode: 'remote',
+            triggerAction: 'all',
+            typeAhead: false,
+            lazyRender: true,
+            pageSize: 15,
+            queryDelay: 1000,
+            minChars: 2,
+            renderer: function(value, p, record) {
+                return String.format('{0}', record.data['codigo_depto']);
+            },
+            anchor: '97%'
+        });
+
+        this.estado = new Ext.form.TextField({
+          fieldLabel: 'Estado',
+          name: 'estado',
+          allowBlank: true,
+          maxLength: 100,
+          anchor: '97%'
+        });
+
+        this.ubicacion = new Ext.form.TextArea({
+          fieldLabel: 'Ubicación',
+          name: 'ubicacion',
+          allowBlank: true,
+          maxLength: 100,
+          anchor: '97%'
+        });
+
+        this.id_centro_costo = new Ext.form['ComboRec']({
+            name: 'id_centro_costo',
+            fieldLabel: 'Centro Costo',
+            allowBlank: true,
+            tinit:false,
+            origen:'CENTROCOSTO',
+            gdisplayField: 'centro_costo',
+            qtip: 'Centro de Costo para la Depreciación',
+            width: 350,
+            listWidth: 350,
+            gwidth: 300,
+            renderer:function (value, p, record){return String.format('{0}',record.data['centro_costo']);},
+            id: this.idContenedor+'_id_centro_costo'
+        });
+
+        this.id_ubicacion = new Ext.form.ComboBox({
+            name: 'id_ubicacion',
+            fieldLabel: 'Local',
+            allowBlank: true,
+            emptyText:'Seleccione un registro...',
+            store: new Ext.data.JsonStore({
+                url: '../../sis_kactivos_fijos/control/Ubicacion/listarUbicacion',
+                id: 'id_ubicacion',
+                root: 'datos',
+                fields: ['id_ubicacion','codigo','nombre'],
+                totalProperty: 'total',
+                sortInfo: {
+                    field: 'codigo',
+                    direction: 'ASC'
+                },
+                baseParams:{
+                    start: 0,
+                    limit: 10,
+                    sort: 'codigo',
+                    dir: 'ASC',
+                    par_filtro:'ubi.codigo#ubi.nombre'
+                }
+            }),
+            valueField: 'id_ubicacion',
+            displayField: 'codigo',
+            gdisplayField: 'desc_ubicacion',
+            hiddenName: 'id_ubicacion',
+            mode: 'remote',
+            triggerAction: 'all',
+            typeAhead: false,
+            lazyRender: true,
+            pageSize: 15,
+            queryDelay: 1000,
+            minChars: 2,
+            renderer: function(value, p, record) {
+                return String.format('{0}', record.data['desc_ubicacion']);
+            },
+            anchor: '97%'
+        });
+
+        this.id_grupo = new Ext.form.ComboBox({
+            name: 'id_grupo',
+            fieldLabel: 'Grupo AE',
+            allowBlank: true,
+            emptyText:'Seleccione un registro...',
+            store: new Ext.data.JsonStore({
+                url: '../../sis_kactivos_fijos/control/Grupo/ListarGrupo',
+                id: 'id_grupo',
+                root: 'datos',
+                sortInfo:{
+                    field: 'codigo',
+                    direction: 'ASC'
+                },
+                totalProperty: 'total',
+                fields: ['id_grupo','codigo','nombre'],
+                // turn on remote sorting
+                remoteSort: true,
+                baseParams:{par_filtro:'codigo#nombre'}
+            }),
+            valueField: 'id_grupo',
+            displayField: 'nombre',
+            gdisplayField: 'desc_grupo_ae',
+            hiddenName: 'id_grupo',
+            mode: 'remote',
+            triggerAction: 'all',
+            typeAhead: false,
+            lazyRender: true,
+            pageSize: 15,
+            queryDelay: 1000,
+            minChars: 2,
+            renderer: function(value, p, record) {
+                return String.format('{0}', record.data['desc_grupo_ae']);
+            },
+            anchor: '97%'
+        });
+
+        this.id_grupo_clasif = new Ext.form.ComboBox({
+            name: 'id_grupo_clasif',
+            fieldLabel: 'Clasificación AE',
+            allowBlank: true,
+            emptyText:'Seleccione un registro...',
+            store: new Ext.data.JsonStore({
+                url: '../../sis_kactivos_fijos/control/Grupo/ListarGrupo',
+                id: 'id_grupo',
+                root: 'datos',
+                sortInfo:{
+                    field: 'codigo',
+                    direction: 'ASC'
+                },
+                totalProperty: 'total',
+                fields: ['id_grupo','codigo','nombre'],
+                // turn on remote sorting
+                remoteSort: true,
+                baseParams:{par_filtro:'codigo#nombre', tipo: 'clasificacion'}
+            }),
+            valueField: 'id_grupo',
+            displayField: 'nombre',
+            gdisplayField: 'desc_clasif_ae',
+            hiddenName: 'id_grupo',
+            mode: 'remote',
+            triggerAction: 'all',
+            typeAhead: false,
+            lazyRender: true,
+            pageSize: 15,
+            queryDelay: 1000,
+            minChars: 2,
+            renderer: function(value, p, record) {
+                return String.format('{0}', record.data['desc_clasif_ae']);
+            },
+            anchor: '97%'
+        });
+
+        this.nro_serie = new Ext.form.TextField({
+          fieldLabel: 'Nro.Serie',
+          name: 'nro_serie',
+          allowBlank: true,
+          maxLength: 100,
+          anchor: '97%'
+        });
+
+        this.marca = new Ext.form.TextField({
+          fieldLabel: 'Marca',
+          name: 'marca',
+          allowBlank: true,
+          maxLength: 100,
+          anchor: '97%'
+        });
+
+        this.fecha_ini_dep = new Ext.form.DateField({
+          fieldLabel: 'Fecha Inicio Depreciación',
+          name: 'fecha_ini_dep',
+          allowBlank: true,
+          maxLength: 100,
+          anchor: '97%'
+        });
+
+        this.vida_util_anios = new Ext.form.NumberField({
+          fieldLabel: 'Vida Útil (Años)',
+          name: 'vida_util_anios',
+          allowBlank: false,
+          anchor: '97%'
+        });
+
+        this.id_unidad_medida = new Ext.form.ComboBox({
+            name: 'id_unidad_medida',
+            fieldLabel: 'Unidad Medida',
+            allowBlank: false,
+            emptyText:'Seleccione un registro...',
+            store: new Ext.data.JsonStore({
+                url: '../../sis_parametros/control/UnidadMedida/listarUnidadMedida',
+                id: 'id_unidad_medida',
+                root: 'datos',
+                sortInfo:{
+                    field: 'codigo',
+                    direction: 'ASC'
+                },
+                totalProperty: 'total',
+                fields: ['id_unidad_medida','codigo','descripcion'],
+                // turn on remote sorting
+                remoteSort: true,
+                baseParams:{par_filtro:'codigo#descripcion'}
+            }),
+            valueField: 'id_unidad_medida',
+            displayField: 'codigo',
+            gdisplayField: 'desc_unmed',
+            hiddenName: 'id_unidad_medida',
+            mode: 'remote',
+            triggerAction: 'all',
+            typeAhead: false,
+            lazyRender: true,
+            pageSize: 15,
+            queryDelay: 1000,
+            minChars: 2,
+            renderer: function(value, p, record) {
+                return String.format('{0}', record.data['desc_unmed']);
+            },
+            anchor: '97%'
+        });
+
+        this.codigo_af_rel = new Ext.form.TextField({
+          fieldLabel: 'Código AF relacionado',
+          name: 'codigo_af_rel',
+          allowBlank: true,
+          maxLength: 100,
+          anchor: '97%'
+        });
+
         //Formulario
         this.frmDatos = new Ext.form.FormPanel({
             items: [{
@@ -347,14 +694,17 @@ Ext.define('Phx.vista.ProyectoActivo', {
                     border: false,
                     autoScroll: true,
                     layout: 'form',
-                    items: [this.cmbClasificacion,this.txtDenominacion,this.txtDescripcion,this.txtObservaciones],
+                    items: [this.cmbClasificacion,this.txtDenominacion,this.txtDescripcion,this.txtObservaciones,
+                            this.cantidad_det,this.id_unidad_medida, this.id_depto, this.estado, this.ubicacion, this.id_centro_costo,
+                            this.id_ubicacion, this.id_grupo, this.id_grupo_clasif, this.nro_serie, this.marca, this.fecha_ini_dep,
+                            this.vida_util_anios,this.codigo_af_rel],
                     id_grupo: 0
                 }
             }],
             padding: this.paddingForm,
             bodyStyle: this.bodyStyleForm,
             border: this.borderForm,
-            frame: this.frameForm, 
+            frame: this.frameForm,
             autoScroll: false,
             autoDestroy: true,
             autoScroll: true,
@@ -394,7 +744,21 @@ Ext.define('Phx.vista.ProyectoActivo', {
                 id_clasificacion: this.cmbClasificacion.getValue(),
                 denominacion: this.txtDenominacion.getValue(),
                 descripcion: this.txtDescripcion.getValue(),
-                observaciones: this.txtObservaciones.getValue()
+                observaciones: this.txtObservaciones.getValue(),
+                cantidad_det: this.cantidad_det.getValue(),
+                id_depto: this.id_depto.getValue(),
+                estado: this.estado.getValue(),
+                ubicacion: this.ubicacion.getValue(),
+                id_centro_costo: this.id_centro_costo.getValue(),
+                id_ubicacion: this.id_ubicacion.getValue(),
+                id_grupo: this.id_grupo.getValue(),
+                id_grupo_clasif: this.id_grupo_clasif.getValue(),
+                nro_serie: this.nro_serie.getValue(),
+                marca: this.marca.getValue(),
+                fecha_ini_dep: this.fecha_ini_dep.getValue(),
+                vida_util_anios: this.vida_util_anios.getValue(),
+                id_unidad_medida: this.id_unidad_medida.getValue(),
+                codigo_af_rel: this.codigo_af_rel.getValue()
             };
 
             Ext.Ajax.request({
@@ -560,7 +924,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
             padding: this.paddingForm,
             bodyStyle: this.bodyStyleForm,
             border: this.borderForm,
-            frame: this.frameForm, 
+            frame: this.frameForm,
             autoScroll: false,
             autoDestroy: true,
             autoScroll: true,
@@ -647,20 +1011,18 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this.tbBtnDel.setDisabled(true);
     },
     cargarTotales: function(){
+        Phx.CP.loadingShow();
         Ext.Ajax.request({
             url: '../../sis_proyectos/control/ProyectoActivo/listarProyectoActivoTablaDatosTotales',
             params: {
                 start: 0,
-                limit: 50,
+                limit: this.tam_pag,
                 sort: 'cc.id_tipo_cc',
                 dir: 'ASC',
-                id_proyecto_ep: this.id_proyecto_ep,
                 id_proyecto: this.id_proyecto
             },
             success: function(res,params){
                 var response = Ext.decode(res.responseText).datos;
-                console.log('resp AAA',response);
-
                 var recTotal1 = this.definirRecordTotales('TOTAL x CC',response[0], -1),
                     recTotal2 = this.definirRecordTotales('UTILIZADO x CC',response[1], -2),
                     recTotal3 = this.definirRecordSaldo('SALDO x CC',response, -3);
@@ -669,20 +1031,16 @@ Ext.define('Phx.vista.ProyectoActivo', {
                 this.storeGrid.add(recTotal2);
                 this.storeGrid.add(recTotal3);
                 this.storeGrid.commitChanges();
-
+                Phx.CP.loadingHide();
             },
             argument: this.argumentSave,
             failure: Phx.CP.conexionFailure,
             timeout: this.timeout,
             scope: this
         });
-
-
-
-        
     },
     definirRecordTotales: function(label, rec, index){
-         //Carga de registro para el total
+        //Carga de registro para el total
         var objTotal={}
         objTotal.observaciones = label;
         objTotal.desc_clasificacion = '';
@@ -702,7 +1060,23 @@ Ext.define('Phx.vista.ProyectoActivo', {
         },this);
         objTotal.id_proyecto_activo = index;
         objTotal.costo = rec[0]['total']-rec[1]['total'];
-        return new Ext.data.Record(objTotal,label.toLowerCase()+index);  
+        return new Ext.data.Record(objTotal,label.toLowerCase()+index);
+    },
+    SubirArchivo: function(rec)
+    {
+        Phx.CP.loadWindows
+        (
+            '../../../sis_contabilidad/vista/int_transaccion/SubirArchivoTran.php',
+            'Subir Transacciones desde Excel',
+            {
+                modal: true,
+                width: 450,
+                height: 150
+            },
+            this.maestro,
+            this.idContenedor,
+            'SubirArchivoTran'
+        );
     }
 
 });

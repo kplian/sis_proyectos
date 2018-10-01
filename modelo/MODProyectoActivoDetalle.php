@@ -8,21 +8,21 @@
 */
 
 class MODProyectoActivoDetalle extends MODbase{
-	
+
 	function __construct(CTParametro $pParam){
 		parent::__construct($pParam);
 	}
-			
+
 	function listarProyectoActivoDetalle(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='pro.ft_proyecto_activo_detalle_sel';
 		$this->transaccion='PRO_PRACDE_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+
 		//Definicion de la lista del resultado del query
 		$this->captura('id_proyecto_activo_detalle','int4');
 		$this->captura('id_proyecto_activo','int4');
-		$this->captura('id_comprobante','int4');
+		//$this->captura('id_comprobante','int4');
 		$this->captura('nro_cuenta','varchar');
 		$this->captura('id_tipo_cc','int4');
 		$this->captura('porcentaje','numeric');
@@ -38,33 +38,36 @@ class MODProyectoActivoDetalle extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('desc_cuenta','text');
-		$this->captura('fecha','date');
-		$this->captura('nro_tramite','varchar');
-		$this->captura('glosa1','varchar');
-		
+		//$this->captura('fecha','date');
+		//$this->captura('nro_tramite','varchar');
+		//$this->captura('glosa1','varchar');
+		$this->captura('codigo_partida','varchar');
+		$this->captura('desc_partida','text');
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function insertarProyectoActivoDetalle(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='pro.ft_proyecto_activo_detalle_ime';
 		$this->transaccion='PRO_PRACDE_INS';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_proyecto_activo','id_proyecto_activo','int4');
-		$this->setParametro('id_comprobante','id_comprobante','int4');
+		//$this->setParametro('id_comprobante','id_comprobante','int4');
 		$this->setParametro('nro_cuenta','nro_cuenta','varchar');
 		$this->setParametro('id_tipo_cc','id_tipo_cc','int4');
 		$this->setParametro('porcentaje','porcentaje','numeric');
 		$this->setParametro('observaciones','observaciones','varchar');
 		$this->setParametro('monto','monto','numeric');
 		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('codigo_partida','codigo_partida','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -73,23 +76,24 @@ class MODProyectoActivoDetalle extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function modificarProyectoActivoDetalle(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='pro.ft_proyecto_activo_detalle_ime';
 		$this->transaccion='PRO_PRACDE_MOD';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_proyecto_activo_detalle','id_proyecto_activo_detalle','int4');
 		$this->setParametro('id_proyecto_activo','id_proyecto_activo','int4');
-		$this->setParametro('id_comprobante','id_comprobante','int4');
+		//$this->setParametro('id_comprobante','id_comprobante','int4');
 		$this->setParametro('nro_cuenta','nro_cuenta','varchar');
 		$this->setParametro('id_tipo_cc','id_tipo_cc','int4');
 		$this->setParametro('porcentaje','porcentaje','numeric');
 		$this->setParametro('observaciones','observaciones','varchar');
 		$this->setParametro('monto','monto','numeric');
 		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('codigo_partida','codigo_partida','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -98,13 +102,13 @@ class MODProyectoActivoDetalle extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function eliminarProyectoActivoDetalle(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='pro.ft_proyecto_activo_detalle_ime';
 		$this->transaccion='PRO_PRACDE_ELI';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_proyecto_activo_detalle','id_proyecto_activo_detalle','int4');
 
@@ -121,7 +125,7 @@ class MODProyectoActivoDetalle extends MODbase{
 		$this->procedimiento='pro.ft_proyecto_activo_detalle_ime';
 		$this->transaccion='PRO_CUESAL_LIS';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_tipo_cc','id_tipo_cc','int4');
 		$this->setParametro('nro_cuenta','nro_cuenta','varchar');
@@ -136,6 +140,25 @@ class MODProyectoActivoDetalle extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
+	function ImportarCierreValoradoDet(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='pro.ft_proyecto_activo_detalle_ime';
+		$this->transaccion='PRO_PRACDE_IMP';
+		$this->tipo_procedimiento='IME';
+
+		//Define los parametros para la funcion
+		$this->setParametro('id_proyecto_activo','id_proyecto_activo','int4');
+		$this->setParametro('centro_costo','centro_costo','varchar');
+		$this->setParametro('monto','monto','numeric');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
 }
 ?>

@@ -16,6 +16,12 @@ class ACTFaseConceptoIngas extends ACTbase{
 		if($this->objParam->getParametro('id_fase')!=''){
 			$this->objParam->addFiltro("facoing.id_fase = ".$this->objParam->getParametro('id_fase'));
 		}
+		if($this->objParam->getParametro('id_proyecto')!=''){
+			$this->objParam->addFiltro("fase.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
+		}
+		if($this->objParam->getParametro('tipo')!=''){
+			$this->objParam->addFiltro("cig.tipo = ''".$this->objParam->getParametro('tipo')."''");
+		}
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);

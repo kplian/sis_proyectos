@@ -15,25 +15,28 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 		this.maestro=config;
 		Phx.vista.Fase.superclass.constructor.call(this,config);
 
-		//Valores del padre
+		//Valores del padre/
+		
 		this.Atributos[1].valorInicial=this.maestro.id_proyecto;
-		Ext.apply(this.loaderTree.baseParams,{
-			id_proyecto: this.maestro.id_proyecto_ep,
-			id_proy: this.maestro.id_proyecto,
-			codigo: this.maestro.codigo_proyecto
+        console.log(this.maestro.id_proyecto);
+		/*Ext.apply(this.loaderTree.baseParams,{
+			id_tipo_cc: this.maestro.id_tipo_cc
 		});
+*/
 		this.init();
 
 		//Botón para abrir los conceptos de gasto
+		/*
 		this.addButton('btnConceptoIngas', {
 			text: 'Servicios/Bienes',
 			iconCls: 'bexecdb',
 			disabled: true,
 			handler: this.openConceptoIngas,
 			tooltip: '<b>Fases del Proyecto</b><br>Interfaz para el registro de las fases que componen al proyecto'
-		});
+		});*/
 	},
-			
+	
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -43,7 +46,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 					name: 'id_fase'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -52,7 +55,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 					name: 'id_proyecto'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -61,7 +64,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 					name: 'id_fase_fk'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -70,13 +73,13 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 					name: 'id_tipo_cc'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
 				name: 'codigo',
 				fieldLabel: 'Código',
-				allowBlank: true,
+				allowBlank: false,
 				anchor: '80%',
 				gwidth: 200,
 				maxLength:20
@@ -139,7 +142,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 			type:'DateField',
@@ -155,7 +158,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 			type:'DateField',
@@ -186,7 +189,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 			type: 'DateField',
@@ -202,7 +205,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				format: 'd/m/Y', 
+				format: 'd/m/Y',
 				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 			type: 'DateField',
@@ -290,7 +293,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 			type:'DateField',
@@ -336,7 +339,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 			type:'DateField',
@@ -346,17 +349,18 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 			form:false
 		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Fase',
 	ActSave:'../../sis_proyectos/control/Fase/insertarFase',
 	ActDel:'../../sis_proyectos/control/Fase/eliminarFase',
-	ActList:'../../sis_proyectos/control/Fase/listarTipoCcArb',
+	ActList:'../../sis_proyectos/control/Fase/listarFasesArb',
 	id_store:'id_fase',
 	textRoot:'Fases',
     id_nodo:'id_fase',
     id_nodo_p:'id_fase_fk',
 
 	fields: [
+		{name:'id', type: 'numeric'},
 		{name:'id_fase', type: 'numeric'},
 		{name:'id_proyecto', type: 'numeric'},
 		{name:'id_fase_fk', type: 'numeric'},
@@ -401,8 +405,10 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 		this.Cmp.id_tipo_cc.setValue(this.maestro.id_tipo_cc);
 	},
 	onBeforeLoad: function(treeLoader, node){
+		console.log('qqq',this.id_nodo,node.attributes[this.id_nodo]);
 		treeLoader.baseParams[this.id_nodo] = node.attributes[this.id_nodo];
-		treeLoader.baseParams.id_ep = node.attributes.id_ep;
+		//treeLoader.baseParams.id_tipo_cc = this.maestro.id_tipo_cc;
+		treeLoader.baseParams.id_proyecto = this.maestro.id_proyecto;
 	},
 	preparaMenu: function(n) {
 		var tb = Phx.vista.Fase.superclass.preparaMenu.call(this);
@@ -412,9 +418,9 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 		if(selectedNode&&selectedNode.attributes&&selectedNode.attributes.id_ep){
 			this.getBoton('edit').disable();
 		    this.getBoton('del').disable();
-		    this.getBoton('btnConceptoIngas').disable(); 
+		    //this.getBoton('btnConceptoIngas').disable();
 		} else {
-			this.getBoton('btnConceptoIngas').enable(); 
+			//this.getBoton('btnConceptoIngas').enable();
 		}
 
 		return tb;
@@ -431,8 +437,15 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 			this.idContenedor,
 			'FaseConceptoIngas'
 		);
-	}
+	},
+		 tabeast: [{
+		 url:'../../../sis_proyectos/vista/fase_concepto_ingas/FaseConceptoIngas.php',
+          title:'Bienes/Servicios', 
+          width:'40%',
+          height:'50%',
+          cls:'FaseConceptoIngas'
+	}], 
 })
 </script>
-		
-		
+
+
