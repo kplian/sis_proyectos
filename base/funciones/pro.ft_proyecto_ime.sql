@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "pro"."ft_proyecto_ime" (
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION pro.ft_proyecto_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Proyectos
  FUNCION: 		pro.ft_proyecto_ime
@@ -45,6 +48,7 @@ DECLARE
     v_id_funcionario		integer;
     v_id_usuario_reg 		integer;
     v_id_estado_wf_ant		integer;
+    v_resp_af				varchar;
 
 BEGIN
 
@@ -220,6 +224,14 @@ BEGIN
 				v_obs=v_parametros.obs;
 			else
 				v_obs='---';
+			end if;
+
+			--Acciones por estado anterior que podrian realizarse
+			if v_codigo_estado in ('af') then
+				--Obtención del valor por actualización AITB de gestiones pasadas en moneda BOLIVIANOS
+				v_resp_af = pro.f_i_conta_incrementar_aitb(p_id_usuario, v_parametros.id_proyecto);
+				--Generación de los activos fijos en el sistema de activos fijos
+				v_resp_af = pro.f_i_kaf_registrar_activos(p_id_usuario, v_parametros.id_proyecto);
 			end if;
 
 			--Acciones por estado siguiente que podrian realizarse
@@ -440,7 +452,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "pro"."ft_proyecto_ime"(integer, integer, character varying, character varying) OWNER TO postgres;

@@ -187,12 +187,13 @@ BEGIN
 						desc_grupo_clasif varchar,
 						desc_unmed varchar,
 
-    					costo numeric
+    					costo numeric,
+    					codigo varchar
     			';
 
     		--Nombres de las columnas
     		v_nombres_col = 'id_proyecto, id_proyecto_activo, id_clasificacion, denominacion, descripcion, observaciones, desc_clasificacion, cantidad_det, id_depto, estado, id_lugar, ubicacion, id_centro_costo, id_ubicacion, id_grupo, id_grupo_clasif, nro_serie, marca, fecha_ini_dep, vida_util_anios, id_unidad_medida, codigo_af_rel,
-desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, desc_unmed, costo';
+desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, desc_unmed, costo, codigo';
 
     		--Obtención del id_tipo_cc
     		select id_tipo_cc
@@ -226,7 +227,7 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
                         where id_proyecto = v_parametros.id_proyecto
                         order by 1) loop
 
-                v_columnas = v_columnas || ', cc_'||v_rec.id_tipo_cc::varchar || ' numeric(18,2)';
+                v_columnas = v_columnas || ', cc_'||v_rec.id_tipo_cc::varchar || ' numeric';
                 v_nombres_col = v_nombres_col || ', cc_'||v_rec.id_tipo_cc::varchar;
 
             end loop;
@@ -265,7 +266,8 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 				desc_ubicacion,
 				desc_grupo,
 				desc_grupo_clasif,
-				desc_unmed
+				desc_unmed,
+				codigo
     		)
     		select
     		pa.id_proyecto, pa.id_proyecto_activo, pa.id_clasificacion, pa.denominacion, pa.descripcion, pa.observaciones,
@@ -292,8 +294,8 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 			ubi.codigo as desc_ubicacion,
 			(gru.codigo || ' - ' || gru.nombre)::varchar as desc_grupo,
 			(gruc.codigo || ' - ' || gruc.nombre)::varchar as desc_grupo_clasif,
-			um.codigo as desc_unmed
-
+			um.codigo as desc_unmed,
+			af.codigo
     		from pro.tproyecto_activo pa
     		left join kaf.tclasificacion cla
     		on cla.id_clasificacion = pa.id_clasificacion
@@ -309,6 +311,7 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
     		on gruc.id_grupo = pa.id_grupo_clasif
     		left join param.tunidad_medida um
     		on um.id_unidad_medida = pa.id_unidad_medida
+    		left join kaf.tactivo_fijo af on af.id_activo_fijo = pa.id_activo_fijo
     		where pa.id_proyecto = v_parametros.id_proyecto;
 
     		--Update para el costo total del activo
@@ -532,7 +535,7 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 						    where tcc.id_tipo_cc_fk = t.id
 						)
 						select
-						ran.id_tipo_cc, sum(ran.debe_mb) as total
+						ran.id_tipo_cc, sum(ran.debe_mt) as total
 						from t
 						inner join param.vcentro_costo cc
 						on cc.id_tipo_cc = t.id
@@ -541,7 +544,7 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 						group by ran.id_tipo_cc
 						order by ran.id_tipo_cc) loop*/
 
-			for v_rec in (select ran.id_tipo_cc, sum(ran.debe_mb) as total
+			/*for v_rec in (select ran.id_tipo_cc, sum(ran.debe_mt) as total
             			from pro.tproyecto_columna_tcc t
             			inner join param.vcentro_costo cc
 						on cc.id_tipo_cc = t.id_tipo_cc
@@ -550,6 +553,32 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 	                    where t.id_proyecto = v_parametros.id_proyecto
                         group by ran.id_tipo_cc
 						order by ran.id_tipo_cc
+						) loop*/
+
+			for v_rec in (SELECT
+						tcc1.id_tipo_cc,
+						tcc1.codigo,
+						sum(tr.importe_debe_mt) - sum(tr.importe_haber_mt) AS total
+						FROM pro.tproyecto py
+						INNER JOIN pro.tproyecto_columna_tcc ctcc
+						on ctcc.id_proyecto = py.id_proyecto
+						JOIN param.ttipo_cc tcc ON tcc.id_tipo_cc = ctcc.id_tipo_cc
+						JOIN param.ttipo_cc tcc1 ON tcc1.codigo::text ~~(tcc.codigo::text || '%'
+						::text)
+						JOIN param.tcentro_costo cc ON cc.id_tipo_cc = tcc1.id_tipo_cc
+						JOIN conta.tint_transaccion tr ON tr.id_centro_costo = cc.id_centro_costo
+						JOIN conta.tint_comprobante cbte ON cbte.id_int_comprobante =
+						tr.id_int_comprobante AND cbte.estado_reg::text = 'validado'::text AND
+						cbte.fecha <= py.fecha_fin
+						and (cbte.id_int_comprobante <> py.id_int_comprobante_1 and cbte.id_int_comprobante <> py.id_int_comprobante_2 and cbte.id_int_comprobante <> py.id_int_comprobante_3)
+						JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
+						WHERE NOT (tr.id_cuenta IN (
+							SELECT tcuenta_excluir.id_cuenta
+							FROM pro.tcuenta_excluir
+						))
+						and py.id_proyecto = v_parametros.id_proyecto
+						group by tcc1.id_tipo_cc,tcc1.codigo
+						order by tcc1.id_tipo_cc
 						) loop
 
 				v_consulta = v_consulta || ',cc_'||v_rec.id_tipo_cc::varchar;
@@ -564,22 +593,26 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 			--Update al total consolidado CC
 			update tt_proyecto_cc_tot set
 			total = (
-						with recursive t(id,id_fk,nombre,n) as (
-						    select tcc.id_tipo_cc, tcc.id_tipo_cc_fk, tcc.codigo, 1
-						    from param.ttipo_cc tcc
-						    where tcc.id_tipo_cc = v_id_tipo_cc
-						    union all
-						    select tcc.id_tipo_cc, tcc.id_tipo_cc_fk, tcc.codigo, n+1
-						    from param.ttipo_cc tcc, t
-						    where tcc.id_tipo_cc_fk = t.id
-						)
-						select
-						sum(ran.debe_mb) - sum(ran.haber_mb) as total
-						from t
-						inner join param.vcentro_costo cc
-						on cc.id_tipo_cc = t.id
-						inner join conta.trango ran
-						on ran.id_tipo_cc = cc.id_tipo_cc
+						SELECT
+						sum(tr.importe_debe_mt) - sum(tr.importe_haber_mt) AS total
+						FROM pro.tproyecto py
+						INNER JOIN pro.tproyecto_columna_tcc ctcc
+						on ctcc.id_proyecto = py.id_proyecto
+						JOIN param.ttipo_cc tcc ON tcc.id_tipo_cc = ctcc.id_tipo_cc
+						JOIN param.ttipo_cc tcc1 ON tcc1.codigo::text ~~(tcc.codigo::text || '%'
+						::text)
+						JOIN param.tcentro_costo cc ON cc.id_tipo_cc = tcc1.id_tipo_cc
+						JOIN conta.tint_transaccion tr ON tr.id_centro_costo = cc.id_centro_costo
+						JOIN conta.tint_comprobante cbte ON cbte.id_int_comprobante =
+						tr.id_int_comprobante AND cbte.estado_reg::text = 'validado'::text AND
+						cbte.fecha <= py.fecha_fin
+						and (cbte.id_int_comprobante <> py.id_int_comprobante_1 and cbte.id_int_comprobante <> py.id_int_comprobante_2 and cbte.id_int_comprobante <> py.id_int_comprobante_3)
+						JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
+						WHERE NOT (tr.id_cuenta IN (
+							SELECT tcuenta_excluir.id_cuenta
+							FROM pro.tcuenta_excluir
+						))
+						and py.id_proyecto = v_parametros.id_proyecto
 					)
 			where id_proyecto_activo = -1;
 

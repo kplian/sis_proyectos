@@ -58,6 +58,7 @@ class MODProyectoActivo extends MODbase{
 		$this->captura('id_unidad_medida','integer');
 		$this->captura('codigo_af_rel','varchar');
 		$this->captura('desc_unmed','varchar');
+		$this->captura('codigo','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -200,6 +201,7 @@ class MODProyectoActivo extends MODbase{
 		$this->captura('desc_unmed', 'varchar');
 
 		$this->captura('costo','numeric');
+		$this->captura('codigo', 'varchar');
 
 		//Definicion de la lista dinámica de columnas
 		$col_arrays = $this->objParam->getParametro('columnas_dinamicas');

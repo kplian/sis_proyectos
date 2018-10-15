@@ -34,6 +34,7 @@ DECLARE
     v_rec                           record;
     v_id_int_comprobante            integer;
     v_plantilla_cbte                varchar[];
+    v_id_int_comprobante4           integer;
 
 
 BEGIN
@@ -43,6 +44,7 @@ BEGIN
     v_plantilla_cbte[0] = 'PRO-CIE1';
     v_plantilla_cbte[1] = 'PRO-CIE2';
     v_plantilla_cbte[2] = 'PRO-CIE3';
+    v_plantilla_cbte[3] = 'PRO-CIE4';
 
     ---------------------
     --Obtención de datos
@@ -95,11 +97,13 @@ BEGIN
         id_int_comprobante_1 = v_id_int_comprobante
         where id_proceso_wf_cierre = p_id_proceso_wf;
 
-        /*--Genera el comprobante 2
+
+
+        --Genera el comprobante 2
         v_id_int_comprobante = conta.f_gen_comprobante
                                 (
                                     v_rec.id_proyecto,
-                                    v_plantilla_cbte[0],
+                                    v_plantilla_cbte[1],
                                     p_id_estado_wf,
                                     p_id_usuario,
                                     p_id_usuario_ai,
@@ -111,11 +115,28 @@ BEGIN
         id_int_comprobante_2 = v_id_int_comprobante
         where id_proceso_wf_cierre = p_id_proceso_wf;
 
+        update conta.tint_comprobante set
+        cbte_aitb = 'si'
+        where id_int_comprobante = id_int_comprobante;
+
+        --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
+        update conta.tint_transaccion set
+        importe_debe_mt = 0,
+        importe_haber_mt = 0,
+        importe_recurso_mt = 0,
+        importe_gasto_mt = 0,
+        importe_debe_ma = 0,
+        importe_haber_ma = 0,
+        importe_recurso_ma = 0,
+        importe_gasto_ma = 0,
+        actualizacion = 'si'
+        where id_int_comprobante = v_id_int_comprobante;
+
         --Genera el comprobante 3
         v_id_int_comprobante = conta.f_gen_comprobante
                                 (
                                     v_rec.id_proyecto,
-                                    v_plantilla_cbte[0],
+                                    v_plantilla_cbte[2],
                                     p_id_estado_wf,
                                     p_id_usuario,
                                     p_id_usuario_ai,
@@ -125,7 +146,57 @@ BEGIN
         --Actualización del Id del comprobante
         update pro.tproyecto set
         id_int_comprobante_3 = v_id_int_comprobante
-        where id_proceso_wf_cierre = p_id_proceso_wf;*/
+        where id_proceso_wf_cierre = p_id_proceso_wf;
+
+        update conta.tint_comprobante set
+        cbte_aitb = 'si'
+        where id_int_comprobante = id_int_comprobante;
+
+        --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
+        update conta.tint_transaccion set
+        importe_debe_mt = 0,
+        importe_haber_mt = 0,
+        importe_recurso_mt = 0,
+        importe_gasto_mt = 0,
+        importe_debe_ma = 0,
+        importe_haber_ma = 0,
+        importe_recurso_ma = 0,
+        importe_gasto_ma = 0,
+        actualizacion = 'si'
+        where id_int_comprobante = v_id_int_comprobante;
+
+        --Genera el comprobante 4 (comprobante temporal que sus transacciones se unen al comprobante 3 y luego este comprobante es eliminado. Esto porque el generador no permite elegir sólo que genere en Bs y UFV)
+        v_id_int_comprobante4 = conta.f_gen_comprobante
+                                (
+                                    v_rec.id_proyecto,
+                                    v_plantilla_cbte[3],
+                                    p_id_estado_wf,
+                                    p_id_usuario,
+                                    p_id_usuario_ai,
+                                    p_usuario_ai
+                                );
+
+
+        --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
+        update conta.tint_transaccion set
+        importe_debe_mt = 0,
+        importe_haber_mt = 0,
+        importe_recurso_mt = 0,
+        importe_gasto_mt = 0,
+        importe_debe_mb = 0,
+        importe_haber_mb = 0,
+        importe_recurso_mb = 0,
+        importe_gasto_mb = 0,
+        actualizacion = 'si'
+        where id_int_comprobante = v_id_int_comprobante4;
+
+        --Une las transacciones al comprobante 3
+        update conta.tint_transaccion set
+        id_int_comprobante = v_id_int_comprobante
+        where id_int_comprobante = v_id_int_comprobante4;
+
+        --Eliminación del comprobante 4
+        delete from conta.tint_comprobante where id_int_comprobante = v_id_int_comprobante4;
 
     elsif p_codigo_estado = 'finalizado' then
 

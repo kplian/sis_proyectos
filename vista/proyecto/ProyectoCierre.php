@@ -508,8 +508,8 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
         Phx.CP.loadWindows('../../../sis_proyectos/vista/proyecto_activo/ProyectoActivo.php',
             'Proyecto: '+data.data.codigo+' '+data.data.nombre,
             {
-                width:'50%',
-                height:'85%'
+                width:'90%',
+                height:'90%'
             },
             data,
             this.idContenedor,

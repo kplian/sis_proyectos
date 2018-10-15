@@ -38,12 +38,44 @@ DECLARE
     v_codigo_estado         varchar;
     v_id_estado_wf_ant      integer;
     v_reg_cbte              record;
+    v_id_proyecto           integer;
+    v_cbte                  varchar;
 
 BEGIN
 
     v_nombre_funcion = 'pro.f_gestionar_cbte_proyecto_cierre_eliminacion';
 
-    --1) Obtención de datos
+    ---------------------------------------------------------
+    -- Identificación del comprobante que se quiere eliminar
+    ---------------------------------------------------------
+    select 'uno'::varchar, id_proyecto
+    into v_cbte, v_id_proyecto
+    from pro.tproyecto
+    where id_int_comprobante_1 = p_id_int_comprobante;
+
+    if v_id_proyecto is null then
+        select 'dos'::varchar, id_proyecto
+        into v_cbte, v_id_proyecto
+        from pro.tproyecto
+        where id_int_comprobante_2 = p_id_int_comprobante;
+    end if;
+
+    if v_id_proyecto is null then
+        select 'tres'::varchar, id_proyecto
+        into v_cbte, v_id_proyecto
+        from pro.tproyecto
+        where id_int_comprobante_3 = p_id_int_comprobante;
+    end if;
+
+    --Si no encuentra el proyecto se la nza una excepción
+    if v_id_proyecto is null then
+        raise exception 'El comprobante no está relacionado a ningún Cierre de Proyecto';
+    end if;
+
+
+    ------------------------
+    -- Obtención de datos
+    ------------------------
     select
     p.id_proyecto,
     p.id_estado_wf_cierre,
@@ -51,30 +83,72 @@ BEGIN
     p.estado_cierre,
     p.nro_tramite_cierre,
     p.id_int_comprobante_1,
+    p.id_int_comprobante_2,
+    p.id_int_comprobante_3,
     c.estado_reg as estado_cbte
     into
     v_registros
     from pro.tproyecto p
-    inner join conta.tint_comprobante c on c.id_int_comprobante = p.id_int_comprobante_1
-    where p.id_int_comprobante_1 = p_id_int_comprobante;
+    inner join conta.tint_comprobante c
+    on c.id_int_comprobante = p.id_int_comprobante_1
+    where p.id_proyecto = v_id_proyecto;
 
-    --2) Validar que tenga una cuenta documentada
-    IF v_registros.id_proyecto is NULL  THEN
-        raise exception 'El comprobante no está relacionado a ningún proyecto';
-    END IF;
+    -----------------------------------------------------------------
+    -- Verifica que ninguno de los 3 comprobantes no estén validados
+    -----------------------------------------------------------------
+    if exists(select 1 from conta.tint_comprobante
+              where (id_int_comprobante = v_registros.id_int_comprobante_1 and estado_reg = 'validado')
+              or (id_int_comprobante = v_registros.id_int_comprobante_2 and estado_reg = 'validado')
+              or (id_int_comprobante = v_registros.id_int_comprobante_3 and estado_reg = 'validado')) then
 
-    --3) Cambio de estado
-    select
-    ic.estado_reg
-    INTO
-    v_reg_cbte
-    from conta.tint_comprobante ic
-    where ic.id_int_comprobante = p_id_int_comprobante;
+        raise exception 'No puede eliminarse el comprobante, alguno de los comprobantes generados ya fue validado';
 
-    IF v_reg_cbte.estado_reg = 'validado' THEN
-        raise exception 'El comprobante no puede ser eliminado por estar Validado';
-    END IF;
+    end if;
 
+    -----------------------------------
+    -- Eliminación de los comprobantes
+    -----------------------------------
+   --4) Elimina los otros comprobantes generados por la depreciación
+    if v_cbte != 'uno' and coalesce(v_registros.id_int_comprobante_1,0)<>0 then
+        perform conta.f_cambia_estado_wf_cbte(p_id_usuario, p_id_usuario_ai, p_usuario_ai, v_registros.id_int_comprobante_1, 'eliminado', 'Cbte eliminado');
+
+        --Eliminación de las transacciones
+        delete from conta.tint_transaccion
+        where id_int_comprobante=v_registros.id_int_comprobante_1;
+
+        --Eliminación del comprobante
+        delete from conta.tint_comprobante
+        where id_int_comprobante=v_registros.id_int_comprobante_1;
+
+    end if;
+    if v_cbte != 'dos' and coalesce(v_registros.id_int_comprobante_2,0)<>0 then
+        perform conta.f_cambia_estado_wf_cbte(p_id_usuario, p_id_usuario_ai, p_usuario_ai, v_registros.id_int_comprobante_2, 'eliminado', 'Cbte eliminado');
+
+        --Eliminación de las transacciones
+        delete from conta.tint_transaccion
+        where id_int_comprobante=v_registros.id_int_comprobante_2;
+
+        --Eliminación del comprobante
+        delete from conta.tint_comprobante
+        where id_int_comprobante=v_registros.id_int_comprobante_2;
+
+    end if;
+    if v_cbte != 'tres' and coalesce(v_registros.id_int_comprobante_3,0)<>0 then
+        perform conta.f_cambia_estado_wf_cbte(p_id_usuario, p_id_usuario_ai, p_usuario_ai, v_registros.id_int_comprobante_3, 'eliminado', 'Cbte eliminado');
+
+        --Eliminación de las transacciones
+        delete from conta.tint_transaccion
+        where id_int_comprobante=v_registros.id_int_comprobante_3;
+
+        --Eliminación del comprobante
+        delete from conta.tint_comprobante
+        where id_int_comprobante=v_registros.id_int_comprobante_3;
+
+    end if;
+
+    ----------------------------------------------
+    -- Cambio del estado del cierre del proyecto
+    ----------------------------------------------
     --Recupera estado anterior segun Log del WF
     SELECT
         ps_id_tipo_estado,
@@ -111,21 +185,23 @@ BEGIN
                             p_id_usuario_ai,
                             p_usuario_ai,
                             v_id_depto,
-                            'Eliminación del comprobante: '|| COALESCE(v_registros.id_int_comprobante_1::varchar,'NaN')
+                            'Eliminación de comprobantes: '|| COALESCE(v_registros.id_int_comprobante_1::varchar,'NaN')||', '|| COALESCE(v_registros.id_int_comprobante_2::varchar,'NaN')||', '|| COALESCE(v_registros.id_int_comprobante_3::varchar,'NaN')
                         );
 
     --Actualiza estado de la solicitud
     update pro.tproyecto set
-    id_estado_wf_cierre = v_id_estado_actual,
-    estado_cierre       = v_codigo_estado,
-    id_usuario_mod      = p_id_usuario,
-    fecha_mod           = now(),
-    id_int_comprobante_1= NULL,
-    id_usuario_ai       = p_id_usuario_ai,
-    usuario_ai          = p_usuario_ai
+    id_estado_wf_cierre  = v_id_estado_actual,
+    estado_cierre        = v_codigo_estado,
+    id_usuario_mod       = p_id_usuario,
+    fecha_mod            = now(),
+    id_int_comprobante_1 = NULL,
+    id_int_comprobante_2 = NULL,
+    id_int_comprobante_3 = NULL,
+    id_usuario_ai        = p_id_usuario_ai,
+    usuario_ai           = p_usuario_ai
     where id_proyecto = v_registros.id_proyecto;
 
-    RETURN  TRUE;
+    return true;
 
 EXCEPTION
 

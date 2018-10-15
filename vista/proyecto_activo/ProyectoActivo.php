@@ -141,6 +141,12 @@ Ext.define('Phx.vista.ProyectoActivo', {
 
         //Columnas por defecto
         _cols.push(new Ext.grid.RowNumberer());
+        _cols.push({header: 'Código AF', dataIndex: 'codigo',renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo>0){
+                metadata.style="background-color:"+col1;
+            }
+            return value;
+        }});
         _cols.push({header: 'Denominación', dataIndex: 'denominacion',renderer: function(value,metadata,rec,index){
             if(rec.data.id_proyecto_activo>0){
                 metadata.style="background-color:"+col1;
@@ -177,7 +183,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
                     metadata.style='text-align: right;';
                 }
             }
-            return String.format('<b >{0}</b>', Ext.util.Format.number(value,'0,000.00'));
+            return String.format('<b >{0}</b>', Ext.util.Format.number(value,'0,000.000000'));
         }});
 
         //Fields para el store
@@ -213,6 +219,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this._colsData.push({name:'id_unidad_medida', type: 'numeric'});
         this._colsData.push({name:'codigo_af_rel', type: 'string'});
         this._colsData.push({name:'desc_unmed', type: 'string'});
+        this._colsData.push({name:'codigo', type: 'string'});
 
         //Inicializa los valores del array para mapeo de Ids
         for (var i=0; i<=5; i++) {
@@ -227,7 +234,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
                 } else {
                     metadata.style='text-align: right;';
                 }
-                return Ext.util.Format.number(value,'0,000.00');
+                return Ext.util.Format.number(value,'0,000.000000');
             }});
             this._colsData.push({name: 'cc_'+a.id_tipo_cc, type:'numeric'});
 
@@ -277,6 +284,13 @@ Ext.define('Phx.vista.ProyectoActivo', {
             handler: this.onButtonAct,
             scope: this
         });
+        this.tbBtnDet = new Ext.Button({
+            iconCls: 'new',
+            tooltip: '<b>Incremento Actualización</b>',
+            text: 'Inc.Act.',
+            handler: this.onButtonDet,
+            scope: this
+        });
 
         /*this.tbBtnImp = new Ext.Button({
             iconCls: 'bact',
@@ -294,7 +308,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
                minWidth: 50,
                boxMinWidth: 50
             },
-            items: [this.tbBtnNew,this.tbBtnEdit,this.tbBtnDel,this.tbBtnAct]
+            items: [this.tbBtnNew,this.tbBtnEdit,this.tbBtnDel,this.tbBtnAct,this.tbBtnDet]
         });
 
         //Store para el grid
@@ -1023,8 +1037,8 @@ Ext.define('Phx.vista.ProyectoActivo', {
             },
             success: function(res,params){
                 var response = Ext.decode(res.responseText).datos;
-                var recTotal1 = this.definirRecordTotales('TOTAL x CC',response[0], -1),
-                    recTotal2 = this.definirRecordTotales('UTILIZADO x CC',response[1], -2),
+                var recTotal1 = this.definirRecordTotales('MAYOR x CC',response[0], -1),
+                    recTotal2 = this.definirRecordTotales('CIERRE x CC',response[1], -2),
                     recTotal3 = this.definirRecordSaldo('SALDO x CC',response, -3);
 
                 this.storeGrid.add(recTotal1);
@@ -1052,6 +1066,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         return new Ext.data.Record(objTotal,label.toLowerCase()+index);
     },
     definirRecordSaldo: function(label,rec,index){
+        console.log('def',index,rec)
         var objTotal={}
         objTotal.observaciones = label;
         objTotal.desc_clasificacion = '';
@@ -1077,6 +1092,20 @@ Ext.define('Phx.vista.ProyectoActivo', {
             this.idContenedor,
             'SubirArchivoTran'
         );
+    },
+
+    onButtonDet: function(){
+        var data=this.gridCierre.getSelectionModel().getSelected().data;
+        Phx.CP.loadWindows('../../../sis_proyectos/vista/proyecto_activo_det_mon/ProyectoActivoDetMon.php',
+            'Incrementro por Actualización ',
+            {
+                width:'90%',
+                height:'90%'
+            },
+            data,
+            this.idContenedor,
+            'ProyectoActivoDetMon'
+        )
     }
 
 });
