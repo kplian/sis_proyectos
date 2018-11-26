@@ -234,3 +234,26 @@ from pro.tproyecto proy
 inner join param.vtipo_cc tcc
 on tcc.id_tipo_cc = proy.id_tipo_cc;
 /***********************************F-DEP-RCM-PRO-1-25/09/2018****************************************/
+
+/***********************************I-DEP-EGS-PRO-0-26/11/2018****************************************/
+
+select wf.f_import_ttipo_documento_estado ('insert','AVFIS','PPY','nuevo','PPY','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','CRONO','PPY','nuevo','PPY','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','DIAUN','PPY','nuevo','PPY','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','NOR30','PPY','nuevo','PPY','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','PRESU','PPY','nuevo','PPY','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','TRALI','PPY','nuevo','PPY','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','RESEJ','PPY','nuevo','PPY','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','PREPT','PPY','nuevo','PPY','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('delete','TRALI','PPY','ejecucion','PPY',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento_estado ('insert','STEA','PPY','nuevo','PPY','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','LICAM','PPY','ejecucion','PPY','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','NOR11','PPY','finalizado','PPY','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','REPFO','PPY','ejecucion','PPY','crear','superior','');
+
+
+select wf.f_import_ttipo_documento_estado ('insert','AVFISF','PFA','nuevo','PFA','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','CRONOF','PFA','nuevo','PFA','crear','superior','');
+select wf.f_import_ttipo_documento_estado ('insert','PREPTF','PFA','nuevo','PFA','crear','superior','');
+
+/***********************************F-DEP-EGS-PRO-0-26/11/2018****************************************/

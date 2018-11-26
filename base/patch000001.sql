@@ -81,12 +81,12 @@ create table pro.tproyecto_funcionario (
 /***********************************F-SCP-RCM-PRO-1-31/08/2017****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-28/09/2017****************************************/
-COMMENT ON COLUMN pro.tproyecto.id_proyecto_ep
-IS 'Id del proyecto de la Estructura Programática';
+/*COMMENT ON COLUMN pro.tproyecto.id_proyecto_ep
+IS 'Id del proyecto de la Estructura Programática';*/
 /***********************************F-SCP-RCM-PRO-1-28/09/2017****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-29/09/2017****************************************/
-create table pro.tproyecto_contrato (
+/*create table pro.tproyecto_contrato (
 	id_proyecto_contrato serial,
 	id_proyecto integer,
 	id_proveedor integer,
@@ -102,11 +102,11 @@ create table pro.tproyecto_contrato (
 	monto_total numeric(18,2),
 	pagos varchar(15),
 	constraint pk_tproyecto_contrato__id_proyecto_contrato primary key (id_proyecto_contrato)
-) inherits (pxp.tbase) without oids;
+) inherits (pxp.tbase) without oids;*/
 /***********************************F-SCP-RCM-PRO-1-29/09/2017****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-19/10/2017****************************************/
-ALTER TABLE pro.tproyecto_activo_detalle
+/*ALTER TABLE pro.tproyecto_activo_detalle
   RENAME COLUMN id_centro_costo TO id_tipo_cc;
 
 COMMENT ON COLUMN pro.tproyecto_activo_detalle.id_tipo_cc
@@ -119,17 +119,17 @@ COMMENT ON COLUMN pro.tproyecto_activo_detalle.nro_cuenta
 IS 'Número de la cuenta contable';
 
 ALTER TABLE pro.tproyecto_activo_detalle
-  ALTER COLUMN nro_cuenta TYPE VARCHAR(20);
+  ALTER COLUMN nro_cuenta TYPE VARCHAR(20);*/
 /***********************************F-SCP-RCM-PRO-1-19/10/2017****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-30/10/2017****************************************/
-ALTER TABLE pro.tproyecto_activo_detalle
-  DROP COLUMN num_tramite_origen;
+/*ALTER TABLE pro.tproyecto_activo_detalle
+  DROP COLUMN num_tramite_origen;*/
 /***********************************F-SCP-RCM-PRO-1-30/10/2017****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-15/05/2018****************************************/
 
-ALTER TABLE pro.tproyecto
+/*ALTER TABLE pro.tproyecto
   ADD COLUMN id_moneda INTEGER;
 
 COMMENT ON COLUMN pro.tproyecto.id_moneda
@@ -193,7 +193,7 @@ ALTER TABLE pro.tfase
   ADD COLUMN id_tipo_cc INTEGER;
 
 COMMENT ON COLUMN pro.tfase.id_tipo_cc
-IS 'Tipo de Centro de Costo asociado, definido previamente en el árbol TCC';*/
+IS 'Tipo de Centro de Costo asociado, definido previamente en el árbol TCC';
 
 CREATE TABLE pro.tfase_concepto_ingas (
   id_fase_concepto_ingas SERIAL,
@@ -282,23 +282,23 @@ COMMENT ON COLUMN pro.tinvitacion_solicitud.descripcion
 IS 'Glosa opcional para detallar si la adquisición es segunda o tercera';
 
 COMMENT ON COLUMN pro.tinvitacion_solicitud.id_solicitud
-IS 'Solicitud de compra del sistema de adquisiciones';
+IS 'Solicitud de compra del sistema de adquisiciones';*/
 
 /***********************************F-SCP-RCM-PRO-1-15/05/2018****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-10/08/2018****************************************/
-ALTER TABLE pro.tproyecto
+/*ALTER TABLE pro.tproyecto
   DROP COLUMN id_proyecto_ep;
 
 ALTER TABLE pro.tproyecto
   ADD COLUMN id_tipo_cc INTEGER NOT NULL;
 
 COMMENT ON COLUMN pro.tproyecto.id_tipo_cc
-IS 'Tipo de Centro de Costo';
+IS 'Tipo de Centro de Costo';*/
 /***********************************F-SCP-RCM-PRO-1-10/08/2018****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-15/08/2018****************************************/
-CREATE TABLE pro.tfase_plantilla (
+/*CREATE TABLE pro.tfase_plantilla (
   id_fase_plantilla SERIAL,
   id_fase_plantilla_fk INTEGER,
   id_tipo_cc INTEGER,
@@ -327,11 +327,11 @@ COMMENT ON COLUMN pro.tfase_plantilla.id_tmp
 IS 'Id temporal para armar el árbol a partir de la plantilla';
 
 ALTER TABLE pro.tproyecto
-  ADD COLUMN id_fase_plantilla INTEGER;
+  ADD COLUMN id_fase_plantilla INTEGER;*/
 /***********************************F-SCP-RCM-PRO-1-15/08/2018****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-23/08/2018****************************************/
-ALTER TABLE pro.tproyecto_activo_detalle
+/*ALTER TABLE pro.tproyecto_activo_detalle
   ADD COLUMN codigo_partida VARCHAR(30);
 
 COMMENT ON COLUMN pro.tproyecto_activo_detalle.codigo_partida
@@ -356,12 +356,12 @@ ALTER TABLE pro.tinvitacion_det
   ADD COLUMN precio NUMERIC(18,2);
 
 COMMENT ON COLUMN pro.tinvitacion_det.precio
-IS 'Precio que pueda variar del que se registro en fase concepto ingas';
+IS 'Precio que pueda variar del que se registro en fase concepto ingas';*/
 
 /***********************************F-SCP-RCM-PRO-1-23/08/2018****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-05/09/2018****************************************/
-ALTER TABLE pro.tinvitacion
+/*ALTER TABLE pro.tinvitacion
   ADD COLUMN id_funcionario INTEGER;
 
 COMMENT ON COLUMN pro.tinvitacion.id_funcionario
@@ -401,12 +401,12 @@ COMMENT ON COLUMN pro.tinvitacion_det.descripcion
 IS 'Descripcion detallada del Bien/Servicio a contratar';
 
 ALTER TABLE pro.tinvitacion
-  ADD COLUMN lugar_entrega VARCHAR(255);
+  ADD COLUMN lugar_entrega VARCHAR(255);*/
 
 /***********************************F-SCP-RCM-PRO-1-05/09/2018****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-11/09/2018****************************************/
-ALTER TABLE pro.tinvitacion_det
+/*ALTER TABLE pro.tinvitacion_det
   ADD COLUMN id_fase INTEGER;
 
 ALTER TABLE pro.tinvitacion_det
@@ -486,13 +486,13 @@ ALTER TABLE pro.tproyecto
   ADD COLUMN estado VARCHAR(30);
 
 COMMENT ON COLUMN pro.tproyecto.estado
-IS 'Estado del Proyecto';
+IS 'Estado del Proyecto';*/
 
 /***********************************F-SCP-RCM-PRO-1-11/09/2018****************************************/
 
 
 /***********************************I-SCP-RCM-PRO-1-24/09/2018****************************************/
-ALTER TABLE pro.tproyecto
+/*ALTER TABLE pro.tproyecto
   ADD COLUMN id_int_comprobante_1 integer;
 
 COMMENT ON COLUMN pro.tproyecto.id_int_comprobante_1
@@ -551,16 +551,16 @@ CREATE TABLE pro.tcuenta_excluir (
   PRIMARY KEY(id_cuenta_excluir)
 ) INHERITS (pxp.tbase)
 
-WITH (oids = false);
+WITH (oids = false);*/
 /***********************************F-SCP-RCM-PRO-1-24/09/2018****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-03/10/2018****************************************/
-ALTER TABLE pro.tproyecto_activo
-  ADD COLUMN id_activo_fijo INTEGER;
+/*ALTER TABLE pro.tproyecto_activo
+  ADD COLUMN id_activo_fijo INTEGER;*/
 /***********************************F-SCP-RCM-PRO-1-03/10/2018****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-24/10/2018****************************************/
-ALTER TABLE pro.tfase
+/*ALTER TABLE pro.tfase
   ADD COLUMN id_funcionario INTEGER;
 
 COMMENT ON COLUMN pro.tfase.id_funcionario
@@ -582,11 +582,11 @@ CREATE TABLE pro.tfase_avance_obs (
 WITH (oids = false);
 
 ALTER TABLE pro.tfase_avance_obs
-  ADD CONSTRAINT chk_tfase_avance_obs__tipo CHECK (tipo in ('avance','avance_visual','observacion'));
+  ADD CONSTRAINT chk_tfase_avance_obs__tipo CHECK (tipo in ('avance','avance_visual','observacion'));*/
 /***********************************F-SCP-RCM-PRO-1-24/10/2018****************************************/
 
 /***********************************I-SCP-RCM-PRO-1-20/11/2018****************************************/
-CREATE TABLE pro.tproyecto_fase_archivo (
+/*CREATE TABLE pro.tproyecto_fase_archivo (
   id_proyecto_fase_archivo SERIAL,
   id_proyecto INTEGER NOT NULL,
   id_fase INTEGER NULL,
@@ -600,17 +600,28 @@ ALTER TABLE pro.tfase_concepto_ingas
   ADD COLUMN fecha_estimada DATE;
 
 COMMENT ON COLUMN pro.tfase_concepto_ingas.fecha_estimada
-IS 'Fecha estimada para realizar la invitación para la adquisición';
+IS 'Fecha estimada para realizar la invitación para la adquisición';*/
 /***********************************F-SCP-RCM-PRO-1-20/11/2018****************************************/
 
 
 /***********************************I-SCP-EGS-PRO-0-26/11/2018****************************************/
 
-ALTER TABLE pro.tfase
+/*ALTER TABLE pro.tfase
   ADD COLUMN id_proceso_wf INTEGER;
 ALTER TABLE pro.tfase
   ADD COLUMN id_estado_wf INTEGER;
 ALTER TABLE pro.tfase
   ADD COLUMN nro_tramite VARCHAR(150);
 
+ALTER TABLE pro.tfase
+  ADD COLUMN fecha_ini_real DATE;
+COMMENT ON COLUMN pro.tfase.fecha_ini_real
+IS 'Fecha real de inicio';
+
+ALTER TABLE pro.tfase
+  ADD COLUMN fecha_fin_real DATE;
+
+COMMENT ON COLUMN pro.tfase.fecha_fin_real
+IS 'Fecha real de finalizacion';*/
+ 
 /***********************************F-SCP-EGS-PRO-0-26/11/2018****************************************/

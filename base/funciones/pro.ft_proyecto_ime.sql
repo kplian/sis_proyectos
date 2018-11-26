@@ -215,8 +215,8 @@ BEGIN
             id_estado_wf,
             nro_tramite,
             id_fase_plantilla,
-			id_depto_conta,
-			id_tipo_cc
+			id_depto_conta
+			
           	) values(
 			v_codigo,
 			v_parametros.nombre,
@@ -239,8 +239,7 @@ BEGIN
             v_id_estado_wf,
             v_num_tramite,
             v_parametros.id_fase_plantilla,
-			v_id_depto_conta,
-			v_parametros.id_tipo_cc
+			v_id_depto_conta
 			)RETURNING id_proyecto into v_id_proyecto;
 
          ---Insercion de plantilla de fases
@@ -475,8 +474,7 @@ BEGIN
             fecha_ini_real = v_parametros.fecha_ini_real,
 			fecha_fin_real = v_parametros.fecha_fin_real,
             id_tipo_cc = v_parametros.id_tipo_cc,
-			id_depto_conta = v_id_depto_conta,
-			id_tipo_cc = v_parametros.id_tipo_cc
+			id_depto_conta = v_id_depto_conta
 			where id_proyecto=v_parametros.id_proyecto;
 
 			--Definicion de la respuesta
