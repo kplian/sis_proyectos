@@ -35,7 +35,7 @@ DECLARE
     v_id_int_comprobante            integer;
     v_plantilla_cbte                varchar[];
     v_id_int_comprobante4           integer;
-
+    v_alta                          varchar;
 
 BEGIN
 
@@ -81,7 +81,9 @@ BEGIN
             raise exception 'Aún no se definieron loas activos fijos para el cierre';
         end if;
 
-        --Genera el comprobante 1
+        -------------------------------
+        --Genera el comprobante 1 de 4
+        -------------------------------
         v_id_int_comprobante = conta.f_gen_comprobante
                                 (
                                     v_rec.id_proyecto,
@@ -98,8 +100,9 @@ BEGIN
         where id_proceso_wf_cierre = p_id_proceso_wf;
 
 
-
-        --Genera el comprobante 2
+        -------------------------------
+        --Genera el comprobante 2 de 4
+        -------------------------------
         v_id_int_comprobante = conta.f_gen_comprobante
                                 (
                                     v_rec.id_proyecto,
@@ -116,8 +119,10 @@ BEGIN
         where id_proceso_wf_cierre = p_id_proceso_wf;
 
         update conta.tint_comprobante set
-        cbte_aitb = 'si'
-        where id_int_comprobante = id_int_comprobante;
+        cbte_aitb = 'si',
+        tipo_cambio_2 = 0,
+        tipo_cambio_3 = 0
+        where id_int_comprobante = v_id_int_comprobante;
 
         --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
         update conta.tint_transaccion set
@@ -132,7 +137,9 @@ BEGIN
         actualizacion = 'si'
         where id_int_comprobante = v_id_int_comprobante;
 
-        --Genera el comprobante 3
+        -------------------------------
+        --Genera el comprobante 3 de 4
+        -------------------------------
         v_id_int_comprobante = conta.f_gen_comprobante
                                 (
                                     v_rec.id_proyecto,
@@ -150,7 +157,7 @@ BEGIN
 
         update conta.tint_comprobante set
         cbte_aitb = 'si'
-        where id_int_comprobante = id_int_comprobante;
+        where id_int_comprobante = v_id_int_comprobante;
 
         --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
         update conta.tint_transaccion set
@@ -165,7 +172,9 @@ BEGIN
         actualizacion = 'si'
         where id_int_comprobante = v_id_int_comprobante;
 
-        --Genera el comprobante 4 (comprobante temporal que sus transacciones se unen al comprobante 3 y luego este comprobante es eliminado. Esto porque el generador no permite elegir sólo que genere en Bs y UFV)
+        ------------------------------
+        --Genera el comprobante 4 de 4 (comprobante temporal que sus transacciones se unen al comprobante 3 y luego este comprobante es eliminado. Esto porque el generador no permite elegir sólo que genere en Bs y UFV)
+        ------------------------------
         v_id_int_comprobante4 = conta.f_gen_comprobante
                                 (
                                     v_rec.id_proyecto,
@@ -175,6 +184,17 @@ BEGIN
                                     p_id_usuario_ai,
                                     p_usuario_ai
                                 );
+
+        --BORRAR
+        --Actualización del Id del comprobante
+        /*update pro.tproyecto set
+        id_int_comprobante_4 = v_id_int_comprobante4
+        where id_proceso_wf_cierre = p_id_proceso_wf;
+
+        update conta.tint_comprobante set
+        cbte_aitb = 'si'
+        where id_int_comprobante = v_id_int_comprobante4;*/
+        --FIN BORRAR
 
 
         --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
@@ -187,6 +207,10 @@ BEGIN
         importe_haber_mb = 0,
         importe_recurso_mb = 0,
         importe_gasto_mb = 0,
+        importe_debe = 0,
+        importe_haber = 0,
+        importe_recurso = 0,
+        importe_gasto = 0,
         actualizacion = 'si'
         where id_int_comprobante = v_id_int_comprobante4;
 
@@ -194,6 +218,10 @@ BEGIN
         update conta.tint_transaccion set
         id_int_comprobante = v_id_int_comprobante
         where id_int_comprobante = v_id_int_comprobante4;
+
+        --Elimina el WF del comprobante 4
+        delete from wf.testado_wf where id_proceso_wf in (select id_proceso_wf from conta.tint_comprobante where id_int_comprobante = v_id_int_comprobante4);
+        delete from wf.tproceso_wf where id_proceso_wf in (select id_proceso_wf from conta.tint_comprobante where id_int_comprobante = v_id_int_comprobante4);
 
         --Eliminación del comprobante 4
         delete from conta.tint_comprobante where id_int_comprobante = v_id_int_comprobante4;

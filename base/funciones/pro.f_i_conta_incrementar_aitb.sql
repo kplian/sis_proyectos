@@ -55,8 +55,8 @@ BEGIN
     --Verificar que el proceso del cierre esté en estado finalizado
     if exists (select 1 from pro.tproyecto
     		where id_proyecto = p_id_proyecto
-            and estado_cierre <> 'af') then
-    	raise exception 'No se puede generar registros en el Sistema de Activos Fijos, el estado debería estar en ''Activos Fijos''';
+            and estado_cierre <> 'conta') then
+    	raise exception 'No se puede generar registros en el Sistema de Activos Fijos, el estado debería estar en contabilidad';
     end if;
 
     -------------------
@@ -91,6 +91,7 @@ BEGIN
         and pad.id_tipo_cc = cip.id_tipo_cc
         inner join param.ttipo_cc tcc
         on tcc.id_tipo_cc = pad.id_tipo_cc
+        and pa.id_proyecto = p_id_proyecto --NUEVO AUMENTADO. VERIFICAR
     )
     select
     p_id_usuario,

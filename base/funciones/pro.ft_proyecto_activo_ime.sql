@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "pro"."ft_proyecto_activo_ime" (
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION pro.ft_proyecto_activo_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Proyectos
  FUNCION: 		pro.ft_proyecto_activo_ime
@@ -40,6 +43,12 @@ DECLARE
 	v_wf 					varchar;
 	v_id_unidad_medida		integer;
 	v_codigo_af_rel 		varchar;
+	v_id_funcionario		integer;
+	v_responsable 			varchar;
+	v_descripcion 			varchar;
+	v_ubicacion 			varchar;
+	v_vida_util_anios 		integer;
+	v_fecha_ini_dep			date;
 
 BEGIN
 
@@ -198,61 +207,159 @@ BEGIN
 				raise exception 'No se encuentra registrado Dpto. de Activos Fijos en el sistema. Comuníquese con el administrador del Sistema de Activos Fijos para coordinar su registro';
 			end if;
 
+			--codigo_activo_rel
+			v_codigo_af_rel = null;
+			if pxp.f_existe_parametro(p_tabla, 'codigo_activo') then
+				v_codigo_af_rel = v_parametros.codigo_activo;
+
+				if v_codigo_af_rel <> 'GASTO' then
+					if not exists(select 1 from kaf.tactivo_fijo
+								where codigo_ant = v_codigo_af_rel or codigo = v_codigo_af_rel) then
+						raise exception 'No existe el Número de inmovilizado relacionado (%)',v_codigo_af_rel;
+					end if;
+				end if;
+
+			end if;
+
+			-------------------------
+			-- VALIDACIONES POR TIPO
+			------------------------
+			--si es para activar
+			--si es para incremento
+			--si es para gasto
+			--FIN VALIDACIONES POR TIPO
+
+
+
 
 			--Obtiene el id_clasificacion
-			select
-			id_clasificacion
-			into v_id_clasificacion
-			from kaf.tclasificacion
-			where codigo_completo_tmp = trim(v_parametros.clasificacion);
-
-            if coalesce(v_id_clasificacion,0) = 0 then
-            	raise exception 'Clasificación no encontrada para el activo: %', v_parametros.denominacion;
+			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
+			if coalesce(v_codigo_af_rel,'') <> '' then
+        		select id_clasificacion
+        		into v_id_clasificacion
+        		from kaf.tactivo_fijo
+        		where codigo = v_codigo_af_rel;
+        	else
+        		select
+				id_clasificacion
+				into v_id_clasificacion
+				from kaf.tclasificacion
+				where codigo_completo_tmp = trim(v_parametros.clasificacion);
             end if;
 
-			--Centro costo
-			select cc.id_centro_costo
-			into v_id_centro_costo
-			from param.ttipo_cc tcc
-			inner join param.tcentro_costo cc
-			on cc.id_tipo_cc = tcc.id_tipo_cc
-			where tcc.codigo = v_parametros.centro_costo
-			and cc.id_gestion = v_id_gestion;
+            if v_codigo_af_rel <> 'GASTO' then
+	            if coalesce(v_id_clasificacion,0) = 0 then
+	           		raise exception 'Clasificación no encontrada para el activo: %', v_parametros.denominacion;
+	            end if;
+            end if;
 
-			if coalesce(v_id_centro_costo,0) = 0 then
-				raise exception 'Centro de Costo no definido para el activo: %', v_parametros.denominacion;
+
+            --Centro costo
+			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
+			if coalesce(v_codigo_af_rel,'') <> '' then
+        		select id_centro_costo
+        		into v_id_centro_costo
+        		from kaf.tactivo_fijo
+        		where codigo = v_codigo_af_rel;
+        	else
+				select cc.id_centro_costo
+				into v_id_centro_costo
+				from param.ttipo_cc tcc
+				inner join param.tcentro_costo cc
+				on cc.id_tipo_cc = tcc.id_tipo_cc
+				where tcc.codigo = v_parametros.centro_costo
+				and cc.id_gestion = v_id_gestion;
+            end if;
+
+            if v_codigo_af_rel <> 'GASTO' then
+				if coalesce(v_id_centro_costo,0) = 0 then
+					raise exception 'Centro de Costo no definido para el activo: %', v_parametros.denominacion;
+				end if;
 			end if;
 
 			--id_ubicacion (local)
-			select id_ubicacion
-			into v_id_ubicacion
-			from kaf.tubicacion
-			where codigo = v_parametros.local;
+			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
+			if coalesce(v_codigo_af_rel,'') <> '' then
+        		select id_ubicacion
+        		into v_id_ubicacion
+        		from kaf.tactivo_fijo
+        		where codigo = v_codigo_af_rel;
+        	else
+				select id_ubicacion
+				into v_id_ubicacion
+				from kaf.tubicacion
+				where codigo = v_parametros.local;
+            end if;
 
-			if coalesce(v_id_ubicacion,0) = 0 then
-				raise exception 'Local no definido para el activo: %', v_parametros.denominacion;
+            if v_codigo_af_rel <> 'GASTO' then
+				if coalesce(v_id_ubicacion,0) = 0 then
+					raise exception 'Local no definido para el activo: %  (%)', v_parametros.denominacion, v_parametros.local;
+				end if;
+			end if;
+
+			--responsable
+			v_responsable = null;
+			if pxp.f_existe_parametro(p_tabla, 'responsable') then
+				v_responsable = v_parametros.responsable;
+			end if;
+
+--raise exception 'responsable: %',v_responsable;
+			--Verifica que exista el responsable
+			v_id_funcionario = null;
+			if coalesce(v_responsable,'') <> '' then
+
+				select f.id_funcionario
+				into v_id_funcionario
+				from segu.tusuario u
+				inner join orga.tfuncionario f
+				on f.id_persona = u.id_persona
+				where u.cuenta = v_responsable;
+
+				if coalesce(v_id_funcionario,0) = 0 then
+					raise exception 'Responsable del activo no encontrado: %, para el activo: %', v_responsable, v_parametros.denominacion;
+				end if;
 			end if;
 
 			--id_grupo
-			select id_grupo
-			into v_id_grupo_ae
-			from kaf.tgrupo
-			where tipo = 'grupo'
-			and codigo = v_parametros.grupo_ae or codigo = '0' || v_parametros.grupo_ae;
+			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
+			if coalesce(v_codigo_af_rel,'') <> '' then
+        		select id_grupo
+        		into v_id_grupo_ae
+        		from kaf.tactivo_fijo
+        		where codigo = v_codigo_af_rel;
+        	else
+        		select id_grupo
+				into v_id_grupo_ae
+				from kaf.tgrupo
+				where tipo = 'grupo'
+				and codigo = v_parametros.grupo_ae or codigo = '0' || v_parametros.grupo_ae;
+            end if;
 
-			if coalesce(v_id_grupo_ae,0) = 0 then
-				raise exception 'Grupo AE no definido para el activo: %', v_parametros.denominacion;
+            if v_codigo_af_rel <> 'GASTO' then
+				if coalesce(v_id_grupo_ae,0) = 0 then
+					raise exception 'Grupo AE no definido para el activo: %', v_parametros.denominacion;
+				end if;
 			end if;
 
 			--id_grupo_clasif
-			select id_grupo
-			into v_id_grupo_clasif
-			from kaf.tgrupo
-			where tipo = 'clasificacion'
-			and codigo = v_parametros.clasificacion_ae or codigo = '0' || v_parametros.clasificacion_ae;
+			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
+			if coalesce(v_codigo_af_rel,'') <> '' then
+        		select id_grupo
+        		into v_id_grupo_clasif
+        		from kaf.tactivo_fijo
+        		where codigo = v_codigo_af_rel;
+        	else
+        		select id_grupo
+				into v_id_grupo_clasif
+				from kaf.tgrupo
+				where tipo = 'clasificacion'
+				and codigo = v_parametros.clasificacion_ae or codigo = '0' || v_parametros.clasificacion_ae;
+            end if;
 
-			if coalesce(v_id_grupo_clasif,0) = 0 then
-				raise exception 'Clasificación AE no definido para el activo: %', v_parametros.denominacion;
+            if v_codigo_af_rel <> 'GASTO' then
+				if coalesce(v_id_grupo_clasif,0) = 0 then
+					raise exception 'Clasificación AE no definido para el activo: %', v_parametros.denominacion;
+				end if;
 			end if;
 
 			--nro_serie
@@ -271,25 +378,63 @@ BEGIN
 			select id_unidad_medida
 			into v_id_unidad_medida
 			from param.tunidad_medida
-			where codigo = v_parametros.unidad;
+			where lower(codigo) = lower(v_parametros.unidad);
 
 			if coalesce(v_id_unidad_medida,0) = 0 then
 				raise exception 'Unidad de Medida no definida para el activo: %', v_parametros.denominacion;
 			end if;
 
-			--codigo_activo_rel
-			v_codigo_af_rel = null;
-			if pxp.f_existe_parametro(p_tabla, 'codigo_activo_rel') then
-				v_codigo_af_rel = v_parametros.codigo_activo_rel;
+			--descripcion
+			v_descripcion = coalesce(v_parametros.denominacion,null) ;
+			if pxp.f_existe_parametro(p_tabla, 'descripcion') then
+				v_descripcion = v_parametros.descripcion;
+			end if;
+
+			--ubicacion
+			v_ubicacion = null ;
+			if pxp.f_existe_parametro(p_tabla, 'ubicacion') then
+				v_ubicacion = v_parametros.ubicacion;
+			end if;
+
+			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
+			if coalesce(v_codigo_af_rel,'') <> '' then
+        		select ubicacion
+        		into v_ubicacion
+        		from kaf.tactivo_fijo
+        		where codigo = v_codigo_af_rel;
+            end if;
+
+            --Verifica que exista la vida útil
+            --Si tiene activo fijo relacionado, coloca la vida útil en cero para luego hacer update con la vida útil residual del activo relacionado
+			if coalesce(v_codigo_af_rel,'') <> '' then
+				v_vida_util_anios = 0;
+			else
+				if not pxp.f_existe_parametro(p_tabla, 'vida_util_anios') then
+					raise exception 'Falta definir la vida útil para el activo: (%)',v_parametros.denominacion;
+				else
+					v_vida_util_anios = v_parametros.vida_util_anios;
+				end if;
+			end if;
+
+			--Fecha_ini_dep
+			--Si tiene activo fijo relacionado, la fecha de inicio dep se setea en nulo
+			if coalesce(v_codigo_af_rel,'') <> '' then
+				v_fecha_ini_dep = null;
+			else
+				if not pxp.f_existe_parametro(p_tabla, 'fecha_ini_dep') then
+					raise exception 'Falta definir la Fecha de Inicio Depreciación para el activo: (%)',v_parametros.denominacion;
+				else
+					v_fecha_ini_dep = v_parametros.fecha_ini_dep;
+				end if;
 			end if;
 
 			--Preparación del record para la inserción
 			select
 	        coalesce(v_parametros.id_proyecto,null) as id_proyecto,
 			coalesce(v_parametros.denominacion,null) as denominacion,
-			coalesce(v_parametros.descripcion,null) as descripcion,
+			coalesce(v_descripcion,null) as descripcion,
 			coalesce(v_parametros.cantidad_det,null) as cantidad_det,
-			coalesce(v_parametros.ubicacion,null) as ubicacion,
+			coalesce(v_ubicacion,null) as ubicacion,
 			v_id_clasificacion id_clasificacion,
 			v_id_depto as id_depto,
 			v_id_centro_costo as id_centro_costo,
@@ -301,10 +446,11 @@ BEGIN
 			v_nro_serie as nro_serie,
 			coalesce(v_parametros.observaciones,null) as observaciones,
 			v_marca as marca,
-			coalesce(v_parametros.fecha_ini_dep,null) as fecha_ini_dep,
-			coalesce(v_parametros.vida_util_anios,null) as vida_util_anios,
+			coalesce(v_fecha_ini_dep,null) as fecha_ini_dep,
+			coalesce(v_vida_util_anios,null) as vida_util_anios,
 			coalesce(v_id_unidad_medida,null) as id_unidad_medida,
-			coalesce(v_codigo_af_rel,null) as codigo_af_rel
+			coalesce(v_codigo_af_rel,null) as codigo_af_rel,
+			v_id_funcionario as id_funcionario
 	        into v_rec;
 
 	        --Inserción del movimiento
@@ -391,7 +537,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "pro"."ft_proyecto_activo_ime"(integer, integer, character varying, character varying) OWNER TO postgres;

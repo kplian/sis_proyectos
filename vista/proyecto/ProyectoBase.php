@@ -156,7 +156,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 			config: {
 				name: 'id_fase_plantilla',
 				fieldLabel: 'Plantilla Proyecto:',
-				allowBlank: false,
+				allowBlank: true,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
 					url: '../../sis_proyectos/control/FasePlantilla/listarFasePlantilla',

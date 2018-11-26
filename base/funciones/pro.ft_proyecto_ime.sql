@@ -49,6 +49,9 @@ DECLARE
     v_id_usuario_reg 		integer;
     v_id_estado_wf_ant		integer;
     v_resp_af				varchar;
+    v_id_depto_conta		integer;
+    v_fecha_ult_dep			date;
+    v_fecha_cierre 			date;
 
 BEGIN
 
@@ -65,13 +68,19 @@ BEGIN
 	if(p_transaccion='PRO_PROY_INS')then
 
         begin
+
+        	v_id_depto_conta = null;
+        	if pxp.f_existe_parametro(p_tabla,'id_depto_conta') then
+				v_id_depto_conta = v_parametros.id_depto_conta;
+			end if;
+
         	--Sentencia de la insercion
         	insert into pro.tproyecto(
 			codigo,
 			nombre,
 			fecha_ini,
 			fecha_fin,
-			id_proyecto_ep,
+			--id_proyecto_ep,
 			estado_reg,
 			usuario_ai,
 			fecha_reg,
@@ -80,13 +89,14 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod,
 			id_moneda,
-			id_depto_conta
+			id_depto_conta,
+			id_tipo_cc
           	) values(
 			v_parametros.codigo,
 			v_parametros.nombre,
 			v_parametros.fecha_ini,
 			v_parametros.fecha_fin,
-			v_parametros.id_proyecto_ep,
+			--v_parametros.id_proyecto_ep,
 			'activo',
 			v_parametros._nombre_usuario_ai,
 			now(),
@@ -95,7 +105,8 @@ BEGIN
 			null,
 			null,
 			v_parametros.id_moneda,
-			v_parametros.id_depto_conta
+			v_id_depto_conta,
+			v_parametros.id_tipo_cc
 			)RETURNING id_proyecto into v_id_proyecto;
 
 			--Definicion de la respuesta
@@ -117,6 +128,12 @@ BEGIN
 	elsif(p_transaccion='PRO_PROY_MOD')then
 
 		begin
+
+			v_id_depto_conta = null;
+        	if pxp.f_existe_parametro(p_tabla,'id_depto_conta') then
+				v_id_depto_conta = v_parametros.id_depto_conta;
+			end if;
+
 			--Sentencia de la modificacion
 			update pro.tproyecto set
 			codigo = v_parametros.codigo,
@@ -128,7 +145,8 @@ BEGIN
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
 			id_moneda = v_parametros.id_moneda,
-			id_depto_conta = v_parametros.id_depto_conta
+			id_depto_conta = v_id_depto_conta,
+			id_tipo_cc = v_parametros.id_tipo_cc
 			where id_proyecto=v_parametros.id_proyecto;
 
 			--Definicion de la respuesta
@@ -188,11 +206,13 @@ BEGIN
 			select
 			p.id_proceso_wf_cierre,
 			p.id_estado_wf_cierre,
-			p.estado_cierre
+			p.estado_cierre,
+			p.fecha_fin
 			into
 			v_id_proceso_wf,
 			v_id_estado_wf,
-			v_codigo_estado
+			v_codigo_estado,
+			v_fecha_cierre
 			from pro.tproyecto p
 			where p.id_proyecto = v_parametros.id_proyecto;
 
@@ -226,12 +246,54 @@ BEGIN
 				v_obs='---';
 			end if;
 
+			----------------------------------------------------------------------------------------------------------------------------
+			--RCM 21-11-2018: validación de la fecha de cierre. Debe corresponder a un mes siguiente de la última depreciación definida
+			----------------------------------------------------------------------------------------------------------------------------
+			--Verificar si existen depreciaciones no finalizadas
+			if exists(select 1
+					from kaf.tmovimiento mov
+					inner join param.tcatalogo cat
+					on cat.id_catalogo = mov.id_cat_movimiento
+					where cat.codigo = 'deprec'
+					and mov.estado <> 'finalizado') then
+				raise exception 'Existen depreciaciones no finalizadas. Debe finalizarlas antes de proceder con el cierre';
+			end if;
+
+			--Obtención de la última fecha de depreciación
+			select max(mov.fecha_mov)
+			into v_fecha_ult_dep
+			from kaf.tmovimiento_af_dep mdep
+			inner join kaf.tmovimiento_af maf
+			on maf.id_movimiento_af = mdep.id_movimiento_af
+			inner join kaf.tmovimiento mov
+			on mov.id_movimiento = maf.id_movimiento
+			inner join param.tcatalogo cat
+			on cat.id_catalogo = mov.id_cat_movimiento
+			where cat.codigo = 'deprec';
+
+			--La fecha de cierre debe ser mayo con un mes a la fecha de última depreciación
+			if date_trunc('month',v_fecha_ult_dep) <> date_trunc('month',v_fecha_cierre - interval '1 month') then
+				raise exception 'La fecha de cierre (%) debería ser al mes siguiente de la última depreciación (%)', v_fecha_cierre, v_fecha_ult_dep;
+			end if;
+			----------------
+			--FIN VALIDACION
+			----------------
+
 			--Acciones por estado anterior que podrian realizarse
-			if v_codigo_estado in ('af') then
+			if v_codigo_estado in ('conta') then
 				--Obtención del valor por actualización AITB de gestiones pasadas en moneda BOLIVIANOS
 				v_resp_af = pro.f_i_conta_incrementar_aitb(p_id_usuario, v_parametros.id_proyecto);
+			elsif v_codigo_estado in ('af') then
+				--Obtención del valor por actualización AITB de gestiones pasadas en moneda BOLIVIANOS
+				--v_resp_af = pro.f_i_conta_incrementar_aitb(p_id_usuario, v_parametros.id_proyecto);
 				--Generación de los activos fijos en el sistema de activos fijos
 				v_resp_af = pro.f_i_kaf_registrar_activos(p_id_usuario, v_parametros.id_proyecto);
+
+			elsif v_codigo_estado = 'alta' then
+
+		        --Genera el alta de activos fijos
+        		v_resp_af = pro.f_i_kaf_cierre_genera_alta(p_id_usuario,v_parametros.id_proyecto);
+
 			end if;
 
 			--Acciones por estado siguiente que podrian realizarse

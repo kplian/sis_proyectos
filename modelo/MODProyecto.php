@@ -52,9 +52,13 @@ class MODProyecto extends MODbase{
 		$this->captura('id_estado_wf','integer');
 		$this->captura('nro_tramite','varchar');
 		$this->captura('estado','varchar');
+		$this->captura('id_proceso_wf_cbte_1','int4');
+		$this->captura('id_proceso_wf_cbte_2','int4');
+		$this->captura('id_proceso_wf_cbte_3','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		//echo $this->consulta;exit;
 		$this->ejecutarConsulta();
 
 		//Devuelve la respuesta

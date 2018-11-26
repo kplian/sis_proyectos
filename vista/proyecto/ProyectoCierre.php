@@ -43,6 +43,39 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
         this.addButton('sig_estado',{ text:'Siguiente', iconCls: 'badelante', disabled: true, handler: this.sigEstado, tooltip: '<b>Pasar al Siguiente Estado</b>'});
         this.addBotonesGantt();
 
+        //Botones para Imprimir el Comprobante
+        this.addButton('btnCbte1', {
+            text : 'Cbte.1',
+            iconCls : 'bprint',
+            disabled : false,
+            handler : this.imprimirCbte,
+            tooltip : '<b>Imprimir Comprobante</b><br/>Imprime el Comprobante en el formato oficial',
+            cbte: 1
+        });
+
+        this.addButton('btnCbte2', {
+            text : 'Cbte.2',
+            iconCls : 'bprint',
+            disabled : false,
+            handler : this.imprimirCbte,
+            tooltip : '<b>Imprimir Comprobante</b><br/>Imprime el Comprobante en el formato oficial',
+            cbte: 2
+        });
+
+        this.addButton('btnCbte3', {
+            text : 'Cbte.3',
+            iconCls : 'bprint',
+            disabled : false,
+            handler : this.imprimirCbte,
+            tooltip : '<b>Imprimir Comprobante</b><br/>Imprime el Comprobante en el formato oficial',
+            cbte: 3
+        });
+
+        //Oculta los botones
+        this.getBoton('btnCbte1').hide();
+        this.getBoton('btnCbte2').hide();
+        this.getBoton('btnCbte3').hide();
+
     },
 
     Atributos:[
@@ -196,7 +229,7 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
             config: {
                 name: 'id_fase_plantilla',
                 fieldLabel: 'Plantilla Proyecto:',
-                allowBlank: false,
+                allowBlank: true,
                 emptyText: 'Elija una opción...',
                 store: new Ext.data.JsonStore({
                     url: '../../sis_proyectos/control/FasePlantilla/listarFasePlantilla',
@@ -468,7 +501,10 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
         {name:'id_proceso_wf', type: 'numeric'},
         {name:'id_estado_wf', type: 'numeric'},
         {name:'nro_tramite', type: 'string'},
-        {name:'estado', type: 'string'}
+        {name:'estado', type: 'string'},
+        {name:'id_proceso_wf_cbte_1', type: 'numeric'},
+        {name:'id_proceso_wf_cbte_2', type: 'numeric'},
+        {name:'id_proceso_wf_cbte_3', type: 'numeric'}
     ],
     sortInfo:{
         field: 'id_proyecto',
@@ -527,12 +563,16 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
         this.getBoton('sig_estado').disable();
         this.getBoton('diagrama_gantt').enable();
         this.getBoton('btnImportCierre').disable();
+        this.getBoton('edit').enable();
+        this.getBoton('del').enable();
 
         //Si está en modo histórico,no habilita ninguno de los botones que generan transacciones
         if(data.estado_cierre == 'borrador') {
             this.getBoton('sig_estado').enable();
-        } else if(data.estado_cierre == 'cbte'||data.estado_cierre == 'finalizado' ||data.estado_cierre==''){
+        } else if(data.estado_cierre == 'cbte'||data.estado_cierre == 'finalizado'){
             //Deja inhabilitados los botones
+            this.getBoton('edit').disable();
+            this.getBoton('del').disable();
         }  else {
             this.getBoton('ant_estado').enable();
             this.getBoton('sig_estado').enable();
@@ -543,6 +583,19 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('btnImportCierre').enable();
         }
 
+        //Verifica si tiene Comprobantes asociados para habilitar los botones
+        this.getBoton('btnCbte1').hide();
+        this.getBoton('btnCbte2').hide();
+        this.getBoton('btnCbte3').hide();
+        if(data.id_int_comprobante_1){
+            this.getBoton('btnCbte1').show();
+        }
+        if(data.id_int_comprobante_2){
+            this.getBoton('btnCbte2').show();
+        }
+        if(data.id_int_comprobante_3){
+            this.getBoton('btnCbte3').show();
+        }
     },
     liberaMenu:function(){
         Phx.vista.ProyectoCierre.superclass.liberaMenu.call(this);
@@ -669,6 +722,36 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
         Phx.CP.loadingHide();
         resp.argument.wizard.panel.destroy()
         this.reload();
+    },
+    imprimirCbte: function(args){
+        var rec = this.sm.getSelected(),
+            data = rec.data,
+            param;
+
+        if(args.cbte==1){
+            param = data.id_proceso_wf_cbte_1;
+        } else if(args.cbte==2){
+            param = data.id_proceso_wf_cbte_2;
+        } else if(args.cbte==3){
+            param = data.id_proceso_wf_cbte_3;
+        } else {
+            return;
+        }
+
+        //Abre el reporte de comprobante
+        if (data) {
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url : '../../sis_contabilidad/control/IntComprobante/reporteCbte',
+                params : {
+                    'id_proceso_wf' : param
+                },
+                success : this.successExport,
+                failure : this.conexionFailure,
+                timeout : this.timeout,
+                scope : this
+            });
+        }
     }
 
 })
