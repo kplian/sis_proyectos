@@ -193,7 +193,7 @@ ALTER TABLE pro.tfase
   ADD COLUMN id_tipo_cc INTEGER;
 
 COMMENT ON COLUMN pro.tfase.id_tipo_cc
-IS 'Tipo de Centro de Costo asociado, definido previamente en el árbol TCC';
+IS 'Tipo de Centro de Costo asociado, definido previamente en el árbol TCC';*/
 
 CREATE TABLE pro.tfase_concepto_ingas (
   id_fase_concepto_ingas SERIAL,
@@ -585,14 +585,14 @@ ALTER TABLE pro.tfase_avance_obs
   ADD CONSTRAINT chk_tfase_avance_obs__tipo CHECK (tipo in ('avance','avance_visual','observacion'));
 /***********************************F-SCP-RCM-PRO-1-24/10/2018****************************************/
 
-/***********************************F-SCP-RCM-PRO-1-20/11/2018****************************************/
+/***********************************I-SCP-RCM-PRO-1-20/11/2018****************************************/
 CREATE TABLE pro.tproyecto_fase_archivo (
   id_proyecto_fase_archivo SERIAL,
   id_proyecto INTEGER NOT NULL,
   id_fase INTEGER NULL,
   descripcion VARCHAR(500) NOT NULL,
   nombre_archivo VARCHAR(120) NOT NULL,
-  PRIMARY KEY(id_fase_concepto_ingas)
+  PRIMARY KEY(id_proyecto_fase_archivo)
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
 
@@ -604,7 +604,7 @@ IS 'Fecha estimada para realizar la invitación para la adquisición';
 /***********************************F-SCP-RCM-PRO-1-20/11/2018****************************************/
 
 
-/***********************************F-SCP-EGS-PRO-0-26/11/2018****************************************/
+/***********************************I-SCP-EGS-PRO-0-26/11/2018****************************************/
 
 ALTER TABLE pro.tfase
   ADD COLUMN id_proceso_wf INTEGER;
