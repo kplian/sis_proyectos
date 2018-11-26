@@ -220,6 +220,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this._colsData.push({name:'codigo_af_rel', type: 'string'});
         this._colsData.push({name:'desc_unmed', type: 'string'});
         this._colsData.push({name:'codigo', type: 'string'});
+        this._colsData.push({name:'id_activo_fijo', type: 'numeric'});
 
         //Inicializa los valores del array para mapeo de Ids
         for (var i=0; i<=5; i++) {
@@ -362,6 +363,9 @@ Ext.define('Phx.vista.ProyectoActivo', {
         //Render del panel con el grid creado
         this.panel.add(this.gridCierre);
         this.panel.doLayout();
+
+        //Eventos Grid
+        this.gridCierre.on('cellclick', this.abrirEnlace, this);
 
         //Phx.CP.loadingHide();
     },
@@ -1106,6 +1110,24 @@ Ext.define('Phx.vista.ProyectoActivo', {
             this.idContenedor,
             'ProyectoActivoDetMon'
         )
+    },
+    abrirEnlace: function(cell,rowIndex,columnIndex,e){
+        if(cell.colModel.getColumnHeader(columnIndex)=='Código AF'){
+            var data = this.gridCierre.getSelectionModel().getSelected().data;
+            if(data.id_activo_fijo){
+                Phx.CP.loadWindows('../../../sis_kactivos_fijos/vista/activo_fijo/ActivoFijo.php',
+                    'Detalle', {
+                        width:'90%',
+                        height:'90%'
+                    }, {
+                        lnk_id_activo_fijo: data.id_activo_fijo,
+                        link: true
+                    },
+                    this.idContenedor,
+                    'ActivoFijo'
+                );
+            }
+        }
     }
 
 });

@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "pro"."ft_proyecto_columna_tcc_ime" (
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION pro.ft_proyecto_columna_tcc_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Proyectos
  FUNCION: 		pro.ft_proyecto_columna_tcc_ime
@@ -141,7 +144,7 @@ BEGIN
 			select tcc.id_tipo_cc
 			into v_id_tipo_cc
 			from param.ttipo_cc tcc
-			where tcc.codigo = v_parametros.centro_costo;
+			where tcc.codigo = trim(v_parametros.centro_costo);
 
 			if coalesce(v_id_tipo_cc,0) = 0 then
 				raise exception 'Tipo CC no encontrado (%)',v_parametros.centro_costo;
@@ -222,7 +225,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "pro"."ft_proyecto_columna_tcc_ime"(integer, integer, character varying, character varying) OWNER TO postgres;

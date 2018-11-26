@@ -48,7 +48,8 @@ BEGIN
     fecha_ini_dep,
     vida_util_anios,
     id_unidad_medida,
-    codigo_af_rel
+    codigo_af_rel,
+    id_funcionario
     ) values(
     (p_parametros->'id_proyecto')::integer,
     (p_parametros->'observaciones')::varchar,
@@ -76,7 +77,8 @@ BEGIN
     (p_parametros->'fecha_ini_dep')::date,
     (p_parametros->'vida_util_anios')::integer,
     (p_parametros->'id_unidad_medida')::integer,
-    (p_parametros->'codigo_af_rel')::varchar
+    (p_parametros->'codigo_af_rel')::varchar,
+    (p_parametros->'id_funcionario')::integer
     )RETURNING id_proyecto_activo into v_id_proyecto_activo;
 
     --Respuesta

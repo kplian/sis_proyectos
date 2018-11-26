@@ -70,6 +70,7 @@ class ACTProyecto extends ACTbase{
 		            exit;
                 }
 
+                //Recorre todo el archivo fila a fila
                 $cont=0;
                 foreach ($arrayArchivo as $fila) {
 
@@ -97,9 +98,10 @@ class ACTProyecto extends ACTbase{
 						$this->objParam->addParametro('observaciones',$fila['pedido']);
 						$this->objParam->addParametro('codigo_activo_rel',$fila['codigo_activo_rel']);
 
+						//Guarda el Activo Fijo en la tabla Proyecto Activo
 						$this->objFunc = $this->create('MODProyectoActivo');
 	                    $this->res = $this->objFunc->ImportarCierreValorado($this->objParam);
-
+	                    //var_dump($this->res);exit;
 	                    if ($this->res->getTipo() == 'ERROR') {
 	                    	$this->res->imprimirRespuesta($this->res->generarJson());
 				            exit;
@@ -112,6 +114,7 @@ class ACTProyecto extends ACTbase{
 	                    	$idProyectoActivo = $dat['id_proyecto_activo'];
 	                    	$this->objParam->addParametro('id_proyecto_activo',$idProyectoActivo);
 
+	                    	//Guarda el prorrateo de la valoación del activo (tabla tproyecto_activo_detalle), recorriendo 50 columnas que pudiera tener el escel
 	                    	for ($i=0; $i < 50; $i++) {
 	                    		if($fila["centro_costo_$i"]!=''){
 	                    			//echo "centro_costo_$i: ".$fila["centro_costo_$i"]."<br>";

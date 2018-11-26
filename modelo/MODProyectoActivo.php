@@ -202,6 +202,7 @@ class MODProyectoActivo extends MODbase{
 
 		$this->captura('costo','numeric');
 		$this->captura('codigo', 'varchar');
+		$this->captura('id_activo_fijo', 'integer');
 
 		//Definicion de la lista dinámica de columnas
 		$col_arrays = $this->objParam->getParametro('columnas_dinamicas');
@@ -267,6 +268,7 @@ class MODProyectoActivo extends MODbase{
 		$this->setParametro('unidad','unidad','varchar');
 		$this->setParametro('ubicacion','ubicacion','varchar');
 		$this->setParametro('local','local','varchar');
+		$this->setParametro('responsable','responsable','varchar');
 		$this->setParametro('fecha_compra','fecha_compra','date');
 		$this->setParametro('costo','costo','numeric');
 		$this->setParametro('valor_compra','valor_compra','numeric');

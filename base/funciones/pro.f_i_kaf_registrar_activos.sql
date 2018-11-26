@@ -5,11 +5,11 @@ CREATE OR REPLACE FUNCTION pro.f_i_kaf_registrar_activos (
 RETURNS varchar AS
 $body$
 /**************************************************************************
- SISTEMA:		Sistema de Proyectos
- FUNCION: 		pro.f_i_kaf_registrar_activos
+ SISTEMA:   Sistema de Proyectos
+ FUNCION:     pro.f_i_kaf_registrar_activos
  DESCRIPCION:   Funcion que registra el detalle del cierre en el activo fijo
- AUTOR: 		RCM
- FECHA:	        28/09/2018
+ AUTOR:     RCM
+ FECHA:         28/09/2018
  COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
@@ -20,49 +20,60 @@ $body$
 ***************************************************************************/
 DECLARE
 
-	v_resp		        varchar;
-	v_nombre_funcion    text;
-    v_rec				record;
-    v_rec_af 			record;
-    v_monto_bs			numeric;
-    v_monto_ufv			numeric;
-    v_id_moneda_bs		integer;
-    v_id_moneda_ufv		integer;
-    v_id_activo_fijo	integer;
-    v_id_cat_estado_fun integer;
-    v_id_cat_estado_compra integer;
-    v_id_depto 			integer;
-    v_id_responsable_depto integer;
-    v_id_funcionario 	integer;
-    v_id_deposito 		integer;
-    v_id_oficina		integer;
-    v_monto_rescate		numeric;
-    v_codigo            varchar;
+    v_resp                  varchar;
+    v_nombre_funcion        text;
+    v_rec                   record;
+    v_rec_af                record;
+    v_monto_bs              numeric;
+    v_monto_ufv             numeric;
+    v_id_moneda_bs          integer;
+    v_id_moneda_ufv         integer;
+    v_id_activo_fijo        integer;
+    v_id_cat_estado_fun     integer;
+    v_id_cat_estado_compra  integer;
+    v_id_depto              integer;
+    v_id_responsable_depto  integer;
+    v_id_funcionario        integer;
+    v_id_deposito           integer;
+    v_id_oficina            integer;
+    v_monto_rescate         numeric;
+    v_codigo                varchar;
+    v_sw_primero            boolean;
+    v_id_movimiento         integer;
+    v_id_cat_movimiento     integer;
+    v_rec_proy              record;
+    v_id_moneda_base        integer;
 
 BEGIN
 
-	v_nombre_funcion = 'pro.f_i_kaf_registrar_activos';
+  v_nombre_funcion = 'pro.f_i_kaf_registrar_activos';
 
     ----------------------------------
     -- VALIDACIONES
     ----------------------------------
     --Verificar que el proceso del cierre esté en estado finalizado
     if not exists (select 1 from pro.tproyecto
-    		where id_proyecto = p_id_proyecto) then
-    	raise exception 'Proyecto inexistente';
+        where id_proyecto = p_id_proyecto) then
+      raise exception 'Proyecto inexistente';
     end if;
 
     --Verificar que el proceso del cierre esté en estado finalizado
     if exists (select 1 from pro.tproyecto
-    		where id_proyecto = p_id_proyecto
+        where id_proyecto = p_id_proyecto
             and estado_cierre <> 'af') then
-    	raise exception 'No se puede generar registros en el Sistema de Activos Fijos, el estado debería estar en ''Activos Fijos''';
+      raise exception 'No se puede generar registros en el Sistema de Activos Fijos, el estado debería estar en ''Activos Fijos''';
     end if;
 
 
     -----------------------------------
     -- OBTENCIÓN DE DATOS OBLIGATORIOS
     -----------------------------------
+    --Obtención de datos del proyecto
+    select fecha_fin, codigo, nombre
+    into v_rec_proy
+    from pro.tproyecto
+    where p_id_proyecto = p_id_proyecto;
+
     --Obtención de las monedas
     select id_moneda
     into v_id_moneda_bs
@@ -96,7 +107,7 @@ BEGIN
     select id_depto
     into v_id_depto
     from param.tdepto dep
-	  where dep.id_subsistema in (select id_subsistema from segu.tsubsistema where codigo = 'KAF')
+    where dep.id_subsistema in (select id_subsistema from segu.tsubsistema where codigo = 'KAF')
     and dep.codigo = 'AF';
 
     --Deposito
@@ -157,11 +168,14 @@ BEGIN
     and uof.estado_reg = 'activo'
     and uof.tipo = 'oficial';
 
+    --Moneda base
+    v_id_moneda_base = param.f_get_moneda_base();
+
     ---------------------------------
     -- REGISTRO DE LOS ACTIVOS FIJOS
     ---------------------------------
 
-    --Recorrer el proyecto activo con su respectiva valoración
+    --Recorrer el proyecto activo con su respectiva valoración, de los que no tienen activo fijo previo para relacionar (columna codigo_af_rel)
     for v_rec in (select
                   pa.id_proyecto_activo,
                   pa.id_clasificacion,
@@ -210,9 +224,8 @@ BEGIN
                   on pad.id_proyecto_activo = pa.id_proyecto_activo
                   inner join pro.tproyecto py
                   on py.id_proyecto = pa.id_proyecto
-                  left join pro.tproyecto_activo_det_mon padm
-                  on padm.id_proyecto_activo_detalle = pad.id_proyecto_activo_detalle
                   where pa.id_proyecto = p_id_proyecto
+                  and coalesce(pa.codigo_af_rel,'') = ''
                   group by pa.id_proyecto_activo,
                           pa.id_clasificacion,
                           pa.denominacion,
@@ -238,7 +251,7 @@ BEGIN
                   ) loop
 
 
-    	--Parámetros
+      --Parámetros
         select
         null as id_persona,
         0 as cantidad_revaloriz,
@@ -287,7 +300,7 @@ BEGIN
         into v_rec_af;
 
         --Inserción de activo fijo
-		v_id_activo_fijo = kaf.f_insercion_af(p_id_usuario ,hstore(v_rec_af), 'si');
+        v_id_activo_fijo = kaf.f_insercion_af(p_id_usuario ,hstore(v_rec_af), 'si');
 
         --Generación del código para el activo
         v_codigo = kaf.f_genera_codigo(v_id_activo_fijo);
@@ -354,7 +367,7 @@ BEGIN
                                                    'O',-- tipo oficial, venta, compra
                                                    NULL);--defecto dos decimales
 
-		insert into kaf.tactivo_fijo_valores(
+    insert into kaf.tactivo_fijo_valores(
             id_usuario_reg,
             fecha_reg,
             estado_reg,
@@ -392,7 +405,7 @@ BEGIN
             v_rec.vida_util,      --  vida_util
             'activo',
             'si',
-            1,           --  monto_rescate
+            v_monto_rescate,           --  monto_rescate
             null,
             'alta',
             v_codigo,
@@ -448,7 +461,7 @@ BEGIN
             v_rec.vida_util,      --  vida_util
             'activo',
             'si',
-            1,           --  monto_rescate
+            v_monto_rescate,           --  monto_rescate
             null,
             'alta',
             v_codigo,
@@ -465,17 +478,133 @@ BEGIN
 
     end loop;
 
+    ------------------------------------------------------------------------------------
+    -- Relaciona el cierre con los activos fijos que tienen su inmovilizado previamente
+    ------------------------------------------------------------------------------------
+    --Crea el movimiento de ajuste si existe algún activo para relacionar
+    if exists(select 1 from pro.tproyecto_activo
+            where id_proyecto = p_id_proyecto) then
+
+        --Obtención del ID del movimiento de Ajuste
+        select cat.id_catalogo
+        into v_id_cat_movimiento
+        from param.tcatalogo cat
+        inner join param.tcatalogo_tipo ctip
+        on ctip.id_catalogo_tipo = cat.id_catalogo_tipo
+        where ctip.tabla = 'tmovimiento__id_cat_movimiento'
+        and cat.codigo = 'ajuste';
+
+        if v_id_cat_movimiento is null then
+            raise exception 'No se encuentra registrado el Proceso de Ajuste. Comuníquese con el administrador del sistema.';
+        end if;
+
+        --Parámetros del movimiento de ajuste
+        select
+        'N/D' as direccion,
+        null as fecha_hasta,
+        v_id_cat_movimiento as id_cat_movimiento,
+        v_rec_proy.fecha_fin as fecha_mov,
+        v_id_depto as id_depto,
+        'Ajuste por incremento por Cierre de Proyecto '|| v_rec_proy.codigo||' - '||v_rec_proy.nombre as glosa,
+        null as id_funcionario,
+        null as id_oficina,
+        null as _id_usuario_ai,
+        p_id_usuario as id_usuario,
+        null as _nombre_usuario_ai,
+        null as id_persona,
+        null as codigo,
+        null as id_deposito,
+        null as id_depto_dest,
+        null as id_deposito_dest,
+        null id_funcionario_dest,
+        null as id_movimiento_motivo
+        into v_rec_af;
+
+        --Creación del movimiento
+        v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
+
+        --Inserta el detalle del movimiento
+        insert into kaf.tmovimiento_af(
+        id_usuario_reg, fecha_reg, estado_reg, id_movimiento, id_activo_fijo, id_cat_estado_fun,
+        vida_util, importe, id_moneda, depreciacion_acum, depreciacion_per, monto_vigente_actualiz,
+        fecha_ini_dep, id_activo_fijo_valor_original
+        )
+        with t_valorado as (
+          select
+          mdep.id_activo_fijo_valor, maf.id_activo_fijo, mdep.id_moneda,
+          mdep.fecha, mdep.depreciacion_acum, mdep.depreciacion_per, mdep.monto_vigente, mdep.monto_actualiz,
+          mdep.vida_util,
+          max(mdep.fecha) over (partition by mdep.id_activo_fijo_valor) as max_fecha
+          from kaf.tmovimiento_af maf
+          inner join kaf.tmovimiento_af_dep mdep
+          on mdep.id_movimiento_af = maf.id_movimiento_af
+        )
+        select
+        p_id_usuario as id_usuario_reg,
+        now() as fecha_reg,
+        'activo' as estado_reg,
+        v_id_movimiento as id_movimiento,
+        val.id_activo_fijo as id_activo_fijo,
+        v_id_cat_estado_fun as id_cat_estado_fun,
+        val.vida_util as vida_util,
+        val.monto_vigente +
+        param.f_convertir_moneda
+        (
+            py.id_moneda,
+            v_id_moneda_base,
+            sum(pad.monto),
+            py.fecha_fin,
+            'O',-- tipo oficial, venta, compra
+            NULL
+        ) +
+        coalesce((select sum(importe_actualiz)
+                   from pro.tproyecto_activo_det_mon m
+                   inner join pro.tproyecto_activo_detalle ad
+                   on ad.id_proyecto_activo_detalle = m.id_proyecto_activo_detalle
+                   where ad.id_proyecto_activo = pa.id_proyecto_activo
+                 )
+        ,0) as importe,
+        v_id_moneda_base as id_moneda,
+        val.depreciacion_acum as depreciacion_acum,
+        val.depreciacion_per as depreciacion_per,
+        val.monto_actualiz as monto_vigente_actualiz,
+        py.fecha_fin as fecha_ini_dep,
+        val.id_activo_fijo_valor as id_activo_fijo_valor_original
+        from pro.tproyecto_activo pa
+        inner join pro.tproyecto_activo_detalle pad
+        on pad.id_proyecto_activo = pa.id_proyecto_activo
+        left join pro.tproyecto_activo_det_mon padm
+        on padm.id_proyecto_activo_detalle = pad.id_proyecto_activo_detalle
+        inner join pro.tproyecto py
+        on py.id_proyecto = pa.id_proyecto
+        inner join kaf.tactivo_fijo af
+        on af.codigo = pa.codigo_af_rel
+        inner join t_valorado val
+        on val.id_activo_fijo = af.id_activo_fijo
+        where pa.id_proyecto = p_id_proyecto
+        and coalesce(pa.codigo_af_rel,'') <> ''
+        and coalesce(pa.codigo_af_rel,'') <> 'GASTO'
+        and val.id_moneda = v_id_moneda_base
+        and date_trunc('month',val.fecha) = date_trunc('month',py.fecha_fin - interval '1 month')
+        group by val.id_activo_fijo, val.vida_util, val.monto_vigente, val.depreciacion_acum, val.depreciacion_per, val.monto_actualiz,
+        py.fecha_fin, val.id_activo_fijo_valor, py.id_moneda, pa.id_proyecto_activo;
+
+    end if;
+
+
+
+
     return 'hecho';
 
 
 EXCEPTION
 
-	WHEN OTHERS THEN
-		v_resp='';
-		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-		raise exception '%',v_resp;
+  WHEN OTHERS THEN
+    v_resp='';
+    v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
+    v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
+    v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
+    raise exception '%',v_resp;
 END;
 $body$
 LANGUAGE 'plpgsql'

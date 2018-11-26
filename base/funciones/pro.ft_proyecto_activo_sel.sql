@@ -188,12 +188,13 @@ BEGIN
 						desc_unmed varchar,
 
     					costo numeric,
-    					codigo varchar
+    					codigo varchar,
+    					id_activo_fijo integer
     			';
 
     		--Nombres de las columnas
     		v_nombres_col = 'id_proyecto, id_proyecto_activo, id_clasificacion, denominacion, descripcion, observaciones, desc_clasificacion, cantidad_det, id_depto, estado, id_lugar, ubicacion, id_centro_costo, id_ubicacion, id_grupo, id_grupo_clasif, nro_serie, marca, fecha_ini_dep, vida_util_anios, id_unidad_medida, codigo_af_rel,
-desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, desc_unmed, costo, codigo';
+desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, desc_unmed, costo, codigo, id_activo_fijo ';
 
     		--Obtención del id_tipo_cc
     		select id_tipo_cc
@@ -267,7 +268,8 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 				desc_grupo,
 				desc_grupo_clasif,
 				desc_unmed,
-				codigo
+				codigo,
+				id_activo_fijo
     		)
     		select
     		pa.id_proyecto, pa.id_proyecto_activo, pa.id_clasificacion, pa.denominacion, pa.descripcion, pa.observaciones,
@@ -295,7 +297,8 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 			(gru.codigo || ' - ' || gru.nombre)::varchar as desc_grupo,
 			(gruc.codigo || ' - ' || gruc.nombre)::varchar as desc_grupo_clasif,
 			um.codigo as desc_unmed,
-			af.codigo
+			af.codigo,
+			af.id_activo_fijo
     		from pro.tproyecto_activo pa
     		left join kaf.tclasificacion cla
     		on cla.id_clasificacion = pa.id_clasificacion
@@ -570,7 +573,7 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 						JOIN conta.tint_comprobante cbte ON cbte.id_int_comprobante =
 						tr.id_int_comprobante AND cbte.estado_reg::text = 'validado'::text AND
 						cbte.fecha <= py.fecha_fin
-						and (cbte.id_int_comprobante <> py.id_int_comprobante_1 and cbte.id_int_comprobante <> py.id_int_comprobante_2 and cbte.id_int_comprobante <> py.id_int_comprobante_3)
+						and (cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_1,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_2,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_3,0))
 						JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
 						WHERE NOT (tr.id_cuenta IN (
 							SELECT tcuenta_excluir.id_cuenta
@@ -606,7 +609,7 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 						JOIN conta.tint_comprobante cbte ON cbte.id_int_comprobante =
 						tr.id_int_comprobante AND cbte.estado_reg::text = 'validado'::text AND
 						cbte.fecha <= py.fecha_fin
-						and (cbte.id_int_comprobante <> py.id_int_comprobante_1 and cbte.id_int_comprobante <> py.id_int_comprobante_2 and cbte.id_int_comprobante <> py.id_int_comprobante_3)
+						and (cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_1,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_2,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_3,0))
 						JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
 						WHERE NOT (tr.id_cuenta IN (
 							SELECT tcuenta_excluir.id_cuenta

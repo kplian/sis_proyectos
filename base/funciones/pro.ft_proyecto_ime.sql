@@ -50,7 +50,6 @@ DECLARE
     v_id_estado_wf_ant		integer;
     v_resp_af				varchar;
     v_rec_proyecto			record;
-    
     v_codigo_proyecto		record;
     item					record;
     v_codigo				varchar;
@@ -59,21 +58,21 @@ DECLARE
     v_record_temp			record;
     v_record_temp_fk		record;
     v_id_fase_fk			VARCHAR;
-    
-    
     v_codigo_estados		varchar;
     v_id_cuenta_bancaria	integer;
-    v_id_depto_lb					integer;
-    
-    v_codigo_tipo_proceso		varchar;		
-	v_id_proceso_macro			 integer;
-    v_id_gestion				 integer;
-    v_num_tramite				 varchar;
-    
-    v_codigo_trans				varchar;
-    v_tabla						varchar;
-    v_fecha						date;
-    v_fecha_ini					date;
+    v_id_depto_lb			integer;
+    v_codigo_tipo_proceso	varchar;
+	v_id_proceso_macro		integer;
+    v_id_gestion			integer;
+    v_num_tramite			varchar;
+    v_codigo_trans			varchar;
+    v_tabla					varchar;
+    v_fecha					date;
+    v_fecha_ini				date;
+    v_id_depto_conta		integer;
+    v_fecha_ult_dep			date;
+    v_fecha_cierre 			date;
+
 BEGIN
 
     v_nombre_funcion = 'pro.ft_proyecto_ime';
@@ -87,95 +86,93 @@ BEGIN
 	***********************************/
 
 	if(p_transaccion='PRO_PROY_INS')then
-  			
-        begin
-       	  SELECT
-             proy.codigo
-            
-             INTO
-             v_codigo_proyecto
-             FROM pro.tproyecto proy
-             WHERE UPPER(proy.codigo) = UPPER(v_parametros.codigo);
-          IF v_codigo_proyecto is not null THEN
-          	RAISE EXCEPTION 'Este Codigo ya Existe';
-          END IF;     
-                   
-          IF(v_parametros.fecha_ini_real is not null )THEN
-                    	raise exception 'No Debe Ingresar una fecha real en este estado ';
-          ELSIF(v_parametros.fecha_fin_real is not null)THEN
-                    	raise exception 'No Debe Ingresar una fecha real en este estado ';
-          END IF;
-         
-        
-        ----------Recoleccion de datos para el proceso WF 
-           v_codigo_tipo_proceso = split_part(pxp.f_get_variable_global('tipo_proceso_macro_proyectos'), ',', 2);
-            --raise exception 'codigo proceso %',v_codigo_tipo_proceso;
-             --obtener id del proceso macro
 
-        	 select
-             pm.id_proceso_macro
-             into
-             v_id_proceso_macro
-             from wf.tproceso_macro pm
-             left join wf.ttipo_proceso tp on tp.id_proceso_macro  = pm.id_proceso_macro
-             where tp.codigo = v_codigo_tipo_proceso;
-             
-             --raise exception 'id proceso %',v_id_proceso_macro;
-             
-             If v_id_proceso_macro is NULL THEN
+        begin
+
+       	    SELECT
+            proy.codigo
+            INTO
+            v_codigo_proyecto
+            FROM pro.tproyecto proy
+            WHERE UPPER(proy.codigo) = UPPER(v_parametros.codigo);
+
+            IF v_codigo_proyecto is not null THEN
+                RAISE EXCEPTION 'Este Codigo ya Existe';
+            END IF;
+
+            IF(v_parametros.fecha_ini_real is not null )THEN
+                raise exception 'No Debe Ingresar una fecha real en este estado ';
+            ELSIF(v_parametros.fecha_fin_real is not null)THEN
+                raise exception 'No Debe Ingresar una fecha real en este estado ';
+            END IF;
+
+            ----------Recoleccion de datos para el proceso WF
+            v_codigo_tipo_proceso = split_part(pxp.f_get_variable_global('tipo_proceso_macro_proyectos'), ',', 2);
+            --raise exception 'codigo proceso %',v_codigo_tipo_proceso;
+            --obtener id del proceso macro
+
+        	select
+            pm.id_proceso_macro
+            into
+            v_id_proceso_macro
+            from wf.tproceso_macro pm
+            left join wf.ttipo_proceso tp on tp.id_proceso_macro  = pm.id_proceso_macro
+            where tp.codigo = v_codigo_tipo_proceso;
+
+            --raise exception 'id proceso %',v_id_proceso_macro;
+
+            If v_id_proceso_macro is NULL THEN
                raise exception 'El proceso macro  de codigo % no esta configurado en el sistema WF',v_codigo_tipo_proceso;
-             END IF;
-             
-            
+            END IF;
+
+
              v_fecha_ini = now()::date;
-         
-             --raise exception ' v_fecha_ini %',v_fecha_ini;
-              --Obtencion de la gestion
-                select
-                per.id_gestion
-                into
-                v_id_gestion
-                from param.tperiodo per
-                where per.fecha_ini <= v_fecha_ini and per.fecha_fin >= v_fecha_ini
-                limit 1 offset 0;
+
+            --raise exception ' v_fecha_ini %',v_fecha_ini;
+            --Obtencion de la gestion
+            select
+            per.id_gestion
+            into
+            v_id_gestion
+            from param.tperiodo per
+            where per.fecha_ini <= v_fecha_ini and per.fecha_fin >= v_fecha_ini
+            limit 1 offset 0;
             --raise exception 'id gestion %',v_id_gestion;
-             
-             --recuperando funcionario
-             SELECT 
-              fun.id_funcionario
-              INTO
-              v_id_funcionario
-              FROM orga.tfuncionario fun
-              LEFT JOIN segu.tusuario usu on usu.id_persona = fun.id_persona
-              WHERE usu.id_usuario = p_id_usuario ;
+
+            --recuperando funcionario
+            SELECT
+            fun.id_funcionario
+            INTO
+            v_id_funcionario
+            FROM orga.tfuncionario fun
+            LEFT JOIN segu.tusuario usu on usu.id_persona = fun.id_persona
+            WHERE usu.id_usuario = p_id_usuario ;
+
             --raise exception'v_id_funcionario if %',v_id_funcionario;
-        /* 
-          IF (v_parametros.id_funcionario <> 0) THEN
+            /*
+            IF (v_parametros.id_funcionario <> 0) THEN
             	v_id_funcionario = v_parametros.id_funcionario;
             	--raise exception'v_id_funcionario if %',v_id_funcionario;
-                
+
             END IF;*/
-      	
+
         	--raise exception'v_id_funcionario %',pxp.f_existe_parametro(p_tabla,'fecha_real');
             IF	pxp.f_existe_parametro(p_tabla,'fecha_real') = FALSE	THEN
             	--v_parametros.fecha_real = now()::date;
             END IF;
-        	
-        	
-             -- inciar el tramite en el sistema de WF
 
-             
+
+            --Inciar el tramite en el sistema de WF
             SELECT
-                   ps_num_tramite ,
-                   ps_id_proceso_wf ,
-                   ps_id_estado_wf ,
-                   ps_codigo_estado
-                into
-                   v_num_tramite,
-                   v_id_proceso_wf,
-                   v_id_estado_wf,
-                   v_codigo_estado
-
+               ps_num_tramite ,
+               ps_id_proceso_wf ,
+               ps_id_estado_wf ,
+               ps_codigo_estado
+            into
+               v_num_tramite,
+               v_id_proceso_wf,
+               v_id_estado_wf,
+               v_codigo_estado
             FROM wf.f_inicia_tramite(
                    p_id_usuario,
                    v_parametros._id_usuario_ai,
@@ -186,9 +183,16 @@ BEGIN
                    null,
                    'Solicitud de Proyecto',
                    '' );
-          --raise exception '%',v_codigo_estado;
-          v_codigo = UPPER(v_parametros.codigo);
-        --Sentencia de la insercion
+            --raise exception '%',v_codigo_estado;
+            v_codigo = UPPER(v_parametros.codigo);
+
+            --Verificación del depto conta
+        	v_id_depto_conta = null;
+        	if pxp.f_existe_parametro(p_tabla,'id_depto_conta') then
+				v_id_depto_conta = v_parametros.id_depto_conta;
+			end if;
+
+        	--Sentencia de la insercion
         	insert into pro.tproyecto(
 			codigo,
 			nombre,
@@ -203,7 +207,6 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod,
 			id_moneda,
-			--id_depto_conta,
             fecha_ini_real,
 			fecha_fin_real,
             id_tipo_cc,
@@ -211,7 +214,9 @@ BEGIN
             id_proceso_wf,
             id_estado_wf,
             nro_tramite,
-            id_fase_plantilla
+            id_fase_plantilla,
+			id_depto_conta,
+			id_tipo_cc
           	) values(
 			v_codigo,
 			v_parametros.nombre,
@@ -226,7 +231,6 @@ BEGIN
 			null,
 			null,
 			v_parametros.id_moneda,
-			--v_parametros.id_depto_conta,
             v_parametros.fecha_ini_real,
 			v_parametros.fecha_fin_real,
             v_parametros.id_tipo_cc,
@@ -234,24 +238,25 @@ BEGIN
             v_id_proceso_wf,
             v_id_estado_wf,
             v_num_tramite,
-            v_parametros.id_fase_plantilla
-            
+            v_parametros.id_fase_plantilla,
+			v_id_depto_conta,
+			v_parametros.id_tipo_cc
 			)RETURNING id_proyecto into v_id_proyecto;
-          
-         ---Insercion de plantilla de fases  
+
+         ---Insercion de plantilla de fases
           --tabla temporal para asociar y guardar los ids para recrear el arbol
           CREATE TEMPORARY TABLE temp_id(
                                       id serial,
                                       id_fase_plantilla integer,
                                       id_fase integer
-                                     ) ON COMMIT DROP;	
+                                     ) ON COMMIT DROP;
 
           --recuperando el arbol de fase plantilla
-         
+
            FOR item IN (
              	---nota :el padre en la consulta siempre esta ordenado antes que los hijos --
-                
-                WITH RECURSIVE arbol  AS(  
+
+                WITH RECURSIVE arbol  AS(
                  SELECT
                     fp.id_fase_plantilla,
                     fp.id_fase_plantilla_fk,
@@ -262,7 +267,7 @@ BEGIN
                  FROM pro.tfase_plantilla fp
                   WHERE fp.id_fase_plantilla = v_parametros.id_fase_plantilla
                   UNION ALL
-                   
+
                  SELECT
                     fp.id_fase_plantilla,
                     fp.id_fase_plantilla_fk,
@@ -274,41 +279,41 @@ BEGIN
                   JOIN arbol al ON al.id_fase_plantilla=fp.id_fase_plantilla_fk
                   )
                   select * from arbol
-                 order by arbol.id_fase_plantilla ASC )LOOP
-                 --no insertamos el padre a la tabla 
+                 order by arbol.id_fase_plantilla ASC ) LOOP
+                 --no insertamos el padre a la tabla
                  IF( item.id_fase_plantilla_fk is not null) THEN
-                 
-                 --recuperamos el id_fase nueva para asociar al fk               
-                     SELECT	
+
+                 --recuperamos el id_fase nueva para asociar al fk
+                     SELECT
                             id,
                             id_fase_plantilla,
                             id_fase
                      INTO
                         v_record_temp_fk
-                     FROM	temp_id	
+                     FROM	temp_id
                      WHERE id_fase_plantilla = item.id_fase_plantilla_fk;
                  --asociamos la fk  respectivas
                  IF	v_record_temp_fk is not null THEN
                  	v_id_fase_fk =  v_record_temp_fk.id_fase::VARCHAR;
                  END IF;
                   --insertamos los registros a la fase
-            v_codigo_trans = 'PRO_FASE_INS';
-            
-           IF item.descripcion is null THEN
-           	  item.descripcion = '';
-           END IF ;
-           IF item.observaciones is null THEN
-           	  item.observaciones = '';
-           END IF ;
-           IF v_id_fase_fk is null THEN
-           	  v_id_fase_fk = 'id';
-           END IF ;
-          --RAISE EXCEPTION 'v_id_proyecto % v_id_fase_fk %,item.codigo % ,item.descripcion %,item.observaciones %,v_fecha_ini %',v_id_proyecto,v_id_fase_fk,item.codigo,item.descripcion,item.observaciones,v_fecha_ini;
-           item.codigo='['||v_codigo||']'||item.codigo;
-           
-            v_tabla = pxp.f_crear_parametro(ARRAY[
+                v_codigo_trans = 'PRO_FASE_INS';
+
+               IF item.descripcion is null THEN
+               	  item.descripcion = '';
+               END IF ;
+               IF item.observaciones is null THEN
+               	  item.observaciones = '';
+               END IF ;
+               IF v_id_fase_fk is null THEN
+               	  v_id_fase_fk = 'id';
+               END IF ;
+              --RAISE EXCEPTION 'v_id_proyecto % v_id_fase_fk %,item.codigo % ,item.descripcion %,item.observaciones %,v_fecha_ini %',v_id_proyecto,v_id_fase_fk,item.codigo,item.descripcion,item.observaciones,v_fecha_ini;
+               item.codigo='['||v_codigo||']'||item.codigo;
+
+                v_tabla = pxp.f_crear_parametro(ARRAY[
             					'_nombre_usuario_ai',
-                                '_id_usuario_ai',	 
+                                '_id_usuario_ai',
                               	'id_proyecto',
                                 'id_fase_fk',
                                 'codigo',
@@ -323,7 +328,7 @@ BEGIN
                               --'id_tipo_cc',
                                 'estado_reg'
                                 ],
-            				ARRAY[	
+            				ARRAY[
                            		'NULL'::varchar, ---'_nombre_usuario_ai',
                                  ''::varchar,  -----'_id_usuario_ai',
                               	v_id_proyecto::varchar,--'id_proyecto',
@@ -358,17 +363,17 @@ BEGIN
                                     'varchar'
                                ]
                             );
- 			
+
             v_resp = pro.ft_fase_ime(p_administrador,p_id_usuario,v_tabla,v_codigo_trans);
-            
+
             --raise exception '%',v_resp;
-            
+
           	v_id_fase = pxp.f_recupera_clave(v_resp,'id_fase');
             v_id_fase_integer	= v_id_fase[1]::integer ;
-            
-            
+
+
             --RAISE EXCEPTION 'v_id_fase %',v_id_fase_integer;
-            
+
 		    /*
             insert into pro.tfase(
                               id_proyecto,
@@ -396,13 +401,13 @@ BEGIN
 					--asociamos las id de plantillas con las nuevas
                            insert into temp_id(
                                         id_fase_plantilla,
-                                        id_fase 
+                                        id_fase
                                     )VALUES(
                                         item.id_fase_plantilla,
                                         v_id_fase_integer
                                     );
-      				END IF;                
-             END LOOP;		
+      				END IF;
+             END LOOP;
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Proyecto almacenado(a) con exito (id_proyecto'||v_id_proyecto||')');
             v_resp = pxp.f_agrega_clave(v_resp,'id_proyecto',v_id_proyecto::varchar);
@@ -422,21 +427,22 @@ BEGIN
 	elsif(p_transaccion='PRO_PROY_MOD')then
 
 		begin
-        --verificamos en que estado esta el proyecto
+
+            --verificamos en que estado esta el proyecto
         	SELECT
             pro.estado
             INTO
             v_rec_proyecto
             FROM pro.tproyecto pro
   			WHERE pro.id_proyecto = v_parametros.id_proyecto;
-            
+
             IF(v_rec_proyecto.estado <> 'ejecucion')THEN
             		IF(v_parametros.fecha_ini_real is not null )THEN
                     	raise exception 'No Debe Ingresar una fecha real en este estado %',v_rec_proyecto.estado;
                     ELSIF(v_parametros.fecha_fin_real is not null)THEN
                     	raise exception 'No Debe Ingresar una fecha real en este estado %',v_rec_proyecto.estado;
                     END IF;
-            END IF;   
+            END IF;
 
             SELECT
                proy.codigo,
@@ -447,8 +453,14 @@ BEGIN
             WHERE UPPER(proy.codigo) = UPPER(v_parametros.codigo);
             IF v_codigo_proyecto is not null and v_codigo_proyecto.id_proyecto <> v_parametros.id_proyecto  THEN
               RAISE EXCEPTION 'Este Codigo ya Existe';
-            END IF; 
-               	
+            END IF;
+
+
+			v_id_depto_conta = null;
+        	if pxp.f_existe_parametro(p_tabla,'id_depto_conta') then
+				v_id_depto_conta = v_parametros.id_depto_conta;
+			end if;
+
 			--Sentencia de la modificacion
 			update pro.tproyecto set
 			codigo = UPPER(v_parametros.codigo),
@@ -460,10 +472,11 @@ BEGIN
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
 			id_moneda = v_parametros.id_moneda,
-			--id_depto_conta = v_parametros.id_depto_conta,
             fecha_ini_real = v_parametros.fecha_ini_real,
 			fecha_fin_real = v_parametros.fecha_fin_real,
-            id_tipo_cc = v_parametros.id_tipo_cc
+            id_tipo_cc = v_parametros.id_tipo_cc,
+			id_depto_conta = v_id_depto_conta,
+			id_tipo_cc = v_parametros.id_tipo_cc
 			where id_proyecto=v_parametros.id_proyecto;
 
 			--Definicion de la respuesta
@@ -485,14 +498,14 @@ BEGIN
 	elsif(p_transaccion='PRO_PROY_ELI')then
 
 		begin
-        	IF(SELECT 
+        	IF(SELECT
             	count(fase.id_fase)
             FROM pro.tfase fase
             WHERE fase.id_proyecto = v_parametros.id_proyecto)<> 0 THEN
             	RAISE EXCEPTION 'Existen Fases Relacionadas al Proyecto';
             END IF;
-            
-            
+
+
 			--Sentencia de la eliminacion
 			delete from pro.tproyecto
             where id_proyecto=v_parametros.id_proyecto;
@@ -531,11 +544,13 @@ BEGIN
 			select
 			p.id_proceso_wf_cierre,
 			p.id_estado_wf_cierre,
-			p.estado_cierre
+			p.estado_cierre,
+			p.fecha_fin
 			into
 			v_id_proceso_wf,
 			v_id_estado_wf,
-			v_codigo_estado
+			v_codigo_estado,
+			v_fecha_cierre
 			from pro.tproyecto p
 			where p.id_proyecto = v_parametros.id_proyecto;
 
@@ -569,12 +584,54 @@ BEGIN
 				v_obs='---';
 			end if;
 
+			----------------------------------------------------------------------------------------------------------------------------
+			--RCM 21-11-2018: validación de la fecha de cierre. Debe corresponder a un mes siguiente de la última depreciación definida
+			----------------------------------------------------------------------------------------------------------------------------
+			--Verificar si existen depreciaciones no finalizadas
+			if exists(select 1
+					from kaf.tmovimiento mov
+					inner join param.tcatalogo cat
+					on cat.id_catalogo = mov.id_cat_movimiento
+					where cat.codigo = 'deprec'
+					and mov.estado <> 'finalizado') then
+				raise exception 'Existen depreciaciones no finalizadas. Debe finalizarlas antes de proceder con el cierre';
+			end if;
+
+			--Obtención de la última fecha de depreciación
+			select max(mov.fecha_mov)
+			into v_fecha_ult_dep
+			from kaf.tmovimiento_af_dep mdep
+			inner join kaf.tmovimiento_af maf
+			on maf.id_movimiento_af = mdep.id_movimiento_af
+			inner join kaf.tmovimiento mov
+			on mov.id_movimiento = maf.id_movimiento
+			inner join param.tcatalogo cat
+			on cat.id_catalogo = mov.id_cat_movimiento
+			where cat.codigo = 'deprec';
+
+			--La fecha de cierre debe ser mayo con un mes a la fecha de última depreciación
+			if date_trunc('month',v_fecha_ult_dep) <> date_trunc('month',v_fecha_cierre - interval '1 month') then
+				raise exception 'La fecha de cierre (%) debería ser al mes siguiente de la última depreciación (%)', v_fecha_cierre, v_fecha_ult_dep;
+			end if;
+			----------------
+			--FIN VALIDACION
+			----------------
+
 			--Acciones por estado anterior que podrian realizarse
-			if v_codigo_estado in ('af') then
+			if v_codigo_estado in ('conta') then
 				--Obtención del valor por actualización AITB de gestiones pasadas en moneda BOLIVIANOS
 				v_resp_af = pro.f_i_conta_incrementar_aitb(p_id_usuario, v_parametros.id_proyecto);
+			elsif v_codigo_estado in ('af') then
+				--Obtención del valor por actualización AITB de gestiones pasadas en moneda BOLIVIANOS
+				--v_resp_af = pro.f_i_conta_incrementar_aitb(p_id_usuario, v_parametros.id_proyecto);
 				--Generación de los activos fijos en el sistema de activos fijos
 				v_resp_af = pro.f_i_kaf_registrar_activos(p_id_usuario, v_parametros.id_proyecto);
+
+			elsif v_codigo_estado = 'alta' then
+
+		        --Genera el alta de activos fijos
+        		v_resp_af = pro.f_i_kaf_cierre_genera_alta(p_id_usuario,v_parametros.id_proyecto);
+
 			end if;
 
 			--Acciones por estado siguiente que podrian realizarse
@@ -782,12 +839,12 @@ BEGIN
           #TRANSACCION:  	'PRO_SIGEPRO_INS'
           #DESCRIPCION:  	Controla el cambio al siguiente estado
           #AUTOR:   		EGS
-          #FECHA:   		
+          #FECHA:
           ***********************************/
 
-        	
+
           elseif(p_transaccion='PRO_SIGEPRO_INS')then
-              
+
               begin
 
                   /*   PARAMETROS
@@ -800,29 +857,29 @@ BEGIN
                   $this->setParametro('json_procesos','json_procesos','text');
                   */
                   --raise exception 'entra';
-                  
-                  
+
+
                   --Obtenemos datos basicos
-                    
-                            
+
+
                   select
-                  ew.id_proceso_wf,	
+                  ew.id_proceso_wf,
                   c.id_estado_wf,
-                  c.estado    
+                  c.estado
                   into
                   v_id_proceso_wf,
                   v_id_estado_wf,
                   v_codigo_estado
                   from pro.tproyecto c
-                  inner join wf.testado_wf ew on ew.id_estado_wf = c.id_estado_wf  
+                  inner join wf.testado_wf ew on ew.id_estado_wf = c.id_estado_wf
                   where c.id_proyecto = v_parametros.id_proyecto;
-                  
+
                  -- raise exception 'v_parametros.id_proyecto %',v_parametros.id_proyecto;
                   --raise exception 'v_id_estado_wf %',v_id_estado_wf;
                   --raise exception 'v_codigo_estado %',v_codigo_estado;
-                  
-                  
-                  
+
+
+
                   --Recupera datos del estado
                   select
                   ew.id_tipo_estado,
@@ -833,7 +890,7 @@ BEGIN
                   from wf.testado_wf ew
                   inner join wf.ttipo_estado te on te.id_tipo_estado = ew.id_tipo_estado
                   where ew.id_estado_wf = v_parametros.id_estado_wf_act;
-      			
+
                   --raise exception ' v_id_tipo_estado %',v_id_tipo_estado;
                   --raise exception ' v_codigo_estados %', v_codigo_estados;
                   --raise exception ' v_parametros.id_estado_wf_act %', v_parametros.id_estado_wf_act;
@@ -845,7 +902,7 @@ BEGIN
                   v_codigo_estado_siguiente
                   from wf.ttipo_estado te
                   where te.id_tipo_estado = v_parametros.id_tipo_estado;
-                  
+
                   --raise exception ' v_codigo_estado_siguiente %', v_codigo_estado_siguiente;
 
                   if pxp.f_existe_parametro(p_tabla,'id_depto_wf') then
@@ -858,7 +915,7 @@ BEGIN
                       --raise exception ' v_obs %', v_obs;
                   else
                       v_obs='---';
-                      
+
                       --raise exception ' v_obs %', v_obs;
                   end if;
 
@@ -866,7 +923,7 @@ BEGIN
                   if v_codigo_estado_siguiente in ('') then
 
                   end if;
-      			
+
                   ---------------------------------------
                   -- REGISTRA EL SIGUIENTE ESTADO DEL WF
                   ---------------------------------------
@@ -955,7 +1012,7 @@ BEGIN
                      --raise exception 'v_codigo_estado_siguiente %',v_codigo_estado_siguiente;
                      --raise exception 'v_codigo_estado %',v_codigo_estado;
                     -- raise exception 'v_parametros.id_invitacion %',v_parametros.id_invitacion;
-      		
+
 
                       if pro.f_fun_inicio_proyecto_wf(
                               v_parametros.id_proyecto,
@@ -983,12 +1040,12 @@ BEGIN
                   return v_resp;
 
               end;
-              
+
               /*********************************
           #TRANSACCION:  	'PRO_ANTEPRO_IME'
           #DESCRIPCION: 	Retrocede el estado proyectos
           #AUTOR:   		EGS
-          #FECHA:   		
+          #FECHA:
           ***********************************/
 
           elseif(p_transaccion='PRO_ANTEPRO_IME')then
@@ -998,17 +1055,17 @@ BEGIN
                   --Obtenemos datos basicos
                   select
                   c.id_proyecto,
-                  ew.id_proceso_wf,	
+                  ew.id_proceso_wf,
                   c.id_estado_wf,
-                  c.estado    
+                  c.estado
                   into
                   v_registros_proc
                   from pro.tproyecto c
-                  inner join wf.testado_wf ew on ew.id_estado_wf = c.id_estado_wf  
+                  inner join wf.testado_wf ew on ew.id_estado_wf = c.id_estado_wf
                   where c.id_proyecto = v_parametros.id_proyecto;
-                  
+
                   v_id_proceso_wf = v_registros_proc.id_proceso_wf;
-                  
+
                   --raise EXCEPTION 'v_id_proceso_wf %',v_id_proceso_wf;
                   --------------------------------------------------
                   --Retrocede al estado inmediatamente anterior
@@ -1038,7 +1095,7 @@ BEGIN
                   v_titulo  = 'Visto Bueno';
 
                   if v_codigo_estado_siguiente not in('borrador','finalizado','anulado') then
-      	
+
                       v_acceso_directo = '../../../sis_proyectos/vista/proyecto/Proyecto.php';
                       v_clase = 'ProyectoPr';
                       v_parametros_ad = '{filtro_directo:{campo:"pro.id_proceso_wf",valor:"'||v_id_proceso_wf::varchar||'"}}';

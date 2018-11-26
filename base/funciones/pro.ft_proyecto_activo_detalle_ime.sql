@@ -303,7 +303,11 @@ BEGIN
 			select tcc.id_tipo_cc
 			into v_id_tipo_cc
 			from param.ttipo_cc tcc
-			where tcc.codigo = v_parametros.centro_costo;
+			where tcc.codigo = trim(v_parametros.centro_costo);
+
+			if v_id_tipo_cc is null then
+        		raise exception 'Centro de Costo no definido (%)',v_parametros.centro_costo;
+        	end if;
 
 			v_monto = v_parametros.monto::numeric;
 

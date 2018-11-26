@@ -108,7 +108,7 @@ BEGIN
     -----------------------------------
     -- Eliminación de los comprobantes
     -----------------------------------
-   --4) Elimina los otros comprobantes generados por la depreciación
+    --4) Elimina los otros comprobantes generados por la depreciación
     if v_cbte != 'uno' and coalesce(v_registros.id_int_comprobante_1,0)<>0 then
         perform conta.f_cambia_estado_wf_cbte(p_id_usuario, p_id_usuario_ai, p_usuario_ai, v_registros.id_int_comprobante_1, 'eliminado', 'Cbte eliminado');
 
@@ -131,7 +131,6 @@ BEGIN
         --Eliminación del comprobante
         delete from conta.tint_comprobante
         where id_int_comprobante=v_registros.id_int_comprobante_2;
-
     end if;
     if v_cbte != 'tres' and coalesce(v_registros.id_int_comprobante_3,0)<>0 then
         perform conta.f_cambia_estado_wf_cbte(p_id_usuario, p_id_usuario_ai, p_usuario_ai, v_registros.id_int_comprobante_3, 'eliminado', 'Cbte eliminado');
@@ -173,7 +172,7 @@ BEGIN
         v_id_proceso_wf
     from wf.testado_wf ew
     where ew.id_estado_wf = v_id_estado_wf_ant;
-
+--raise exception 'F: %', (select 1 from conta.tint_comprobante where id_int_comprobante = v_registros.id_int_comprobante_1);
     --Registra el nuevo estado
     v_id_estado_actual = wf.f_registra_estado_wf
                         (
