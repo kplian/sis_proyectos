@@ -59,7 +59,7 @@ BEGIN
                         ivtd.id_unidad_medida,
                         ivtd.precio,
                         fas.codigo || '' – '' || fas.nombre as desc_fase,
-                        cig.tipo || '' – '' || cig.desc_ingas as desc_ingas,
+                        cigg.tipo || '' – '' || cigg.desc_ingas as desc_ingas,
                         facoing.cantidad_est as cantidad_est,
                         facoing.precio as precio_est,
                         ivtd.id_centro_costo,
@@ -72,8 +72,9 @@ BEGIN
 						left join segu.tusuario usu2 on usu2.id_usuario = ivtd.id_usuario_mod
                         left join pro.tfase_concepto_ingas facoing on facoing.id_fase_concepto_ingas=ivtd.id_fase_concepto_ingas
                         left join param.tconcepto_ingas cig on cig.id_concepto_ingas = facoing.id_concepto_ingas
+                        left join param.tconcepto_ingas cigg on cigg.id_concepto_ingas = ivtd.id_concepto_ingas
                         left join param.tunidad_medida um on um.id_unidad_medida = ivtd.id_unidad_medida
-                        left join pro.tfase fas on fas.id_fase = facoing.id_fase
+                        left join pro.tfase fas on fas.id_fase = ivtd.id_fase
                         left join param.vcentro_costo cec on cec.id_centro_costo = ivtd.id_centro_costo
 				        where  ';
 			
@@ -136,6 +137,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-
-ALTER FUNCTION pro.ft_invitacion_det_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

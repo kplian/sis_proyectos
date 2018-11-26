@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gant JS</title>
+    <meta charset="utf-8">
+   
+       <link href="../../../lib/jsGanttImproved-proyectos/main.css" rel="stylesheet" type="text/css" />
+      <script src="../../../lib/jsGanttImproved-proyectos/main.js" type="text/javascript"></script>
+   
+   <link rel="stylesheet" type="text/css" href="../../../lib/jsGanttImproved-proyectos/jsgantt.css" />
+
+    <script src="../../../lib/jsGanttImproved-proyectos/jsgantt.js"></script> 
+
+	<script src="../../../lib/jsGanttImproved-proyectos/jquery-3.3.1.js"></script>
+	
+	<link rel="stylesheet" type="text/css" media="print" href="../../../lib/jsGanttImproved-proyectos/print.css">
+	 <link href="../../../lib/bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous" />
+     <script src="../../../lib/bootstrap-4.0.0-alpha.6-dist/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+</head>
+	
+<body>	
+		<br>
+		<div align="left">
+		  <button type="button" class="oculto btn btn-primary" onclick="window.print()">Imprimir</button>
+		</div>	
+		<script>
+		function getUrlVars1() {
+					var vars = {};
+					var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+					vars[key] = value;
+					});
+					return vars;
+					}
+					
+					var id_proyecto = getUrlVars1()["id_proyecto"];
+				    console.log(id_proyecto);
+
+					
+					$.ajax({
+					    // la URL para la petición
+					    url : '../../../lib/lib_control/Intermediario.php',
+					 
+					    // la información a enviar
+					    // (también es posible utilizar una cadena de datos)
+					    data:'p={"id_proyecto":"'+id_proyecto+'" ,"orden":"fecha" }'
+					                            +'&x=../../sis_proyectos/control/GanttProyecto/diagramaGanttJS',
+					 
+					    // especifica si será una petición POST o GET
+					    type : 'POST',
+					 
+					    // el tipo de información que se espera de respuesta
+					    dataType : 'json',
+					 
+					    // código a ejecutar si la petición es satisfactoria;
+					    // la respuesta es pasada como argumento a la función
+					    success : function(json) {
+					    	
+					    	
+					    return	tramite=json.datos[0]['tramite'];
+					    	//document.write(tramite); 
+					    	//console.log(tramite);
+					        $('<h1/>').text(json.title).appendTo('body');
+					        $('<div class="content"/>')
+					            .html(json.html).appendTo('body');
+					    },
+					 
+					    error : function(xhr, status) {
+					        alert('Disculpe, existió un problema, o no existe un Proceso ');
+					    },
+					 
+					  
+					});
+		
+		</script>
+		
+		
+	 <div id="cabezera" align='center'> <h1 >Diagrama de Gantt</h1></div>
+	
+	  			
+	  			<!--div class="row"-->
+	   		<div>
+			<!--para que funcione bien los dias adjuntar bootsrapp bootstrap-4.0.0-alpha.6-dist y y no agregar la class=gantt   -->
+	   		<div style="position:inherit" id="GanttChartDIV">
+	   		
+	   		<!--para que funcione bien los las horas adjuntar la class=gantt   -->
+			<!--div style="position:inherit" class="gantt" id="GanttChartDIV"-->
+				<script>
+				    
+					function getUrlVars() {
+					var vars = {};
+					var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+					vars[key] = value;
+					});
+					return vars;
+					}
+					
+					var id_proyecto = getUrlVars()["id_proyecto"];
+				    console.log(id_proyecto);
+
+					
+					$.ajax({
+					    // la URL para la petición
+					    url : '../../../lib/lib_control/Intermediario.php',
+					 
+					    // la información a enviar
+					    // (también es posible utilizar una cadena de datos)
+					    data:'p={"id_proyecto":"'+id_proyecto+'" ,"orden":"fecha" }'
+					                            +'&x=../../sis_proyectos/control/GanttProyecto/diagramaGanttJS',
+					 
+					    // especifica si será una petición POST o GET
+					    type : 'POST',
+					 
+					    // el tipo de información que se espera de respuesta
+					    dataType : 'json',
+					 
+					    // código a ejecutar si la petición es satisfactoria;
+					    // la respuesta es pasada como argumento a la función
+					    success : function(json) {
+					    	dataGantt(json);
+					    	
+					    	for (var i = 0; i < json.datos.length; i++) {
+					    		if (json.datos[i]['id']== 1) {
+					    			
+					    			datos=json.datos[i]['codigo'];
+					    		} 
+					    	}
+					    	
+					    	
+					    	escribir = document.getElementById("cabezera");
+								/*escribir.style.backgroundColor="red";
+								escribir.style.border="3px black solid";*/
+								escribir.innerHTML = "<h1><b>Diagrama Gantt Proyecto</b></h1>"+datos;
+					        $('<h1/>').text(json.title).appendTo('body');
+					        $('<div class="content"/>')
+					            .html(json.html).appendTo('body');
+					    },
+					 
+					    // código a ejecutar si la petición falla;
+					    // son pasados como argumentos a la función
+					    // el objeto de la petición en crudo y código de estatus de la petición
+					    error : function(xhr, status) {
+					        alert('Disculpe, existió un problema');
+					    },
+					 
+					    // código a ejecutar sin importar si la petición falló o no
+					    /*
+					    complete : function(xhr, status) {
+					        alert('Petición realizada');
+					    }*/
+					});
+					function dataGantt(response) {
+						
+				                    		//event.preventDefault();
+				                    		//console.log("desde el insertar");
+				                    		console.log(response); 
+				                    		var g = new JSGantt.GanttChart(document.getElementById('GanttChartDIV'), 'week');
+				                    		
+								             g.addLang('en2', {'format':'Mostrar Por','hour':'Hora','day':'Dia','week':'Semana','month':'Mes','quarter':'Trimestre','hours':'Horas','days':'Dias',
+											 'weeks':'Semanas','months':'Meses','quarters':'Trimestre','hr':'Hr','dy':'Dia','wk':'Sm','mth':'Mes','qtr':'Tri','hrs':'Hrs',
+											 'dys':'Dias','wks':'Sem','mths':'Mes','qtrs':'Tris','resource':'Encargado','duration':'Duracion','comp':'% Completo.',
+											 'completion':'Completion','startdate':'Fecha Inicio','enddate':'Fecha Fin','moreinfo':'More Information','notes':'Descripcion',
+											 'january':'Enero','february':'Febrero','march':'Marzo','april':'Abril','may':'Mayo','june':'Junio','july':'Julio',
+											 'august':'Agosto','september':'Septiembrer','october':'Octubre','november':'Noviembre','december':'Deciembre','jan':'Ene',
+											 'feb':'Feb','mar':'Mar','apr':'Abr','may':'May','jun':'Jun','jul':'Jul','aug':'Ago','sep':'Sep','oct':'Oct','nov':'Nov',
+											 'dec':'Dic','sunday':'Domingo','monday':'Lunes','tuesday':'Martes','wednesday':'Miercoles','thursday':'Jueves',
+											 'friday':'Viernes','saturday':'Sabado','sun':'Dom','mon':'Lun','tue':'Mar','wed':'Mie','thu':'Jue','fri':'Vie','sat':'Sab'});
+											 
+									if (g.getDivId() != null) {
+				                    			g.setShowComp(0);
+				                    			//g.setShowNote(1);
+				                    			
+
+												//g.setCaptionType('Complete');  // Set to Show Caption (None,Caption,Resource,Duration,Complete)
+												g.setQuarterColWidth(36);
+												//g.setDayColWidth (400);
+												
+												//g.setHourColWidth(18);
+												g.setDayColWidth(18);
+												g.setWeekColWidth(36);
+												g.setMonthColWidth(36);
+												g.setQuarterColWidth(18);
+												
+												g.setDateTaskDisplayFormat('day dd month yyyy'); // Shown in tool tip box
+												g.setDayMajorDateDisplayFormat('mon yyyy - Week ww '); // Set format to display dates in the "Major" header of the "Day" view
+												g.setWeekMinorDateDisplayFormat('dd mon'); // Set format to display dates in the "Minor" header of the "Week" view
+												g.setShowTaskInfoLink(1); //Show link in tool tip (0/1)
+												g.setShowEndWeekDate(0); // Show/Hide the date for the last day of the week in header for daily view (1/0)
+												g.setUseSingleCell(1000000); // Set the threshold at which we will only use one cell per table row (0 disables).  Helps with rendering performance for large charts.
+												g.setFormatArr('Day', 'Week', 'Month', 'Quarter'); // Even with setUseSingleCell using Hour format on such a large chart can cause issues in some browsers
+												g.setRowHeight(20);
+												g.setShowTaskInfoLink(1);	
+												//g.setCaptionType('Caption');
+												
+												//g.setMinGpLen(50);
+												g.setRowHeight(25);	
+												
+													
+											 	g.setLang('en2');
+											
+											var resp = response.datos; 
+								            var pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, pGantt,pEstado;
+								           
+								           for (var i = 0; i < response.datos.length; i++) {
+								            
+								            	var hoy = new Date();
+								               	pID = resp[i].id;
+								               	
+								               	if(resp[i].descripcion != null)
+								               	{
+								               	var cadena = resp[i].descripcion,
+   												subCadena = cadena.substring(0, 132);
+   												subCadena=subCadena.replace("\n"," ");
+   												var cadena2 = resp[i].descripcion,
+   												subCadena2 = cadena2.substring(132,2000);
+   												subCadena2=subCadena2.replace("\n"," ");
+								               	
+								               	
+								               	cuenta =(resp[i].cuenta != null)? ' (por:'+ resp[i].cuenta +')' : ': '+subCadena +'\n'+ subCadena2;
+								               	
+								               	}
+								               	else {
+								               		cuenta =(resp[i].cuenta != null)? ' (por: '+ resp[i].cuenta +')' : ' ';
+								               	}
+								               	
+								               	
+								              if (resp[i].tipo != 'estado_final'){
+								               	
+								               	 pName =  (resp[i].etapa != null)? resp[i].etapa + ' ['+ resp[i].codigo + '] '+cuenta : resp[i].codigo +': '+ resp[i].nombre ;
+								               	}
+								               else{
+								                pName =  (resp[i].etapa != null)? resp[i].etapa + ' ['+ resp[i].codigo + '] '+cuenta +'  **********': resp[i].codigo +':'+ resp[i].nombre +cuenta+'  **************';
+								               }
+								               //	pStart ='2018-05-10';
+							                   // pEnd = '2018-05-10';
+							                   /*
+							                   if(resp[i].fecha_fin == null){
+							                   	resp[i].fecha_fin=Date.now();
+							                    }
+							                    
+							                   if(resp[i].fecha_fin_real == null){
+							                   	resp[i].fecha_fin_real=Date.now();
+							                    }*/
+							                    /*
+							                   //obteniendo la diferencia entre fechas reales y fechas iniciales
+							                   var fechaI = new Date(resp[i].fecha_ini);
+											   var fechaF = new Date(resp[i].fecha_fin );
+											  	fechaI  =fechaI.toDateString(); 
+											  	fechaF  =fechaF.toDateString(); 
+											  	
+											  	fechaI=Date.parse(fechaI);
+											    fechaF=Date.parse(fechaF);
+											  
+												var difM = fechaF - fechaI // diferencia en milisegundos
+												var difD = difM / (1000 * 60 * 60 * 24) ; 
+												
+											   //console.log(difD);
+							                   var fechaIR = new Date(resp[i].fecha_ini_real);
+											   var fechaFR = new Date(resp[i].fecha_fin_real );
+											   
+											   fechaIR  =fechaIR.toDateString(); 
+											   fechaFR  =fechaFR.toDateString(); 
+											   
+											   fechaIR=Date.parse(fechaIR);
+											   fechaFR=Date.parse(fechaFR);
+											  	
+												var difMR = fechaFR - fechaIR // diferencia en milisegundos
+											
+												var difDR = difMR / (1000 * 60 * 60 * 24) ; 
+							                   	
+							                   	
+							                   	var comp = (difD*100)/difDR;
+							                   	
+							                   if(resp[i].id == '1'){
+							                   	console.log('comp',comp);
+							                    }*/
+							                   
+								                pStart =resp[i].fecha_ini;
+							                    pEnd = resp[i].fecha_fin ;
+							                    pClass = (resp[i].id_anterior != null)? 'gtaskblue':'ggroupblack';
+								               	pLink = '';
+						                    	pMile = 0;
+						                    	pRes = (resp[i].funcionario != null)? resp[i].funcionario:resp[i].depto? resp[i].depto:resp[i].cuenta? resp[i].cuenta:'';
+							                   
+							                   	
+							                    
+												
+												pComp = 20;
+							                   //pGroup indica si se trata de una tarea de grupo (principal) - Numérico; 0 = tarea normal, 1 = tarea de grupo estándar, 2 = tarea de grupo combinado *
+							                    
+							                   
+							                    pGroup =(resp[i].grupo != 'true')? 0:1;
+							                    
+							                  
+							                   
+							                    pParent =(resp[i].id_anterior != null)? resp[i].id_padre:0;
+							                    
+							                    pOpen =1;
+							                    pDepend= (resp[i].id_padre != resp[i].id_anterior)?resp[i].id_anterior+'FS':resp[i].id_anterior+'SS';
+							                   
+							                    pCaption=resp[i].descripcion;
+							                    pNotes = resp[i].descripcion;
+							                    
+							                    if (resp[i].tipo != 'estado_final'){
+							                    pEstado = 0; ////para no pintar
+							                    }else {
+							                    pEstado = 1;
+							                    }
+							                    g.AddTaskItem(new JSGantt.TaskItem(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, g,pEstado));
+								            
+								            };
+								           
+								            g.Draw();
+								        } else {
+								            alert("Error, unable to create Gantt Chart");
+								        		}; 		            		
+									
+									
+									}
+	
+  
+					</script>
+					
+			</div>
+			</div>
+		</div>
+	
+	
+</body>
+
+
+
+</html>

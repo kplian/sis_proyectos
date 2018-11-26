@@ -31,6 +31,16 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true
 		},
+			{
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'estado'
+			},
+			type:'Field',
+			form:true
+		},
 		{
 			config:{
 				name: 'codigo',
@@ -104,6 +114,40 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
+		
+		{
+			config:{
+				name: 'fecha_ini_real',
+				fieldLabel: 'Fecha Ini Real',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+							format: 'd/m/Y',
+							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+			},
+				type:'DateField',
+				filters:{pfiltro:'proy.fecha_ini_real',type:'date'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'fecha_fin_real',
+				fieldLabel: 'Fecha Fin Real',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+							format: 'd/m/Y',
+							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+			},
+				type:'DateField',
+				filters:{pfiltro:'proy.fecha_fin_real',type:'date'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},		
+
 		{
 			config: {
 				name: 'id_tipo_cc',
@@ -348,7 +392,16 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 		{name:'codigo_tcc', type: 'string'},
 		{name:'desc_tcc', type: 'string'},
 		{name:'id_moneda', type: 'numeric'},
-		{name:'desc_moneda', type: 'string'}
+		{name:'desc_moneda', type: 'string'},
+		
+		{name:'fecha_ini_real', type: 'date',dateFormat:'Y-m-d'},
+		{name:'fecha_fin_real', type: 'date',dateFormat:'Y-m-d'},
+		
+		{name:'id_proceso_wf', type: 'numeric'},
+		{name:'id_estado_wf', type: 'numeric'},
+		{name:'estado', type: 'string'},
+
+
 	],
 	sortInfo:{
 		field: 'id_proyecto',

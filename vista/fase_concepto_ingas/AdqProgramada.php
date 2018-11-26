@@ -1,7 +1,7 @@
 <?php
 /**
 *@package pXP
-*@file gen-FaseConceptoIngas.php
+*@file gen-AdqProgramada.php
 *@author  (admin)
 *@date 24-05-2018 19:13:39
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
@@ -10,22 +10,53 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
+Phx.vista.AdqProgramada=Ext.extend(Phx.gridInterfaz,{
+	
+	    gruposBarraTareas:[
+        {name:'vencido',title:'<h1 align="center"><i class="fa fa-bars"></i> Vencidos</h1>',grupo:0,height:0},
+        {name:'vigente',title:'<h1 align="center"><i class="fa fa-thumbs-o-up"></i> Por Vencer</h1>',grupo:1,height:0},
+        {name:'otros',title:'<H1 align="center"><i class="fa fa-thumbs-o-down"></i> Otros</h1>',grupo:2,height:0},
+        ],
+    	
+    	bnewGroups: [0,1,2],
+	    beditGroups: [0,1,2],
+	    bdelGroups:  [0,1,2],
+	    bactGroups:  [0,1,2],
+	    btestGroups: [0,1,2],
+	    bexcelGroups: [0,1,2],
+	    
+		 actualizarSegunTab: function(name, indice){
+		 			console.log('name',name);
+		              	 
+		             this.store.baseParams.estado_tiempo = name;                           
+		             this.load({params:{start:0, limit:this.tam_pag }});
+		      
+		    },
+     	arrayDefaultColumHidden:['fecha_reg','usr_reg','fecha_mod','usr_mod','fecha_hasta','id_proceso_wf','id_estado_wf','id_funcionario','estado_reg','id_usuario_ai','usuario_ai','direccion','id_oficina'],
+	    rowExpander: new Ext.ux.grid.RowExpander({
+	            tpl : new Ext.Template(
+	                '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Registro:&nbsp;&nbsp;</b> {usr_reg}</p>',
+	                '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Registro:&nbsp;&nbsp;</b> {fecha_reg}</p>',           
+	                '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Usuario Modificación:&nbsp;&nbsp;</b> {usr_mod}</p>',
+	                '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Fecha Modificación:&nbsp;&nbsp;</b> {fecha_mod}</p>'
+	            )
+	    }) ,
 
+		
 	constructor:function(config){
 		this.maestro=config;
 		console.log('sss',config);
     	//llama al constructor de la clase padre
-		Phx.vista.FaseConceptoIngas.superclass.constructor.call(this,config);
+		Phx.vista.AdqProgramada.superclass.constructor.call(this,config);
 		this.init();
-
-		this.Atributos[1].valorInicial = this.maestro.id_fase;
+		
+		this.Atributos[1].valorInicial = this.maestro.id_proyecto;
 		//Seteo del store de la grilla
 		this.store.baseParams = {
-			id_fase: this.maestro.id_fase
+			id_proyecto: this.maestro.id_proyecto,
+			estado_tiempo:'vencido'
 		};
-		//this.load({	params: {start: 0,limit: this.tam_pag}});
-		this.bloquearMenus();
+		this.load({	params: {start: 0,limit: this.tam_pag}});
 		this.iniciaEventos();
 	},
 			
@@ -47,6 +78,16 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 					inputType:'hidden',
 					name: 'id_fase'
 			},
+			type:'Field',
+			form:true 
+		},
+		{
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'estado_tiempo'
+			 },
 			type:'Field',
 			form:true 
 		},
@@ -81,6 +122,39 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 			type:'ComboBox',
 			id_grupo:1,
 			form:true
+		},
+		       
+        {
+			config:{
+				name: 'nombre_fase',
+				fieldLabel: 'Fase',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:500
+			},
+				type:'TextArea',
+				filters:{pfiltro:'facoing.descripcion',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
+
+				        
+         {
+			config:{
+				name: 'tipo',
+				fieldLabel: 'Tipo',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:100
+			},
+				type:'TextArea',
+				filters:{pfiltro:'facoing.tipo',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false
 		},
 		{
             config:{
@@ -125,7 +199,9 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				qtip:'Si el concepto de gasto que necesita no existe por favor comuníquese con el área de presupuestos para solicitar la creación.',
 				//tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_ingas}</p></div></tpl>',
 				renderer:function(value, p, record){
-					return String.format('{0}', record.data['desc_ingas']);
+					console.log('record',record);
+					
+				return '<tpl for="."><div class="x-combo-list-item"><p><b>Concepto de Gasto: </b> '+record.data['desc_ingas'] +'</p><p><b>Descripcion: </b> <font color="blue">'+record.data['descripcion']+'</font></p></div></tpl>';
 				}
             },
             type:'ComboBox',
@@ -135,22 +211,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
-        
-         {
-			config:{
-				name: 'tipo',
-				fieldLabel: 'Tipo',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:100
-			},
-				type:'TextArea',
-				filters:{pfiltro:'facoing.tipo',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
-		},
+
 		{
 			config:{
 				name: 'fecha_estimada',
@@ -158,19 +219,34 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y',
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+							format: 'd/m/Y', 
+							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
 				filters:{pfiltro:'facoing.fecha_estimada',type:'date'},
 				id_grupo:1,
 				grid:true,
+				form:false
+		},
+		 {
+			config:{
+				name: 'dias',
+				fieldLabel: 'Dias Faltantes',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 300,
+				maxLength:500
+			},
+				type:'TextArea',
+				filters:{pfiltro:'facoing.dias_fatantes',type:'string'},
+				id_grupo:1,
+				grid:true,
 				form:true
 		},
-        {
+		{
 			config:{
 				name: 'descripcion',
-				fieldLabel: 'Descripción',
+				fieldLabel: 'Descripcion',
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 300,
@@ -179,9 +255,10 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				type:'TextArea',
 				filters:{pfiltro:'facoing.descripcion',type:'string'},
 				id_grupo:1,
-				grid:true,
+				grid:false,
 				form:true
 		},
+
         {
 			config:{
 				name: 'cantidad_est',
@@ -454,9 +531,10 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 	],
 	tam_pag:50,	
 	title:'Fase Concepto de Gasto',
+	/*
 	ActSave:'../../sis_proyectos/control/FaseConceptoIngas/insertarFaseConceptoIngas',
-	ActDel:'../../sis_proyectos/control/FaseConceptoIngas/eliminarFaseConceptoIngas',
-	ActList:'../../sis_proyectos/control/FaseConceptoIngas/listarFaseConceptoIngas',
+	ActDel:'../../sis_proyectos/control/FaseConceptoIngas/eliminarFaseConceptoIngas',*/
+	ActList:'../../sis_proyectos/control/FaseConceptoIngas/listarFaseConceptoIngasProgramado',
 	id_store:'id_fase_concepto_ingas',
 	fields: [
 		{name:'id_fase_concepto_ingas', type: 'numeric'},
@@ -484,15 +562,21 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{name:'tipo', type: 'string'},
 		{name:'desc_unidad_medida', type: 'string'},
 		{name:'precio_total', type: 'numeric'},
-		{name:'fecha_estimada', type: 'date'}
+		{name:'nombre_fase', type: 'string'},
+		{name:'fecha_estimada', type: 'date'},
+		{name:'estado_tiempo', type: 'string'},
+		{name:'dias', type: 'numeric'},
+
 
 	],
 	sortInfo:{
 		field: 'id_fase_concepto_ingas',
 		direction: 'ASC'
 	},
-	bdel:true,
-	bsave:true,
+	bnew:false,
+	bedit:false,
+	bdel:false,
+	bsave:false,
 
 	iniciaEventos: function(){
 		//Evento para obtener el total
@@ -535,31 +619,16 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 			}
 		},this)
 	},
-	
+	/*
 	onReloadPage: function (m) {
 				//alert ('asda');
 				  
 		            this.maestro = m;
-		            this.store.baseParams = {id_fase: this.maestro.id_fase};
+		            this.store.baseParams = {id_proyecto: this.maestro.id_proyecto};
 		           
 		            this.load({params: {start: 0, limit: 50}})
-		            this.Atributos[1].valorInicial = this.maestro.id_fase;
+		            this.Atributos[1].valorInicial = this.maestro.id_proyecto;
 		            
-	},
-	
-	 onButtonEdit: function(){
-		Phx.vista.FaseConceptoIngas.superclass.onButtonEdit.call(this);
-    	var rec=this.sm.getSelected();
-    	console.log('rec',rec);
-    	if (rec.data.tipo == 'Bien') {
-    	this.Cmp.id_bien_servicio.setValue('Bien');
-
-    	} else{
-    	this.Cmp.id_bien_servicio.setValue('Servicio');
-    	};
-    	
-
-
-	},
+	}*/
 })
 </script>

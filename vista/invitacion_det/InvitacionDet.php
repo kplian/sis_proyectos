@@ -42,6 +42,16 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
+		{
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'id_fase'
+			},
+			type:'Field',
+			form:true 
+		},
 				
 			
 		{
@@ -584,6 +594,7 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 	id_store:'id_invitacion_det',
 	fields: [
 		{name:'id_invitacion_det', type: 'numeric'},
+		{name:'id_fase', type: 'numeric'},
 		{name:'id_fase_concepto_ingas', type: 'numeric'},
 		{name:'id_invitacion', type: 'numeric'},
 		{name:'estado_reg', type: 'string'},

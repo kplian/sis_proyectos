@@ -769,6 +769,16 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 						console.log('data',record.data);
 						//if(record.data.ID == 'planif' ){
 						if(record.data.codigo == 'planif' ){
+									
+								 this.Cmp.id_fase_concepto_ingas.reset();
+							     this.Cmp.observaciones.reset();
+							     this.Cmp.id_unidad_medida.reset();     
+							     this.Cmp.cantidad_sol.reset();
+							     this.Cmp.precio.reset();								
+								 this.Cmp.id_concepto_ingas.reset();
+								 this.Cmp.id_fase.reset();
+																	
+								
 								
 								 this.ocultarComponente(this.Cmp.id_concepto_ingas);
 								 this.ocultarComponente(this.Cmp.id_fase);
@@ -820,7 +830,14 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 					            } ,this);
 
 						} else{
-								
+								 this.Cmp.id_fase_concepto_ingas.reset();
+							     this.Cmp.observaciones.reset();
+							     this.Cmp.id_unidad_medida.reset();     
+							     this.Cmp.cantidad_sol.reset();
+							     this.Cmp.precio.reset();
+							     this.Cmp.id_concepto_ingas.reset();
+								 this.Cmp.id_fase.reset();	
+							     
 							     this.mostrarComponente(this.Cmp.id_concepto_ingas);
 							     this.mostrarComponente(this.Cmp.id_fase);								 
 							     this.ocultarComponente(this.Cmp.id_fase_concepto_ingas);

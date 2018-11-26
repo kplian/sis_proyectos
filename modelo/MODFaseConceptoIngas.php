@@ -54,6 +54,7 @@ class MODFaseConceptoIngas extends MODbase{
 		
 		
 		$this->captura('precio_total','numeric');
+		$this->captura('fecha_estimada','date');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -82,6 +83,7 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->setParametro('precio_mb','precio_mb','numeric');
 		$this->setParametro('precio','precio','numeric');
 		$this->setParametro('precio_mt','precio_mt','numeric');
+		$this->setParametro('fecha_estimada','fecha_estimada','date');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -111,6 +113,8 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->setParametro('precio_mb','precio_mb','numeric');
 		$this->setParametro('precio','precio','numeric');
 		$this->setParametro('precio_mt','precio_mt','numeric');
+		$this->setParametro('fecha_estimada','fecha_estimada','date');
+		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -133,6 +137,58 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+		function listarFaseConceptoIngasProgramado(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='pro.ft_fase_concepto_ingas_sel';
+		$this->transaccion='PRO_FACOINGPRO_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('id_fase_concepto_ingas','int4');
+		$this->captura('id_fase','int4');
+		$this->captura('id_concepto_ingas','int4');
+		$this->captura('id_unidad_medida','int4');
+		$this->captura('tipo_cambio_mt','numeric');
+		$this->captura('descripcion','varchar');
+		$this->captura('tipo_cambio_mb','numeric');
+		$this->captura('estado','varchar');
+		$this->captura('estado_reg','varchar');
+		$this->captura('cantidad_est','numeric');
+		$this->captura('precio_mb','numeric');
+		$this->captura('precio','numeric');
+		$this->captura('precio_mt','numeric');
+		$this->captura('id_usuario_ai','int4');
+		$this->captura('usuario_ai','varchar');
+		$this->captura('fecha_reg','timestamp');
+		$this->captura('id_usuario_reg','int4');
+		$this->captura('id_usuario_mod','int4');
+		$this->captura('fecha_mod','timestamp');
+		$this->captura('usr_reg','varchar');
+		$this->captura('usr_mod','varchar');
+		$this->captura('desc_ingas','varchar');
+		$this->captura('tipo','varchar');
+		
+		$this->captura('codigo_fase','varchar');
+		$this->captura('nombre_fase','varchar');
+		
+		$this->captura('id_proyecto','int4');
+	
+		$this->captura('fecha_estimada','date');
+	    $this->captura('id_invitacion_det','integer');
+		$this->captura('dias','integer');
+		$this->captura('estado_tiempo','varchar');
+		
+		
+		
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}

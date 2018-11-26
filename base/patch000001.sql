@@ -558,3 +558,59 @@ WITH (oids = false);
 ALTER TABLE pro.tproyecto_activo
   ADD COLUMN id_activo_fijo INTEGER;
 /***********************************F-SCP-RCM-PRO-1-03/10/2018****************************************/
+
+/***********************************I-SCP-RCM-PRO-1-24/10/2018****************************************/
+ALTER TABLE pro.tfase
+  ADD COLUMN id_funcionario INTEGER;
+
+COMMENT ON COLUMN pro.tfase.id_funcionario
+IS 'Funcionario asignado a la tarea';
+
+CREATE TABLE pro.tfase_avance_obs (
+  id_fase_avance_obs SERIAL,
+  id_proyecto INTEGER,
+  id_fase INTEGER,
+  fecha DATE,
+  porcentaje NUMERIC(18,2),
+  observaciones VARCHAR(5000),
+  tipo VARCHAR(15),
+  CONSTRAINT tfase_avance_obs_idx UNIQUE(tipo, fecha, id_fase),
+  CONSTRAINT tfase_avance_obs_pkey PRIMARY KEY(id_fase_avance_obs),
+  CONSTRAINT chk_tfase_avance_obs__tipo CHECK ((tipo)::text = ANY ((ARRAY['avance'::character varying, 'avance_visual'::character varying, 'observacion'::character varying])::text[]))
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE pro.tfase_avance_obs
+  ADD CONSTRAINT chk_tfase_avance_obs__tipo CHECK (tipo in ('avance','avance_visual','observacion'));
+/***********************************F-SCP-RCM-PRO-1-24/10/2018****************************************/
+
+/***********************************F-SCP-RCM-PRO-1-20/11/2018****************************************/
+CREATE TABLE pro.tproyecto_fase_archivo (
+  id_proyecto_fase_archivo SERIAL,
+  id_proyecto INTEGER NOT NULL,
+  id_fase INTEGER NULL,
+  descripcion VARCHAR(500) NOT NULL,
+  nombre_archivo VARCHAR(120) NOT NULL,
+  PRIMARY KEY(id_fase_concepto_ingas)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE pro.tfase_concepto_ingas
+  ADD COLUMN fecha_estimada DATE;
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.fecha_estimada
+IS 'Fecha estimada para realizar la invitación para la adquisición';
+/***********************************F-SCP-RCM-PRO-1-20/11/2018****************************************/
+
+
+/***********************************F-SCP-EGS-PRO-0-26/11/2018****************************************/
+
+ALTER TABLE pro.tfase
+  ADD COLUMN id_proceso_wf INTEGER;
+ALTER TABLE pro.tfase
+  ADD COLUMN id_estado_wf INTEGER;
+ALTER TABLE pro.tfase
+  ADD COLUMN nro_tramite VARCHAR(150);
+
+/***********************************F-SCP-EGS-PRO-0-26/11/2018****************************************/

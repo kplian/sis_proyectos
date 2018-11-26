@@ -79,6 +79,7 @@ class MODInvitacionDet extends MODbase{
 		$this->setParametro('descripcion','descripcion','text');
 		$this->setParametro('id_fase','id_fase','int4');
 		$this->setParametro('id_concepto_ingas','id_concepto_ingas','int4');
+		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

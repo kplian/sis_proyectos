@@ -139,8 +139,10 @@ BEGIN
             	--raise exception'v_id_funcionario if %',v_id_funcionario;
                 
             END IF;
-      		--raise exception'v_id_funcionario %',v_id_funcionario;
-            	
+      		--raise exception'v_id_funcionario %',pxp.f_existe_parametro(p_tabla,'fecha_real');
+            IF	pxp.f_existe_parametro(p_tabla,'fecha_real') = FALSE	THEN
+            	--v_parametros.fecha_real = now()::date;
+            END IF;
         	
         	
              -- inciar el tramite en el sistema de WF
@@ -176,7 +178,7 @@ BEGIN
 			codigo,
 			fecha,
 			descripcion,
-			fecha_real,
+			--fecha_real,
 			estado_reg,
 			estado,
 			id_estado_wf,
@@ -198,7 +200,7 @@ BEGIN
 			v_parametros.codigo,
 			v_parametros.fecha,
 			v_parametros.descripcion,
-			v_parametros.fecha_real,
+		--	v_parametros.fecha_real,
 			'activo',
 			v_codigo_estado,
 			v_id_estado_wf,
@@ -245,7 +247,7 @@ BEGIN
 			
 			fecha = v_parametros.fecha,
 			descripcion = v_parametros.descripcion,
-			fecha_real = v_parametros.fecha_real,
+			--fecha_real = v_parametros.fecha_real,
 		
 			
 			
@@ -622,6 +624,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-
-ALTER FUNCTION pro.ft_invitacion_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

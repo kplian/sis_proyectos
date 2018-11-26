@@ -49,6 +49,35 @@ class ACTFaseConceptoIngas extends ACTbase{
 		$this->res=$this->objFunc->eliminarFaseConceptoIngas($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+	
+	function listarFaseConceptoIngasProgramado(){
+		$this->objParam->defecto('ordenacion','id_fase_concepto_ingas');
+		$this->objParam->defecto('dir_ordenacion','asc');
+
+		if($this->objParam->getParametro('id_fase')!=''){
+			$this->objParam->addFiltro("facoing.id_fase = ".$this->objParam->getParametro('id_fase'));
+		}
+		if($this->objParam->getParametro('id_proyecto')!=''){
+			$this->objParam->addFiltro("fase.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
+		}
+		
+		if($this->objParam->getParametro('estado_tiempo')!=''){
+			$this->objParam->addFiltro("est.estado = ''".$this->objParam->getParametro('estado_tiempo')."''");
+		}
+		
+	
+
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODFaseConceptoIngas','listarFaseConceptoIngasProgramado');
+		} else{
+			$this->objFunc=$this->create('MODFaseConceptoIngas');
+			
+			$this->res=$this->objFunc->listarFaseConceptoIngasProgramado($this->objParam);
+		}
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+		
 			
 }
 

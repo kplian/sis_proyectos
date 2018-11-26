@@ -28,3 +28,16 @@ select pxp.f_insert_testructura_gui ('PRO_1.3', 'PRO_1');
 select pxp.f_add_catalog('PRO','tinvitacion_det__tipo','Planificado','planif');
 select pxp.f_add_catalog('PRO','tinvitacion_det__tipo','No Planificado','no_planif');
 /***********************************F-DAT-RCM-PRO-1-27/08/2018****************************************/
+
+/***********************************I-DAT-RCM-PRO-1-21/11/2018****************************************/
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES
+  (E'py_compras_dias_venc', E'60', E'Cantidad de días para recordatorio de lanzamiento');
+/***********************************F-DAT-RCM-PRO-1-21/11/2018****************************************/
+
+/***********************************I-DAT-EGS-PRO-0-26/11/2018****************************************/
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'tipo_proceso_macro_proyectos', E'INV,PPY,PFA', E' invitaciones,planificacion,fases  codigos de tipo de procesos del sistema de proyectos');
+/***********************************F-DAT-EGS-PRO-0-26/11/2018****************************************/

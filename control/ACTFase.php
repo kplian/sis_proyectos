@@ -192,6 +192,17 @@ class ACTFase extends ACTbase{
         $this->res->imprimirRespuesta($this->res->generarJson());
 
    }
+	function siguienteEstado(){
+        $this->objFunc=$this->create('MODFase');  
+        $this->res=$this->objFunc->siguienteEstado($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    function anteriorEstado(){
+        $this->objFunc=$this->create('MODFase');  
+        $this->res=$this->objFunc->anteriorEstado($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 
 }
 

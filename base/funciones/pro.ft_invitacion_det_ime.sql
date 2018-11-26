@@ -116,11 +116,11 @@ BEGIN
 			usuario_ai = v_parametros._nombre_usuario_ai,
             cantidad_sol =  v_parametros.cantidad_sol,
             id_unidad_medida = v_parametros.id_unidad_medida,
-            precio = v_parametros.precio,
-            id_centro_costo =  v_parametros.id_centro_costo,
-            descripcion = v_parametros.descripcion,
-            id_fase=v_parametros.id_fase,
-            id_concepto_ingas=v_parametros.id_concepto_ingas
+            precio = v_parametros.precio
+            --id_centro_costo =  v_parametros.id_centro_costo
+            --descripcion = v_parametros.descripcion
+           -- id_fase=v_parametros.id_fase
+           --id_concepto_ingas=v_parametros.id_concepto_ingas
 			where id_invitacion_det=v_parametros.id_invitacion_det;
                
 			--Definicion de la respuesta
@@ -177,6 +177,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-
-ALTER FUNCTION pro.ft_invitacion_det_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

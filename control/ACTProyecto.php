@@ -206,7 +206,18 @@ class ACTProyecto extends ACTbase{
         $this->res=$this->objFunc->anteriorEstadoCierre($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+	
+	function siguienteEstado(){
+        $this->objFunc=$this->create('MODProyecto');  
+        $this->res=$this->objFunc->siguienteEstado($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 
+    function anteriorEstado(){
+        $this->objFunc=$this->create('MODProyecto');  
+        $this->res=$this->objFunc->anteriorEstado($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 }
 
 ?>

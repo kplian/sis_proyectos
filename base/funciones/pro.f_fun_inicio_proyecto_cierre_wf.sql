@@ -117,7 +117,7 @@ BEGIN
 
         update conta.tint_comprobante set
         cbte_aitb = 'si'
-        where id_int_comprobante = id_int_comprobante;
+        where id_int_comprobante = v_id_int_comprobante;
 
         --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
         update conta.tint_transaccion set
@@ -150,7 +150,7 @@ BEGIN
 
         update conta.tint_comprobante set
         cbte_aitb = 'si'
-        where id_int_comprobante = id_int_comprobante;
+        where id_int_comprobante = v_id_int_comprobante;
 
         --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
         update conta.tint_transaccion set
@@ -176,6 +176,17 @@ BEGIN
                                     p_usuario_ai
                                 );
 
+        --BORRAR
+        --Actualización del Id del comprobante
+        update pro.tproyecto set
+        id_int_comprobante_4 = v_id_int_comprobante4
+        where id_proceso_wf_cierre = p_id_proceso_wf;
+
+        update conta.tint_comprobante set
+        cbte_aitb = 'si'
+        where id_int_comprobante = v_id_int_comprobante4;
+        --FIN BORRAR
+
 
         --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
         update conta.tint_transaccion set
@@ -190,13 +201,13 @@ BEGIN
         actualizacion = 'si'
         where id_int_comprobante = v_id_int_comprobante4;
 
-        --Une las transacciones al comprobante 3
+        /*--Une las transacciones al comprobante 3
         update conta.tint_transaccion set
         id_int_comprobante = v_id_int_comprobante
         where id_int_comprobante = v_id_int_comprobante4;
 
         --Eliminación del comprobante 4
-        delete from conta.tint_comprobante where id_int_comprobante = v_id_int_comprobante4;
+        delete from conta.tint_comprobante where id_int_comprobante = v_id_int_comprobante4;*/
 
     elsif p_codigo_estado = 'finalizado' then
 

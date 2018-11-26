@@ -110,8 +110,8 @@ BEGIN
 	/*********************************   
      #TRANSACCION:  'PRO_FASEARB_SEL'
      #DESCRIPCION:  Consulta fases por proyecto de tipo árbol
-     #AUTOR:        RCM
-     #FECHA:        25/10/2017
+     #AUTOR:        EGS
+     #FECHA:        
     ***********************************/
 
     elseif(p_transaccion='PRO_FASEARB_SEL')then
@@ -153,12 +153,17 @@ BEGIN
 						fase.id_usuario_ai,
 						fase.id_usuario_mod,
 						fase.fecha_mod,
+                        fase.id_proceso_wf,
+                        fase.id_estado_wf,
+                        fase.nro_tramite,
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
 						case
 						when coalesce(fase.id_fase_fk,0) = 0 then ''raiz''::varchar
 							else ''hijo''::varchar
-						end as tipo_nodo
+						end as tipo_nodo,
+                        fase.fecha_ini_real,
+                        fase.fecha_fin_real
 						from pro.tfase fase
 						inner join segu.tusuario usu1 on usu1.id_usuario = fase.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = fase.id_usuario_mod
@@ -170,6 +175,7 @@ BEGIN
             return v_consulta;
                        
         end;
+
 					
 	else
 					     
@@ -192,6 +198,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-
-ALTER FUNCTION pro.ft_fase_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

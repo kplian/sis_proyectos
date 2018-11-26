@@ -76,7 +76,9 @@ BEGIN
 						proy.id_proceso_wf,
 						proy.id_estado_wf,
 						proy.nro_tramite,
-						proy.estado
+						proy.estado,
+                        proy.fecha_ini_real,
+						proy.fecha_fin_real
 						from pro.tproyecto proy
 						inner join segu.tusuario usu1 on usu1.id_usuario = proy.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = proy.id_usuario_mod

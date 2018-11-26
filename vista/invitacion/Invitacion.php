@@ -184,7 +184,7 @@ Phx.vista.Invitacion = {
               //url:'../../sis_workflow/control/ProcesoWf/anteriorEstadoProcesoWf',
                 url:'../../sis_proyectos/control/Invitacion/anteriorEstado',
             params:{
-            	id_invitacion:      wizard.data.id_invitacion,
+            	id_invitacion: wizard.data.id_invitacion,
                 id_proceso_wf: resp.id_proceso_wf,
                 id_estado_wf:  resp.id_estado_wf,  
                 obs: resp.obs,
@@ -228,14 +228,7 @@ Phx.vista.Invitacion = {
 	                tooltip: '<b>Muestra el reporte gantt facil de entender</b>',
 	                handler:this.diagramGanttDinamico,
 	                scope: this
-	            },
-	             {
-                id:'b-ganttJs-' + this.idContenedor,
-                text: 'Gantt JS',
-                tooltip: '<b>Muestra el reporte </b>',
-                handler:this.diagramGanttJs,
-                scope: this
-            	}]
+	            }]
             }
         });
 		this.tbar.add(this.menuAdqGantt);
@@ -270,18 +263,11 @@ Phx.vista.Invitacion = {
 		var data = this.getSelectedData();
 		var tb = this.tbar;
 		Phx.vista.Invitacion.superclass.preparaMenu.call(this, n);
-		
-       
-        
-        
 		this.getBoton('ant_estado').disable();
 		this.getBoton('sig_estado').disable();
-
-		
-			
 			
 			if(data.estado == 'borrador') {			
-				
+		
 				this.getBoton('sig_estado').enable();
 				
 			} else if(data.estado == 'finalizado'){
@@ -299,26 +285,14 @@ Phx.vista.Invitacion = {
 				this.getBoton('del').enable();
 				this.getBoton('edit').enable();
 			}	
-
-			 
-	
-
 		//Habilita el resto de los botones
         this.getBoton('diagrama_gantt').enable();
         //this.getBoton('btnObs').enable();
         //this.getBoton('btnChequeoDocumentosWf').enable();
-         
-        //boton de recibo
-   
-       
-        
-
-        
+ 
 		return tb
 	},
 
-		
-		
 	liberaMenu: function() {
 		var tb = Phx.vista.Invitacion.superclass.liberaMenu.call(this);
 		if (tb) {
@@ -327,11 +301,8 @@ Phx.vista.Invitacion = {
             this.getBoton('diagrama_gantt').disable();
             //this.getBoton('btnObs').disable();
             //this.getBoton('btnChequeoDocumentosWf').disable();
-            
-            
            // this.getBoton('btnDetalleDocumentoCobroSimple').disable();
-            
-           
+          
 		}
 	
 		return tb
