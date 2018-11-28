@@ -430,6 +430,7 @@ BEGIN
             --verificamos en que estado esta el proyecto
         	SELECT
             pro.estado
+        
             INTO
             v_rec_proyecto
             FROM pro.tproyecto pro
@@ -441,6 +442,10 @@ BEGIN
                     ELSIF(v_parametros.fecha_fin_real is not null)THEN
                     	raise exception 'No Debe Ingresar una fecha real en este estado %',v_rec_proyecto.estado;
                     END IF;
+            END IF;
+            
+             IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
+                raise exception 'No puede Modificar el proyecto en estado de  %',v_rec_proyecto.estado;
             END IF;
 
             SELECT
@@ -494,8 +499,22 @@ BEGIN
 	***********************************/
 
 	elsif(p_transaccion='PRO_PROY_ELI')then
-
+		
 		begin
+        
+        	 --verificamos en que estado esta el proyecto
+        	SELECT
+            pro.estado
+        
+            INTO
+            v_rec_proyecto
+            FROM pro.tproyecto pro
+  			WHERE pro.id_proyecto = v_parametros.id_proyecto;
+    		
+              IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
+                raise exception 'No puede Eliminar el proyecto en estado de  %',v_rec_proyecto.estado;
+            END IF;
+            
         	IF(SELECT
             	count(fase.id_fase)
             FROM pro.tfase fase

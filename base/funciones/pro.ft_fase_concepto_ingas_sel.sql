@@ -27,6 +27,8 @@ DECLARE
 	v_nombre_funcion   	text;
 	v_resp				varchar;
     v_item				record;
+    v_bandera			VARCHAR;
+    dias_vigentes		integer;
 			    
 BEGIN
 
@@ -131,8 +133,8 @@ BEGIN
            				
               begin 	
               	   
-              	
-              	  
+              	v_bandera = split_part(pxp.f_get_variable_global('py_compras_dias_venc'), ',', 1);
+              
                   --raise exception 'entra';
                   --Sentencia de la consulta
                   v_consulta:='              
@@ -157,7 +159,7 @@ BEGIN
                               CASE
                               WHEN	((facoing.fecha_estimada-now()::date)::integer) < 0	THEN
                               		''vencido''::varchar
-                              WHEN	0 <= ((facoing.fecha_estimada-now()::date)::integer) and ((facoing.fecha_estimada-now()::date)::integer) <= 60	THEN
+                              WHEN	0 <= ((facoing.fecha_estimada-now()::date)::integer) and ((facoing.fecha_estimada-now()::date)::integer) <= '||v_bandera::integer||'	THEN
                               		''vigente''::varchar
                               ELSE
                               		''otros''::varchar

@@ -17,6 +17,7 @@ Phx.vista.ProyectoPr = {
         this.maestro = config;
         this.init();
         this.iniciarEventos();
+		
         this.addBotonesGantt();
 
         //Botón para Imprimir el Comprobante
@@ -53,9 +54,13 @@ Phx.vista.ProyectoPr = {
        	    disabled: false, 
        	    handler: this.adquisicionesProgramadas, 
        	    tooltip: 'Adquicisiones Programadas'});
-       	    
-		   
-       	 
+     
+    },
+    
+    
+    iniciarEventos: function(){
+
+    	
     },
     	loadCheckDocumentosWf:function() {
             var rec=this.sm.getSelected();
@@ -176,7 +181,7 @@ Phx.vista.ProyectoPr = {
 		
 		var tb = Phx.vista.ProyectoPr.superclass.preparaMenu.call(this);
 		var data = this.getSelectedData();
-		console.log('data',data);
+		console.log('tb',tb);
 		this.getBoton('btnChequeoDocumentosWf').enable();
 		this.getBoton('diagrama_gantt').enable();
 		this.getBoton('btnFases').enable();
@@ -186,6 +191,7 @@ Phx.vista.ProyectoPr = {
 
 		if(data.estado == 'finalizado' ){
 		this.getBoton('sig_estado').disable();
+
 		}
 		else{
 			this.getBoton('sig_estado').enable();
@@ -198,7 +204,12 @@ Phx.vista.ProyectoPr = {
 			this.getBoton('ant_estado').enable();
 		}
 		
-
+		if (tb && this.bedit && (data.estado == 'cierre' || data.estado == 'finalizado' )) {
+            tb.items.get('b-edit-' + this.idContenedor).disable()
+            }
+         if (tb && this.bdel && (data.estado == 'cierre' || data.estado == 'finalizado' )) {
+            tb.items.get('b-del-' + this.idContenedor).disable()
+            }
 		return tb;
 	},
 	liberaMenu: function(){
@@ -215,6 +226,7 @@ Phx.vista.ProyectoPr = {
 		this.getBoton('ant_estado').disable();
 		
         this.getBoton('diagrama_gantt').disable();
+        
 		}
 		return tb;
 	},

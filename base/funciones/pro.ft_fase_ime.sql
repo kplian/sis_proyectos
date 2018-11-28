@@ -63,6 +63,8 @@ DECLARE
     v_id_estado_wf_ant		integer;
     
     v_fecha					date;
+    v_rec_proyecto			record;
+    v_record_fase			record;
     
     
     
@@ -253,7 +255,25 @@ BEGIN
 	***********************************/
 
 	elsif(p_transaccion='PRO_FASE_MOD')then
-    
+    	begin
+        	SELECT
+            	fase.id_proyecto
+            INTO 
+            	v_record_fase
+            FROM pro.tfase fase
+            WHERE fase.id_fase = v_parametros.id_fase;
+        
+        --verificamos en que estado esta el proyecto
+        	SELECT
+            pro.estado
+        
+            INTO
+            v_rec_proyecto
+            FROM pro.tproyecto pro
+  			WHERE pro.id_proyecto = v_record_fase.id_proyecto;
+           IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
+                raise exception 'No puede Modificar la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
+            END IF;
     	----verificamos en que estado esta la fase
     	    SELECT
             fase.estado
@@ -270,7 +290,7 @@ BEGIN
                     END IF;
             END IF;  
 
-		begin
+		
 			--Sentencia de la modificacion
 			update pro.tfase set
 			id_proyecto = v_parametros.id_proyecto,
@@ -308,6 +328,26 @@ BEGIN
 	elsif(p_transaccion='PRO_FASE_ELI')then
 
 		begin
+     	
+        	SELECT
+            	fase.id_proyecto
+            INTO 
+            	v_record_fase
+            FROM pro.tfase fase
+            WHERE fase.id_fase = v_parametros.id_fase;
+        
+        --verificamos en que estado esta el proyecto
+        	SELECT
+            pro.estado
+        
+            INTO
+            v_rec_proyecto
+            FROM pro.tproyecto pro
+  			WHERE pro.id_proyecto = v_record_fase.id_proyecto;
+           IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
+                raise exception 'No puede Modificar la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
+            END IF;
+        	
 			--Sentencia de la eliminacion
 			delete from pro.tfase
             where id_fase=v_parametros.id_fase;

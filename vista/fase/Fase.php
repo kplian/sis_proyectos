@@ -19,7 +19,8 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 		//Valores del padre/
 
 		this.Atributos[1].valorInicial=this.maestro.id_proyecto;
-        console.log(this.maestro.id_proyecto);
+		console.log('id_proyecto',this.maestro.id_proyecto);
+        console.log('Estado',this.maestro.estado);
 
 		this.init();
 		this.addBotonesGantt();
@@ -582,6 +583,18 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 		else{
 			this.getBoton('ant_estado').enable();
 		}
+		
+		if(this.maestro.estado == 'cierre' || this.maestro.estado == 'finalizado' ){
+			this.getBoton('sig_estado').disable();
+			this.getBoton('ant_estado').disable();
+		}
+		
+		if (tb && this.bedit && (this.maestro.estado == 'cierre' || this.maestro.estado == 'finalizado' )) {
+            tb.items.get('b-edit-' + this.idContenedor).disable()
+            }
+         if (tb && this.bdel && (this.maestro.estado == 'cierre' || this.maestro.estado == 'finalizado' )) {
+            tb.items.get('b-del-' + this.idContenedor).disable()
+            }
 		
 		
 		return tb;
