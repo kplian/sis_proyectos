@@ -85,7 +85,18 @@ BEGIN
 	if(p_transaccion='PRO_FASE_INS')then
 					
         begin
+        --verificamos en que estado esta el proyecto
+        	SELECT
+            pro.estado
         
+            INTO
+            v_rec_proyecto
+            FROM pro.tproyecto pro
+  			WHERE pro.id_proyecto = v_parametros.id_proyecto;
+
+            IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
+                raise exception 'No puede Modificar el proyecto en estado de  %',v_rec_proyecto.estado;
+            END IF;
         	
 
         	--Verificación del ID de la fase padre

@@ -11,10 +11,11 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
-
+	 
 	constructor:function(config){
 		this.maestro=config;
-		console.log('sss',config);
+		var estado_proyecto;
+		console.log('fase concepto',this.maestro.id_fase);
     	//llama al constructor de la clase padre
 		Phx.vista.FaseConceptoIngas.superclass.constructor.call(this,config);
 		this.init();
@@ -544,8 +545,31 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		           
 		            this.load({params: {start: 0, limit: 50}})
 		            this.Atributos[1].valorInicial = this.maestro.id_fase;
-		            
+		            this.obtenerProyecto(this.maestro.id_proyecto);
 	},
+	
+	
+	obtenerProyecto: function(config){
+			console.log('config',config);
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_proyectos/control/Proyecto/listarProyecto',
+                params:{
+                    id_proyecto: config
+                },
+                success: function(resp){
+                	 Phx.CP.loadingHide();
+                     var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                   
+                        //console.log(reg.datos[0]['estado']);
+               			this.estado_proyecto =reg.datos[0]['estado'];
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
+ 
+        },
 	
 	 onButtonEdit: function(){
 		Phx.vista.FaseConceptoIngas.superclass.onButtonEdit.call(this);
@@ -557,9 +581,28 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
     	} else{
     	this.Cmp.id_bien_servicio.setValue('Servicio');
     	};
-    	
-
 
 	},
+	
+	preparaMenu: function(n){
+
+		var tb = Phx.vista.FaseConceptoIngas.superclass.preparaMenu.call(this);
+		var data = this.getSelectedData();
+	
+		console.log('estado_proyecto',this.estado_proyecto );
+		if (tb && this.bnew && (this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado' )) {
+            tb.items.get('b-new-' + this.idContenedor).disable();
+            }
+		if (tb && this.bedit && (this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado' )) {
+            tb.items.get('b-edit-' + this.idContenedor).disable();
+            }
+         if (tb && this.bdel && (this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado' )) {
+            tb.items.get('b-del-' + this.idContenedor).disable();
+            }
+		return tb;
+	},
+	
+	
+	
 })
 </script>

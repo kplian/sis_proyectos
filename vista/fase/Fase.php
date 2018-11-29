@@ -588,6 +588,9 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 			this.getBoton('sig_estado').disable();
 			this.getBoton('ant_estado').disable();
 		}
+		  if (tb && this.bnew && (this.maestro.estado == 'cierre' || this.maestro.estado == 'finalizado' )) {
+            tb.items.get('b-new-' + this.idContenedor).disable()
+            }
 		
 		if (tb && this.bedit && (this.maestro.estado == 'cierre' || this.maestro.estado == 'finalizado' )) {
             tb.items.get('b-edit-' + this.idContenedor).disable()

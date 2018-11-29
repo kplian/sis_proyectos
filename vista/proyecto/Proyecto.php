@@ -188,16 +188,14 @@ Phx.vista.ProyectoPr = {
 		this.getBoton('btnInvitacion').enable();
 		this.getBoton('btnAdqPro').enable();
 
-
 		if(data.estado == 'finalizado' ){
 		this.getBoton('sig_estado').disable();
-
 		}
 		else{
 			this.getBoton('sig_estado').enable();
 		}
 		
-		if(data.estado == 'nuevo' ){
+		if(data.estado == 'nuevo' || data.estado == 'finalizado'){
 		this.getBoton('ant_estado').disable();
 		}
 		else{

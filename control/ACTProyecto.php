@@ -12,11 +12,19 @@ class ACTProyecto extends ACTbase{
 	function listarProyecto(){
 		$this->objParam->defecto('ordenacion','id_proyecto');
 		$this->objParam->defecto('dir_ordenacion','asc');
-
+		$this->objParam->defecto('cantidad',1000000);
+		$this->objParam->defecto('puntero', 0);
+		
+		
+	
+		if($this->objParam->getParametro('id_proyecto')!=''){
+			$this->objParam->addFiltro("proy.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
+		}
+		
 		if($this->objParam->getParametro('estado')!=''){
 			$this->objParam->addFiltro("proy.estado = ''".$this->objParam->getParametro('estado')."''");
 		}
-
+		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODProyecto','listarProyecto');

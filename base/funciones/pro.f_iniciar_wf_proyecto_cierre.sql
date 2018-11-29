@@ -47,7 +47,7 @@ BEGIN
 
     if exists(select 1
     		from pro.tproyecto
-            where estado = 'precierre'
+            where estado = 'cierre'
             and id_proceso_wf_cierre is null) then
 
         --Verifica que haya registrado el DEPTO

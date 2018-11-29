@@ -16,7 +16,7 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
         //llama al constructor de la clase padre
         Phx.vista.ProyectoCierre.superclass.constructor.call(this,config);
         this.init();
-        this.load({params:{start:0, limit:this.tam_pag, estado: 'precierre'}});
+        this.load({params:{start:0, limit:this.tam_pag, estado: 'cierre'}});
 
         this.addButton('btnImportCierre',
             {

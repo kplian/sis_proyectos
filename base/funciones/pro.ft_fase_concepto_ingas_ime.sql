@@ -29,6 +29,8 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
 	v_id_fase_concepto_ingas	integer;
+    v_record_fase			record;
+    v_rec_proyecto			record;
 			    
 BEGIN
 
@@ -45,6 +47,20 @@ BEGIN
 	if(p_transaccion='PRO_FACOING_INS')then
 					
         begin
+    
+        
+        --verificamos en que estado esta el proyecto
+        	SELECT
+            pro.estado
+            INTO
+            v_rec_proyecto
+            FROM pro.tproyecto pro
+            left join pro.tfase fase on fase.id_proyecto = pro.id_proyecto
+  			WHERE fase.id_fase = v_parametros.id_fase;
+           IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
+                raise exception 'No puede Modificar la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
+            END IF;
+        	
         	--Sentencia de la insercion
         	insert into pro.tfase_concepto_ingas(
 			id_fase,
@@ -110,6 +126,17 @@ BEGIN
 	elsif(p_transaccion='PRO_FACOING_MOD')then
 
 		begin
+        	--verificamos en que estado esta el proyecto
+        	SELECT
+            pro.estado
+            INTO
+            v_rec_proyecto
+            FROM pro.tproyecto pro
+            left join pro.tfase fase on fase.id_proyecto = pro.id_proyecto
+  			WHERE fase.id_fase = v_parametros.id_fase;
+           IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
+                raise exception 'No puede Modificar la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
+            END IF;
 			--Sentencia de la modificacion
 			update pro.tfase_concepto_ingas set
 			id_fase = v_parametros.id_fase,
@@ -148,6 +175,24 @@ BEGIN
 	elsif(p_transaccion='PRO_FACOING_ELI')then
 
 		begin
+        	--verificamos en que estado esta el proyecto
+            SELECT
+            facoing.id_fase
+            into
+            v_record_fase
+            FROM pro.tfase_concepto_ingas facoing
+            WHERE facoing.id_fase_concepto_ingas=v_parametros.id_fase_concepto_ingas;
+            
+        	SELECT
+            pro.estado
+            INTO
+            v_rec_proyecto
+            FROM pro.tproyecto pro
+            left join pro.tfase fase on fase.id_proyecto = pro.id_proyecto
+  			WHERE fase.id_fase = v_record_fase.id_fase;
+           IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
+                raise exception 'No puede Modificar la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
+            END IF;
 			--Sentencia de la eliminacion
 			delete from pro.tfase_concepto_ingas
             where id_fase_concepto_ingas=v_parametros.id_fase_concepto_ingas;
