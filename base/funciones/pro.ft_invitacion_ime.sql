@@ -12,11 +12,11 @@ $body$
  DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tinvitacion'
  AUTOR: 		 (eddy.gutierrez)
  FECHA:	        22-08-2018 22:32:20
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #0				22-08-2018 22:32:20								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tinvitacion'	
+ #0				22-08-2018 22:32:20								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tinvitacion'
  #
  ***************************************************************************/
 
@@ -29,7 +29,7 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
 	v_id_invitacion	 		integer;
-    
+
     v_codigo_tipo_proceso  varchar;
     v_id_proceso_macro			 integer;
     v_id_gestion				 integer;
@@ -37,8 +37,8 @@ DECLARE
     v_id_proceso_wf				integer;
     v_id_estado_wf				integer;
     v_codigo_estado				varchar;
-    
-    
+
+
     v_codigo_tipo_cobro_simple   integer;
     v_id_tipo_estado				integer;
     v_codigo_estado_siguiente		varchar;
@@ -49,54 +49,55 @@ DECLARE
      v_parametros_ad				varchar;
      v_tipo_noti					varchar;
      v_titulo 						varchar;
-    
+
      v_id_estado_actual				integer;
      v_registros_proc				record;
      v_codigo_tipo_pro				varchar;
      v_codigo_estados				varchar;
-     
-     
+
+
      v_id_cuenta_bancaria			integer;
      v_id_depto_lb					integer;
-     
+
      v_id_funcionario_ini			integer;
      v_id_funcionario				integer;
      v_id_usuario_reg				integer;
      v_id_estado_wf_ant				integer;
-     
-     
-   
-     
-   
-	    
-			    
+     v_rec 							record;
+     v_id_usuario					integer;
+
+
+
+
+
+
 BEGIN
 
     v_nombre_funcion = 'pro.ft_invitacion_ime';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'PRO_IVT_INS'
  	#DESCRIPCION:	Insercion de registros
- 	#AUTOR:		eddy.gutierrez	
+ 	#AUTOR:		eddy.gutierrez
  	#FECHA:		22-08-2018 22:32:20
 	***********************************/
 
 	if(p_transaccion='PRO_IVT_INS')then
-					
+
         begin
-        	
+
         	IF EXISTS(
-              select 
+              select
                1
-              from pro.tinvitacion inv 
+              from pro.tinvitacion inv
               where inv.codigo = v_parametros.codigo
-                    and inv.estado_reg = 'activo') THEN                  
-               raise exception 'ya existe el código de la Invitacion %',v_parametros.codigo;      
+                    and inv.estado_reg = 'activo') THEN
+               raise exception 'ya existe el código de la Invitacion %',v_parametros.codigo;
             END IF;
-        	
-            
-            
+
+
+
              v_codigo_tipo_proceso = split_part(pxp.f_get_variable_global('tipo_proceso_macro_proyectos'), ',', 1);
              --raise exception 'codigo proceso %',v_codigo_tipo_proceso;
              --obtener id del proceso macro
@@ -108,13 +109,13 @@ BEGIN
              from wf.tproceso_macro pm
              left join wf.ttipo_proceso tp on tp.id_proceso_macro  = pm.id_proceso_macro
              where tp.codigo = v_codigo_tipo_proceso;
-             
+
              --raise exception 'id proceso %',v_id_proceso_macro;
-             
+
              If v_id_proceso_macro is NULL THEN
                raise exception 'El proceso macro  de codigo % no esta configurado en el sistema WF',v_codigo_tipo_proceso;
              END IF;
-        	 
+
               --Obtencion de la gestion
                 select
                 per.id_gestion
@@ -124,30 +125,30 @@ BEGIN
                 where per.fecha_ini <= v_parametros.fecha and per.fecha_fin >= v_parametros.fecha
                 limit 1 offset 0;
              --raise exception 'id gestion %',v_id_gestion;
-             
+
              --recuperando funcionario
-             SELECT 
+             SELECT
               fun.id_funcionario
               INTO
               v_id_funcionario
               FROM orga.tfuncionario fun
               LEFT JOIN segu.tusuario usu on usu.id_persona = fun.id_persona
               WHERE usu.id_usuario = p_id_usuario ;
-            
+
            IF (v_parametros.id_funcionario != 0) THEN
             	v_id_funcionario = v_parametros.id_funcionario;
             	--raise exception'v_id_funcionario if %',v_id_funcionario;
-                
+
             END IF;
       		--raise exception'v_id_funcionario %',pxp.f_existe_parametro(p_tabla,'fecha_real');
             IF	pxp.f_existe_parametro(p_tabla,'fecha_real') = FALSE	THEN
             	--v_parametros.fecha_real = now()::date;
             END IF;
-        	
-        	
+
+
              -- inciar el tramite en el sistema de WF
 
-             
+
             SELECT
                    ps_num_tramite ,
                    ps_id_proceso_wf ,
@@ -171,7 +172,7 @@ BEGIN
                    '' );
         	--raise exception 'num tramite %',v_num_tramite;
             --raise exception 'id gestion %',v_id_gestion;
-            
+
         	--Sentencia de la insercion
         	insert into pro.tinvitacion(
 			id_proyecto,
@@ -217,13 +218,13 @@ BEGIN
 			v_parametros.tipo,
 			v_parametros.lugar_entrega,
             v_parametros.dias_plazo_entrega
-							
-			
-			
+
+
+
 			)RETURNING id_invitacion into v_id_invitacion;
-			
+
 			--Definicion de la respuesta
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','invitacion almacenado(a) con exito (id_invitacion'||v_id_invitacion||')'); 
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','invitacion almacenado(a) con exito (id_invitacion'||v_id_invitacion||')');
             v_resp = pxp.f_agrega_clave(v_resp,'id_invitacion',v_id_invitacion::varchar);
 
             --Devuelve la respuesta
@@ -231,10 +232,10 @@ BEGIN
 
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'PRO_IVT_MOD'
  	#DESCRIPCION:	Modificacion de registros
- 	#AUTOR:		eddy.gutierrez	
+ 	#AUTOR:		eddy.gutierrez
  	#FECHA:		22-08-2018 22:32:20
 	***********************************/
 
@@ -243,14 +244,14 @@ BEGIN
 		begin
 			--Sentencia de la modificacion
 			update pro.tinvitacion set
-		
-			
+
+
 			fecha = v_parametros.fecha,
 			descripcion = v_parametros.descripcion,
 			--fecha_real = v_parametros.fecha_real,
-		
-			
-			
+
+
+
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
@@ -262,20 +263,20 @@ BEGIN
             lugar_entrega=v_parametros.lugar_entrega,
             dias_plazo_entrega=v_parametros.dias_plazo_entrega
 			where id_invitacion=v_parametros.id_invitacion;
-               
+
 			--Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','invitacion modificado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','invitacion modificado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_invitacion',v_parametros.id_invitacion::varchar);
-               
+
             --Devuelve la respuesta
             return v_resp;
-            
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'PRO_IVT_ELI'
  	#DESCRIPCION:	Eliminacion de registros
- 	#AUTOR:		eddy.gutierrez	
+ 	#AUTOR:		eddy.gutierrez
  	#FECHA:		22-08-2018 22:32:20
 	***********************************/
 
@@ -285,16 +286,16 @@ BEGIN
 			--Sentencia de la eliminacion
 			delete from pro.tinvitacion
             where id_invitacion=v_parametros.id_invitacion;
-               
+
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','invitacion eliminado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','invitacion eliminado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_invitacion',v_parametros.id_invitacion::varchar);
-              
+
             --Devuelve la respuesta
             return v_resp;
 
 		end;
-        
+
 	/*********************************
 	#TRANSACCION:  	'PRO_SIGEIVT_INS'
 	#DESCRIPCION:  	Controla el cambio al siguiente estado
@@ -302,9 +303,9 @@ BEGIN
 	#FECHA:   		05/01/2018
 	***********************************/
 
-  	
+
   	elseif(p_transaccion='PRO_SIGEIVT_INS')then
-        
+
         begin
 
 	        /*   PARAMETROS
@@ -317,29 +318,29 @@ BEGIN
 	        $this->setParametro('json_procesos','json_procesos','text');
 	        */
 			--raise exception 'entra';
-            
-            
+
+
 	        --Obtenemos datos basicos
-              
-                      
+
+
 			select
-            ew.id_proceso_wf,	
+            ew.id_proceso_wf,
 			c.id_estado_wf,
-			c.estado    
+			c.estado
 			into
 			v_id_proceso_wf,
             v_id_estado_wf,
 			v_codigo_estado
 			from pro.tinvitacion c
-            inner join wf.testado_wf ew on ew.id_estado_wf = c.id_estado_wf  
+            inner join wf.testado_wf ew on ew.id_estado_wf = c.id_estado_wf
 			where c.id_invitacion = v_parametros.id_invitacion;
-            
+
             --raise exception 'v_parametros.id_invitacion %',v_parametros.id_invitacion;
 			--raise exception 'v_id_estado_wf %',v_id_estado_wf;
             --raise exception 'v_codigo_estado %',v_codigo_estado;
-            
-            
-            
+
+
+
 	        --Recupera datos del estado
 			select
 			ew.id_tipo_estado,
@@ -350,7 +351,7 @@ BEGIN
 			from wf.testado_wf ew
 			inner join wf.ttipo_estado te on te.id_tipo_estado = ew.id_tipo_estado
 			where ew.id_estado_wf = v_parametros.id_estado_wf_act;
-			
+
             --raise exception ' v_id_tipo_estado %',v_id_tipo_estado;
             --raise exception ' v_codigo_estados %', v_codigo_estados;
             --raise exception ' v_parametros.id_estado_wf_act %', v_parametros.id_estado_wf_act;
@@ -362,7 +363,7 @@ BEGIN
 			v_codigo_estado_siguiente
 			from wf.ttipo_estado te
 			where te.id_tipo_estado = v_parametros.id_tipo_estado;
-            
+
             --raise exception ' v_codigo_estado_siguiente %', v_codigo_estado_siguiente;
 
 			if pxp.f_existe_parametro(p_tabla,'id_depto_wf') then
@@ -375,7 +376,7 @@ BEGIN
                 --raise exception ' v_obs %', v_obs;
 			else
 				v_obs='---';
-                
+
                 --raise exception ' v_obs %', v_obs;
 			end if;
 
@@ -383,7 +384,7 @@ BEGIN
 			if v_codigo_estado_siguiente in ('') then
 
 			end if;
-			
+
 			---------------------------------------
 			-- REGISTRA EL SIGUIENTE ESTADO DEL WF
 			---------------------------------------
@@ -472,7 +473,7 @@ BEGIN
                --raise exception 'v_codigo_estado_siguiente %',v_codigo_estado_siguiente;
                --raise exception 'v_codigo_estado %',v_codigo_estado;
               -- raise exception 'v_parametros.id_invitacion %',v_parametros.id_invitacion;
-		
+
 
 				if pro.f_fun_inicio_invitacion_wf(
                 		v_parametros.id_invitacion,
@@ -489,7 +490,19 @@ BEGIN
 
 				end if;
 
-
+			select
+                    c.id_invitacion,
+                    c.estado,
+                    c.id_estado_wf,
+                    ew.id_funcionario
+              into v_rec
+              from pro.tinvitacion c
+              inner join wf.testado_wf ew on ew.id_estado_wf =  c.id_estado_wf
+              where c.id_invitacion = v_parametros.id_invitacion;
+             IF	v_rec.estado = 'sol_compra'  THEN
+                -- raise exception ' p_id_usuario %', p_id_usuario;
+				 v_resp = pro.f_inserta_solicitud_compra(p_administrador,p_id_usuario,v_parametros.id_invitacion);
+             END IF;
 
 			-- si hay mas de un estado disponible  preguntamos al usuario
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado del pago simple id='||v_parametros.id_invitacion);
@@ -500,7 +513,7 @@ BEGIN
 			return v_resp;
 
      	end;
-        
+
         /*********************************
 	#TRANSACCION:  	'PRO_ANTEIVT_IME'
 	#DESCRIPCION: 	Retrocede el estado del pago simple
@@ -515,17 +528,17 @@ BEGIN
 			--Obtenemos datos basicos
             select
             c.id_invitacion,
-            ew.id_proceso_wf,	
+            ew.id_proceso_wf,
 			c.id_estado_wf,
-			c.estado    
+			c.estado
 			into
 			v_registros_proc
 			from pro.tinvitacion c
-            inner join wf.testado_wf ew on ew.id_estado_wf = c.id_estado_wf  
+            inner join wf.testado_wf ew on ew.id_estado_wf = c.id_estado_wf
 			where c.id_invitacion = v_parametros.id_invitacion;
-            
+
         	v_id_proceso_wf = v_registros_proc.id_proceso_wf;
-            
+
 			--raise EXCEPTION 'v_id_proceso_wf %',v_id_proceso_wf;
             --------------------------------------------------
             --Retrocede al estado inmediatamente anterior
@@ -555,7 +568,7 @@ BEGIN
 			v_titulo  = 'Visto Bueno';
 
 			if v_codigo_estado_siguiente not in('borrador','finalizado','anulado') then
-	
+
                 v_acceso_directo = '../../../sis_proyectos/vista/invitacion/Invitacion.php';
 				v_clase = 'Invitacion';
 				v_parametros_ad = '{filtro_directo:{campo:"pro.id_proceso_wf",valor:"'||v_id_proceso_wf::varchar||'"}}';
@@ -601,22 +614,22 @@ BEGIN
             return v_resp;
 
         end;
-         
+
 	else
-     
+
     	raise exception 'Transaccion inexistente: %',p_transaccion;
 
 	end if;
 
 EXCEPTION
-				
+
 	WHEN OTHERS THEN
 		v_resp='';
 		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
 		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
 		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 		raise exception '%',v_resp;
-				        
+
 END;
 $body$
 LANGUAGE 'plpgsql'

@@ -19,7 +19,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 		Phx.vista.InvitacionBase.superclass.constructor.call(this,config);
 
 	},
-	 	
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -29,9 +29,9 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_invitacion'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
-	
+
 		/*
 		{
 			config: {
@@ -76,7 +76,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 			grid: true,
 			form: true
 		},*/
-			
+
 		{
 			config:{
 					labelSeparator:'',
@@ -86,7 +86,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true
 		},
-		
+
 			{
 				config:{
 					labelSeparator:'',
@@ -94,7 +94,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_gestion'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -135,7 +135,46 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				form:true,
 				grid: true,
-			},
+		},
+		{
+				config: {
+					name: 'id_categoria_compra',
+					hiddenName: 'id_categoria_compra',
+					fieldLabel: 'Categoria de Compra',
+					typeAhead: false,
+					forceSelection: false,
+					allowBlank: false,
+					emptyText: 'Categorias...',
+					store: new Ext.data.JsonStore({
+						url: '../../sis_adquisiciones/control/CategoriaCompra/listarCategoriaCompra',
+						id: 'id_categoria_compra',
+						root: 'datos',
+						sortInfo: {
+							field: 'catcomp.nombre',
+							direction: 'ASC'
+						},
+						totalProperty: 'total',
+						fields: ['id_categoria_compra', 'nombre', 'codigo'],
+						// turn on remote sorting
+						remoteSort: true,
+						baseParams: { par_filtro: 'catcomp.nombre#catcomp.codigo', codigo_subsistema: 'ADQ'}
+					}),
+					valueField: 'id_categoria_compra',
+					displayField: 'nombre',
+					triggerAction: 'all',
+					lazyRender: true,
+					mode: 'remote',
+					pageSize: 20,
+					queryDelay: 200,
+					listWidth:280,
+					minChars: 2,
+					width: '80%',
+					tpl: '<tpl for="."><div class="x-combo-list-item"><p>{nombre}</p>Codigo: <strong>{codigo}</strong> </div></tpl>'
+				},
+				type: 'ComboBox',
+				id_grupo: 0,
+				form: true
+		},
 		{
 			config:{
 				name: 'nro_tramite',
@@ -169,9 +208,9 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		
+
 		*/
-		
+
 		{
 			config:{
 				name: 'estado',
@@ -194,7 +233,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
@@ -203,7 +242,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-	
+
 		{
 			config:{
 				name: 'fecha_real',
@@ -211,7 +250,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
@@ -220,7 +259,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
-		
+
 		{
    			config:{
        		    name:'id_funcionario',
@@ -242,7 +281,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
    		    grid:true,
    			form:true
 		},
-	      
+
         {
             config:{
                 name:'id_depto',
@@ -282,8 +321,8 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
             grid: true,
             form: true
         },
-     
-			
+
+
 			{
 				config:{
 					name: 'lugar_entrega',
@@ -298,7 +337,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				form:true,
 				grid:true
 			},
-			
+
 			{
 				config:{
 					name: 'dias_plazo_entrega',
@@ -316,7 +355,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				form:true,
 				grid:true
 			},
-			
+
 		{
 			config:{
 				name: 'descripcion',
@@ -355,7 +394,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -364,7 +403,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
-		
+
 		{
 			config:{
 				name: 'usr_reg',
@@ -433,7 +472,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_estado_wf'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			//configuracion del componente
@@ -443,7 +482,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_proceso_wf'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
@@ -475,7 +514,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
-		
+
 
 		{
 			config:{
@@ -499,7 +538,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -509,7 +548,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'invitacion',
 	ActSave:'../../sis_proyectos/control/Invitacion/insertarInvitacion',
 	ActDel:'../../sis_proyectos/control/Invitacion/eliminarInvitacion',
@@ -534,23 +573,23 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		
+
 		{name:'id_funcionario', type: 'numeric'},
 		{name:'id_depto', type: 'numeric'},
 		{name:'id_moneda', type: 'numeric'},
 		{name:'tipo', type: 'string'},
 		{name:'lugar_entrega', type: 'string'},
 		{name:'dias_plazo_entrega', type: 'numeric'},
-		
+
 		{name:'desc_moneda', type: 'string'},
 		{name:'desc_funcionario', type: 'string'},
 		{name:'desc_depto', type: 'string'},
-		
-		{name:'id_gestion', type: 'numeric'},
-		'id_proceso_wf'
-		
 
-	
+		{name:'id_gestion', type: 'numeric'},
+		'id_proceso_wf',
+		{name:'id_categoria_compra', type: 'numeric'}
+
+
 	],
 	sortInfo:{
 		field: 'id_invitacion',
@@ -558,9 +597,8 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true,
-	
+
 }
 )
 </script>
-		
-		
+
