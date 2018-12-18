@@ -133,10 +133,10 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
         {
             config:{
                 name: 'nombre',
-                fieldLabel: 'Nombre',
+                fieldLabel: 'Proyecto',
                 allowBlank: false,
                 anchor: '80%',
-                gwidth: 100,
+                gwidth: 250,
                 maxLength:150
             },
                 type:'TextField',
@@ -173,6 +173,38 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
             },
                 type:'DateField',
                 filters:{pfiltro:'proy.fecha_fin',type:'date'},
+                id_grupo:1,
+                grid:true,
+                form:true
+        },
+        {
+            config:{
+                name: 'fecha_ini_real',
+                fieldLabel: 'Fecha Ini Real',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                            format: 'd/m/Y',
+                            renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+            },
+                type:'DateField',
+                filters:{pfiltro:'proy.fecha_ini_real',type:'date'},
+                id_grupo:1,
+                grid:true,
+                form:true
+        },
+        {
+            config:{
+                name: 'fecha_fin_real',
+                fieldLabel: 'Fecha Fin Real',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                            format: 'd/m/Y',
+                            renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+            },
+                type:'DateField',
+                filters:{pfiltro:'proy.fecha_fin_real',type:'date'},
                 id_grupo:1,
                 grid:true,
                 form:true
@@ -280,7 +312,7 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: false,
                 fieldLabel: 'Depto',
                 anchor: '100%',
-                gdisplayField: 'desc_depto_conta',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
+                gdisplayField: 'desc_depto',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
                 width: 250,
                 gwidth: 180,
                 baseParams: { estado:'activo',codigo_subsistema:'CONTA'},//parametros adicionales que se le pasan al store
@@ -504,7 +536,9 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
         {name:'estado', type: 'string'},
         {name:'id_proceso_wf_cbte_1', type: 'numeric'},
         {name:'id_proceso_wf_cbte_2', type: 'numeric'},
-        {name:'id_proceso_wf_cbte_3', type: 'numeric'}
+        {name:'id_proceso_wf_cbte_3', type: 'numeric'},
+        {name:'fecha_ini_real', type: 'date',dateFormat:'Y-m-d'},
+        {name:'fecha_fin_real', type: 'date',dateFormat:'Y-m-d'}
     ],
     sortInfo:{
         field: 'id_proyecto',
