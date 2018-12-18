@@ -49,6 +49,9 @@ DECLARE
 	v_ubicacion 			varchar;
 	v_vida_util_anios 		integer;
 	v_fecha_ini_dep			date;
+	v_cantidad_det			numeric;
+	v_denominacion 			varchar;
+	v_observaciones 		varchar;
 
 BEGIN
 
@@ -375,12 +378,16 @@ BEGIN
 			end if;
 
 			--Unidad de medida
-			select id_unidad_medida
-			into v_id_unidad_medida
-			from param.tunidad_medida
-			where lower(codigo) = lower(v_parametros.unidad);
+			if pxp.f_existe_parametro(p_tabla, 'unidad') then
+				select id_unidad_medida
+				into v_id_unidad_medida
+				from param.tunidad_medida
+				where lower(codigo) = lower(v_parametros.unidad);
 
-			if coalesce(v_id_unidad_medida,0) = 0 then
+				if coalesce(v_id_unidad_medida,0) = 0 then
+					raise exception 'Unidad de Medida no definida para el activo: %', v_parametros.denominacion;
+				end if;
+			else
 				raise exception 'Unidad de Medida no definida para el activo: %', v_parametros.denominacion;
 			end if;
 
@@ -394,6 +401,28 @@ BEGIN
 			v_ubicacion = null ;
 			if pxp.f_existe_parametro(p_tabla, 'ubicacion') then
 				v_ubicacion = v_parametros.ubicacion;
+			end if;
+
+			--cantidad_det
+			v_cantidad_det = 1 ;
+			if pxp.f_existe_parametro(p_tabla, 'cantidad_det') then
+				v_cantidad_det = v_parametros.cantidad_det;
+			end if;
+
+			--denominacion
+			v_denominacion = null ;
+			if pxp.f_existe_parametro(p_tabla, 'denominacion') then
+				v_denominacion = v_parametros.denominacion;
+			end if;
+
+			if coalesce(v_denominacion,'')='' then
+				raise exception 'Falta definir la denominación para alguno de los activos';
+			end if;
+
+			--observaciones
+			v_observaciones = null ;
+			if pxp.f_existe_parametro(p_tabla, 'observaciones') then
+				v_observaciones = v_parametros.observaciones;
 			end if;
 
 			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
@@ -431,9 +460,9 @@ BEGIN
 			--Preparación del record para la inserción
 			select
 	        coalesce(v_parametros.id_proyecto,null) as id_proyecto,
-			coalesce(v_parametros.denominacion,null) as denominacion,
+			v_denominacion as denominacion,
 			coalesce(v_descripcion,null) as descripcion,
-			coalesce(v_parametros.cantidad_det,null) as cantidad_det,
+			v_cantidad_det as cantidad_det,
 			coalesce(v_ubicacion,null) as ubicacion,
 			v_id_clasificacion id_clasificacion,
 			v_id_depto as id_depto,
@@ -444,7 +473,7 @@ BEGIN
 			coalesce(v_parametros._nombre_usuario_ai,null) as _nombre_usuario_ai,
 			coalesce(v_parametros._id_usuario_ai,null) as _id_usuario_ai,
 			v_nro_serie as nro_serie,
-			coalesce(v_parametros.observaciones,null) as observaciones,
+			v_observaciones as observaciones,
 			v_marca as marca,
 			coalesce(v_fecha_ini_dep,null) as fecha_ini_dep,
 			coalesce(v_vida_util_anios,null) as vida_util_anios,
