@@ -252,5 +252,63 @@ class MODProyecto extends MODbase{
         return $this->respuesta;
     }
 
+    function insertarProyectoCierre(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='pro.ft_proyecto_ime';
+		$this->transaccion='PRO_PROYCIE_INS';
+		$this->tipo_procedimiento='IME';
+
+		//Define los parametros para la funcion
+		$this->setParametro('codigo','codigo','varchar');
+		$this->setParametro('nombre','nombre','varchar');
+		$this->setParametro('fecha_ini','fecha_ini','date');
+		$this->setParametro('fecha_fin','fecha_fin','date');
+		$this->setParametro('id_tipo_cc','id_tipo_cc','int4');
+		$this->setParametro('estado_reg','estado_reg','varchar');
+
+		$this->setParametro('id_fase_plantilla','id_fase_plantilla','int4');
+		$this->setParametro('id_moneda','id_moneda','int4');
+		$this->setParametro('id_depto_conta','id_depto_conta','int4');
+
+		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
+		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function modificarProyectoCierre(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='pro.ft_proyecto_ime';
+		$this->transaccion='PRO_PROYCIE_MOD';
+		$this->tipo_procedimiento='IME';
+
+		//Define los parametros para la funcion
+		$this->setParametro('id_proyecto','id_proyecto','int4');
+		$this->setParametro('codigo','codigo','varchar');
+		$this->setParametro('nombre','nombre','varchar');
+		$this->setParametro('fecha_ini','fecha_ini','date');
+		$this->setParametro('fecha_fin','fecha_fin','date');
+		$this->setParametro('id_tipo_cc','id_tipo_cc','int4');
+		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('id_fase_plantilla','id_fase_plantilla','int4');
+		$this->setParametro('id_moneda','id_moneda','int4');
+		$this->setParametro('id_depto_conta','id_depto_conta','int4');
+
+		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
+		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
 }
 ?>

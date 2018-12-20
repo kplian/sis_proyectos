@@ -294,8 +294,7 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
                 queryDelay: 1000,
                 anchor: '100%',
                 gwidth: 150,
-                minChars: 2,
-
+                minChars: 2
             },
             type: 'ComboBox',
             id_grupo: 0,
@@ -497,7 +496,7 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
     ],
     tam_pag:50,
     title:'Proyecto',
-    ActSave:'../../sis_proyectos/control/Proyecto/insertarProyecto',
+    ActSave:'../../sis_proyectos/control/Proyecto/insertarProyectoCierre',
     ActDel:'../../sis_proyectos/control/Proyecto/eliminarProyecto',
     ActList:'../../sis_proyectos/control/Proyecto/listarProyecto',
     id_store:'id_proyecto',
@@ -790,4 +789,3 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
 
 })
 </script>
-
