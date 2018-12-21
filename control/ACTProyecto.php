@@ -14,17 +14,17 @@ class ACTProyecto extends ACTbase{
 		$this->objParam->defecto('dir_ordenacion','asc');
 		$this->objParam->defecto('cantidad',1000000);
 		$this->objParam->defecto('puntero', 0);
-		
-		
-	
+
+
+
 		if($this->objParam->getParametro('id_proyecto')!=''){
 			$this->objParam->addFiltro("proy.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
 		}
-		
+
 		if($this->objParam->getParametro('estado')!=''){
 			$this->objParam->addFiltro("proy.estado = ''".$this->objParam->getParametro('estado')."''");
 		}
-		
+
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODProyecto','listarProyecto');
@@ -217,18 +217,29 @@ class ACTProyecto extends ACTbase{
         $this->res=$this->objFunc->anteriorEstadoCierre($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-	
+
 	function siguienteEstado(){
-        $this->objFunc=$this->create('MODProyecto');  
+        $this->objFunc=$this->create('MODProyecto');
         $this->res=$this->objFunc->siguienteEstado($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
     function anteriorEstado(){
-        $this->objFunc=$this->create('MODProyecto');  
+        $this->objFunc=$this->create('MODProyecto');
         $this->res=$this->objFunc->anteriorEstado($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+
+    function insertarProyectoCierre(){
+		$this->objFunc=$this->create('MODProyecto');
+		if($this->objParam->insertar('id_proyecto')){
+			$this->res=$this->objFunc->insertarProyectoCierre($this->objParam);
+		} else{
+			$this->res=$this->objFunc->modificarProyectoCierre($this->objParam);
+		}
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
 }
 
 ?>

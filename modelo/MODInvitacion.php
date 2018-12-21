@@ -53,7 +53,19 @@ class MODInvitacion extends MODbase{
         $this->captura('anio','varchar');
 		$this->captura('id_gestion','int4');
 		$this->captura('id_categoria_compra','int4');
+		$this->captura('id_solicitud','int4');
+		
+		$this->captura('id_presolicitud','int4');
+		$this->captura('pre_solicitud','varchar');
+		$this->captura('id_grupo','int4');
+		
+		$this->captura('desc_categoria_compra','varchar');
+		$this->captura('desc_grupo','varchar');
+		
 
+		
+		
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -86,6 +98,10 @@ class MODInvitacion extends MODbase{
 		$this->setParametro('lugar_entrega','lugar_entrega','varchar');
 		$this->setParametro('dias_plazo_entrega','dias_plazo_entrega','int4');
 		$this->setParametro('id_categoria_compra','id_categoria_compra','int4');
+		
+		$this->setParametro('pre_solicitud','pre_solicitud','varchar');
+		$this->setParametro('id_grupo','id_grupo','int4');
+		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -120,6 +136,9 @@ class MODInvitacion extends MODbase{
 		$this->setParametro('lugar_entrega','lugar_entrega','varchar');
 		$this->setParametro('dias_plazo_entrega','dias_plazo_entrega','int4');
 		$this->setParametro('id_categoria_compra','id_categoria_compra','int4');
+		
+		$this->setParametro('pre_solicitud','pre_solicitud','varchar');
+		$this->setParametro('id_grupo','id_grupo','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

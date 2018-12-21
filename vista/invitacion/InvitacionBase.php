@@ -32,51 +32,6 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 			form:true
 		},
 
-		/*
-		{
-			config: {
-				name: 'id_proyecto',
-				fieldLabel: 'id_proyecto',
-				allowBlank: false,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_proyectos/control/Proyecto/listarProyecto',
-					id: 'id_proyecto',
-					root: 'datos',
-					sortInfo: {
-						field: 'id_proyecto',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_proyecto', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_proyecto',
-				displayField: 'id_proyecto',
-				gdisplayField: 'id_proyecto',
-				hiddenName: 'id_proyecto',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},*/
-
 		{
 			config:{
 					labelSeparator:'',
@@ -96,6 +51,73 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true
 		},
+		{
+			config:{
+				name : 'pre_solicitud',
+				fieldLabel : 'Presolicitud',
+				allowBlank: false,
+				items: [
+					{boxLabel: 'No', name: 'pre_solicitud', inputValue: 'no', checked: true},
+					{boxLabel: 'Si', name: 'pre_solicitud', inputValue: 'si'}
+				
+				],
+			},
+			type : 'RadioGroupField',
+			id_grupo : 1,
+			form : true,
+			grid:true
+		 },
+		    {
+            config:{
+                name:'id_grupo',
+                fieldLabel:'Grupo de Compras',
+                emptyText:'Grupo...',
+                store: new Ext.data.JsonStore({
+
+                    url: '../../sis_adquisiciones/control/Grupo/listarGrupo',
+                    id: 'id_grupo',
+                    root: 'datos',
+                    sortInfo:{
+                        field: 'id_grupo',
+                        direction: 'ASC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_grupo','nombre','obs'],
+                    // turn on remote sorting
+                    remoteSort: true,
+                    baseParams:{par_filtro:'nombre#obs'}
+                }),
+                valueField: 'id_grupo',
+                displayField: 'nombre',
+                gdisplayField:'desc_grupo',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
+                tpl:'<tpl for="."><div class="x-combo-list-item"><p>{nombre}</p><p>CI:{obs}</p> </div></tpl>',
+                hiddenName: 'id_grupo',
+                forceSelection:true,
+                typeAhead: true,
+                triggerAction: 'all',
+                lazyRender:true,
+                mode:'remote',
+                pageSize:10,
+                queryDelay:1000,
+                width:250,
+                gwidth:280,
+                minChars:2,
+                renderer:function (value, p, record){
+                	
+                	return String.format('{0}', record.data['desc_grupo']);
+               }
+            },
+            type:'ComboBox',
+            id_grupo:0,
+            filters:{   
+                        pfiltro:'gru.nombre#gru.obs',
+                        type:'string'
+                    },
+           
+            grid:false,
+            form:true
+        },
+
 		{
 			config:{
 				name: 'codigo',
@@ -137,43 +159,52 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				grid: true,
 		},
 		{
-				config: {
-					name: 'id_categoria_compra',
-					hiddenName: 'id_categoria_compra',
-					fieldLabel: 'Categoria de Compra',
-					typeAhead: false,
-					forceSelection: false,
-					allowBlank: false,
-					emptyText: 'Categorias...',
-					store: new Ext.data.JsonStore({
-						url: '../../sis_adquisiciones/control/CategoriaCompra/listarCategoriaCompra',
-						id: 'id_categoria_compra',
-						root: 'datos',
-						sortInfo: {
-							field: 'catcomp.nombre',
-							direction: 'ASC'
-						},
-						totalProperty: 'total',
-						fields: ['id_categoria_compra', 'nombre', 'codigo'],
-						// turn on remote sorting
-						remoteSort: true,
-						baseParams: { par_filtro: 'catcomp.nombre#catcomp.codigo', codigo_subsistema: 'ADQ'}
-					}),
-					valueField: 'id_categoria_compra',
-					displayField: 'nombre',
-					triggerAction: 'all',
-					lazyRender: true,
-					mode: 'remote',
-					pageSize: 20,
-					queryDelay: 200,
-					listWidth:280,
-					minChars: 2,
-					width: '80%',
-					tpl: '<tpl for="."><div class="x-combo-list-item"><p>{nombre}</p>Codigo: <strong>{codigo}</strong> </div></tpl>'
+			config: {
+				name: 'id_categoria_compra',
+				hiddenName: 'id_categoria_compra',
+				fieldLabel: 'Categoria de Compra',
+				typeAhead: false,
+				forceSelection: false,
+				allowBlank: false,
+				emptyText: 'Categorias...',
+				store: new Ext.data.JsonStore({
+					url: '../../sis_adquisiciones/control/CategoriaCompra/listarCategoriaCompra',
+					id: 'id_categoria_compra',
+					root: 'datos',
+					sortInfo: {
+						field: 'catcomp.nombre',
+						direction: 'ASC'
+					},
+					totalProperty: 'total',
+					fields: ['id_categoria_compra', 'nombre', 'codigo'],
+					// turn on remote sorting
+					remoteSort: true,
+					baseParams: {par_filtro: 'catcomp.nombre#catcomp.codigo',codigo_subsistema:'ADQ'}
+				}),
+				valueField: 'id_categoria_compra',
+				displayField: 'nombre',
+				gdisplayField: 'desc_categoria_compra',
+				triggerAction: 'all',
+				lazyRender: true,
+				mode: 'remote',
+				pageSize: 20,
+				queryDelay: 200,
+				listWidth:280,
+				minChars: 2,
+				gwidth: 170,
+				renderer: function(value, p, record) {
+					return String.format('{0}', record.data['desc_categoria_compra']);
 				},
-				type: 'ComboBox',
-				id_grupo: 0,
-				form: true
+				tpl: '<tpl for="."><div class="x-combo-list-item"><p>{nombre}</p>Codigo: <strong>{codigo}</strong> </div></tpl>'
+			},
+			type: 'ComboBox',
+			id_grupo: 0,
+			filters: {
+				pfiltro: 'cat.nombre',
+				type: 'string'
+			},
+			grid: false,
+			form: true
 		},
 		{
 			config:{
@@ -191,25 +222,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
-	/*
-		{
-			config:{
-				name: 'id_proyecto',
-				fieldLabel: 'id_proyecto',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:100,
-				valorInicial:'4'
-			},
-				type:'TextField',
-				filters:{pfiltro:'ivt.id_proyecto',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
 
-		*/
 
 		{
 			config:{
@@ -260,49 +273,47 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		},
 
-		{
-   			config:{
-       		    name:'id_funcionario',
-       		    hiddenName: 'id_funcionario',
-   				origen:'FUNCIONARIOCAR',
-   				fieldLabel:'Solicitante',
-   				allowBlank:true,
-                gwidth:200,
-                anchor: '100%',
-   				valueField: 'id_funcionario',
-   			    gdisplayField: 'desc_funcionario',
-   			    baseParams: { es_combo_solicitud : 'si' },
-      			renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
-       	     },
-   			type:'ComboRec',//ComboRec
-   			id_grupo:1,
-   			filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
-   			bottom_filter:true,
-   		    grid:true,
-   			form:true
-		},
-
-        {
-            config:{
-                name:'id_depto',
-                 hiddenName: 'id_depto',
-                 url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
-                    origen:'DEPTO',
-                    allowBlank:false,
-                    fieldLabel: 'Depto',
-                    gdisplayField:'desc_depto',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
-                    width:250,
-                    gwidth:180,
-                    baseParams:{estado:'activo',codigo_subsistema:'ADQ'},//parametros adicionales que se le pasan al store
-                    renderer:function (value, p, record){return String.format('{0}', record.data['desc_depto']);}
-            },
-            //type:'TrigguerCombo',
-            type:'ComboRec',
-            id_grupo:1,
-            filters:{pfiltro:'d.nombre#d.codigo',type:'string'},
-            grid:true,
-            form:true
-        },
+			{
+	   			config:{
+	       		    name:'id_funcionario',
+	       		     hiddenName: 'id_funcionario',
+	   				origen:'FUNCIONARIOCAR',
+	   				fieldLabel:'Funcionario',
+	   				allowBlank:false,
+	                gwidth:200,
+	   				valueField: 'id_funcionario',
+	   			    gdisplayField: 'desc_funcionario',
+	   			    baseParams: { es_combo_solicitud : 'si' },
+	      			renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
+	       	     },
+	   			type:'ComboRec',//ComboRec
+	   			id_grupo:0,
+	   			filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
+	   			bottom_filter:true,
+	   		    grid:false,
+	   			form:true
+			 },
+			{
+	   			config:{
+	   				name:'id_depto',
+	   				 hiddenName: 'id_depto',
+	   				 url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
+		   				origen:'DEPTO',
+		   				allowBlank:false,
+		   				fieldLabel: 'Depto',
+		   				gdisplayField:'desc_depto',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
+		   				width:250,
+	   			        gwidth:180,
+		   				baseParams:{estado:'activo',codigo_subsistema:'ADQ'},//parametros adicionales que se le pasan al store
+		      			renderer:function (value, p, record){return String.format('{0}', record.data['desc_depto']);}
+	   			},
+	   			//type:'TrigguerCombo',
+	   			type:'ComboRec',
+	   			id_grupo:0,
+	   			filters:{pfiltro:'depto.nombre',type:'string'},
+	   		    grid:false,
+	   			form:true
+	       	},
         {
             config:{
                 name: 'id_moneda',
@@ -419,51 +430,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
-		/*
-		{
-			config: {
-				name: 'id_estado_wf',
-				fieldLabel: 'id_estado_wf',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_estado_wf',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: false,
-			form: true
-		},
-		*/
+
 		{
 			//configuracion del componente
 			config:{
@@ -587,7 +554,10 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 
 		{name:'id_gestion', type: 'numeric'},
 		'id_proceso_wf',
-		{name:'id_categoria_compra', type: 'numeric'}
+		{name:'id_categoria_compra', type: 'numeric'},'desc_categoria_compra',
+		{name:'id_solicitud', type: 'numeric'},
+		{name:'pre_solicitud', type: 'string'},
+		{name:'id_grupo', type: 'numeric'},'desc_grupo','nombre'
 
 
 	],

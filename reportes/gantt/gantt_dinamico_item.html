@@ -4,14 +4,14 @@
     <title>Gant JS</title>
     <meta charset="utf-8">
    
-       <link href="../../../lib/jsGanttImproved-proyectos/main.css" rel="stylesheet" type="text/css" />
-      <script src="../../../lib/jsGanttImproved-proyectos/main.js" type="text/javascript"></script>
+       <link href="../../../lib/jsGanttImproved-proyectos-item/main.css" rel="stylesheet" type="text/css" />
+      <script src="../../../lib/jsGanttImproved-proyectos-item/main.js" type="text/javascript"></script>
    
-   <link rel="stylesheet" type="text/css" href="../../../lib/jsGanttImproved-proyectos/jsgantt.css" />
+   <link rel="stylesheet" type="text/css" href="../../../lib/jsGanttImproved-proyectos-item/jsgantt.css" />
 
-    <script src="../../../lib/jsGanttImproved-proyectos/jsgantt.js"></script> 
+    <script src="../../../lib/jsGanttImproved-proyectos-item/jsgantt.js"></script> 
 
-	<script src="../../../lib/jsGanttImproved-proyectos/jquery-3.3.1.js"></script>
+	<script src="../../../lib/jsGanttImproved-proyectos-item/jquery-3.3.1.js"></script>
 	
 	<link rel="stylesheet" type="text/css" media="print" href="../../../lib/jsGanttImproved-proyectos/print.css">
 	 <link href="../../../lib/bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous" />
@@ -44,7 +44,7 @@
 					    // la información a enviar
 					    // (también es posible utilizar una cadena de datos)
 					    data:'p={"id_proyecto":"'+id_proyecto+'" ,"orden":"fecha" }'
-					                            +'&x=../../sis_proyectos/control/GanttProyecto/diagramaGanttJS',
+					                            +'&x=../../sis_proyectos/control/GanttProyecto/diagramaGanttJSItem',
 					 
 					    // especifica si será una petición POST o GET
 					    type : 'POST',
@@ -106,7 +106,7 @@
 					    // la información a enviar
 					    // (también es posible utilizar una cadena de datos)
 					    data:'p={"id_proyecto":"'+id_proyecto+'" ,"orden":"fecha" }'
-					                            +'&x=../../sis_proyectos/control/GanttProyecto/diagramaGanttJS',
+					                            +'&x=../../sis_proyectos/control/GanttProyecto/diagramaGanttJSItem',
 					 
 					    // especifica si será una petición POST o GET
 					    type : 'POST',
@@ -180,7 +180,7 @@
 												g.setWeekColWidth(36);
 												g.setMonthColWidth(36);
 												g.setQuarterColWidth(18);
-												
+												g.setShowRes(0);
 												g.setDateTaskDisplayFormat('day dd month yyyy'); // Shown in tool tip box
 												g.setDayMajorDateDisplayFormat('mon yyyy - Week ww '); // Set format to display dates in the "Major" header of the "Day" view
 												g.setWeekMinorDateDisplayFormat('dd mon'); // Set format to display dates in the "Minor" header of the "Week" view
@@ -224,23 +224,18 @@
 								               	}
 								               	
 								               	
-								              if (resp[i].tipo != 'estado_final'){
+								              if (resp[i].id == 1){
 								               	
 								               	 pName =  (resp[i].etapa != null)? resp[i].etapa + ' ['+ resp[i].codigo + '] '+cuenta : resp[i].codigo +': '+ resp[i].nombre ;
 								               	}
 								               else{
-								                pName =  (resp[i].etapa != null)? resp[i].etapa + ' ['+ resp[i].codigo + '] '+cuenta +'  **********': resp[i].codigo +':'+ resp[i].nombre +cuenta+'  **************';
+								               	 pName='Item ' +resp[i].des_ingas+ ' ['+resp[i].nombre_padre+']';
 								               }
-								               /*
-								               console.log('fecha_ini',resp[i].fecha_ini);
-								               console.log('fecha_fin',resp[i].fecha_fin);
-								               console.log('fecha_ini_real',resp[i].fecha_ini_real);
-								               console.log('fecha_fin_real',resp[i].fecha_fin_real);
-								               */
+								         
 								   		
 							                   
-								                pStart =resp[i].fecha_ini;
-							                    pEnd = resp[i].fecha_fin ;
+								                pStart =(resp[i].id != 1 )?resp[i].fecha_ini:resp[i].fecha_ini_item;
+							                    pEnd = (resp[i].id != 1 )?resp[i].fecha_fin :resp[i].fecha_fin_item;
 							                    pClass = (resp[i].id_anterior != null)? 'gtaskblue':'ggroupblack';
 								               	pLink = '';
 						                    	pMile = 0;

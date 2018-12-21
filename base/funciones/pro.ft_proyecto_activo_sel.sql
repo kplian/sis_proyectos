@@ -16,9 +16,8 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:
- AUTOR:
- FECHA:
+ ISSUE      FECHA:		      AUTOR               DESCRIPCION
+ #1			19-12-2018        RCM 				Cambio de criterio para obtención de las cuentas contables a excluir
 ***************************************************************************/
 
 DECLARE
@@ -575,8 +574,8 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 						cbte.fecha <= py.fecha_fin
 						and (cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_1,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_2,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_3,0))
 						JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
-						WHERE NOT (tr.id_cuenta IN (
-							SELECT tcuenta_excluir.id_cuenta
+						WHERE NOT (cue.nro_cuenta IN ( --#1
+							SELECT tcuenta_excluir.nro_cuenta --#1
 							FROM pro.tcuenta_excluir
 						))
 						and py.id_proyecto = v_parametros.id_proyecto
@@ -611,8 +610,8 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 						cbte.fecha <= py.fecha_fin
 						and (cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_1,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_2,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_3,0))
 						JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
-						WHERE NOT (tr.id_cuenta IN (
-							SELECT tcuenta_excluir.id_cuenta
+						WHERE NOT (cue.nro_cuenta IN ( --#1
+							SELECT tcuenta_excluir.nro_cuenta --#1
 							FROM pro.tcuenta_excluir
 						))
 						and py.id_proyecto = v_parametros.id_proyecto

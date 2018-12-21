@@ -17,7 +17,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 	
 	constructor:function(config){
 		this.maestro=config;
-		
+		var tipo_cc ;
 		console.log('maestro',this.maestro=config);
 		
 		console.log('tipo det',this.maestro.data.tipo);
@@ -26,10 +26,10 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 		Phx.vista.InvitacionDetFrm.superclass.constructor.call(this,config);
 		this.init();
 		//this.load({params:{start:0, limit:this.tam_pag}})
-		
+		this.iniciar();
 		this.iniciarEventos();
 		
-		//this.iniciar();
+	
 		//this.bloquearMenus();
 		
 		},
@@ -157,7 +157,6 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
             form:true
         },
 
-		
 		{
 			config: {
 				name: 'id_fase_concepto_ingas',
@@ -340,11 +339,11 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 					maxLength:1179650,
 					renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						
 					}
@@ -362,17 +361,19 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 					name: 'precio',
 					fieldLabel: 'Precio',
 					allowBlank: true,
+					allowNegative :false,
 					anchor: '80%',
+					minValue: 1.00,
 					gwidth: 80,
 					galign: 'right ',
 					maxLength:1179650,
 					renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						
 					}
@@ -385,6 +386,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 					grid:true,
 					form:true
 			},
+			///id_centro de costos habilitados por el arbol de tipo de centro de costos
 			{
 			config: {
 				name: 'id_centro_costo',
@@ -392,26 +394,26 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 				allowBlank: true,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
-					url: '../../sis_parametros/control/CentroCosto/listarCentroCostoGrid',
-					id: 'id_centro_costo',
+					url: '../../sis_parametros/control/TipoCc/listarTipoCcArbHijos',
+					id: 'id_tipo_cc',
 					root: 'datos',
 					sortInfo: {
-						field: 'codigo_cc',
+						field: 'id_tipo_cc',
 						direction: 'ASC'
 					},
-					totalProperty: 'codigo_cc',
-					fields: ['id_centro_costo', 'codigo_cc', 'descripcion_tcc','id_gestion'],
+					totalProperty: 'id_tipo_cc',
+					fields: ['id_tipo_cc', 'codigo', 'descripcion','id_centro_costo'],
 					remoteSort: true,
-					baseParams: {par_filtro: 'codigo_cc#descripcion_tcc'}
+					baseParams: {par_filtro: 'codigo#descripcion'}
 				}),
 				tpl:'<tpl for=".">\
-		                       <div class="x-combo-list-item"><p><b>Codigo:</b>{codigo_cc}</p>\
-		                       <p><b>Descripcion: </b>{descripcion_tcc}</p>\
+		                       <div class="x-combo-list-item"><p><b>Codigo:</b>{codigo}</p>\
+		                       <p><b>Descripcion: </b>{descripcion}</p>\
 		                        </div></tpl>',
 				
 				valueField: 'id_centro_costo',
-				displayField: 'codigo_cc',
-				gdisplayField: 'codigo_tcc',
+				displayField: 'codigo',
+				gdisplayField: 'codigo',
 				forceSelection: true,
 				typeAhead: false,
 				triggerAction: 'all',
@@ -423,12 +425,12 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 				gwidth: 150,
 				minChars: 2,
 				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['codigo_tcc']);
+					return String.format('{0}', record.data['codigo']);
 				}
 			},
 			type: 'ComboBox',
 			id_grupo: 0,
-			filters: {pfiltro: 'codigo_cc#descripcion',type: 'string'},
+			filters: {pfiltro: 'codigo#descripcion',type: 'string'},
 			grid: true,
 			form: true
 		},
@@ -493,11 +495,11 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 					maxLength:1179650,
 					renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						
 					}
@@ -521,16 +523,16 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 					maxLength:1179650,
 					renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						
 					}
 				},
-					type:'NumberField',
+					type:'MoneyField',
 					filters:{pfiltro:'precio_est',type:'numeric'},
 					id_grupo:0,
 					bottom_filter: true,
@@ -727,27 +729,21 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 		
 	},*/
 	
-	iniciar:function(){
+		        
+
+	
+		iniciar:function(){
 			
-			this.Cmp.id_unidad_medida.store.baseParams.id_unidad_medida = this.Cmp.id_unidad_medida.getValue();
-			this.Cmp.id_unidad_medida.store.load({params:{start:0,limit:this.tam_pag}, 
-			callback : function (r) {                        
-				if (r.length > 0 ) {                        
-					                    	
-					 this.Cmp.id_unidad_medida.setValue(r[0].data.id_unidad_medida);
-					                }     
-					                                    
-					                }, scope : this
-					            });
+		},
 			
-		
-		
-	},
     	
     	iniciarEventos: function(){
-    		
-    	console.log('invitacion',this.maestro.data.id_invitacion)	
+    	
+    	
+    	    console.log('id_tipo_cc',this.maestro.data.id_tipo_cc);
+    	
     	this.Cmp.id_invitacion.setValue(this.maestro.data.id_invitacion);
+    	
 
  	   //this.cmpIdUnMe = this.getComponente('id_unidad_medida');
  		this.mostrarComponente(this.Cmp.invitacion_det__tipo);	 
@@ -803,6 +799,8 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 							     this.Cmp.id_concepto_ingas.store.baseParams.tipo= this.maestro.data.tipo;
 							     
 							     this.Cmp.id_centro_costo.store.baseParams.id_gestion=this.maestro.data.id_gestion;
+								 
+								 this.Cmp.id_centro_costo.store.baseParams.id_tipo_cc = this.maestro.data.id_tipo_cc ;
 
 
 									
@@ -871,6 +869,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
             Phx.CP.getPagina(this.idContenedorPadre).reload();
             this.panel.close();
         },
+
 
 		 		
  

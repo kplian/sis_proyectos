@@ -71,6 +71,28 @@ class ACTGanttProyecto extends ACTbase{
                 
 		}
 	//////////////EGS//////////////////////
+		//////////////EGS//////////////////////
+	function diagramaGanttJSItem(){
+					
+				$dataSource = new DataSource();
+			    //$idSolicitud = $this->objParam->getParametro('nro_tramite');
+			    //$this->objParam->addParametroConsulta('id_plan_mant',$idPlanMant);
+			    $this->objParam->addParametroConsulta('ordenacion','nro_tramite');
+			    $this->objParam->addParametroConsulta('dir_ordenacion','ASC');
+			    $this->objParam->addParametroConsulta('cantidad',1000);
+			    $this->objParam->addParametroConsulta('puntero',0);
+			    
+			
+				
+			    $this->objFunc = $this->create('MODGanttProyecto');
+				
+				
+			    $resultSolicitud = $this->objFunc->listarGanttProItem();
+				
+                $resultSolicitud->imprimirRespuesta($resultSolicitud->generarJson());
+                
+		}
+	//////////////EGS//////////////////////
 			
 }
 

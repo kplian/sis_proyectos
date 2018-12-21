@@ -483,7 +483,9 @@ BEGIN
     ------------------------------------------------------------------------------------
     --Crea el movimiento de ajuste si existe algún activo para relacionar
     if exists(select 1 from pro.tproyecto_activo
-            where id_proyecto = p_id_proyecto) then
+            where id_proyecto = p_id_proyecto
+            and coalesce(codigo_af_rel,'') <> ''
+          and coalesce(codigo_af_rel,'') <> 'GASTO') then
 
         --Obtención del ID del movimiento de Ajuste
         select cat.id_catalogo
@@ -686,7 +688,6 @@ BEGIN
 
 
 
-
     return 'hecho';
 
 
@@ -705,6 +706,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-
-ALTER FUNCTION pro.f_i_kaf_registrar_activos (p_id_usuario integer, p_id_proyecto integer)
-  OWNER TO postgres;

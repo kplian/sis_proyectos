@@ -55,6 +55,11 @@ class MODFaseConceptoIngas extends MODbase{
 		
 		$this->captura('precio_total','numeric');
 		$this->captura('fecha_estimada','date');
+		$this->captura('fecha_fin','date');
+		
+		$this->captura('estado_proyecto','varchar');
+		
+		
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -84,6 +89,8 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->setParametro('precio','precio','numeric');
 		$this->setParametro('precio_mt','precio_mt','numeric');
 		$this->setParametro('fecha_estimada','fecha_estimada','date');
+		$this->setParametro('fecha_fin','fecha_fin','date');
+		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -114,6 +121,7 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->setParametro('precio','precio','numeric');
 		$this->setParametro('precio_mt','precio_mt','numeric');
 		$this->setParametro('fecha_estimada','fecha_estimada','date');
+		$this->setParametro('fecha_fin','fecha_fin','date');
 		
 
 		//Ejecuta la instruccion

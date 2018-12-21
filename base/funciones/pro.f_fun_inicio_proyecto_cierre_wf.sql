@@ -156,7 +156,9 @@ BEGIN
         where id_proceso_wf_cierre = p_id_proceso_wf;
 
         update conta.tint_comprobante set
-        cbte_aitb = 'si'
+        cbte_aitb = 'si',
+        tipo_cambio_2 = 0,
+        tipo_cambio_3 = 0
         where id_int_comprobante = v_id_int_comprobante;
 
         --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
