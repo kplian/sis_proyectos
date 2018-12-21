@@ -84,7 +84,14 @@ BEGIN
                         dep.nombre::VARCHAR	as desc_depto,
                         ew.id_proceso_wf,
                         an.anio::varchar,
-                        ges.id_gestion
+                        ges.id_gestion,
+                        ivt.id_categoria_compra,
+                        ivt.id_solicitud,
+                        ivt.id_presolicitud,
+                        ivt.pre_solicitud,
+                        ivt.id_grupo,
+                        cat.nombre as desc_categoria_compra,
+                        gru.nombre as desc_grupo
 						from pro.tinvitacion ivt
                         left join param.tmoneda mon on mon.id_moneda = ivt.id_moneda
                         left join wf.testado_wf ew on ew.id_estado_wf = ivt.id_estado_wf
@@ -95,6 +102,9 @@ BEGIN
                         
                         left join anio an on an.id_invitacion = ivt.id_invitacion
                         left JOIN param.tgestion ges on ges.gestion = an.anio
+                        left join adq.tcategoria_compra cat on cat.id_categoria_compra = ivt.id_categoria_compra
+                        left JOIN adq.tgrupo gru	on gru.id_grupo = ivt.id_grupo
+
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -156,6 +166,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-
-ALTER FUNCTION pro.ft_invitacion_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

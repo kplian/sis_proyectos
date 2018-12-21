@@ -18,7 +18,7 @@ Phx.vista.Invitacion = {
 	
 	constructor:function(config){
 		this.maestro=config; ///config.maestro quitar para poder recibir datos
-
+		
 		//llama al constructor de la clase padre
 		Phx.vista.Invitacion.superclass.constructor.call(this,config);
 		
@@ -65,20 +65,54 @@ Phx.vista.Invitacion = {
            	//console.log('maestro invitacion',this.maestro.id_proyecto);
            	//this.Cmp.id_proyecto.valorInicial = this.maestro.id_proyecto;
      	 	this.Cmp.tipo.store.loadData(this.arrayStore['Bien'].concat(this.arrayStore['Servicio'])); 
+            
+            this.Cmp.id_funcionario.on('select', function(combo, record, index){
+
+				if(!record.data.id_lugar){
+					alert('El funcionario no tiene oficina definida');
+					return
+				}
+
+				this.Cmp.id_depto.reset();
+				this.Cmp.id_depto.store.baseParams.id_lugar = record.data.id_lugar;
+				this.Cmp.id_depto.modificado = true;
+				this.Cmp.id_depto.enable();
+
+				this.Cmp.id_depto.store.load({params:{start:0,limit:this.tam_pag},
+					callback : function (r) {
+						if (r.length == 1 ) {
+							this.Cmp.id_depto.setValue(r[0].data.id_depto);
+						}
+
+					}, scope : this
+				});
+
+
+			}, this);
+			
+			this.ocultarComponente(this.Cmp.id_grupo);
+			this.Cmp.pre_solicitud.on('change', function(cmp, check){
+    		    
+    		    if(check.getRawValue() =='no'){
+    		  		this.ocultarComponente(this.Cmp.id_grupo);
+	  				this.Cmp.id_grupo.allowBlank=true;
+	  				this.Cmp.id_grupo.reset();
+    		    }
+    		    else{
+    		    	this.mostrarComponente(this.Cmp.id_grupo);
+    		    	this.Cmp.id_grupo.allowBlank=false;
+			    }
+    		}, this);
+            
             },
        
           arrayStore :{
 			'Bien':[
 				['Bien','Bienes'],
-				//['inmueble','Inmuebles'],
-				//['vehiculo','Vehiculos']
+	
 			],
 			'Servicio':[
 				['Servicio','Servicios'],
-                //20180319 - calvarez - quitar en desarrollo tb por que usuarios VIP estan usando sin saber y no existe flujo que cubra estas 2 opciones
-				//['consultoria_personal','Consultoria de Personas'],
-				//['consultoria_empresa','Consultoria de Empresas'],
-				//['alquiler_inmueble','Alquiler Inmuebles']
 			]
 		},  
             
@@ -258,14 +292,15 @@ Phx.vista.Invitacion = {
 	},
 	
 	
-		preparaMenu: function(n) {
+	preparaMenu: function(n) {
 
 		var data = this.getSelectedData();
 		var tb = this.tbar;
 		Phx.vista.Invitacion.superclass.preparaMenu.call(this, n);
+	
 		this.getBoton('ant_estado').disable();
 		this.getBoton('sig_estado').disable();
-			
+	
 			if(data.estado == 'borrador') {			
 		
 				this.getBoton('sig_estado').enable();
@@ -289,6 +324,17 @@ Phx.vista.Invitacion = {
         this.getBoton('diagrama_gantt').enable();
         //this.getBoton('btnObs').enable();
         //this.getBoton('btnChequeoDocumentosWf').enable();
+        
+		console.log('maestro', this.maestro.estado);
+		if (tb && this.bnew && (this.maestro.estado == 'cierre' || this.maestro.estado == 'finalizado' )) {
+            tb.items.get('b-new-' + this.idContenedor).disable();
+            }
+		if (tb && this.bedit && (this.maestro.estado == 'cierre' || this.maestro.estado == 'finalizado' )) {
+            tb.items.get('b-edit-' + this.idContenedor).disable();
+            }
+         if (tb && this.bdel && (this.maestro.estado == 'cierre' || this.maestro.estado == 'finalizado' )) {
+            tb.items.get('b-del-' + this.idContenedor).disable();
+            }
  
 		return tb
 	},

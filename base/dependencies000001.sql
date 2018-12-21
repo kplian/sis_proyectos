@@ -1048,3 +1048,251 @@ WITH tproyecto_tcc AS(
 
 
 /***********************************F-DEP-EGS-PRO-3-03/11/2018****************************************/
+
+/***********************************I-DEP-RCM-PRO-0-05/12/2018****************************************/
+ALTER TABLE pro.tcontrato_pago
+  ADD PRIMARY KEY (id_contrato_pago);
+
+ALTER TABLE pro.tcontrato_pago
+  ADD CONSTRAINT fk_tcontrato_pago__id_proyecto_contrato FOREIGN KEY (id_proyecto_contrato)
+    REFERENCES pro.tproyecto_contrato(id_proyecto_contrato)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tcontrato_pago
+  ADD CONSTRAINT fk_tcontrato_pago__id_moneda FOREIGN KEY (id_moneda)
+    REFERENCES param.tmoneda(id_moneda)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tcuenta_excluir
+  ADD CONSTRAINT fk_tcuenta_excluir__id_cuenta FOREIGN KEY (id_cuenta)
+    REFERENCES conta.tcuenta(id_cuenta)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tfase
+  ADD CONSTRAINT fk_tfase__id_funcionario FOREIGN KEY (id_funcionario)
+    REFERENCES orga.tfuncionario(id_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tfase
+  ADD CONSTRAINT fk_tfase__id_proceso_wf FOREIGN KEY (id_proceso_wf)
+    REFERENCES wf.tproceso_wf(id_proceso_wf)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tfase_avance_obs
+  ADD CONSTRAINT fk_tfase_avance_obs__id_fase FOREIGN KEY (id_fase)
+    REFERENCES pro.tfase(id_fase)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tfase_avance_obs
+  ADD CONSTRAINT fk_tfase_avance_obs__id_proyecto FOREIGN KEY (id_proyecto)
+    REFERENCES pro.tproyecto(id_proyecto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tinvitacion
+  ADD CONSTRAINT fk_tinvitacion__id_categoria_compra FOREIGN KEY (id_categoria_compra)
+    REFERENCES adq.tcategoria_compra(id_categoria_compra)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tinvitacion
+  ADD CONSTRAINT fk_tinvitacion__id_depto FOREIGN KEY (id_depto)
+    REFERENCES param.tdepto(id_depto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tinvitacion
+  ADD CONSTRAINT fk_tinvitacion__id_funcionario FOREIGN KEY (id_funcionario)
+    REFERENCES orga.tfuncionario(id_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+  ALTER TABLE pro.tinvitacion
+  ADD CONSTRAINT fk_tinvitacion__id_moneda FOREIGN KEY (id_moneda)
+    REFERENCES param.tmoneda(id_moneda)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tinvitacion_det
+  ADD CONSTRAINT fk_tinvitacion_det__id_centro_costo FOREIGN KEY (id_centro_costo)
+    REFERENCES param.tcentro_costo(id_centro_costo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tinvitacion_det
+  ADD CONSTRAINT fk_tinvitacion_det__id_concepto_ingas FOREIGN KEY (id_concepto_ingas)
+    REFERENCES param.tconcepto_ingas(id_concepto_ingas)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tinvitacion_det
+  ADD CONSTRAINT fk_tinvitacion_det__id_fase FOREIGN KEY (id_fase)
+    REFERENCES pro.tfase(id_fase)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+
+ALTER TABLE pro.tinvitacion_det
+  ADD CONSTRAINT fk_tinvitacion_det__id_unidad_medida FOREIGN KEY (id_unidad_medida)
+    REFERENCES param.tunidad_medida(id_unidad_medida)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_contrato
+  ADD CONSTRAINT fk_tproyecto_contrato__id_moneda FOREIGN KEY (id_moneda)
+    REFERENCES param.tmoneda(id_moneda)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_contrato
+  ADD CONSTRAINT fk_tproyecto_contrato__id_proveedor FOREIGN KEY (id_proveedor)
+    REFERENCES param.tproveedor(id_proveedor)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_activo_det_mon
+  ADD CONSTRAINT fk_tproyecto_activo_det_mon__id_moneda FOREIGN KEY (id_moneda)
+    REFERENCES param.tmoneda(id_moneda)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_activo_det_mon
+  ADD CONSTRAINT fk_tproyecto_activo_det_mon__id_proyecto_activo_detalle FOREIGN KEY (id_proyecto_activo_detalle)
+    REFERENCES pro.tproyecto_activo_detalle(id_proyecto_activo_detalle)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_activo
+  ADD CONSTRAINT fk_tproyecto_activo__id_clasificacion foreign key (id_clasificacion)
+    REFERENCES kaf.tclasificacion(id_clasificacion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_activo
+  ADD CONSTRAINT fk_tproyecto_activo__id_depto foreign key (id_depto)
+    REFERENCES param.tdepto(id_depto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_activo
+  ADD CONSTRAINT fk_tproyecto_activo__id_lugar foreign key (id_lugar)
+    REFERENCES param.tlugar(id_lugar)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_activo
+  ADD CONSTRAINT fk_tproyecto_activo__id_centro_costo foreign key (id_centro_costo)
+    REFERENCES param.tcentro_costo(id_centro_costo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_activo
+  ADD CONSTRAINT fk_tproyecto_activo__id_ubicacion foreign key (id_ubicacion)
+    REFERENCES kaf.tubicacion(id_ubicacion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_activo
+  ADD CONSTRAINT fk_tproyecto_activo__id_grupo foreign key (id_grupo)
+    REFERENCES kaf.tgrupo(id_grupo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_activo
+  ADD CONSTRAINT fk_tproyecto_activo__id_grupo_clasif foreign key (id_grupo_clasif)
+    REFERENCES kaf.tgrupo(id_grupo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_activo
+  ADD CONSTRAINT fk_tproyecto_activo__id_unidad_medida foreign key (id_unidad_medida)
+    REFERENCES param.tunidad_medida(id_unidad_medida)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto_activo
+  ADD CONSTRAINT fk_tproyecto_activo__id_activo_fijo foreign key (id_activo_fijo)
+    REFERENCES kaf.tactivo_fijo(id_activo_fijo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto
+  ADD CONSTRAINT fk_tproyecto__id_estado_wf FOREIGN KEY (id_estado_wf)
+    REFERENCES wf.testado_wf (id_estado_wf)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto
+  ADD CONSTRAINT fk_tproyecto__id_fase_plantilla FOREIGN KEY (id_fase_plantilla)
+    REFERENCES pro.tfase_plantilla (id_fase_plantilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto
+  ADD CONSTRAINT fk_tproyecto__id_proceso_wf_cierre FOREIGN KEY (id_proceso_wf_cierre)
+    REFERENCES wf.tproceso_wf (id_proceso_wf)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto
+  ADD CONSTRAINT fk_tproyecto__id_estado_wf_cierre FOREIGN KEY (id_estado_wf_cierre)
+    REFERENCES wf.testado_wf (id_estado_wf)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE pro.tproyecto
+  ADD CONSTRAINT fk_tproyecto__id_proceso_wf FOREIGN KEY (id_proceso_wf)
+    REFERENCES wf.tproceso_wf (id_proceso_wf)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+/***********************************F-DEP-RCM-PRO-0-05/12/2018****************************************/
+/***********************************I-DEP-EGS-PRO-4-04/11/2018****************************************/
+ALTER TABLE pro.tinvitacion
+  ADD CONSTRAINT tinvitacion_fk__id_solicitud FOREIGN KEY (id_solicitud)
+    REFERENCES adq.tsolicitud(id_solicitud)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+/***********************************F-DEP-EGS-PRO-4-04/11/2018****************************************/
+

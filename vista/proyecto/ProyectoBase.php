@@ -80,7 +80,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'proy.estado',type:'string'},
 				id_grupo:1,
 				grid:true,
-				form:true
+				form:false
 		},
 		{
 			config:{

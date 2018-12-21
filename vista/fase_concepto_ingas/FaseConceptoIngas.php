@@ -155,7 +155,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'fecha_estimada',
-				fieldLabel: 'Fecha Estimada',
+				fieldLabel: 'Fecha Inicio Estimada',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -164,6 +164,22 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'DateField',
 				filters:{pfiltro:'facoing.fecha_estimada',type:'date'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'fecha_fin',
+				fieldLabel: 'Fecha de Finalizacion Estimada',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+							format: 'd/m/Y',
+							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+			},
+				type:'DateField',
+				filters:{pfiltro:'facoing.fecha_fin',type:'date'},
 				id_grupo:1,
 				grid:true,
 				form:true
@@ -196,7 +212,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'facoing.cantidad_est',type:'numeric'},
 				id_grupo:1,
 				grid:true,
-				form:true
+				form:false
 		},
 		{
 			config: {
@@ -243,18 +259,28 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'precio',
-				fieldLabel: 'Precio Unitario',
+				fieldLabel: 'Precio Total',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 110,
-				maxLength:1179650
+				maxLength:1179650,
+				renderer:function (value,p,record){
+						if(record.data.tipo_reg != 'summary'){
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
+						}
+						else{
+							Ext.util.Format.usMoney
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+						}	
+				}
 			},
-				type:'NumberField',
+				type:'MoneyField',
 				filters:{pfiltro:'facoing.precio',type:'numeric'},
 				id_grupo:1,
 				grid:true,
 				form:true
 		},
+		/*
 		{
 			config:{
 				name: 'precio_total',
@@ -263,13 +289,13 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				anchor: '80%',
 				gwidth: 110,
 				maxLength:1179650,
-				readOnly: true
+				//readOnly: true
 			},
-				type:'NumberField',
+				type:'MoneyField',
 				id_grupo:1,
 				grid:true,
 				form:true
-		},
+		},*/
 		{
 			config:{
 				name: 'tipo_cambio_mt',
@@ -485,7 +511,11 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{name:'tipo', type: 'string'},
 		{name:'desc_unidad_medida', type: 'string'},
 		{name:'precio_total', type: 'numeric'},
-		{name:'fecha_estimada', type: 'date'}
+		{name:'fecha_estimada', type: 'date'},
+		{name:'fecha_fin', type: 'date'},
+		{name:'estado_proyecto', type: 'string'},
+
+		
 
 	],
 	sortInfo:{
@@ -521,7 +551,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 			this.Cmp.id_concepto_ingas.store.baseParams.tipo=this.Cmp.id_bien_servicio.getValue();
 		
 		},this)
-		
+		/*
 		this.Cmp.precio.on('blur',function(cmp){
 			this.Cmp.precio_total.setValue(0);
 			if(this.Cmp.cantidad_est.getValue()&&this.Cmp.precio.getValue()){
@@ -535,6 +565,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				this.Cmp.precio_total.setValue(this.Cmp.precio.getValue()*this.Cmp.cantidad_est.getValue());
 			}
 		},this)
+		*/
 	},
 	
 	onReloadPage: function (m) {
@@ -601,6 +632,14 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
             }
 		return tb;
 	},
+	
+	  	tabsouth: [{
+		 url:'../../../sis_proyectos/vista/fase_concepto_ingas_pago/FaseConceptoIngasPago.php',
+          title:'Estimacion Plan de Pagos', 
+          width:'50%',
+          height:'50%',
+          cls:'FaseConceptoIngasPago'
+	}],
 	
 	
 	
