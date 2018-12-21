@@ -668,3 +668,14 @@ CREATE TABLE pro.tcontrato_pago (
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
 /***********************************F-SCP-RCM-PRO-0-03/12/2018****************************************/
+
+/***********************************I-SCP-RCM-PRO-1-19/12/2018****************************************/
+ALTER TABLE pro.tcuenta_excluir
+  ALTER COLUMN id_cuenta DROP NOT NULL;
+
+ALTER TABLE pro.tcuenta_excluir
+  ADD COLUMN nro_cuenta VARCHAR(20) NOT NULL;
+
+COMMENT ON COLUMN pro.tcuenta_excluir.nro_cuenta
+IS 'Número de cuenta contable que se usa en vez de id_cuenta';
+/***********************************F-SCP-RCM-PRO-1-19/12/2018****************************************/
