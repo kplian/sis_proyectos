@@ -679,17 +679,16 @@ ALTER TABLE pro.tinvitacion
 COMMENT ON COLUMN pro.tinvitacion.id_solicitud
 IS 'id cuando se genera una solicitud de compra';
 /***********************************F-SCP-EGS-PRO-0-04/12/2018****************************************/
+
 /***********************************I-SCP-EGS-PRO-1-05/12/2018****************************************/
 ALTER TABLE pro.tfase_concepto_ingas
   ADD COLUMN fecha_fin DATE;
 
 COMMENT ON COLUMN pro.tfase_concepto_ingas.fecha_fin
 IS 'fecha de finalización estimada, que llegaría a ser la de llegada de suministro y finalización de obra para el caso de construcción.';
-
 /***********************************F-SCP-EGS-PRO-1-05/12/2018****************************************/
 
 /***********************************I-SCP-EGS-PRO-2-11/12/2018****************************************/
-
 ALTER TABLE pro.tinvitacion
   ADD COLUMN id_presolicitud INTEGER;
 
@@ -719,3 +718,15 @@ create table pro.tfase_concepto_ingas_pago (
   constraint pk_tfase_concepto_ingas_pago__id_fase_concepto_ingas_pago primary key (id_fase_concepto_ingas_pago)
 ) inherits (pxp.tbase) without oids;
 /***********************************F-SCP-RCM-PRO-0-14/12/2018****************************************/
+
+/***********************************I-SCP-RCM-PRO-1-19/12/2018****************************************/
+ALTER TABLE pro.tcuenta_excluir
+  ALTER COLUMN id_cuenta DROP NOT NULL;
+
+ALTER TABLE pro.tcuenta_excluir
+  ADD COLUMN nro_cuenta VARCHAR(20) NOT NULL;
+
+COMMENT ON COLUMN pro.tcuenta_excluir.nro_cuenta
+IS 'Número de cuenta contable que se usa en vez de id_cuenta';
+/***********************************F-SCP-RCM-PRO-1-19/12/2018****************************************/
+

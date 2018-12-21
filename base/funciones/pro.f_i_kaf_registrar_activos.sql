@@ -483,7 +483,9 @@ BEGIN
     ------------------------------------------------------------------------------------
     --Crea el movimiento de ajuste si existe algún activo para relacionar
     if exists(select 1 from pro.tproyecto_activo
-            where id_proyecto = p_id_proyecto) then
+            where id_proyecto = p_id_proyecto
+            and coalesce(codigo_af_rel,'') <> ''
+          and coalesce(codigo_af_rel,'') <> 'GASTO') then
 
         --Obtención del ID del movimiento de Ajuste
         select cat.id_catalogo
@@ -524,7 +526,7 @@ BEGIN
         v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
 
         --Inserta el detalle del movimiento
-        insert into kaf.tmovimiento_af(
+        /*insert into kaf.tmovimiento_af(
         id_usuario_reg, fecha_reg, estado_reg, id_movimiento, id_activo_fijo, id_cat_estado_fun,
         vida_util, importe, id_moneda, depreciacion_acum, depreciacion_per, monto_vigente_actualiz,
         fecha_ini_dep, id_activo_fijo_valor_original
@@ -587,10 +589,102 @@ BEGIN
         and val.id_moneda = v_id_moneda_base
         and date_trunc('month',val.fecha) = date_trunc('month',py.fecha_fin - interval '1 month')
         group by val.id_activo_fijo, val.vida_util, val.monto_vigente, val.depreciacion_acum, val.depreciacion_per, val.monto_actualiz,
+        py.fecha_fin, val.id_activo_fijo_valor, py.id_moneda, pa.id_proyecto_activo;*/
+
+        insert into kaf.tmovimiento_af(
+        id_usuario_reg, fecha_reg, estado_reg, id_movimiento, id_activo_fijo, id_cat_estado_fun,
+        vida_util, importe, id_moneda, depreciacion_acum, depreciacion_per, monto_vigente_actualiz,
+        fecha_ini_dep, id_activo_fijo_valor_original, importe_modif
+        )
+        with t_valorado as (
+          select
+          mdep.id_activo_fijo_valor, maf.id_activo_fijo, mdep.id_moneda,
+          mdep.fecha, mdep.depreciacion_acum, mdep.depreciacion_per, mdep.monto_vigente, mdep.monto_actualiz,
+          mdep.vida_util,
+          max(mdep.fecha) over (partition by mdep.id_activo_fijo_valor) as max_fecha
+          from kaf.tmovimiento_af maf
+          inner join kaf.tmovimiento_af_dep mdep
+          on mdep.id_movimiento_af = maf.id_movimiento_af
+        )
+        select
+        p_id_usuario as id_usuario_reg,
+        now() as fecha_reg,
+        'activo' as estado_reg,
+        v_id_movimiento as id_movimiento,
+        val.id_activo_fijo as id_activo_fijo,
+        v_id_cat_estado_fun as id_cat_estado_fun,
+        val.vida_util as vida_util,
+        val.monto_vigente +
+        pro.f_i_kaf_actualizar_importe
+        (
+            pa.fecha_ini_dep,
+            py.fecha_fin,
+            param.f_convertir_moneda
+            (
+                py.id_moneda,
+                v_id_moneda_base,
+                sum(pad.monto),
+                py.fecha_fin,
+                'O',-- tipo oficial, venta, compra
+                NULL
+            ) +
+            coalesce((select sum(importe_actualiz)
+                       from pro.tproyecto_activo_det_mon m
+                       inner join pro.tproyecto_activo_detalle ad
+                       on ad.id_proyecto_activo_detalle = m.id_proyecto_activo_detalle
+                       where ad.id_proyecto_activo = pa.id_proyecto_activo
+                     )
+            ,0),
+            v_id_moneda_base
+        ) as importe,
+        v_id_moneda_base as id_moneda,
+        val.depreciacion_acum as depreciacion_acum,
+        val.depreciacion_per as depreciacion_per,
+        val.monto_actualiz as monto_vigente_actualiz,
+        py.fecha_fin as fecha_ini_dep,
+        val.id_activo_fijo_valor as id_activo_fijo_valor_original,
+        pro.f_i_kaf_actualizar_importe
+        (
+            pa.fecha_ini_dep,
+            py.fecha_fin,
+            param.f_convertir_moneda
+            (
+                py.id_moneda,
+                v_id_moneda_base,
+                sum(pad.monto),
+                py.fecha_fin,
+                'O',-- tipo oficial, venta, compra
+                NULL
+            ) +
+            coalesce((select sum(importe_actualiz)
+                       from pro.tproyecto_activo_det_mon m
+                       inner join pro.tproyecto_activo_detalle ad
+                       on ad.id_proyecto_activo_detalle = m.id_proyecto_activo_detalle
+                       where ad.id_proyecto_activo = pa.id_proyecto_activo
+                     )
+            ,0),
+            v_id_moneda_base
+        ) as importe_modif
+        from pro.tproyecto_activo pa
+        inner join pro.tproyecto_activo_detalle pad
+        on pad.id_proyecto_activo = pa.id_proyecto_activo
+        left join pro.tproyecto_activo_det_mon padm
+        on padm.id_proyecto_activo_detalle = pad.id_proyecto_activo_detalle
+        inner join pro.tproyecto py
+        on py.id_proyecto = pa.id_proyecto
+        inner join kaf.tactivo_fijo af
+        on af.codigo = pa.codigo_af_rel
+        inner join t_valorado val
+        on val.id_activo_fijo = af.id_activo_fijo
+        where pa.id_proyecto = p_id_proyecto
+        and coalesce(pa.codigo_af_rel,'') <> ''
+        and coalesce(pa.codigo_af_rel,'') <> 'GASTO'
+        and val.id_moneda = v_id_moneda_base
+        and date_trunc('month',val.fecha) = date_trunc('month',py.fecha_fin - interval '1 month')
+        group by val.id_activo_fijo, val.vida_util, val.monto_vigente, val.depreciacion_acum, val.depreciacion_per, val.monto_actualiz,
         py.fecha_fin, val.id_activo_fijo_valor, py.id_moneda, pa.id_proyecto_activo;
 
     end if;
-
 
 
 
