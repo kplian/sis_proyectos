@@ -1919,3 +1919,20 @@ WITH tproyecto_tcc AS(
 
 
 /***********************************F-DEP-RCM-PRO-1-19/12/2018****************************************/
+/***********************************I-DEP-EGS-PRO-5-21/12/2018****************************************/
+CREATE TRIGGER tr_tinvitacion_delete_presolicitud
+  AFTER UPDATE OF estado_reg 
+  ON adq.tpresolicitud
+  
+FOR EACH ROW 
+  EXECUTE PROCEDURE pro.tr_tinvitacion_delete_presolicitud();
+  
+CREATE TRIGGER tr_tinvitacion_delete_solicitud
+  AFTER UPDATE OF id_estado_wf 
+  ON adq.tsolicitud
+  
+FOR EACH ROW 
+  EXECUTE PROCEDURE pro.tr_tinvitacion_delete_solicitud();  
+  
+/***********************************F-DEP-EGS-PRO-5-21/12/2018****************************************/
+

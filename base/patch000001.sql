@@ -582,7 +582,7 @@ IS 'Fecha estimada para realizar la invitación para la adquisición';
 
 /***********************************I-SCP-RCM-PRO-0-03/12/2018****************************************/
 ALTER TABLE pro.tinvitacion
-  ADD COLUMN id_categoria_compra INTEGER NOT NULL;
+  ADD COLUMN id_categoria_compra INTEGER;
 
 
 ALTER TABLE pro.tproyecto
@@ -729,4 +729,21 @@ ALTER TABLE pro.tcuenta_excluir
 COMMENT ON COLUMN pro.tcuenta_excluir.nro_cuenta
 IS 'Número de cuenta contable que se usa en vez de id_cuenta';
 /***********************************F-SCP-RCM-PRO-1-19/12/2018****************************************/
+
+/***********************************F-SCP-EGS-PRO-3-26/12/2018****************************************/
+ALTER TABLE pro.tfase_concepto_ingas
+  ADD COLUMN id_funcionario INTEGER;
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.id_funcionario
+IS 'Encargado de item/servicio';
+
+ALTER TABLE pro.tfase_concepto_ingas
+  ADD COLUMN precio_real NUMERIC(18,2);
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.precio_real
+IS 'Precio real para adquirir el concepto de gasto';
+/***********************************F-SCP-EGS-PRO-3-26/12/2018****************************************/
+
+
+
 

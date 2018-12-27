@@ -153,6 +153,26 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		},
 		{
+	   			config:{
+	       		    name:'id_funcionario',
+	       		     hiddenName: 'id_funcionario',
+	   				origen:'FUNCIONARIOCAR',
+	   				fieldLabel:'Funcionario Encargado',
+	   				allowBlank:true,
+	                gwidth:200,
+	   				valueField: 'id_funcionario',
+	   			    gdisplayField: 'desc_funcionario',
+	   			    baseParams: { es_combo_solicitud : 'si' },
+	      			renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
+	       	     },
+	   			type:'ComboRec',//ComboRec
+	   			id_grupo:0,
+	   			filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
+	   			bottom_filter:false,
+	   		    grid:true,
+	   			form:true
+		 },
+		{
 			config:{
 				name: 'fecha_estimada',
 				fieldLabel: 'Fecha Inicio Estimada',
@@ -260,6 +280,30 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'precio',
 				fieldLabel: 'Precio Total',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 110,
+				maxLength:1179650,
+				renderer:function (value,p,record){
+						if(record.data.tipo_reg != 'summary'){
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
+						}
+						else{
+							Ext.util.Format.usMoney
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+						}	
+				}
+			},
+				type:'MoneyField',
+				filters:{pfiltro:'facoing.precio',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'precio_real',
+				fieldLabel: 'Precio Total Real',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 110,
@@ -514,6 +558,10 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_estimada', type: 'date'},
 		{name:'fecha_fin', type: 'date'},
 		{name:'estado_proyecto', type: 'string'},
+		{name:'id_funcionario', type: 'numeric'},
+		{name:'precio_real', type: 'numeric'},
+		{name:'desc_funcionario', type: 'string'},
+
 
 		
 

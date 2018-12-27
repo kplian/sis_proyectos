@@ -55,13 +55,13 @@ Phx.vista.ProyectoPr = {
        	    disabled: false, 
        	    handler: this.adquisicionesProgramadas, 
        	    tooltip: 'Adquicisiones Programadas'});
-       	 
+       	 /*
        	 this.addButton('btnReportPro',{ 
        	    text: 'Reporte', 
        	    iconCls: 'blist', 
        	    disabled: false, 
        	    handler: this.reportesProyectoN, 
-       	    tooltip: 'Reportes del Proyecto'});
+       	    tooltip: 'Reportes del Proyecto'});*/
      
     },
     
@@ -278,7 +278,7 @@ Phx.vista.ProyectoPr = {
 		this.getBoton('btnFases').enable();
 		this.getBoton('btnInvitacion').enable();
 		this.getBoton('btnAdqPro').enable();
-		this.getBoton('btnReportPro').enable();
+		//this.getBoton('btnReportPro').enable();
 
 		if(data.estado == 'finalizado' ){
 		this.getBoton('sig_estado').disable();
@@ -317,7 +317,7 @@ Phx.vista.ProyectoPr = {
 		
         this.getBoton('diagrama_gantt').disable();
         
-        this.getBoton('btnReportPro').disable();
+        //this.getBoton('btnReportPro').disable();
 
         
 		}

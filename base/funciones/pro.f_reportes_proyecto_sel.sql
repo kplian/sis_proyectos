@@ -51,6 +51,7 @@ DECLARE
     v_precio 			 	numeric;
 	v_record_fase_padre		record;
     v_id_item_padre			integer;
+    v_id_padre				integer;
 BEGIN
 
     v_nombre_funcion = 'pro.f_reportes_proyecto_sel';
@@ -66,7 +67,7 @@ BEGIN
 	if(p_transaccion='PRO_REPPAGO_SEL')then
 
         begin
-            -- raise EXception 'v_parametros.id_proyecto %',v_parametros.id_proyecto;
+          --raise EXception 'v_parametros.id_proyecto %',v_parametros.id_proyecto;
 
         	 p_ip_proyecto = v_parametros.id_proyecto;
              --p_ip_proyecto = 74;
@@ -87,6 +88,9 @@ BEGIN
           	
             v_tabla='CREATE TEMPORARY TABLE plan_pago(
                                       id serial,
+                                      id_padre integer,
+                                      id_fase_item integer,
+                                      nombre_padre varchar,
                                       id_fase_concepto_ingas integer,
                                       id_fase_concepto_ingas_pago integer,
                                       item varchar,
@@ -122,7 +126,10 @@ BEGIN
             
             v_count = 0;             	        	
         	FOR v_plan_pago in (
-            	Select 
+            	Select
+                fasse.id_fase as id_padre,
+                fasse.codigo as nombre_padre,
+                fase.id_fase as id_fase_item , 
                 facoinpa.id_fase_concepto_ingas_pago,
                 facoin.id_fase_concepto_ingas,
                 coingas.desc_ingas,
@@ -136,8 +143,9 @@ BEGIN
             LEFT JOIN pro.tfase_concepto_ingas_pago facoinpa on facoinpa.id_fase_concepto_ingas = facoin.id_fase_concepto_ingas
             left join param.tconcepto_ingas coingas on coingas.id_concepto_ingas = facoin.id_concepto_ingas
             left join pro.tfase fase on fase.id_fase = facoin.id_fase
+            left join pro.tfase fasse on fasse.id_fase = fase.id_fase_fk
             Where facoinpa.id_fase_concepto_ingas_pago is not null  and fase.id_proyecto = p_ip_proyecto 
-            ORDER BY facoinpa.fecha_pago ASC)LOOP
+            ORDER BY fasse.id_fase ASC)LOOP
             
                 IF v_plan_pago.mes = 1	THEN
                 	v_columna = 'enero_'||v_plan_pago.anio;
@@ -170,11 +178,47 @@ BEGIN
               into
                 v_id_fase_concepto_ingas
               FROM plan_pago
-              where id_fase_concepto_ingas = v_plan_pago.id_fase_concepto_ingas;                 
- 			
+              where id_fase_concepto_ingas = v_plan_pago.id_fase_concepto_ingas;
+              
+              Select
+              	 	pla.id_fase_item
+              into
+              v_id_padre 
+              From plan_pago pla
+              where pla.id_fase_item = v_plan_pago.id_padre;
+              
+              ---se inserta al padre del grupo como item separador y agrupador 
+              IF  v_id_padre is null then
+              
+              	Select
+                	fase.id_fase,
+                	fase.codigo,
+                    fase.nombre
+                into
+                v_record_fase
+                from pro.tfase fase
+                where  fase.id_fase = v_plan_pago.id_padre;
+              	v_consulta_into=' insert into plan_pago(
+                 						 id_padre,
+                                         nombre_padre,
+                                         id_fase_item,
+                                          item
+                                                )VALUES(
+                                         ''0'',
+                                         '''||v_record_fase.codigo||''',
+                                         '||v_record_fase.id_fase||',
+                                        '''||v_record_fase.nombre||'''
+
+                                                )'; 
+               execute(v_consulta_into);
+              
+              end if ;                
               
               IF v_id_fase_concepto_ingas is null THEN  
              	 v_consulta_into=' insert into plan_pago(
+                 						 id_padre,
+                 						 nombre_padre,
+                                         id_fase_item,                                         
                  						 id_fase_concepto_ingas,
               							 id_fase_concepto_ingas_pago,
                                          item,
@@ -183,6 +227,9 @@ BEGIN
                                          anio,
                                          precio_estimado 
                                                 )VALUES(
+                                       	 '||v_plan_pago.id_padre||',
+                                    	 '''||v_plan_pago.nombre_padre||''',
+                                         '||v_plan_pago.id_fase_item||',
                                          '||v_plan_pago.id_fase_concepto_ingas||',
                                          '||v_plan_pago.id_fase_concepto_ingas_pago||',
                                          '''||v_plan_pago.desc_ingas||''',
@@ -210,6 +257,8 @@ BEGIN
             v_consulta='
             	SELECT
                 	 id ,
+                     id_padre,
+                     nombre_padre,
                      item ,
                      precio_estimado,                               
                      mes ,';
@@ -221,7 +270,8 @@ BEGIN
                 From pro.tfase_concepto_ingas facoin
                 LEFT JOIN pro.tfase_concepto_ingas_pago facoinpa on facoinpa.id_fase_concepto_ingas = facoin.id_fase_concepto_ingas
                 left join param.tconcepto_ingas coingas on coingas.id_concepto_ingas = facoin.id_concepto_ingas
-                Where facoinpa.id_fase_concepto_ingas_pago is not null 
+                left join pro.tfase fase on fase.id_fase = facoin.id_fase
+                Where facoinpa.id_fase_concepto_ingas_pago is not null and fase.id_proyecto = p_ip_proyecto 
                  ORDER by anio ASC
              )LOOP                       
                               v_consulta =v_consulta ||'enero_'||v_gestion.anio||'  , 
@@ -241,7 +291,7 @@ BEGIN
          
            
             
-            --raise exception '%',v_consulta;
+           --raise exception '%',v_consulta;
         	
         	RETURN v_consulta ;
 		end;
@@ -322,7 +372,9 @@ BEGIN
                              	select 
                                     facoing.id_fase_concepto_ingas,
                                     date_part(''month'',facoing.fecha_estimada) as mes_item,
-                                   date_part(''year'', facoing.fecha_estimada)as gestion_item
+                                    date_part(''year'', facoing.fecha_estimada)as gestion_item,
+                                    date_part(''day'', facoing.fecha_estimada)as dia_item
+
                                 from pro.tfase_concepto_ingas facoing
                             		
                                  ) 
@@ -353,7 +405,6 @@ BEGIN
                               fase.nombre as nombre_fase,
                               fase.id_proyecto,
                               facoing.fecha_estimada,
-                              doc.id_invitacion_det,
                               (facoing.fecha_estimada-now()::date)::integer as dias,
                               est.estado::varchar as estado_tiempo,
                               meg.gestion_item::integer,
@@ -363,12 +414,11 @@ BEGIN
                               left join segu.tusuario usu2 on usu2.id_usuario = facoing.id_usuario_mod
                               left join param.tconcepto_ingas cig on cig.id_concepto_ingas = facoing.id_concepto_ingas
                               left join pro.tfase fase on fase.id_fase = facoing.id_fase
-                              LEFT JOIN doc_invitacion doc on doc.id_fase_concepto_ingas = facoing.id_fase_concepto_ingas
                               LEFT JOIN estado_tiempo est on est.id_fase_concepto_ingas = facoing.id_fase_concepto_ingas
                               LEFT JOIN mes_gestion meg on meg.id_fase_concepto_ingas = facoing.id_fase_concepto_ingas
-                              where doc.id_invitacion_det is NULL and fase.id_proyecto='||p_ip_proyecto;
+                              where  fase.id_proyecto='||p_ip_proyecto;
                               
-                             v_consulta=v_consulta||'order by meg.gestion_item ,meg.mes_item ASC '; 
+                             v_consulta=v_consulta||'order by meg.gestion_item ,meg.mes_item ,meg.dia_item ASC '; 
 
           	return v_consulta;
 

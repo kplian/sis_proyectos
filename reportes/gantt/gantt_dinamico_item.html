@@ -234,8 +234,8 @@
 								         
 								   		
 							                   
-								                pStart =(resp[i].id != 1 )?resp[i].fecha_ini:resp[i].fecha_ini_item;
-							                    pEnd = (resp[i].id != 1 )?resp[i].fecha_fin :resp[i].fecha_fin_item;
+								                pStart =(resp[i].id == 1 )?resp[i].fecha_ini:resp[i].fecha_ini_item;
+							                    pEnd = (resp[i].id == 1 )?resp[i].fecha_fin :resp[i].fecha_fin_item;
 							                    pClass = (resp[i].id_anterior != null)? 'gtaskblue':'ggroupblack';
 								               	pLink = '';
 						                    	pMile = 0;

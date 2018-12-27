@@ -315,7 +315,7 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 				{
 				config:{
 					name: 'precio',
-					fieldLabel: 'Precio',
+					fieldLabel: 'Precio Unitario',
 					allowBlank: true,
 					anchor: '80%',
 					gwidth: 80,
@@ -368,19 +368,54 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 					id_grupo:0,
 					bottom_filter:false,
 					//egrid:true,
-					grid:true,
+					grid:false,
 					form:false
 			},
 			{
 				config:{
 					name: 'precio_est',
-					fieldLabel: 'Precio Estimado',
+					fieldLabel: 'Precio Total',
 					allowBlank: true,
 					anchor: '80%',
 					gwidth: 80,
 					galign: 'right ',
 					maxLength:1179650,
 					renderer:function (value,p,record){
+						
+						var total = record.data.cantidad_sol*record.data.precio;
+						//total = total.toFixed(2);
+						var tol=total.toLocaleString();
+						var to = tol.toString();
+						if(record.data.tipo_reg != 'summary'){
+							return  String.format(to,Ext.util.Format.number(value,'0,000.00/i'));
+						}
+						else{
+							Ext.util.Format.usMoney
+							
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+						}
+						
+					}
+				},
+					type:'MoneyField',
+					filters:{pfiltro:'precio_est',type:'numeric'},
+					id_grupo:0,
+					bottom_filter:false,
+					//egrid:true,
+					grid:true,
+					form:false
+			},
+			{
+				config:{
+					name: 'precio_est',
+					fieldLabel: 'Precio Total Estimado',
+					allowBlank: true,
+					anchor: '80%',
+					gwidth: 80,
+					galign: 'right ',
+					maxLength:1179650,
+					renderer:function (value,p,record){
+						console.log('record',record);
 						if(record.data.tipo_reg != 'summary'){
 							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
 						}

@@ -104,3 +104,10 @@ INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
 VALUES
   (E'py_gen_presolicitud', E'si', E'Define si la Invitación de Proyectos generará Presolicitud en vez de Solicitud');
 /***********************************F-DAT-RCM-PRO-1-10/12/2018****************************************/
+
+/***********************************I-DAT-EGS-PRO-2-24/12/2018****************************************/
+
+INSERT INTO param.tunidad_medida ("id_usuario_reg", "codigo", "descripcion", "tipo")
+VALUES 
+  (1, E'Tn', E'Tonelada', E'Masa');
+/***********************************F-DAT-EGS-PRO-2-24/12/2018****************************************/

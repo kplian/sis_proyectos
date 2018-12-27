@@ -82,7 +82,9 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod,
             fecha_estimada,
-            fecha_fin
+            fecha_fin,
+            id_funcionario,
+            precio_real
           	) values(
 			v_parametros.id_fase,
 			v_parametros.id_concepto_ingas,
@@ -103,8 +105,9 @@ BEGIN
 			null,
 			null,
             v_parametros.fecha_estimada,
-            v_parametros.fecha_fin
-							
+            v_parametros.fecha_fin,
+			v_parametros.id_funcionario,
+            v_parametros.precio_real				
 			
 			
 			)RETURNING id_fase_concepto_ingas into v_id_fase_concepto_ingas;
@@ -156,7 +159,10 @@ BEGIN
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
            	fecha_estimada = v_parametros.fecha_estimada,
-            fecha_fin = v_parametros.fecha_fin
+            fecha_fin = v_parametros.fecha_fin,
+            id_funcionario = v_parametros.id_funcionario,
+            precio_real = v_parametros.precio_real
+
 			where id_fase_concepto_ingas=v_parametros.id_fase_concepto_ingas;
                
 			--Definicion de la respuesta

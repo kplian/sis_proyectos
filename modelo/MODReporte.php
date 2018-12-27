@@ -44,12 +44,16 @@ class MODReporte extends MODbase{
 
 		//Definicion de la lista del resultado del query
 		$this->captura('id','int4');
+		$this->captura('id_padre','int4');
+		$this->captura('nombre_padre','varchar');
 		$this->captura('item','varchar');
 		$this->captura('precio_estimado','numeric');
 		$this->captura('mes','integer');
 
 		//Definicion de la lista dinámica de columnas
 		$col_arrays = $this->objParam->getParametro('gestion');
+		//var_dump($col_arrays);exit;
+		
 		for ($i=0; $i < count($col_arrays) ; $i++) {
 			$this->captura('enero_'.$col_arrays[$i]['anio'],'numeric');
 			$this->captura('febrero_'.$col_arrays[$i]['anio'],'numeric');
@@ -112,7 +116,7 @@ class MODReporte extends MODbase{
 		$this->captura('id_proyecto','int4');
 	
 		$this->captura('fecha_estimada','date');
-	    $this->captura('id_invitacion_det','integer');
+	    //$this->captura('id_invitacion_det','integer');
 		$this->captura('dias','integer');
 		$this->captura('estado_tiempo','varchar');
 		$this->captura('gestion_item','integer');

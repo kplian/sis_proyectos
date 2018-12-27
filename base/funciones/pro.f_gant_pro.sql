@@ -500,7 +500,7 @@ BEGIN
                     fase.fecha_fin_real,
                     fase.fecha_ini,
                     fase.fecha_fin,
-                    fase.descripcion,
+                    fascon.descripcion,
                     fase.fecha_reg,
                     fass.nombre as nombre_padre,
                     fascon.id_fase_concepto_ingas,

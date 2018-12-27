@@ -216,7 +216,7 @@ BEGIN
             nro_tramite,
             id_fase_plantilla,
 			id_depto_conta
-			
+
           	) values(
 			v_codigo,
 			v_parametros.nombre,
@@ -430,7 +430,7 @@ BEGIN
             --verificamos en que estado esta el proyecto
         	SELECT
             pro.estado
-        
+
             INTO
             v_rec_proyecto
             FROM pro.tproyecto pro
@@ -443,7 +443,7 @@ BEGIN
                     	raise exception 'No Debe Ingresar una fecha real en este estado %',v_rec_proyecto.estado;
                     END IF;
             END IF;
-            
+
              IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
                 raise exception 'No puede Modificar el proyecto en estado de  %',v_rec_proyecto.estado;
             END IF;
@@ -499,22 +499,22 @@ BEGIN
 	***********************************/
 
 	elsif(p_transaccion='PRO_PROY_ELI')then
-		
+
 		begin
-        
+
         	 --verificamos en que estado esta el proyecto
         	SELECT
             pro.estado
-        
+
             INTO
             v_rec_proyecto
             FROM pro.tproyecto pro
   			WHERE pro.id_proyecto = v_parametros.id_proyecto;
-    		
+
               IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
                 raise exception 'No puede Eliminar el proyecto en estado de  %',v_rec_proyecto.estado;
             END IF;
-            
+
         	IF(SELECT
             	count(fase.id_fase)
             FROM pro.tfase fase
@@ -1158,6 +1158,134 @@ BEGIN
                   return v_resp;
 
               end;
+
+    /*********************************
+    #TRANSACCION:  'PRO_PROYCIE_INS'
+    #DESCRIPCION:   Insercion de registro de Proyecto para cierre
+    #AUTOR:         RCM
+    #FECHA:         17/12/2018
+    ***********************************/
+    elsif(p_transaccion='PRO_PROYCIE_INS')then
+
+        begin
+
+            SELECT
+            proy.codigo
+            INTO
+            v_codigo_proyecto
+            FROM pro.tproyecto proy
+            WHERE UPPER(proy.codigo) = UPPER(v_parametros.codigo);
+
+            IF v_codigo_proyecto is not null THEN
+                RAISE EXCEPTION 'Este Codigo ya Existe';
+            END IF;
+
+            v_codigo = UPPER(v_parametros.codigo);
+
+            --Verificación del depto conta
+            v_id_depto_conta = null;
+            if pxp.f_existe_parametro(p_tabla,'id_depto_conta') then
+                v_id_depto_conta = v_parametros.id_depto_conta;
+            end if;
+
+            --Sentencia de la insercion
+            insert into pro.tproyecto(
+            codigo,
+            nombre,
+            fecha_ini,
+            fecha_fin,
+            estado_reg,
+            usuario_ai,
+            fecha_reg,
+            id_usuario_reg,
+            id_usuario_ai,
+            id_usuario_mod,
+            fecha_mod,
+            id_moneda,
+            id_tipo_cc,
+            estado,
+            id_depto_conta
+            ) values(
+            v_codigo,
+            v_parametros.nombre,
+            v_parametros.fecha_ini,
+            v_parametros.fecha_fin,
+            'activo',
+            v_parametros._nombre_usuario_ai,
+            now(),
+            p_id_usuario,
+            v_parametros._id_usuario_ai,
+            null,
+            null,
+            v_parametros.id_moneda,
+            v_parametros.id_tipo_cc,
+            'cierre',
+            v_id_depto_conta
+            )RETURNING id_proyecto into v_id_proyecto;
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Proyecto almacenado(a) con exito (id_proyecto'||v_id_proyecto||')');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_proyecto',v_id_proyecto::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+        end;
+
+    /*********************************
+    #TRANSACCION:  'PRO_PROYCIE_MOD'
+    #DESCRIPCION:   Modificacion de registros
+    #AUTOR:     admin
+    #FECHA:     28-09-2017 20:12:15
+    ***********************************/
+
+    elsif(p_transaccion='PRO_PROY_MOD')then
+
+        begin
+
+            SELECT
+               proy.codigo,
+               proy.id_proyecto
+            INTO
+            v_codigo_proyecto
+            FROM pro.tproyecto proy
+            WHERE UPPER(proy.codigo) = UPPER(v_parametros.codigo);
+
+            IF v_codigo_proyecto is not null and v_codigo_proyecto.id_proyecto <> v_parametros.id_proyecto  THEN
+              RAISE EXCEPTION 'Este Codigo ya Existe';
+            END IF;
+
+
+            v_id_depto_conta = null;
+            if pxp.f_existe_parametro(p_tabla,'id_depto_conta') then
+                v_id_depto_conta = v_parametros.id_depto_conta;
+            end if;
+
+            --Sentencia de la modificacion
+            update pro.tproyecto set
+            codigo = UPPER(v_parametros.codigo),
+            nombre = v_parametros.nombre,
+            fecha_ini = v_parametros.fecha_ini,
+            fecha_fin = v_parametros.fecha_fin,
+            id_usuario_mod = p_id_usuario,
+            fecha_mod = now(),
+            id_usuario_ai = v_parametros._id_usuario_ai,
+            usuario_ai = v_parametros._nombre_usuario_ai,
+            id_moneda = v_parametros.id_moneda,
+            fecha_ini_real = v_parametros.fecha_ini_real,
+            fecha_fin_real = v_parametros.fecha_fin_real,
+            id_tipo_cc = v_parametros.id_tipo_cc,
+            id_depto_conta = v_id_depto_conta
+            where id_proyecto=v_parametros.id_proyecto;
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Proyecto modificado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_proyecto',v_parametros.id_proyecto::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+        end;
 
 	else
 

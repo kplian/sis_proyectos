@@ -135,8 +135,7 @@ class RPresupuestoXls
 					//aplica estilo a una linea a una fila de celdas
 					$this->docexcel->getActiveSheet()->getStyle('A2:G2')->applyFromArray($styleTitulos4);
 					
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,2,'PROYECTO');						
-					
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,2,'PROYECTO');											
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,2,$datos[0]['nombre_item']);						
 					
 					$this->docexcel->getActiveSheet()->getStyle('A3:G3')->applyFromArray($styleTitulos4);
@@ -402,6 +401,7 @@ class RPresupuestoXls
 		//var_dump($this->objParam->getParametro('datos'));
 		$columna=1;
 		$mes='';
+		$total=0;
 		$datos = $this->objParam->getParametro('datos');
 		$this->imprimeCabecera(1,'Items');
 		foreach ($datos as $value){
@@ -409,7 +409,7 @@ class RPresupuestoXls
 					if ($value['id_padre']!=0) {
 						
 					    if($value['id_padre']== 1){
-					    		
+					    	$total = $total + $value['precio_item'];	
 							$this->docexcel->getActiveSheet()->getStyle('A'.($fila).':A'.($fila).'')->applyFromArray($styleTitulos2);
 							$this->docexcel->getActiveSheet()->getStyle('B'.($fila).':B'.($fila).'')->applyFromArray($styleTitulos2);
 							$this->docexcel->getActiveSheet()->getStyle('C'.($fila).':C'.($fila).'')->applyFromArray($styleTitulos2);
@@ -460,8 +460,8 @@ class RPresupuestoXls
 		
 		}	
 			
-			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,$fila,'TOTAL GENERAL:');
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,$fila,'=SUM(D7:D'.($fila-1).')');
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,$fila,'Total Presupuesto:');
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,$fila,$total);
 			
 			/*
 		   $this->docexcel->getActiveSheet()->getStyle('A'.(7).':A'.($fila-1).'')->applyFromArray($styleTitulos5);

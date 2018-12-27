@@ -44,6 +44,7 @@ class RPlanPagoProyectoXls
 
 	}
 	function imprimeCabecera($shit,$tipo) {
+		$datosProy = $this->objParam->getParametro('datos_proyecto');
 		$datos = $this->objParam->getParametro('datos');
   //var_dump($shit);
         $this->docexcel->createSheet($shit);
@@ -129,21 +130,21 @@ class RPlanPagoProyectoXls
 		
 		//
 		if($shit==1){
-		/*	$this->docexcel->getActiveSheet()->getStyle('D1:J1')->applyFromArray($styleTitulos3);				
-			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,1,'FACTURAS Y SUS COBROS');	
-				*/
+
 					$this->docexcel->getActiveSheet()->getStyle('A1:F1')->applyFromArray($styleTitulos3);				
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,1,'Estimacion de plan de Pagos');						
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,1,'Estimacion de plan de Pagos');
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'Proyecto');						
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,2,$datosProy[0]['codigo'].'-'.$datosProy[0]['nombre']);						
+											
 					//aplica estilo a una linea a una fila de celdas
 					$this->docexcel->getActiveSheet()->getStyle('A2:F2')->applyFromArray($styleTitulos4);
-					//$this->docexcel->getActiveSheet()->getStyle('A3:G3')->applyFromArray($styleTitulos4);
-				    //$this->docexcel->getActiveSheet()->getStyle('A4:G4')->applyFromArray($styleTitulos4);
-					
-					//$this->docexcel->getActiveSheet()->getStyle('A3:F3')->applyFromArray($styleTitulos2);
+
 					
 				   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[0].''.(3).':'.$this->equivalencias[0].''.(3).'')->applyFromArray($styleTitulos2);
 				   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[1].''.(3).':'.$this->equivalencias[1].''.(3).'')->applyFromArray($styleTitulos2);
 				   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[2].''.(3).':'.$this->equivalencias[2].''.(3).'')->applyFromArray($styleTitulos2);
+				   //$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[3].''.(3).':'.$this->equivalencias[3].''.(3).'')->applyFromArray($styleTitulos2);
+				   
 				   
 				   $numeroColumnaIni =0;
 				   $numeroColumnaFin = 11;
@@ -161,28 +162,25 @@ class RPlanPagoProyectoXls
 					
 					//$this->docexcel->getActiveSheet()->getStyle('A3:V3')->applyFromArray($styleTitulos2);
 					//SE COLOCA LAS DIMENSIONES QUE TENDRA LAS CELDAS
-					$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(50);
-					$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('M')->setWidth(18);
 					
-					$this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('P')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('Q')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('R')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('S')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('T')->setWidth(18);	
-					$this->docexcel->getActiveSheet()->getColumnDimension('U')->setWidth(18);
-					$this->docexcel->getActiveSheet()->getColumnDimension('V')->setWidth(18);						
+					///incrementa la altura de la celda en el excel
+					//$this->docexcel->getActiveSheet()->getRowDimension('B')->setRowHeight(10); 
+					
+					//this->docexcel->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+					
+					$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(40);
+					$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(30);
+					
+					///Ancho de celdas del reporte
+					$numeroColumna=0;
+				   for ($i=0; $i < count($col_arrays) ; $i++) {
+						 	for ($i=0; $i < 13; $i++) {
+							 	 
+							 $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[3+$numeroColumna+ $i])->setWidth(20);
+							 
+						 	}	
+							$numeroColumna =$numeroColumna+12;
+				   }	
 					//*************************************Cabecera************************//
 					//automaticamente selecciona el campo en las celdas
 					//$this->docexcel->getActiveSheet()->getStyle('A3:G3')->getAlignment()->setWrapText(true);
@@ -192,38 +190,11 @@ class RPlanPagoProyectoXls
 				
 					 
 					 $this->docexcel->getActiveSheet()->mergeCells('A1:F1');
-					
-					 
-					//$this->docexcel->getActiveSheet()->mergeCells('B2:C2');
-					//$this->docexcel->getActiveSheet()->mergeCells('A3:B3');
-					//$this->docexcel->getActiveSheet()->mergeCells('A4:B4');
-					
-					/*
-					$this->docexcel->getActiveSheet()->mergeCells('B2:B3');
-					$this->docexcel->getActiveSheet()->mergeCells('C2:C3');
-					$this->docexcel->getActiveSheet()->mergeCells('D2:D3');
-					$this->docexcel->getActiveSheet()->mergeCells('E2:E3');
-					$this->docexcel->getActiveSheet()->mergeCells('F2:F3');
-					$this->docexcel->getActiveSheet()->mergeCells('G2:G3');
-					
-					$this->docexcel->getActiveSheet()->mergeCells('P2:P3');								
-					$this->docexcel->getActiveSheet()->mergeCells('Q2:Q3');
-					$this->docexcel->getActiveSheet()->mergeCells('R2:R3');				
-					$this->docexcel->getActiveSheet()->mergeCells('S2:S3');
-					$this->docexcel->getActiveSheet()->mergeCells('T2:T3');
-					$this->docexcel->getActiveSheet()->mergeCells('U2:U3');
-					$this->docexcel->getActiveSheet()->mergeCells('V2:V3');
-									
-					
-					$this->docexcel->getActiveSheet()->mergeCells('H2:I2');
-					$this->docexcel->getActiveSheet()->mergeCells('J2:K2');
-					$this->docexcel->getActiveSheet()->mergeCells('L2:M2');
-					$this->docexcel->getActiveSheet()->mergeCells('N2:O2');*/
-	
-					
-					//
+
 					
 					$this->docexcel->getActiveSheet()->setCellValue('A3','Nº');
+					//$this->docexcel->getActiveSheet()->setCellValue('B3','FASE');
+					
 					$this->docexcel->getActiveSheet()->setCellValue('B3','ITEM');
 					$this->docexcel->getActiveSheet()->setCellValue('C3','PRECIO ESTIMADO');
 					
@@ -253,6 +224,8 @@ class RPlanPagoProyectoXls
 	}
 
 	function generarDatos()
+	
+	///azul  izquierdo
 	{
 		$styleTitulos3 = array(
 			'font'  => array(
@@ -264,7 +237,7 @@ class RPlanPagoProyectoXls
 				)
 			),
 			'alignment' => array(
-				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
 				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER
 			),
 			'fill' => array(
@@ -279,6 +252,34 @@ class RPlanPagoProyectoXls
 				)
 			)
 		);
+		///azul  derecha
+
+		$styleTitulos4 = array(
+			'font'  => array(
+				'bold'  => true,
+				'size'  => 10,
+				'name'  => 'Arial',
+				'color' => array(
+					'rgb' => 'FFFFFF'
+				)
+			),
+			'alignment' => array(
+				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_RIGHT,
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER
+			),
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array(
+					'rgb' => '2D83C5'
+				)
+			),
+			'borders' => array(
+				'allborders' => array(
+					'style' => PHPExcel_Style_Border::BORDER_THIN
+				)
+			)
+		);
+		//blanco derecho
 		$styleTitulos5 = array(
 			'font'  => array(
 				'bold'  => false,
@@ -304,6 +305,7 @@ class RPlanPagoProyectoXls
 				)
 			)
 		);
+		///blanco izquierdo
 		$styleTitulos6 = array(
 			'font'  => array(
 				'bold'  => false,
@@ -315,7 +317,8 @@ class RPlanPagoProyectoXls
 			),
 			'alignment' => array(
 				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
-				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+				'setWrapText'=>true
 			),
 			'fill' => array(
 				'type' => PHPExcel_Style_Fill::FILL_SOLID,
@@ -337,19 +340,43 @@ class RPlanPagoProyectoXls
 		$datos = $this->objParam->getParametro('datos');
 		$this->imprimeCabecera(1,'ITEMS');
 		//var_dump($datos[0]['importe_doc']);
-		$primero='';
+		$precio=0;
 		$conteoFactura=0;
 		$col_arrays = $this->objParam->getParametro('gestion');
 		$numeroColumna = 0;
+		$total=0;
 		foreach ($datos as $value){
-
-
+			
+						if ($value['id_padre']== 0) {
+							$this->docexcel->getActiveSheet()->getStyle('B'.($fila).':B'.($fila).'')->applyFromArray($styleTitulos3);
+							$this->docexcel->getActiveSheet()->getStyle('C'.($fila).':C'.($fila).'')->applyFromArray($styleTitulos4);
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nombre_padre'].'--'.$value['item']);
+							
+							foreach ($datos as $valueData){
+								if ($value['nombre_padre']==$valueData['nombre_padre']) {
+									$precio=$precio+$valueData['precio_estimado'];									
+								}
+							}
+							$total=$total+$precio;
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $precio);
+							
+							
+						} else {
+							$this->docexcel->getActiveSheet()->getStyle('B'.($fila).':B'.($fila).'')->applyFromArray($styleTitulos6);
+							$this->docexcel->getActiveSheet()->getStyle('C'.($fila).':C'.($fila).'')->applyFromArray($styleTitulos5);	
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila,$value['item']);
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['precio_estimado']);
+												
+						}
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $this->numero);
-				     	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['item']);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['precio_estimado']);
+						//$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nombre_padre']);
+						$this->docexcel->getActiveSheet()->getStyle("B$fila:B$fila")->getAlignment()->setWrapText(true);
 						
 					
 			for ($i=0; $i < count($col_arrays) ; $i++) {
+				
+						
+						
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3+$numeroColumna, $fila, $value['enero_'.$col_arrays[$i]['anio']]);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4+$numeroColumna, $fila, $value['febrero_'.$col_arrays[$i]['anio']]);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5+$numeroColumna, $fila, $value['marzo_'.$col_arrays[$i]['anio']]);
@@ -362,17 +389,18 @@ class RPlanPagoProyectoXls
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12+$numeroColumna, $fila, $value['octubre_'.$col_arrays[$i]['anio']]);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13+$numeroColumna, $fila, $value['noviembre_'.$col_arrays[$i]['anio']]);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14+$numeroColumna, $fila, $value['diciembre_'.$col_arrays[$i]['anio']]);
+					
 					$numeroColumna = $numeroColumna + 12;
 					}				
 
 			$this->numero++;
 			$fila++;
 			$numeroColumna = 0;
-			
+			$precio=0;
 		}
 			//var_dump('EQUIVALENCIAS',$this->equivalencias[0]);
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,$fila,'TOTALES:');
-		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,$fila,'=SUM('.$this->equivalencias[2].'4:'.$this->equivalencias[2].''.($fila-1).')');
+		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,$fila,$total);
 		  
 		   $numeroColumna = 0;
 		   for ($i=0; $i < count($col_arrays) ; $i++) {
@@ -389,16 +417,13 @@ class RPlanPagoProyectoXls
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12+$numeroColumna,$fila,'=SUM('.$this->equivalencias[12+$numeroColumna].'4:'.$this->equivalencias[12+$numeroColumna].''.($fila-1).')');
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13+$numeroColumna,$fila,'=SUM('.$this->equivalencias[13+$numeroColumna].'4:'.$this->equivalencias[13+$numeroColumna].''.($fila-1).')');
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14+$numeroColumna,$fila,'=SUM('.$this->equivalencias[14+$numeroColumna].'4:'.$this->equivalencias[14+$numeroColumna].''.($fila-1).')');
-		   $numeroColumna = $numeroColumna + 12; 
-			}
-			   
-		   
-		   
-		   
-		   
+		   $numeroColumna = $numeroColumna + 12;
+		   		   
+		   }
 		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[0].''.(4).':'.$this->equivalencias[0].''.($fila-1).'')->applyFromArray($styleTitulos5);
-		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[1].''.(4).':'.$this->equivalencias[1].''.($fila-1).'')->applyFromArray($styleTitulos5);
-		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[2].''.(4).':'.$this->equivalencias[2].''.($fila-1).'')->applyFromArray($styleTitulos5);
+		  //$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[1].''.(4).':'.$this->equivalencias[1].''.($fila-1).'')->applyFromArray($styleTitulos6);
+		   //$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[2].''.(4).':'.$this->equivalencias[2].''.($fila-1).'')->applyFromArray($styleTitulos5);
+		   //$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[3].''.(4).':'.$this->equivalencias[3].''.($fila-1).'')->applyFromArray($styleTitulos5);
 		   
 		   $numeroColumna = 0;
 		   for ($i=0; $i < count($col_arrays) ; $i++) {
@@ -416,9 +441,9 @@ class RPlanPagoProyectoXls
 		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[14+$numeroColumna].''.(4).':'.$this->equivalencias[14+$numeroColumna].''.($fila-1).'')->applyFromArray($styleTitulos5);
 		   $numeroColumna = $numeroColumna + 12;   
 			}
-		   
+
 		    $numeroColumna = 0;
-		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[2+$numeroColumna].''.(4).':'.$this->equivalencias[2+$numeroColumna].''.($fila-1).'')->getNumberFormat()->setFormatCode('#,##0.00');
+		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[2+$numeroColumna].''.(4).':'.$this->equivalencias[2+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		     for ($i=0; $i < count($col_arrays) ; $i++) {
 		  		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[3+$numeroColumna].''.(4).':'.$this->equivalencias[3+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		  		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[4+$numeroColumna].''.(4).':'.$this->equivalencias[4+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
@@ -435,10 +460,6 @@ class RPlanPagoProyectoXls
 		  
 		     $numeroColumna = $numeroColumna + 12;   
 			}
-		   
-		   
-		   
-		   
 		   /*
 		   $this->docexcel->getActiveSheet()->getStyle('P'.(4).':P'.($fila-1).'')->applyFromArray($styleTitulos5);
 		   $this->docexcel->getActiveSheet()->getStyle('Q'.(4).':Q'.($fila-1).'')->applyFromArray($styleTitulos5);
@@ -451,25 +472,17 @@ class RPlanPagoProyectoXls
 		   $this->docexcel->getActiveSheet()->getStyle('X'.(4).':X'.($fila-1).'')->applyFromArray($styleTitulos5);
 		   $this->docexcel->getActiveSheet()->getStyle('Y'.(4).':Y'.($fila-1).'')->applyFromArray($styleTitulos5);
 		   $this->docexcel->getActiveSheet()->getStyle('Z'.(4).':Z'.($fila-1).'')->applyFromArray($styleTitulos5);
-
 		   $this->docexcel->getActiveSheet()->getStyle('F'.(4).':F'.($fila-1).'')->applyFromArray($styleTitulos5);
 		   */
-		   
-		   
-		   
 		 /*$this->docexcel->getActiveSheet()->getStyle('G'.(4).':G'.($fila-1).'')->applyFromArray($styleTitulos5);
 		   $this->docexcel->getActiveSheet()->getStyle('H'.(4).':H'.($fila).'')->applyFromArray($styleTitulos5);
 		   $this->docexcel->getActiveSheet()->getStyle('I'.(4).':I'.($fila).'')->applyFromArray($styleTitulos5);*/
 		   
-		   
+		  $this->docexcel->getActiveSheet()->getStyle('C'.(4).':C'.($fila-1).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		   $this->docexcel->getActiveSheet()->getStyle('D'.(4).':D'.($fila-1).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		   $this->docexcel->getActiveSheet()->getStyle('E'.(4).':E'.($fila-1).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		   $this->docexcel->getActiveSheet()->getStyle('F'.(4).':F'.($fila-1).'')->getNumberFormat()->setFormatCode('#,##0.00');	
 		   $this->docexcel->getActiveSheet()->getStyle('D'.($fila).':F'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
-		   
-		   
-		  	
-					
 
 				//Marca desde una celda y una columna 
 				/*
@@ -497,9 +510,7 @@ class RPlanPagoProyectoXls
 				$this->docexcel->getActiveSheet()->getStyle('G'.($fila+1).':S'.($fila+1).'')->getNumberFormat()->setFormatCode('#,##0.00');
 				//
 						
-				//$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,$fila+1,'TOTAL');
-				
-				
+				//$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,$fila+1,'TOTAL');				
 				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6,$fila+1,'=SUM(G4:G'.($fila-1).')');				
 				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7,$fila+1,'=SUM(H4:H'.($fila-1).')');
 				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8,$fila+1,'=SUM(I4:I'.($fila-1).')');				
@@ -522,7 +533,7 @@ class RPlanPagoProyectoXls
 		$this->generarResultado(1,$sum);*/
 		
 	}
-	//
+
 	function generarReporte(){
 		$this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel5');
 		$this->objWriter->save($this->url_archivo);

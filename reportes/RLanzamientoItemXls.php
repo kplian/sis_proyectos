@@ -44,6 +44,8 @@ class RLanzamientoItemXls
 
 	}
 	function imprimeCabecera($shit,$tipo) {
+		$datosProy = $this->objParam->getParametro('datos_proyecto');
+		
 		$datos = $this->objParam->getParametro('datos');
   //var_dump($shit);
         $this->docexcel->createSheet($shit);
@@ -131,9 +133,14 @@ class RLanzamientoItemXls
 			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,1,'FACTURAS Y SUS COBROS');	
 				*/
 					$this->docexcel->getActiveSheet()->getStyle('C1:F1')->applyFromArray($styleTitulos3);				
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,1,'Lanzamiento Items');						
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,1,'Lanzamiento Items');		
+									
 					//aplica estilo a una linea a una fila de celdas
 					$this->docexcel->getActiveSheet()->getStyle('A2:H2')->applyFromArray($styleTitulos4);
+					
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,2,'PROYECTO');											
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,2,$datosProy[0]['codigo'].'-'.$datosProy[0]['nombre']);	
+					
 					$this->docexcel->getActiveSheet()->getStyle('A3:H3')->applyFromArray($styleTitulos4);
 					$this->docexcel->getActiveSheet()->getStyle('A4:H4')->applyFromArray($styleTitulos4);
 					
@@ -169,8 +176,8 @@ class RLanzamientoItemXls
 					
 					 //une celdas 
 					$this->docexcel->getActiveSheet()->mergeCells('C1:F1');
-					$this->docexcel->getActiveSheet()->mergeCells('A2:B2');
-					$this->docexcel->getActiveSheet()->mergeCells('A3:B3');
+					//$this->docexcel->getActiveSheet()->mergeCells('A2:B2');
+					//$this->docexcel->getActiveSheet()->mergeCells('A3:B3');
 					$this->docexcel->getActiveSheet()->mergeCells('A4:B4');
 					
 					/*
@@ -383,7 +390,8 @@ class RLanzamientoItemXls
 					if ($value['mes_item']== '' ) {
 						$mes_gestion = 'Sin Fecha'; 
 										}
-	
+							$originalDateUP = $value['fecha_estimada'];
+							$newDateUP = date("d/m/Y", strtotime($originalDateUP));
 				
 				If ($mes != $mes_gestion){
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $this->numero);
@@ -391,7 +399,7 @@ class RLanzamientoItemXls
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['nombre_fase']);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['desc_ingas']);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['tipo']);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['fecha_estimada']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $newDateUP);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['dias']);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['precio']);
 						$this->numero++;
@@ -413,7 +421,7 @@ class RLanzamientoItemXls
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['nombre_fase']);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['desc_ingas']);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['tipo']);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['fecha_estimada']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $newDateUP);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['dias']);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['precio']);
 						
@@ -451,7 +459,7 @@ class RLanzamientoItemXls
 				
 		   $this->docexcel->getActiveSheet()->getStyle('D'.(7).':D'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');///EGS//
 		   $this->docexcel->getActiveSheet()->getStyle('F'.(7).':F'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
-		   $this->docexcel->getActiveSheet()->getStyle('G'.(7).':G'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');	
+		   $this->docexcel->getActiveSheet()->getStyle('H'.(7).':H'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');	
 
 		  	
 					

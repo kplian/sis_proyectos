@@ -53,7 +53,7 @@ Phx.vista.ReporteResumenN=Ext.extend(Phx.frmInterfaz,{
 				store:new Ext.data.ArrayStore({
 					fields: ['variable', 'valor'],
 					data : [    
-								['plan_pago','PLan Pago'],
+								['plan_pago','Plan Pago'],
 								['lanzamiento_item','Lanzamiento Items'],
 								['presupuesto','Presupuesto'],
 							

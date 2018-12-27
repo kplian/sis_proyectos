@@ -52,7 +52,7 @@ header("content-type: text/javascript; charset=UTF-8");
 				store:new Ext.data.ArrayStore({
 					fields: ['variable', 'valor'],
 					data : [    
-								['plan_pago','PLan Pago'],
+								['plan_pago','Plan Pago'],
 								['lanzamiento_item','Lanzamiento Items'],
 								['presupuesto','Presupuesto'],
 

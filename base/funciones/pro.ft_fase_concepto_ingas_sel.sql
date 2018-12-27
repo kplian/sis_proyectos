@@ -78,13 +78,17 @@ BEGIN
 						coalesce(facoing.precio*facoing.cantidad_est) as precio_total,
                         facoing.fecha_estimada,
                         facoing.fecha_fin,
-                        pro.estado as estado_proyecto
+                        pro.estado as estado_proyecto,
+                        facoing.id_funcionario,
+                        fun.desc_funcionario1::VARCHAR as desc_funcionario,
+                        facoing.precio_real
 						from pro.tfase_concepto_ingas facoing
 						inner join segu.tusuario usu1 on usu1.id_usuario = facoing.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = facoing.id_usuario_mod
 						inner join param.tconcepto_ingas cig on cig.id_concepto_ingas = facoing.id_concepto_ingas
 						inner join param.tunidad_medida ume on ume.id_unidad_medida = facoing.id_unidad_medida
                         left join pro.tfase fase on fase.id_fase = facoing.id_fase
+                        left join orga.vfuncionario fun on fun.id_funcionario = facoing.id_funcionario
                         left join pro.tproyecto pro on pro.id_proyecto = fase.id_proyecto
 				        where  ';
 			--raise exception 'v_consulta %',v_consulta;

@@ -178,10 +178,9 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 				}),
 				
 				tpl:'<tpl for=".">\
-		                       <div class="x-combo-list-item"><p><b>Fase: </b>{codigo_fase}-{nombre_fase}</p>\
+		                       <div class="x-combo-list-item"><p><b>Concepto Gasto: </b>{desc_ingas}</p>\<p><b>Fase: </b>{codigo_fase}-{nombre_fase}</p>\
 		                       <p><b>Servicio/Bien: </b>{tipo}</p>\
-		                      <p><b>Cantidad: </b>{cantidad_est}</p>\
-		                       <p><b>Precio Unitario: </b>{precio}</p>\
+		                      <p><b>Precio Total Estimada: </b>{precio}</p>\
 		                      </div></tpl>',
 				valueField: 'id_fase_concepto_ingas',
 				displayField: 'desc_ingas',
@@ -207,6 +206,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 			grid: true,
 			form: true
 		},
+
 		{
 			config: {
                 name: 'id_fase',
@@ -359,7 +359,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 				{
 				config:{
 					name: 'precio',
-					fieldLabel: 'Precio',
+					fieldLabel: 'Precio Unitario',
 					allowBlank: true,
 					allowNegative :false,
 					anchor: '80%',
@@ -822,8 +822,8 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 					            });
 			 
 							     //this.Cmp.id_unidad_medida.setValue(rec.data.desc_unidad_medida);
-					             this.Cmp.cantidad_sol.setValue(rec.data.cantidad_est);
-					             this.Cmp.precio.setValue(rec.data.precio);
+					             //this.Cmp.cantidad_sol.setValue(rec.data.cantidad_est);
+					             //this.Cmp.precio.setValue(rec.data.precio);
 					            
 					            } ,this);
 
