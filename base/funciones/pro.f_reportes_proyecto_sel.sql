@@ -34,7 +34,7 @@ DECLARE
     v_columna				varchar;
     v_gestion				record;
     v_tabla					varchar;
-    p_ip_proyecto			integer;
+    p_id_proyecto			integer;
     v_consulta				varchar;
     v_consulta_into			varchar;
     v_id					integer;
@@ -69,8 +69,8 @@ BEGIN
         begin
           --raise EXception 'v_parametros.id_proyecto %',v_parametros.id_proyecto;
 
-        	 p_ip_proyecto = v_parametros.id_proyecto;
-             --p_ip_proyecto = 74;
+        	 p_id_proyecto = v_parametros.id_proyecto;
+             --p_id_proyecto = 74;
             
              Select 
                 count(facoinpa.id_fase_concepto_ingas_pago)
@@ -80,7 +80,7 @@ BEGIN
             LEFT JOIN pro.tfase_concepto_ingas_pago facoinpa on facoinpa.id_fase_concepto_ingas = facoin.id_fase_concepto_ingas
             left join param.tconcepto_ingas coingas on coingas.id_concepto_ingas = facoin.id_concepto_ingas
             left join pro.tfase fase on fase.id_fase = facoin.id_fase
-            Where facoinpa.id_fase_concepto_ingas_pago is not null  and fase.id_proyecto = p_ip_proyecto ;
+            Where facoinpa.id_fase_concepto_ingas_pago is not null  and fase.id_proyecto = p_id_proyecto ;
             IF v_count is null or v_count = 0 THEN
             	RAISE EXCEPTION'No existe datos en plan de pago del proyecto';
             END IF;
@@ -103,7 +103,8 @@ BEGIN
                 From pro.tfase_concepto_ingas facoin
                 LEFT JOIN pro.tfase_concepto_ingas_pago facoinpa on facoinpa.id_fase_concepto_ingas = facoin.id_fase_concepto_ingas
                 left join param.tconcepto_ingas coingas on coingas.id_concepto_ingas = facoin.id_concepto_ingas
-                Where facoinpa.id_fase_concepto_ingas_pago is not null
+               left join pro.tfase fase on fase.id_fase = facoin.id_fase
+				Where facoinpa.id_fase_concepto_ingas_pago is not null and fase.id_proyecto = p_id_proyecto
                  ORDER by anio ASC
              )LOOP                       
                               v_tabla =v_tabla ||'enero_'||v_gestion.anio||' numeric , 
@@ -144,7 +145,7 @@ BEGIN
             left join param.tconcepto_ingas coingas on coingas.id_concepto_ingas = facoin.id_concepto_ingas
             left join pro.tfase fase on fase.id_fase = facoin.id_fase
             left join pro.tfase fasse on fasse.id_fase = fase.id_fase_fk
-            Where facoinpa.id_fase_concepto_ingas_pago is not null  and fase.id_proyecto = p_ip_proyecto 
+            Where facoinpa.id_fase_concepto_ingas_pago is not null  and fase.id_proyecto = p_id_proyecto 
             ORDER BY fasse.id_fase ASC)LOOP
             
                 IF v_plan_pago.mes = 1	THEN
@@ -271,7 +272,7 @@ BEGIN
                 LEFT JOIN pro.tfase_concepto_ingas_pago facoinpa on facoinpa.id_fase_concepto_ingas = facoin.id_fase_concepto_ingas
                 left join param.tconcepto_ingas coingas on coingas.id_concepto_ingas = facoin.id_concepto_ingas
                 left join pro.tfase fase on fase.id_fase = facoin.id_fase
-                Where facoinpa.id_fase_concepto_ingas_pago is not null and fase.id_proyecto = p_ip_proyecto 
+                Where facoinpa.id_fase_concepto_ingas_pago is not null and fase.id_proyecto = p_id_proyecto 
                  ORDER by anio ASC
              )LOOP                       
                               v_consulta =v_consulta ||'enero_'||v_gestion.anio||'  , 
@@ -306,16 +307,16 @@ BEGIN
        ELSIF(p_transaccion='PRO_CUEPAGO_SEL')THEN
           BEGIN
           	--raise EXception 'v_parametros.id_proyecto %',v_parametros.id_proyecto;
-            p_ip_proyecto = v_parametros.id_proyecto;
+            p_id_proyecto = v_parametros.id_proyecto;
 
-            --p_ip_proyecto = 74;
+            --p_id_proyecto = 74;
          	v_consulta='Select 
                 DISTINCT(date_part(''year'', facoinpa.fecha_pago))::integer as anio
                 From pro.tfase_concepto_ingas facoin
                 LEFT JOIN pro.tfase_concepto_ingas_pago facoinpa on facoinpa.id_fase_concepto_ingas = facoin.id_fase_concepto_ingas
                 left join param.tconcepto_ingas coingas on coingas.id_concepto_ingas = facoin.id_concepto_ingas
                 left join pro.tfase fase on fase.id_fase = facoin.id_fase
-                Where facoinpa.id_fase_concepto_ingas_pago is not null and  fase.id_proyecto ='|| p_ip_proyecto||'
+                Where facoinpa.id_fase_concepto_ingas_pago is not null and  fase.id_proyecto ='|| p_id_proyecto||'
                 
                 order by anio asc'; 
 
@@ -332,10 +333,10 @@ BEGIN
        ELSIF(p_transaccion='PRO_LANITEM_SEL')THEN
           BEGIN
           	--raise EXception 'v_parametros.id_proyecto %',v_parametros.id_proyecto;
-            p_ip_proyecto = v_parametros.id_proyecto;
+            p_id_proyecto = v_parametros.id_proyecto;
 			
             v_bandera = split_part(pxp.f_get_variable_global('py_compras_dias_venc'), ',', 1);
-            --p_ip_proyecto = 74;
+            --p_id_proyecto = 74;
          	v_consulta='              
                   WITH  doc_invitacion(					
  									id_invitacion_det,
@@ -408,7 +409,8 @@ BEGIN
                               (facoing.fecha_estimada-now()::date)::integer as dias,
                               est.estado::varchar as estado_tiempo,
                               meg.gestion_item::integer,
-                              meg.mes_item::integer                              
+                              meg.mes_item::integer,
+                              fun.desc_funcionario2::varchar as desc_funcionario                                                           
                               from pro.tfase_concepto_ingas facoing
                               inner join segu.tusuario usu1 on usu1.id_usuario = facoing.id_usuario_reg
                               left join segu.tusuario usu2 on usu2.id_usuario = facoing.id_usuario_mod
@@ -416,7 +418,8 @@ BEGIN
                               left join pro.tfase fase on fase.id_fase = facoing.id_fase
                               LEFT JOIN estado_tiempo est on est.id_fase_concepto_ingas = facoing.id_fase_concepto_ingas
                               LEFT JOIN mes_gestion meg on meg.id_fase_concepto_ingas = facoing.id_fase_concepto_ingas
-                              where  fase.id_proyecto='||p_ip_proyecto;
+                              left join orga.vfuncionario fun on fun.id_funcionario = facoing.id_funcionario
+                              where  fase.id_proyecto='||p_id_proyecto;
                               
                              v_consulta=v_consulta||'order by meg.gestion_item ,meg.mes_item ,meg.dia_item ASC '; 
 
@@ -432,7 +435,7 @@ BEGIN
        ELSIF(p_transaccion='PRO_REPPRESU_SEL')THEN
           BEGIN
           	--raise EXception 'v_parametros.id_proyecto %',v_parametros.id_proyecto;
-            p_ip_proyecto = v_parametros.id_proyecto;
+            p_id_proyecto = v_parametros.id_proyecto;
             ---creamos tabla temporal para estructura de los datos
            	 CREATE TEMPORARY TABLE temp_item(
                                       id serial,
@@ -458,7 +461,7 @@ BEGIN
                      ''::varchar as desc_ingas,
                      0::numeric as precio
                      FROM pro.tproyecto proy
-                     where proy.id_proyecto= p_ip_proyecto
+                     where proy.id_proyecto= p_id_proyecto
                      UNION
 
                          SELECT

@@ -121,6 +121,7 @@ class MODReporte extends MODbase{
 		$this->captura('estado_tiempo','varchar');
 		$this->captura('gestion_item','integer');
 		$this->captura('mes_item','integer');
+		$this->captura('desc_funcionario','varchar');
 		
 		
 		
@@ -131,6 +132,7 @@ class MODReporte extends MODbase{
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
+		//var_dump($this->respuesta);exit;
 		return $this->respuesta;
 	}
 function listarPresupuesto(){

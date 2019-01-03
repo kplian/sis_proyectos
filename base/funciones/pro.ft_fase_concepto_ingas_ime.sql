@@ -66,14 +66,15 @@ BEGIN
          --validamos que la suma de los items no sobrepase el importe_max (STEA)
          --#3	31/12/2018	EGS	
            SELECT
-                sum(facoin.precio)
+                sum(coalesce(facoin.precio,0))
             INTO
                 v_importe_total
             FROM pro.tfase_concepto_ingas facoin
             left join pro.tfase fase on fase.id_fase = facoin.id_fase
             WHERE fase.id_proyecto = v_rec_proyecto.id_proyecto;
-            IF v_importe_total > v_rec_proyecto.importe_max THEN
-            	RAISE EXCEPTION 'La Suma de los Servicios/Bienes (%)Superan al Stea(%) ', v_importe_total,v_rec_proyecto.importe_max;
+            
+            IF v_importe_total + coalesce(v_parametros.precio,0) > v_rec_proyecto.importe_max THEN
+            	RAISE EXCEPTION 'La Suma de los Servicios/Bienes (%)mas el precio nuevo(%) = % Superan al Stea(%) ', v_importe_total, coalesce(v_parametros.precio,0),v_importe_total+ coalesce(v_parametros.precio,0),v_rec_proyecto.importe_max;
             END IF;
         	
         	--Sentencia de la insercion
@@ -148,15 +149,34 @@ BEGIN
 		begin
         	--verificamos en que estado esta el proyecto
         	SELECT
-            pro.estado
+            pro.estado,
+            pro.importe_max,
+            pro.id_proyecto
             INTO
             v_rec_proyecto
             FROM pro.tproyecto pro
             left join pro.tfase fase on fase.id_proyecto = pro.id_proyecto
   			WHERE fase.id_fase = v_parametros.id_fase;
+            
            IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
                 raise exception 'No puede Modificar los Bienes/Servicion de la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
             END IF;
+            
+            --validamos que la suma de los items no sobrepase el importe_max (STEA)
+         	--#3	31/12/2018	EGS	
+            SELECT
+                sum(coalesce(facoin.precio,0))
+            INTO
+                v_importe_total
+            FROM pro.tfase_concepto_ingas facoin
+            left join pro.tfase fase on fase.id_fase = facoin.id_fase
+            WHERE fase.id_proyecto = v_rec_proyecto.id_proyecto
+            AND facoin.id_fase_concepto_ingas <> v_parametros.id_fase_concepto_ingas;
+            
+            IF v_importe_total + coalesce(v_parametros.precio,0) > v_rec_proyecto.importe_max THEN
+            	RAISE EXCEPTION 'La Suma de los Servicios/Bienes (%)mas el precio modificado(%)= % Superan al Stea(%) ',v_importe_total ,coalesce(v_parametros.precio,0),v_importe_total+ coalesce(v_parametros.precio,0),v_rec_proyecto.importe_max;
+            END IF;
+            
 			--Sentencia de la modificacion
 			update pro.tfase_concepto_ingas set
 			id_fase = v_parametros.id_fase,

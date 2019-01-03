@@ -136,21 +136,21 @@ class RLanzamientoItemXls
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,1,'Lanzamiento Items');		
 									
 					//aplica estilo a una linea a una fila de celdas
-					$this->docexcel->getActiveSheet()->getStyle('A2:H2')->applyFromArray($styleTitulos4);
+					$this->docexcel->getActiveSheet()->getStyle('A2:I2')->applyFromArray($styleTitulos4);
 					
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,2,'PROYECTO');											
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,2,$datosProy[0]['codigo'].'-'.$datosProy[0]['nombre']);	
 					
-					$this->docexcel->getActiveSheet()->getStyle('A3:H3')->applyFromArray($styleTitulos4);
-					$this->docexcel->getActiveSheet()->getStyle('A4:H4')->applyFromArray($styleTitulos4);
+					$this->docexcel->getActiveSheet()->getStyle('A3:I3')->applyFromArray($styleTitulos4);
+					$this->docexcel->getActiveSheet()->getStyle('A4:I4')->applyFromArray($styleTitulos4);
 					
-					$this->docexcel->getActiveSheet()->getStyle('A6:H6')->applyFromArray($styleTitulos2);
+					$this->docexcel->getActiveSheet()->getStyle('A6:I6')->applyFromArray($styleTitulos2);
 					//$this->docexcel->getActiveSheet()->getStyle('A3:V3')->applyFromArray($styleTitulos2);
 					//SE COLOCA LAS DIMENSIONES QUE TENDRA LAS CELDAS
 					$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(15);
 					$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(50);
-					$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(50);
-					$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(20);
+					$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(35);
+					$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(50);
 					$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(25);
 					$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(18);
 					$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(18);
@@ -175,10 +175,10 @@ class RLanzamientoItemXls
 					//$this->docexcel->getActiveSheet()->getStyle('A3:G3')->getAlignment()->setWrapText(true);
 					
 					 //une celdas 
-					$this->docexcel->getActiveSheet()->mergeCells('C1:F1');
+					$this->docexcel->getActiveSheet()->mergeCells('C1:G1');
 					//$this->docexcel->getActiveSheet()->mergeCells('A2:B2');
 					//$this->docexcel->getActiveSheet()->mergeCells('A3:B3');
-					$this->docexcel->getActiveSheet()->mergeCells('A4:B4');
+					//$this->docexcel->getActiveSheet()->mergeCells('A4:B4');
 					
 					/*
 					$this->docexcel->getActiveSheet()->mergeCells('B2:B3');
@@ -201,37 +201,16 @@ class RLanzamientoItemXls
 					$this->docexcel->getActiveSheet()->mergeCells('J2:K2');
 					$this->docexcel->getActiveSheet()->mergeCells('L2:M2');
 					$this->docexcel->getActiveSheet()->mergeCells('N2:O2');*/
-	
-					
-					//
-					/*
-					$this->docexcel->getActiveSheet()->setCellValue('A2','Nº FACTURA:');
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,2,$datos[0]['nro_documento']);
-					
-					$this->docexcel->getActiveSheet()->setCellValue('E2','NIT:');
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,2,$datos[0]['nit']);		
-					
-					$this->docexcel->getActiveSheet()->setCellValue('A3','RAZON SOCIAL:');
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,3,$datos[0]['razon_social']);
-					
-					$this->docexcel->getActiveSheet()->setCellValue('E3','FECHA FACTURA:');
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,3,$datos[0]['fecha']);
-					
-					$this->docexcel->getActiveSheet()->setCellValue('A4','IMPORTE FACTURA:');
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,4,$datos[0]['importe_doc']);
-					
-					$this->docexcel->getActiveSheet()->setCellValue('E4','NRO CONTRATO:');
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,4,$datos[0]['nro_contrato']);		
-						*/	
-						
+
 					$this->docexcel->getActiveSheet()->setCellValue('A6','Nº');
 					$this->docexcel->getActiveSheet()->setCellValue('B6','MES');
 					$this->docexcel->getActiveSheet()->setCellValue('C6','FASE');
-					$this->docexcel->getActiveSheet()->setCellValue('D6','CONCEPTO DE GASTO');
-					$this->docexcel->getActiveSheet()->setCellValue('E6','TIPO');
-					$this->docexcel->getActiveSheet()->setCellValue('F6','FECHA ESTIMADA');		
-					$this->docexcel->getActiveSheet()->setCellValue('G6','DIAS FALTANTES');								
-					$this->docexcel->getActiveSheet()->setCellValue('H6','PRECIO REFERENCIAL');
+					$this->docexcel->getActiveSheet()->setCellValue('D6','ENCARGADO');					
+					$this->docexcel->getActiveSheet()->setCellValue('E6','CONCEPTO DE GASTO');
+					$this->docexcel->getActiveSheet()->setCellValue('F6','TIPO');
+					$this->docexcel->getActiveSheet()->setCellValue('G6','FECHA ESTIMADA');		
+					$this->docexcel->getActiveSheet()->setCellValue('H6','DIAS FALTANTES');								
+					$this->docexcel->getActiveSheet()->setCellValue('I6','PRECIO REFERENCIAL');
 					
 				
 				
@@ -376,7 +355,7 @@ class RLanzamientoItemXls
 						$mes_gestion = 'Agosto-'.$value['gestion_item']; 
 					}
 					if ($value['mes_item']== 9 ) {
-						$mes_gestion = 'Spetiembre-'.$value['gestion_item']; 
+						$mes_gestion = 'Septiembre-'.$value['gestion_item']; 
 					}
 					if ($value['mes_item']== 10 ) {
 						$mes_gestion = 'Octubre-'.$value['gestion_item']; 
@@ -397,19 +376,20 @@ class RLanzamientoItemXls
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $this->numero);
 				     	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $mes_gestion);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['nombre_fase']);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['desc_ingas']);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['tipo']);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $newDateUP);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['dias']);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['precio']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['desc_funcionario']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['desc_ingas']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['tipo']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $newDateUP);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['dias']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['precio']);
 						$this->numero++;
 						
 						if ($value['dias']>=0) {
 								
-							$this->docexcel->getActiveSheet()->getStyle('G'.($fila).':G'.($fila).'')->applyFromArray($styleTitulos5);
+							$this->docexcel->getActiveSheet()->getStyle('H'.($fila).':H'.($fila).'')->applyFromArray($styleTitulos5);
 							
 						} else {
-							$this->docexcel->getActiveSheet()->getStyle('G'.($fila).':G'.($fila).'')->applyFromArray($styleTitulos7);
+							$this->docexcel->getActiveSheet()->getStyle('H'.($fila).':H'.($fila).'')->applyFromArray($styleTitulos7);
 							
 						}
 						
@@ -419,18 +399,19 @@ class RLanzamientoItemXls
 						$this->docexcel->getActiveSheet()->mergeCells('A'.($fila-1).':A'.$fila.'');
 						$this->docexcel->getActiveSheet()->mergeCells('B'.($fila-1).':B'.$fila.'');
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['nombre_fase']);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['desc_ingas']);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['tipo']);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $newDateUP);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['dias']);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['precio']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['desc_funcionario']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['desc_ingas']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['tipo']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $newDateUP);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['dias']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['precio']);
 						
 						if ($value['dias']>=0) {
 								
-							$this->docexcel->getActiveSheet()->getStyle('G'.($fila).':G'.($fila).'')->applyFromArray($styleTitulos5);
+							$this->docexcel->getActiveSheet()->getStyle('H'.($fila).':H'.($fila).'')->applyFromArray($styleTitulos5);
 							
 						} else {
-							$this->docexcel->getActiveSheet()->getStyle('G'.($fila).':G'.($fila).'')->applyFromArray($styleTitulos7);
+							$this->docexcel->getActiveSheet()->getStyle('H'.($fila).':H'.($fila).'')->applyFromArray($styleTitulos7);
 							
 						}
 						
@@ -440,8 +421,8 @@ class RLanzamientoItemXls
 			$fila++;
 		
 		}	
-			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6,$fila,'TOTALES:');
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7,$fila,'=SUM(H7:H'.($fila-1).')');
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7,$fila,'TOTALES:');
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8,$fila,'=SUM(I7:I'.($fila-1).')');
 			
 			
 		   $this->docexcel->getActiveSheet()->getStyle('A'.(7).':A'.($fila-1).'')->applyFromArray($styleTitulos5);
@@ -449,17 +430,17 @@ class RLanzamientoItemXls
 		   $this->docexcel->getActiveSheet()->getStyle('C'.(7).':C'.($fila-1).'')->applyFromArray($styleTitulos6);
 		   $this->docexcel->getActiveSheet()->getStyle('D'.(7).':D'.($fila-1).'')->applyFromArray($styleTitulos6);
 		   $this->docexcel->getActiveSheet()->getStyle('E'.(7).':E'.($fila-1).'')->applyFromArray($styleTitulos6);
-		   $this->docexcel->getActiveSheet()->getStyle('F'.(7).':F'.($fila).'')->applyFromArray($styleTitulos5);
-		   //$this->docexcel->getActiveSheet()->getStyle('G'.(7).':G'.($fila).'')->applyFromArray($styleTitulos5);
-		   $this->docexcel->getActiveSheet()->getStyle('H'.(7).':H'.($fila).'')->applyFromArray($styleTitulos5);
-		   
+		   $this->docexcel->getActiveSheet()->getStyle('F'.(7).':F'.($fila-1).'')->applyFromArray($styleTitulos5);
+		   $this->docexcel->getActiveSheet()->getStyle('G'.(7).':G'.($fila-1).'')->applyFromArray($styleTitulos5);
+		  // $this->docexcel->getActiveSheet()->getStyle('H'.(7).':H'.($fila).'')->applyFromArray($styleTitulos5);
+		   $this->docexcel->getActiveSheet()->getStyle('I'.(7).':I'.($fila).'')->applyFromArray($styleTitulos5);
 		  
 			
 			
 				
-		   $this->docexcel->getActiveSheet()->getStyle('D'.(7).':D'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');///EGS//
-		   $this->docexcel->getActiveSheet()->getStyle('F'.(7).':F'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
-		   $this->docexcel->getActiveSheet()->getStyle('H'.(7).':H'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');	
+		  // $this->docexcel->getActiveSheet()->getStyle('E'.(7).':E'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
+		  // $this->docexcel->getActiveSheet()->getStyle('G'.(7).':G'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
+		   $this->docexcel->getActiveSheet()->getStyle('I'.(7).':I'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');	
 
 		  	
 					
