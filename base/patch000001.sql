@@ -730,7 +730,7 @@ COMMENT ON COLUMN pro.tcuenta_excluir.nro_cuenta
 IS 'Número de cuenta contable que se usa en vez de id_cuenta';
 /***********************************F-SCP-RCM-PRO-1-19/12/2018****************************************/
 
-/***********************************F-SCP-EGS-PRO-3-26/12/2018****************************************/
+/***********************************I-SCP-EGS-PRO-3-26/12/2018****************************************/
 ALTER TABLE pro.tfase_concepto_ingas
   ADD COLUMN id_funcionario INTEGER;
 
@@ -744,6 +744,10 @@ COMMENT ON COLUMN pro.tfase_concepto_ingas.precio_real
 IS 'Precio real para adquirir el concepto de gasto';
 /***********************************F-SCP-EGS-PRO-3-26/12/2018****************************************/
 
+/***********************************I-SCP-RCM-PRO-3-27/12/2018****************************************/
+ALTER TABLE pro.tproyecto
+  ADD COLUMN importe_stea NUMERIC(18,2);
 
-
-
+COMMENT ON COLUMN pro.tproyecto.importe_stea
+IS 'Importe máximo aprobado por la AE para la ejecución del Proyecto';
+/***********************************F-SCP-RCM-PRO-3-27/12/2018****************************************/
