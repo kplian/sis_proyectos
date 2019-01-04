@@ -39,6 +39,9 @@ create table pro.tfase (
 	id_fase serial,
 	id_proyecto integer,
 	id_fase_fk integer,
+	id_estado_wf integer,
+	id_proceso_wf integer,
+	nro_tramite varchar(150),
 	codigo varchar(20),
 	nombre varchar(150),
 	descripcion varchar(5000),
@@ -579,7 +582,7 @@ IS 'Fecha estimada para realizar la invitación para la adquisición';
 
 /***********************************I-SCP-RCM-PRO-0-03/12/2018****************************************/
 ALTER TABLE pro.tinvitacion
-  ADD COLUMN id_categoria_compra INTEGER NOT NULL;
+  ADD COLUMN id_categoria_compra INTEGER;
 
 
 ALTER TABLE pro.tproyecto
@@ -668,3 +671,79 @@ CREATE TABLE pro.tcontrato_pago (
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
 /***********************************F-SCP-RCM-PRO-0-03/12/2018****************************************/
+
+/***********************************I-SCP-EGS-PRO-0-04/12/2018****************************************/
+ALTER TABLE pro.tinvitacion
+  ADD COLUMN id_solicitud INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion.id_solicitud
+IS 'id cuando se genera una solicitud de compra';
+/***********************************F-SCP-EGS-PRO-0-04/12/2018****************************************/
+
+/***********************************I-SCP-EGS-PRO-1-05/12/2018****************************************/
+ALTER TABLE pro.tfase_concepto_ingas
+  ADD COLUMN fecha_fin DATE;
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.fecha_fin
+IS 'fecha de finalización estimada, que llegaría a ser la de llegada de suministro y finalización de obra para el caso de construcción.';
+/***********************************F-SCP-EGS-PRO-1-05/12/2018****************************************/
+
+/***********************************I-SCP-EGS-PRO-2-11/12/2018****************************************/
+ALTER TABLE pro.tinvitacion
+  ADD COLUMN id_presolicitud INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion.id_presolicitud
+IS 'id cuando se genera una presolicitu de compra';
+
+ALTER TABLE pro.tinvitacion
+  ADD COLUMN pre_solicitud VARCHAR DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN pro.tinvitacion.pre_solicitud
+IS 'indica si lanza presolicitud (si) o solicitud(no) ';
+
+ALTER TABLE pro.tinvitacion
+  ADD COLUMN id_grupo INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion.id_grupo
+IS 'id del grupo de compras que tendra la presolicitud ';
+/***********************************F-SCP-EGS-PRO-2-11/12/2018****************************************/
+
+/***********************************I-SCP-RCM-PRO-0-14/12/2018****************************************/
+create table pro.tfase_concepto_ingas_pago (
+  id_fase_concepto_ingas_pago serial,
+  id_fase_concepto_ingas integer,
+  fecha_pago date,
+  fecha_pago_real date,
+  importe numeric(18,2),
+  constraint pk_tfase_concepto_ingas_pago__id_fase_concepto_ingas_pago primary key (id_fase_concepto_ingas_pago)
+) inherits (pxp.tbase) without oids;
+/***********************************F-SCP-RCM-PRO-0-14/12/2018****************************************/
+
+/***********************************I-SCP-RCM-PRO-1-19/12/2018****************************************/
+ALTER TABLE pro.tcuenta_excluir
+  ALTER COLUMN id_cuenta DROP NOT NULL;
+
+ALTER TABLE pro.tcuenta_excluir
+  ADD COLUMN nro_cuenta VARCHAR(20) NOT NULL;
+
+COMMENT ON COLUMN pro.tcuenta_excluir.nro_cuenta
+IS 'Número de cuenta contable que se usa en vez de id_cuenta';
+/***********************************F-SCP-RCM-PRO-1-19/12/2018****************************************/
+
+/***********************************F-SCP-EGS-PRO-3-26/12/2018****************************************/
+ALTER TABLE pro.tfase_concepto_ingas
+  ADD COLUMN id_funcionario INTEGER;
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.id_funcionario
+IS 'Encargado de item/servicio';
+
+ALTER TABLE pro.tfase_concepto_ingas
+  ADD COLUMN precio_real NUMERIC(18,2);
+
+COMMENT ON COLUMN pro.tfase_concepto_ingas.precio_real
+IS 'Precio real para adquirir el concepto de gasto';
+/***********************************F-SCP-EGS-PRO-3-26/12/2018****************************************/
+
+
+
+

@@ -58,7 +58,7 @@ BEGIN
             left join pro.tfase fase on fase.id_proyecto = pro.id_proyecto
   			WHERE fase.id_fase = v_parametros.id_fase;
            IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
-                raise exception 'No puede Modificar la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
+                raise exception 'No puede Ingresar un Servicio/Bien en la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
             END IF;
         	
         	--Sentencia de la insercion
@@ -71,7 +71,7 @@ BEGIN
 			--tipo_cambio_mb,
 			estado,
 			estado_reg,
-			cantidad_est,
+			--cantidad_est,
 			--precio_mb,
 			precio,
 			--precio_mt,
@@ -81,7 +81,10 @@ BEGIN
 			id_usuario_reg,
 			id_usuario_mod,
 			fecha_mod,
-            fecha_estimada
+            fecha_estimada,
+            fecha_fin,
+            id_funcionario,
+            precio_real
           	) values(
 			v_parametros.id_fase,
 			v_parametros.id_concepto_ingas,
@@ -91,7 +94,7 @@ BEGIN
 			--v_parametros.tipo_cambio_mb,
 			'pendiente',
 			'activo',
-			v_parametros.cantidad_est,
+			--v_parametros.cantidad_est,
 			--v_parametros.precio_mb,
 			v_parametros.precio,
 			--v_parametros.precio_mt,
@@ -101,8 +104,10 @@ BEGIN
 			p_id_usuario,
 			null,
 			null,
-            v_parametros.fecha_estimada
-							
+            v_parametros.fecha_estimada,
+            v_parametros.fecha_fin,
+			v_parametros.id_funcionario,
+            v_parametros.precio_real				
 			
 			
 			)RETURNING id_fase_concepto_ingas into v_id_fase_concepto_ingas;
@@ -135,7 +140,7 @@ BEGIN
             left join pro.tfase fase on fase.id_proyecto = pro.id_proyecto
   			WHERE fase.id_fase = v_parametros.id_fase;
            IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
-                raise exception 'No puede Modificar la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
+                raise exception 'No puede Modificar los Bienes/Servicion de la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
             END IF;
 			--Sentencia de la modificacion
 			update pro.tfase_concepto_ingas set
@@ -145,7 +150,7 @@ BEGIN
 			--tipo_cambio_mt = v_parametros.tipo_cambio_mt,
 			descripcion = v_parametros.descripcion,
 			--tipo_cambio_mb = v_parametros.tipo_cambio_mb,
-			cantidad_est = v_parametros.cantidad_est,
+			--cantidad_est = v_parametros.cantidad_est,
 			--precio_mb = v_parametros.precio_mb,
 			precio = v_parametros.precio,
 			--precio_mt = v_parametros.precio_mt,
@@ -153,7 +158,11 @@ BEGIN
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
-           	fecha_estimada = v_parametros.fecha_estimada
+           	fecha_estimada = v_parametros.fecha_estimada,
+            fecha_fin = v_parametros.fecha_fin,
+            id_funcionario = v_parametros.id_funcionario,
+            precio_real = v_parametros.precio_real
+
 			where id_fase_concepto_ingas=v_parametros.id_fase_concepto_ingas;
                
 			--Definicion de la respuesta
@@ -191,7 +200,7 @@ BEGIN
             left join pro.tfase fase on fase.id_proyecto = pro.id_proyecto
   			WHERE fase.id_fase = v_record_fase.id_fase;
            IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
-                raise exception 'No puede Modificar la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
+                raise exception 'No puede Eliminar el Bien/Servicio la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
             END IF;
 			--Sentencia de la eliminacion
 			delete from pro.tfase_concepto_ingas

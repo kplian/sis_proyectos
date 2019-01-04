@@ -16,6 +16,7 @@ Phx.vista.ProyectoPr = {
     	Phx.vista.ProyectoPr.superclass.constructor.call(this,config);
         this.maestro = config;
         this.init();
+        this.reportePlanPago();
         this.iniciarEventos();
 		
         this.addBotonesGantt();
@@ -54,6 +55,13 @@ Phx.vista.ProyectoPr = {
        	    disabled: false, 
        	    handler: this.adquisicionesProgramadas, 
        	    tooltip: 'Adquicisiones Programadas'});
+       	 /*
+       	 this.addButton('btnReportPro',{ 
+       	    text: 'Reporte', 
+       	    iconCls: 'blist', 
+       	    disabled: false, 
+       	    handler: this.reportesProyectoN, 
+       	    tooltip: 'Reportes del Proyecto'});*/
      
     },
     
@@ -87,14 +95,14 @@ Phx.vista.ProyectoPr = {
             menu:{
 	            items: [{
 	                id:'b-gantti-' + this.idContenedor,
-	                text: 'Gantt Imagen',
-	                tooltip: '<b>Muestra un reporte gantt en formato de imagen</b>',
-	                handler:this.diagramGantt,
+	                text: 'Gantt - Items',
+	                tooltip: '<b>Muestra un reporte gantt segun sus Items</b>',
+	                handler:this.diagramGanttItem,
 	                scope: this
 	            }, {
 	                id:'b-ganttd-' + this.idContenedor,
-	                text: 'Gantt Dinámico',
-	                tooltip: '<b>Muestra el reporte gantt facil de entender</b>',
+	                text: 'Gantt Proyecto - Fases',
+	                tooltip: '<b>Muestra el reporte gantt del proyecto con las Fases</b>',
 	                handler:this.diagramGanttDinamico,
 	                scope: this
 	            }]
@@ -115,7 +123,11 @@ Phx.vista.ProyectoPr = {
 		});			
 	},
 	
-	diagramGanttDinamico: function (){			
+	diagramGanttItem: function (){			
+		var data=this.sm.getSelected().data.id_proyecto;
+		window.open('../../../sis_proyectos/reportes/gantt/gantt_dinamico_item.html?id_proyecto='+data)		
+	},
+   diagramGanttDinamico: function (){			
 		var data=this.sm.getSelected().data.id_proyecto;
 		window.open('../../../sis_proyectos/reportes/gantt/gantt_dinamico.html?id_proyecto='+data)		
 	},
@@ -177,7 +189,86 @@ Phx.vista.ProyectoPr = {
 				'AdqProgramada'//clase de la vista
 			);
 		},
-	preparaMenu: function(n){
+	
+		reportesProyectoN: function(){
+			var data = this.getSelectedData();
+			var win = Phx.CP.loadWindows(
+				'../../../sis_proyectos/vista/reporte/ReporteResumen.php',
+				'Reportes', {
+				    width: '30%',
+				    height: '30%'
+				},
+				data,
+				this.idContenedor,
+				'ReporteResumen'//clase de la vista
+			);
+		},
+		
+		reportePlanPago: function() {
+			this.reporPlan = new Ext.Toolbar.SplitButton({
+				id: 'btnReCobro' + this.idContenedor,
+				text: 'Reportes',
+				disabled: false,
+				grupo:[0],
+				iconCls : 'bprint',
+				handler:this.formFiltroRe,
+				scope: this,
+				menu:{
+					items: [{
+						id:'b-cobro-pdf-' + this.idContenedor,
+						text: 'Filtrar',
+						tooltip: '<b>Filtro de parametros a visualizar</b>',
+						handler:this.formFiltroRe,
+						scope: this
+					}
+				]}
+			});
+			this.tbar.add(this.reporPlan);
+			},
+	
+		formFiltroRe: function(){
+		var data = this.getSelectedData();
+		var win = Phx.CP.loadWindows(
+			'../../../sis_proyectos/vista/reporte/ReporteResumenN.php',
+			'Filtro Cobro', {
+			    width: '25%',
+			    height: '40%'
+			},
+			data,
+			this.idContenedor,
+			'ReporteResumenN',
+			{
+				config:[{
+					event:'beforesave',
+					delegate: this.reportesProyecto,
+				}],
+				scope:this
+			}
+			
+			)
+		},
+		reportesProyecto : function (wizard,resp){	
+						
+				 console.log('resp',resp);	
+					Phx.CP.loadingShow();		
+					Ext.Ajax.request({
+						url:'../../sis_proyectos/control/Reporte/listarReportes',
+						params:
+						{	
+							
+							'id_proyecto':resp.id_proyecto,
+							'tipo_reporte':resp.tipo_reporte,
+							
+			
+						},
+						success: this.successExport,		
+						failure: this.conexionFailure,
+						timeout: 3.6e+6,
+						scope:this
+					});
+		},
+				
+		preparaMenu: function(n){
 		
 		var tb = Phx.vista.ProyectoPr.superclass.preparaMenu.call(this);
 		var data = this.getSelectedData();
@@ -187,6 +278,7 @@ Phx.vista.ProyectoPr = {
 		this.getBoton('btnFases').enable();
 		this.getBoton('btnInvitacion').enable();
 		this.getBoton('btnAdqPro').enable();
+		//this.getBoton('btnReportPro').enable();
 
 		if(data.estado == 'finalizado' ){
 		this.getBoton('sig_estado').disable();
@@ -224,6 +316,9 @@ Phx.vista.ProyectoPr = {
 		this.getBoton('ant_estado').disable();
 		
         this.getBoton('diagrama_gantt').disable();
+        
+        //this.getBoton('btnReportPro').disable();
+
         
 		}
 		return tb;

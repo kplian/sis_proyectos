@@ -38,7 +38,7 @@ VALUES
 /***********************************I-DAT-EGS-PRO-0-26/11/2018****************************************/
 
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
-VALUES 
+VALUES
   (E'tipo_proceso_macro_proyectos', E'INV,PPY,PFA', E' invitaciones,planificacion,fases  codigos de tipo de procesos del sistema de proyectos');
 /***********************************F-DAT-EGS-PRO-0-26/11/2018****************************************/
 
@@ -94,5 +94,20 @@ select wf.f_import_ttipo_estado ('insert','borrador','INV','Borrador','si','no',
 select wf.f_import_ttipo_estado ('insert','vobo','INV','VoBo','no','no','no','todos','','ninguno','','','si','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL);
 select wf.f_import_ttipo_estado ('insert','sol_compra','INV','sol_compra','no','no','no','todos','','ninguno','','','si','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL);
 select wf.f_import_ttipo_estado ('insert','finalizado','INV','Finalizado','no','no','si','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL);
-
+select wf.f_import_testructura_estado ('insert','borrador','vobo','INV',1,'');
+select wf.f_import_testructura_estado ('insert','vobo','sol_compra','INV',1,'');
+select wf.f_import_testructura_estado ('insert','sol_compra','finalizado','INV',1,'');
 /***********************************F-DAT-EGS-PRO-1-26/11/2018****************************************/
+
+/***********************************I-DAT-RCM-PRO-1-10/12/2018****************************************/
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES
+  (E'py_gen_presolicitud', E'si', E'Define si la Invitación de Proyectos generará Presolicitud en vez de Solicitud');
+/***********************************F-DAT-RCM-PRO-1-10/12/2018****************************************/
+
+/***********************************I-DAT-EGS-PRO-2-24/12/2018****************************************/
+
+INSERT INTO param.tunidad_medida ("id_usuario_reg", "codigo", "descripcion", "tipo")
+VALUES 
+  (1, E'Tn', E'Tonelada', E'Masa');
+/***********************************F-DAT-EGS-PRO-2-24/12/2018****************************************/

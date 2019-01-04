@@ -16,7 +16,9 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 	constructor:function(config){
 		this.maestro=config.maestro;
 		var v_fecha = null;
-		
+		var estado_proyecto;
+		var estado_invitacion;
+		var id_tipo_cc;
     	//llama al constructor de la clase padre
 		Phx.vista.InvitacionDet.superclass.constructor.call(this,config);
 		this.init();
@@ -293,11 +295,11 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 					maxLength:1179650,
 					renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						
 					}
@@ -313,7 +315,7 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 				{
 				config:{
 					name: 'precio',
-					fieldLabel: 'Precio',
+					fieldLabel: 'Precio Unitario',
 					allowBlank: true,
 					anchor: '80%',
 					gwidth: 80,
@@ -321,16 +323,18 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 					maxLength:1179650,
 					renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+							
+							//return value;
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						
 					}
 				},
-					type:'NumberField',
+					type:'MoneyField',
 					filters:{pfiltro:'ivtd.precio',type:'numeric'},
 					id_grupo:0,
 					bottom_filter: true,
@@ -350,11 +354,11 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 					maxLength:1179650,
 					renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						
 					}
@@ -364,30 +368,65 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 					id_grupo:0,
 					bottom_filter:false,
 					//egrid:true,
-					grid:true,
+					grid:false,
 					form:false
 			},
 			{
 				config:{
 					name: 'precio_est',
-					fieldLabel: 'Precio Estimado',
+					fieldLabel: 'Precio Total',
 					allowBlank: true,
 					anchor: '80%',
 					gwidth: 80,
 					galign: 'right ',
 					maxLength:1179650,
 					renderer:function (value,p,record){
+						
+						var total = record.data.cantidad_sol*record.data.precio;
+						//total = total.toFixed(2);
+						var tol=total.toLocaleString();
+						var to = tol.toString();
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00'));
+							return  String.format(to,Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+							
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
 						}
 						
 					}
 				},
-					type:'NumberField',
+					type:'MoneyField',
+					filters:{pfiltro:'precio_est',type:'numeric'},
+					id_grupo:0,
+					bottom_filter:false,
+					//egrid:true,
+					grid:true,
+					form:false
+			},
+			{
+				config:{
+					name: 'precio_est',
+					fieldLabel: 'Precio Total Estimado',
+					allowBlank: true,
+					anchor: '80%',
+					gwidth: 80,
+					galign: 'right ',
+					maxLength:1179650,
+					renderer:function (value,p,record){
+						console.log('record',record);
+						if(record.data.tipo_reg != 'summary'){
+							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
+						}
+						else{
+							Ext.util.Format.usMoney
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+						}
+						
+					}
+				},
+					type:'MoneyField',
 					filters:{pfiltro:'precio_est',type:'numeric'},
 					id_grupo:0,
 					bottom_filter:false,
@@ -636,6 +675,9 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 	bedit:false,
 	 onReloadPage: function(m) {    	
         this.maestro = m;
+        console.log('maestro', this.maestro.estado);		
+ 	    this.obtenerProyecto(this.maestro);
+        this.estado_invitacion = this.maestro.estado; 
         this.Atributos[this.getIndAtributo('id_invitacion')].valorInicial = this.maestro.id_invitacion;
         //Filtro para los datos
 
@@ -651,6 +693,34 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
             }
         });
     },
+    
+    	obtenerProyecto: function(config){
+			//console.log('config id_proyecto',config.id_proyecto);
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_proyectos/control/Proyecto/listarProyecto',
+                params:{
+                    id_proyecto: config.id_proyecto,
+                },
+                success: function(resp){
+                	 Phx.CP.loadingHide();
+                     var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                   
+                        //console.log('datos ajax',reg.datos[0]['estado']);
+               			this.estado_proyecto =reg.datos[0]['estado'];
+              			this.id_tipo_cc =reg.datos[0]['id_tipo_cc'];
+
+               			
+               		
+
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
+ 
+        },
+    
     onButtonNew: function(){
     	
     	/*
@@ -663,12 +733,21 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 	     
 	     this.ocultarComponente(this.Cmp.cantidad_sol);
 	     this.ocultarComponente(this.Cmp.precio);*/
-		this.abrirFormulario('news')  
-
-		
+		console.log('estado',this.estado_proyecto);	
+		if(this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado')
+               			{
+               				alert ('El proyecto se encuentra en estado de ' + this.estado_proyecto);
+               			}
+               			else{
+               				this.abrirFormulario('news');  
+	
+               			}
+	
 	},
 	
 	iniciar:function(){
+
+
 			///Carga la columna de la grilla de combo remoto que tiene egrid
 			this.Cmp.id_unidad_medida.store.baseParams.query = this.Cmp.id_unidad_medida.getValue();
 			this.Cmp.id_unidad_medida.store.load({params:{start:0,limit:this.tam_pag}, 
@@ -685,10 +764,8 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 		
 	},
     	
-    	iniciarEventos: function(){
- 			 //this.cmpIdUnMe = this.getComponente('id_unidad_medida');
- 				
- 				
+    	iniciarEventos: function(){		
+    		
 			 this.Cmp.invitacion_det__tipo.on('select',function(combo,record,index){
 		
 						if(record.data.ID == 'planif' ){
@@ -702,7 +779,6 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 							     this.mostrarComponente(this.Cmp.precio);
 
 							     this.Cmp.id_fase_concepto_ingas.on('select', function(cmb,rec,i){
-							     //console.log('bus', cmb);
 							    
 							    
 							    ////se aumento filtro para el controlador de ACTUnidadMedida.php en sis parametros
@@ -752,8 +828,10 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
    	     //console.log('eso',me.maestro.id_invitacion);
    	     //console.log('tipo',this.maestro.tipo);
    	      //console.log('maestro fecha',this.maestro.fecha);
-   	      console.log('id_gestion',this.maestro.id_gestion);
-   	      console.log('id_proyecto',this.maestro.id_proyecto);
+   	      //console.log('id_gestion',this.maestro.id_gestion);
+   	      //console.log('id_proyecto',this.maestro.id_proyecto);
+       	     console.log('id_tipo_cc',this.id_tipo_cc);
+
            this.v_fecha=this.maestro.fecha;   
    	       	
    	                me.objSolForm = Phx.CP.loadWindows('../../../sis_proyectos/vista/invitacion_det/InvitacionDetFrm.php',
@@ -772,7 +850,7 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 				                                	 tipo: me.maestro.tipo,
 				                                	 id_gestion: me.maestro.id_gestion,
 				                                	 id_proyecto: me.maestro.id_proyecto,
-				                                	 	                                	 
+				                                	 id_tipo_cc:this.id_tipo_cc,	                                	 
 
 				                                	 datosOriginales: record,
 				                                	 readOnly: (tipo=='noedit')? true: false
@@ -794,11 +872,26 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 	                                 
 	                                  
    },
-    	
-    
-		 		
- 
- 		   
+   
+   preparaMenu: function(n){
+
+		var tb = Phx.vista.InvitacionDet.superclass.preparaMenu.call(this);
+		var data = this.getSelectedData();
+	
+		console.log('estado_proyecto',this.estado_proyecto );
+		if (tb && this.bnew && (this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado' || this.estado_invitacion == 'sol_compra')) {
+            tb.items.get('b-new-' + this.idContenedor).disable();
+            }
+		if (tb && this.bedit && (this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado'  || this.estado_invitacion == 'sol_compra')) {
+            tb.items.get('b-edit-' + this.idContenedor).disable();
+            }
+         if (tb && this.bdel && (this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado'  || this.estado_invitacion == 'sol_compra')) {
+            tb.items.get('b-del-' + this.idContenedor).disable();
+            }
+		return tb;
+	},
+	
+	   
     
 })
 </script>
