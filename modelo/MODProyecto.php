@@ -5,7 +5,9 @@
 *@author  (admin)
 *@date 28-09-2017 20:12:15
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+	Issue 			Fecha 			Autor				Descripcion
+ 	#3				31/12/2018		EGS					Aumentar Importe Stea
+ * */
 
 class MODProyecto extends MODbase{
 
@@ -57,6 +59,8 @@ class MODProyecto extends MODbase{
 		$this->captura('id_proceso_wf_cbte_1','int4');
 		$this->captura('id_proceso_wf_cbte_2','int4');
 		$this->captura('id_proceso_wf_cbte_3','int4');
+		$this->captura('importe_max','numeric');	//#3 31/12/2018		EGS	
+		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -87,6 +91,7 @@ class MODProyecto extends MODbase{
 
 		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
 		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
+		$this->setParametro('importe_max','importe_max','numeric');	//#3 31/12/2018		EGS	
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -116,6 +121,7 @@ class MODProyecto extends MODbase{
 
 		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
 		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
+		$this->setParametro('importe_max','importe_max','numeric');	//#3 31/12/2018		EGS	
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

@@ -284,13 +284,14 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				anchor: '80%',
 				gwidth: 110,
 				maxLength:1179650,
+				allowNegative:false,											
 				renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'000.000.000,00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
 						}	
 				}
 			},
@@ -308,13 +309,14 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				anchor: '80%',
 				gwidth: 110,
 				maxLength:1179650,
+				allowNegative:false,						
 				renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'000.000.000,00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
 						}	
 				}
 			},

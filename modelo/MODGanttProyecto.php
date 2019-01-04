@@ -98,8 +98,6 @@ function listarGanttPro(){
 				$this->captura('fecha_ini_real','TIMESTAMP');
 		       
 		        $this->captura('fecha_fin_real','TIMESTAMP'); 
-				$this->captura('dias','integer');
-				$this->captura('dias_real','integer');
 		      
 		        $this->captura('descripcion','varchar');
 		        $this->captura('id_siguiente','integer');
@@ -120,14 +118,10 @@ function listarGanttPro(){
 				$this->captura('etapa','varchar');
 				$this->captura('estado_reg','varchar');
 				$this->captura('disparador','varchar');
-				$this->captura('grupo','boolean');
-				$this->captura('nombre_padre','varchar');
+				$this->captura('agrupador','boolean');
 				$this->captura('item','varchar');
 				$this->captura('des_ingas','varchar');
-				
-				$this->captura('fecha_ini_item','date');
-		       
-		        $this->captura('fecha_fin_item','date');
+				$this->captura('duplicado','boolean');
 				
 		        
 		        
@@ -137,6 +131,7 @@ function listarGanttPro(){
 		        
 		        //echo $this->getConsulta();
 		        $this->ejecutarConsulta();
+				//var_dump($this->respuesta); exit;
 		        return $this->respuesta;
 		
 		    }

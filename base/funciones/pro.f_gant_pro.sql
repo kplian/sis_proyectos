@@ -46,12 +46,15 @@ temp_data			record;
 p_id_proyecto		integer;
 v_orden				varchar;
 v_id				integer;
-v_id_fk		integer;
+v_id_fk				integer;
 v_id_proceso		integer;
 v_padre				boolean;
 v_id_fase_fk		integer;
 v_item				varchar;
-
+v_duplicado			boolean;
+v_agrupador			boolean;
+v_num				integer;
+v_count				integer;
 
 BEGIN
 
@@ -401,23 +404,22 @@ BEGIN
    -- 1) Crea una tabla temporal con los datos que se utilizaran 
 		
    CREATE TEMPORARY TABLE temp_arbol_proyecto(
-                                      id serial,
-                                      id_fk integer,
-                                      id_fase integer,
-                                      id_fase_fk integer,
-                                      codigo_fase varchar, 
-                                      nombre_fase VARCHAR,
-                                      fecha_ini timestamp,
-                                      fecha_fin     timestamp,
-                                      fecha_ini_real timestamp,
-                                      fecha_fin_real     timestamp,
-                                      padre 		boolean,
-                                      descripcion varchar,
-                                      id_fase_concepto_ingas INTEGER,
-                                      desc_ingas	varchar,
-                                      nombre_padre	varchar,
-                                      fecha_ini_item date,
-                                      fecha_fin_item date
+                                      id 				serial,
+                                      id_fk 			integer,
+                                      id_padre			INTEGER,
+                                      codigo_fase 		varchar, 
+                                      nombre_fase 		VARCHAR,
+                                      fecha_ini 		timestamp,
+                                      fecha_fin     	timestamp,
+                                      fecha_ini_real 	timestamp,
+                                      fecha_fin_real    timestamp,
+                                      padre 			boolean,
+                                      descripcion 		varchar,
+                                      desc_ingas		varchar,
+                                      item				boolean,
+                                      agrupador			BOOLEAN,
+                                      duplicado			boolean 		---true si es copia del item solo que con las fechas reales
+
                                      ) ON COMMIT DROP;	
                                      
      --tabla temporal para asociar y guardar los ids para recrear el arbol
@@ -445,11 +447,10 @@ BEGIN
          FROM pro.tproyecto proy
          where proy.id_proyecto= p_id_proyecto
          UNION
-
              SELECT
              fas.id_proyecto,
              fas.id_fase,
-             NULL::integer as id_fase_fk,
+             fas.id_fase_fk,
              ''::varchar(150) as nombre_proyecto,
              fass.nombre as nombre_padre,
              fas.codigo as codigo_fase,
@@ -474,99 +475,174 @@ BEGIN
             	SELECT 
                     proy.nombre as nombre_fase,
                     proy.codigo as codigo_fase,
+                    proy.fecha_ini,
+                    proy.fecha_fin,                    
                     proy.fecha_ini_real,
                     proy.fecha_fin_real,
-                    proy.fecha_ini,
-                    proy.fecha_fin,
                     proy.nombre as descripcion,
-                    proy.fecha_reg,
-                    ''::varchar as nombre_padre,
-                    0::integer as id_fase_concepto_ingas,
                     ''::varchar as desc_ingas,
-                  	'01/12/2018'::date as fecha_ini_item,
-                   	'01/12/2018'::date as fecha_fin_item
+                    FALSE::boolean as item
                 INTO
                 	v_record_fase
                 FROM pro.tproyecto proy
                 WHERE  proy.id_proyecto = v_nodos.id_proyecto ;
                	v_padre = true;	
-
+				v_duplicado = false;
+                v_agrupador = true;
              ELSE 
-             	---fases
+             	--Buscamos si existe el el id del padre ya insertado
+                SELECT 
+                	t.id
+                into 
+                	v_id
+                from temp_id t
+				where t.id_fase = v_nodos.id_fase_fk ;             
+                --si no existe  insertamos el padre
+				IF v_id is null  THEN
+                        SELECT
+                            fase.nombre as nombre_fase,
+                            fase.codigo as codigo_fase,
+                            fase.fecha_ini,
+                            fase.fecha_fin,
+                            fase.fecha_ini_real,
+                            fase.fecha_fin_real,
+                            fase.descripcion,
+                            ''::varchar as desc_ingas,
+                             FALSE::boolean as item
+
+                        INTO
+                             v_record_fase
+                        FROM pro.tfase fase
+                        left JOIN pro.tfase_concepto_ingas fascon on fascon.id_fase=fase.id_fase
+                        left JOIN pro.tfase fass on fass.id_fase=fase.id_fase_fk
+                        WHERE fase.id_fase = v_nodos.id_fase_fk;	
+                     	IF v_record_fase.fecha_ini is null THEN
+                              v_record_fase.fecha_ini = now()::DATE;
+                        END IF;
+                        IF v_record_fase.fecha_ini_real is null THEN
+                              v_record_fase.fecha_ini_real = now()::DATE;
+                        END IF;
+                        IF v_record_fase.fecha_fin is null THEN
+                              v_record_fase.fecha_fin = now()::DATE;
+                        END IF;
+                        IF v_record_fase.fecha_fin_real is null THEN
+                              v_record_fase.fecha_fin_real = now()::DATE;
+                        END IF;
+                        INSERT INTO temp_arbol_proyecto(
+                        							id_fk,
+                                                    codigo_fase, 
+                                                    nombre_fase,
+                                                    fecha_ini,
+                                                    fecha_fin,
+                                                    fecha_ini_real,
+                                                    fecha_fin_real,
+                                                    padre,
+                                                    descripcion,                                        
+                                                    desc_ingas,
+                                                    item,
+                                                    agrupador,
+                                                    duplicado
+                          ) VALUES(
+                          	  1,
+                              v_record_fase.codigo_fase,
+                              v_record_fase.nombre_fase,
+                              v_record_fase.fecha_ini,
+                              v_record_fase.fecha_fin,
+                              v_record_fase.fecha_ini_real,
+                              v_record_fase.fecha_fin_real,
+                              v_padre,
+                              v_record_fase.descripcion,
+                              v_record_fase.desc_ingas,
+                              v_record_fase.item,
+                              TRUE::BOOLEAN,
+                              FALSE::BOOLEAN
+                          )RETURNING id into v_id;
+             
+                           --asociamos las id de fase con el nuevo id 
+                            insert into temp_id(
+                                id_fase,
+                                id 
+                                            )VALUES(
+                                 v_nodos.id_fase_fk,
+                                   v_id );	
+
+                END IF;
+                ---insertamos el item             	
              	SELECT
                 	fase.nombre as nombre_fase,
                     fase.codigo as codigo_fase,
+                    fascon.fecha_estimada as fecha_ini,
+                    fascon.fecha_fin as fecha_fin,
                     fase.fecha_ini_real,
                     fase.fecha_fin_real,
-                    fase.fecha_ini,
-                    fase.fecha_fin,
                     fascon.descripcion,
-                    fase.fecha_reg,
-                    fass.nombre as nombre_padre,
-                    fascon.id_fase_concepto_ingas,
                     coin.desc_ingas,
-                    fascon.fecha_estimada as fecha_ini_item,
-                    fascon.fecha_fin as fecha_fin_item
+                    TRUE::BOOLEAN as item
                 INTO
-                	v_record_fase
+                     v_record_fase
                 FROM pro.tfase fase
                	left JOIN pro.tfase_concepto_ingas fascon on fascon.id_fase=fase.id_fase
              	left join param.tconcepto_ingas coin	on coin.id_concepto_ingas = fascon.id_concepto_ingas
              	left JOIN pro.tfase fass on fass.id_fase=fase.id_fase_fk
                 WHERE fascon.id_fase_concepto_ingas = v_nodos.id_fase_concepto_ingas;
-              --verificamos si es padre nodo 
-               IF  (SELECT
-                      count(fase.id_fase_fk)
-               	FROM	pro.tfase fase
-               	WHERE   fase.id_fase_fk = v_nodos.id_fase) <> 0 THEN
-               		v_padre = true;
-            	END IF ;
-              
+                v_agrupador = false;
              END IF;
-           --si la fechas son null toman la fecha de hoy
-             IF v_record_fase.fecha_ini is null THEN
-             	v_record_fase.fecha_ini = now()::DATE;
-             END IF;
-              IF v_record_fase.fecha_ini_real is null THEN
-             	v_record_fase.fecha_ini_real = now()::DATE;
-             END IF;
-              IF v_record_fase.fecha_fin is null THEN
-             	v_record_fase.fecha_fin = now()::DATE;
-             END IF;
-              IF v_record_fase.fecha_fin_real is null THEN
-             	v_record_fase.fecha_fin_real = now()::DATE;
-             END IF;
-             
-		 --insertamos el nodo  del proyecto si no existe en la tabla
+             	
+             	IF v_record_fase.fecha_ini is null THEN
+                    v_record_fase.fecha_ini = now()::DATE;
+                END IF;
+                IF v_record_fase.fecha_ini_real is null THEN
+                    v_record_fase.fecha_ini_real = now()::DATE;
+                END IF;
+                IF v_record_fase.fecha_fin is null THEN
+                    v_record_fase.fecha_fin = now()::DATE;
+                END IF;
+                IF v_record_fase.fecha_fin_real is null THEN
+                    v_record_fase.fecha_fin_real = now()::DATE;
+                END IF;
+           
+           IF v_nodos.id_fase = 0 THEN
+            	v_num= 0;
+           ELSE
+           		v_num=1;
+           END IF; 
+        /*   
+           v_count = 0;       
+           FOR v_i IN 0..v_num LOOP
+           	
+           	IF v_count = 0 THEN
+            	v_duplicado = false;
+            ELSE
+            	v_duplicado = true;
+            END IF;*/
+		 --insertamos el nodo del proyecto o el item tabla
                 INSERT INTO temp_arbol_proyecto(
                                             codigo_fase, 
                                             nombre_fase,
                                             fecha_ini,
                                             fecha_fin,
-                                            padre,
-                                            descripcion,
                                             fecha_ini_real,
                                             fecha_fin_real,
-                                            nombre_padre,
-                                            id_fase_concepto_ingas,
+                                            padre,
+                                            descripcion,                                        
                                             desc_ingas,
-                                            fecha_ini_item,
-                                            fecha_fin_item 	
+                                            item,
+                                            agrupador,
+                                            duplicado
                   ) VALUES(
                       v_record_fase.codigo_fase,
                       v_record_fase.nombre_fase,
                       v_record_fase.fecha_ini,
       				  v_record_fase.fecha_fin,
-                      v_padre,
-                      v_record_fase.descripcion,
                       v_record_fase.fecha_ini_real,
       				  v_record_fase.fecha_fin_real,
-                      v_record_fase.nombre_padre,
-                      v_record_fase.id_fase_concepto_ingas,
+                      v_padre,
+                      v_record_fase.descripcion,
                       v_record_fase.desc_ingas,
-                      v_record_fase.fecha_ini_item,
-                      v_record_fase.fecha_fin_item
-                  ) RETURNING id into v_id;
+                      v_record_fase.item,
+                      v_agrupador,
+                      v_duplicado
+                  )RETURNING id into v_id;
      
                    --asociamos las id de fase con el nuevo id 
                     insert into temp_id(
@@ -576,17 +652,12 @@ BEGIN
                          v_nodos.id_fase,
                            v_id
                                     );	
-				
-           
+
              --para agrupar las fases con el proyecto y este sea la raiz del gantt
     		v_padre = false;
-            if v_nodos.id_fase_fk is null then
-             update temp_arbol_proyecto 
-             set id_fk = 1
-             Where id = v_id;
-             
              --luego los demas nodos tomaran sus respectivas fk 
-            elsif  v_nodos.id_fase_fk is not null and v_nodos.id_fase_fk <> 0 then 
+           
+          if  v_nodos.id_fase <> 0 then 
                   SELECT	
                     id
                   INTO
@@ -603,11 +674,10 @@ BEGIN
             	
                          
             end if;
-   				
+       /*   v_count = v_count +1;
+   		END LOOP;	*/	
     END LOOP;
-		
-     
-    
+
     --creamos la tabla temporal con la estructura del gantt del sistema wf añadiendo algunos parametros q solo estan en el gantt del proyecto
      CREATE TEMPORARY TABLE temp_gant_pro (
                                       id SERIAL,
@@ -619,8 +689,6 @@ BEGIN
                                       fecha_fin TIMESTAMP,
                                       fecha_ini_real TIMESTAMP, 
                                       fecha_fin_real TIMESTAMP,
-                                      dias  INTEGER,
-                                      dias_real INTEGER, 
                                       descripcion VARCHAR, 
                                       id_siguiente integer,
                                       tramite varchar,
@@ -639,12 +707,10 @@ BEGIN
                                       etapa		varchar,
                                       estado_reg varchar,
                                       disparador varchar,
-                                      grupo boolean,
-                                      nombre_padre varchar,
+                                      agrupador boolean,
                                       item varchar,
                                       desc_item varchar,
-                                      fecha_ini_item date,
-                                      fecha_fin_item date
+                                      duplicado BOOLEAN
                                      ) ON COMMIT DROP;
 	
 	--insertamos los datos necesarios en la tabla que se usara para representar el gantt	
@@ -657,24 +723,18 @@ BEGIN
             nombre_fase,
             fecha_ini,
             fecha_fin,
-            (fecha_fin::date - fecha_ini::date)::integer as dias,
-            (fecha_fin_real::date - fecha_ini_real::date)::integer as dias_real,
-            padre,
-            descripcion,
             fecha_ini_real,
             fecha_fin_real,
-            nombre_padre,
-            id_fase_concepto_ingas,
+            padre,
+            descripcion,
             desc_ingas,
-            fecha_ini_item,
-            fecha_fin_item         	
+            item,
+            agrupador,
+            duplicado
         from temp_arbol_proyecto 
         ORDER by id  ASC
         )LOOP
-        	v_item='no';
-        	if temp_data.id_fase_concepto_ingas is not null then
-        		v_item = 'si';
-			end if;
+        	
          	--raise exception '% ',v_dias;
         	INSERT INTO      
            temp_gant_pro (
@@ -687,20 +747,16 @@ BEGIN
                     fecha_fin,
                     fecha_ini_real, 
                     fecha_fin_real,
-                    dias,
-                    dias_real, 
                     descripcion, 
                     id_siguiente,
                     tramite,
                     codigo,
                     id_padre,
                     id_anterior,
-                    grupo,
-                    nombre_padre,
+                    agrupador,
                     item,
                     desc_item,
-                    fecha_ini_item,
-                    fecha_fin_item
+                    duplicado
                    )
                    VALUES(
                    temp_data.id,
@@ -712,20 +768,16 @@ BEGIN
                     temp_data.fecha_fin,--fecha_fin,
                     temp_data.fecha_ini_real,--fecha_ini, 
                     temp_data.fecha_fin_real,--fecha_fin,
-                    temp_data.dias,
-                   	temp_data.dias_real, 
                    	temp_data.descripcion,--descripcion,
                     NULL,-- id_siguiente,
                     NULL,--nro_tramite,
                     temp_data.codigo_fase,--codigo,
                     temp_data.id_fk,--id_padre,
                    	temp_data.id_fk,--p_id_anterior
-                   	temp_data.padre,
-                    temp_data.nombre_padre,
-					v_item,
+                   	temp_data.agrupador,
+					temp_data.item,
                     temp_data.desc_ingas,
-                    temp_data.fecha_ini_item,
-                    temp_data.fecha_fin_item
+                    temp_data.duplicado
                    ) RETURNING id into v_id_proceso;
         
         
@@ -741,8 +793,6 @@ BEGIN
                                   fecha_fin ,
                                   fecha_ini_real , 
                                   fecha_fin_real ,
-                                  dias,
-                                  dias_real,  
                                   descripcion , 
                                   id_siguiente ,
                                   tramite ,
@@ -761,12 +811,10 @@ BEGIN
                                   etapa,
                                   estado_reg,
                                   disparador,
-                                  grupo,
-                                  nombre_padre,
+                                  agrupador,
                                   item,
                                   desc_item,
-                                  fecha_ini_item,
-                                  fecha_fin_item
+                                  duplicado
                                 FROM temp_gant_pro 
                                 order by id ASC) LOOP
                RETURN NEXT v_registros;

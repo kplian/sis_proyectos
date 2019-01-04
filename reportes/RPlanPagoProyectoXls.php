@@ -143,16 +143,16 @@ class RPlanPagoProyectoXls
 				   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[0].''.(3).':'.$this->equivalencias[0].''.(3).'')->applyFromArray($styleTitulos2);
 				   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[1].''.(3).':'.$this->equivalencias[1].''.(3).'')->applyFromArray($styleTitulos2);
 				   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[2].''.(3).':'.$this->equivalencias[2].''.(3).'')->applyFromArray($styleTitulos2);
-				   //$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[3].''.(3).':'.$this->equivalencias[3].''.(3).'')->applyFromArray($styleTitulos2);
+				   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[3].''.(3).':'.$this->equivalencias[3].''.(3).'')->applyFromArray($styleTitulos2);
 				   
 				   
 				   $numeroColumnaIni =0;
 				   $numeroColumnaFin = 11;
 				   $col_arrays = $this->objParam->getParametro('gestion');
 				   for ($i=0; $i < count($col_arrays) ; $i++) {
-				   	$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[3+$numeroColumnaIni].''.(1).':'.$this->equivalencias[3+$numeroColumnaFin].''.(1).'')->applyFromArray($styleTitulos3);				
-					$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[3+$numeroColumnaIni].''.(2).':'.$this->equivalencias[3+$numeroColumnaFin].''.(2).'')->applyFromArray($styleTitulos4);				
-					$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[3+$numeroColumnaIni].''.(3).':'.$this->equivalencias[3+$numeroColumnaFin].''.(3).'')->applyFromArray($styleTitulos2);
+				   	$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[4+$numeroColumnaIni].''.(1).':'.$this->equivalencias[4+$numeroColumnaFin].''.(1).'')->applyFromArray($styleTitulos3);				
+					$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[4+$numeroColumnaIni].''.(2).':'.$this->equivalencias[4+$numeroColumnaFin].''.(2).'')->applyFromArray($styleTitulos4);				
+					$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[4+$numeroColumnaIni].''.(3).':'.$this->equivalencias[4+$numeroColumnaFin].''.(3).'')->applyFromArray($styleTitulos2);
 				   $numeroColumnaIni = $numeroColumnaIni + 12;
 				   $numeroColumnaFin = $numeroColumnaFin + 12;      
 					}
@@ -170,13 +170,14 @@ class RPlanPagoProyectoXls
 					
 					$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(40);
 					$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(30);
+					$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(25);
 					
 					///Ancho de celdas del reporte
 					$numeroColumna=0;
 				   for ($i=0; $i < count($col_arrays) ; $i++) {
 						 	for ($i=0; $i < 13; $i++) {
 							 	 
-							 $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[3+$numeroColumna+ $i])->setWidth(20);
+							 $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[4+$numeroColumna+ $i])->setWidth(25);
 							 
 						 	}	
 							$numeroColumna =$numeroColumna+12;
@@ -197,29 +198,26 @@ class RPlanPagoProyectoXls
 					
 					$this->docexcel->getActiveSheet()->setCellValue('B3','ITEM');
 					$this->docexcel->getActiveSheet()->setCellValue('C3','PRECIO ESTIMADO');
+					$this->docexcel->getActiveSheet()->setCellValue('D3','TOTAL PRORRATEADO');				
 					
 					$col_arrays = $this->objParam->getParametro('gestion');
 					$numeroColumna=0;
 					for ($i=0; $i < count($col_arrays) ; $i++) {
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3+$numeroColumna, 3, 'ENERO '.$col_arrays[$i]['anio']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4+$numeroColumna, 3, 'FEBRERO '.$col_arrays[$i]['anio']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5+$numeroColumna, 3, 'MARZO '.$col_arrays[$i]['anio']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6+$numeroColumna, 3, 'ABRIL '.$col_arrays[$i]['anio']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7+$numeroColumna, 3, 'MAYO '.$col_arrays[$i]['anio']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8+$numeroColumna, 3, 'JUNIO '.$col_arrays[$i]['anio']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9+$numeroColumna, 3, 'JULIO '.$col_arrays[$i]['anio']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10+$numeroColumna, 3, 'AGOSTO '.$col_arrays[$i]['anio']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11+$numeroColumna, 3, 'SEPTIEMBRE '.$col_arrays[$i]['anio']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12+$numeroColumna, 3, 'OCTUBRE '.$col_arrays[$i]['anio']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13+$numeroColumna, 3, 'NOVIEMBRE '.$col_arrays[$i]['anio']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14+$numeroColumna, 3, 'DICIEMBRE '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4+$numeroColumna, 3, 'ENERO '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5+$numeroColumna, 3, 'FEBRERO '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6+$numeroColumna, 3, 'MARZO '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7+$numeroColumna, 3, 'ABRIL '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8+$numeroColumna, 3, 'MAYO '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9+$numeroColumna, 3, 'JUNIO '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10+$numeroColumna, 3, 'JULIO '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11+$numeroColumna, 3, 'AGOSTO '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12+$numeroColumna, 3, 'SEPTIEMBRE '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13+$numeroColumna, 3, 'OCTUBRE '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14+$numeroColumna, 3, 'NOVIEMBRE '.$col_arrays[$i]['anio']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15+$numeroColumna, 3, 'DICIEMBRE '.$col_arrays[$i]['anio']);
 					$numeroColumna = $numeroColumna + 12;
 					}
-					
-					
-					
-				
-				
+
 		}		
 	}
 
@@ -346,27 +344,66 @@ class RPlanPagoProyectoXls
 		$numeroColumna = 0;
 		$total=0;
 		foreach ($datos as $value){
-			
+						//sumando los prorrateos
+						$prorrateo=0;
+						      for ($i=0; $i < count($col_arrays) ; $i++) {
+									 $prorrateo = $prorrateo + $value['enero_'.$col_arrays[$i]['anio']];
+									 $prorrateo = $prorrateo + $value['febrero_'.$col_arrays[$i]['anio']];
+									 $prorrateo = $prorrateo + $value['marzo_'.$col_arrays[$i]['anio']];
+									 $prorrateo = $prorrateo + $value['abril_'.$col_arrays[$i]['anio']];
+									 $prorrateo = $prorrateo + $value['mayo_'.$col_arrays[$i]['anio']];
+									 $prorrateo = $prorrateo + $value['junio_'.$col_arrays[$i]['anio']];
+									 $prorrateo = $prorrateo + $value['julio_'.$col_arrays[$i]['anio']];
+									 $prorrateo = $prorrateo + $value['agosto_'.$col_arrays[$i]['anio']];
+									 $prorrateo = $prorrateo + $value['septiembre_'.$col_arrays[$i]['anio']];
+									 $prorrateo = $prorrateo + $value['octubre_'.$col_arrays[$i]['anio']];
+									 $prorrateo = $prorrateo + $value['noviembre_'.$col_arrays[$i]['anio']];
+									 $prorrateo = $prorrateo + $value['diciembre_'.$col_arrays[$i]['anio']];
+							 }		
+												
 						if ($value['id_padre']== 0) {
 							$this->docexcel->getActiveSheet()->getStyle('B'.($fila).':B'.($fila).'')->applyFromArray($styleTitulos3);
 							$this->docexcel->getActiveSheet()->getStyle('C'.($fila).':C'.($fila).'')->applyFromArray($styleTitulos4);
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nombre_padre'].'--'.$value['item']);
+							$this->docexcel->getActiveSheet()->getStyle('D'.($fila).':D'.($fila).'')->applyFromArray($styleTitulos4);
 							
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nombre_padre'].'--'.$value['item']);
+							///sumando los totales de los prorrateos en la fase 
+							$total_prorrateo = 0;
 							foreach ($datos as $valueData){
 								if ($value['nombre_padre']==$valueData['nombre_padre']) {
 									$precio=$precio+$valueData['precio_estimado'];									
+									
+									for ($i=0; $i < count($col_arrays) ; $i++) {
+									 $total_prorrateo = $total_prorrateo + $valueData['enero_'.$col_arrays[$i]['anio']];
+									 $total_prorrateo = $total_prorrateo  + $valueData['febrero_'.$col_arrays[$i]['anio']];
+									 $total_prorrateo = $total_prorrateo  + $valueData['marzo_'.$col_arrays[$i]['anio']];
+									 $total_prorrateo = $total_prorrateo  + $valueData['abril_'.$col_arrays[$i]['anio']];
+									 $total_prorrateo = $total_prorrateo  + $valueData['mayo_'.$col_arrays[$i]['anio']];
+									 $total_prorrateo = $total_prorrateo  + $valueData['junio_'.$col_arrays[$i]['anio']];
+									 $total_prorrateo = $total_prorrateo  + $valueData['julio_'.$col_arrays[$i]['anio']];
+									 $total_prorrateo = $total_prorrateo  + $valueData['agosto_'.$col_arrays[$i]['anio']];
+									 $total_prorrateo = $total_prorrateo  + $valueData['septiembre_'.$col_arrays[$i]['anio']];
+									 $total_prorrateo = $total_prorrateo  + $valueData['octubre_'.$col_arrays[$i]['anio']];
+									 $total_prorrateo = $total_prorrateo  + $valueData['noviembre_'.$col_arrays[$i]['anio']];
+									 $total_prorrateo = $total_prorrateo  + $valueData['diciembre_'.$col_arrays[$i]['anio']];
+
+									}		
 								}
 							}
-							$total=$total+$precio;
+							$total=$total+$precio; //total precio estimado por fase
+							$totalPro = $totalPro + $total_prorrateo; //total prorrateo por fase
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $precio);
-							
-							
-						} else {
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $total_prorrateo);						
+						
+						
+						}else{
 							$this->docexcel->getActiveSheet()->getStyle('B'.($fila).':B'.($fila).'')->applyFromArray($styleTitulos6);
-							$this->docexcel->getActiveSheet()->getStyle('C'.($fila).':C'.($fila).'')->applyFromArray($styleTitulos5);	
+							$this->docexcel->getActiveSheet()->getStyle('C'.($fila).':C'.($fila).'')->applyFromArray($styleTitulos5);
+							$this->docexcel->getActiveSheet()->getStyle('D'.($fila).':D'.($fila).'')->applyFromArray($styleTitulos5);		
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila,$value['item']);
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['precio_estimado']);
-												
+																						
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila,$prorrateo );													
 						}
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $this->numero);
 						//$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nombre_padre']);
@@ -375,22 +412,20 @@ class RPlanPagoProyectoXls
 					
 			for ($i=0; $i < count($col_arrays) ; $i++) {
 				
-						
-						
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3+$numeroColumna, $fila, $value['enero_'.$col_arrays[$i]['anio']]);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4+$numeroColumna, $fila, $value['febrero_'.$col_arrays[$i]['anio']]);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5+$numeroColumna, $fila, $value['marzo_'.$col_arrays[$i]['anio']]);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6+$numeroColumna, $fila, $value['abril_'.$col_arrays[$i]['anio']]);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7+$numeroColumna, $fila, $value['mayo_'.$col_arrays[$i]['anio']]);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8+$numeroColumna, $fila, $value['junio_'.$col_arrays[$i]['anio']]);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9+$numeroColumna, $fila, $value['julio_'.$col_arrays[$i]['anio']]);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10+$numeroColumna, $fila, $value['agosto_'.$col_arrays[$i]['anio']]);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11+$numeroColumna, $fila, $value['septiembre_'.$col_arrays[$i]['anio']]);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12+$numeroColumna, $fila, $value['octubre_'.$col_arrays[$i]['anio']]);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13+$numeroColumna, $fila, $value['noviembre_'.$col_arrays[$i]['anio']]);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14+$numeroColumna, $fila, $value['diciembre_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4+$numeroColumna, $fila, $value['enero_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5+$numeroColumna, $fila, $value['febrero_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6+$numeroColumna, $fila, $value['marzo_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7+$numeroColumna, $fila, $value['abril_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8+$numeroColumna, $fila, $value['mayo_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9+$numeroColumna, $fila, $value['junio_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10+$numeroColumna, $fila, $value['julio_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11+$numeroColumna, $fila, $value['agosto_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12+$numeroColumna, $fila, $value['septiembre_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13+$numeroColumna, $fila, $value['octubre_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14+$numeroColumna, $fila, $value['noviembre_'.$col_arrays[$i]['anio']]);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15+$numeroColumna, $fila, $value['diciembre_'.$col_arrays[$i]['anio']]);
 					
-					$numeroColumna = $numeroColumna + 12;
+					    $numeroColumna = $numeroColumna + 12;
 					}				
 
 			$this->numero++;
@@ -401,11 +436,11 @@ class RPlanPagoProyectoXls
 			//var_dump('EQUIVALENCIAS',$this->equivalencias[0]);
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,$fila,'TOTALES:');
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,$fila,$total);
-		  
+		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,$fila,$totalPro);
+
 		   $numeroColumna = 0;
 		   for ($i=0; $i < count($col_arrays) ; $i++) {
 		  
-		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3+$numeroColumna,$fila,'=SUM('.$this->equivalencias[3+$numeroColumna].'4:'.$this->equivalencias[3+$numeroColumna].''.($fila-1).')');
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4+$numeroColumna,$fila,'=SUM('.$this->equivalencias[4+$numeroColumna].'4:'.$this->equivalencias[4+$numeroColumna].''.($fila-1).')');
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5+$numeroColumna,$fila,'=SUM('.$this->equivalencias[5+$numeroColumna].'4:'.$this->equivalencias[5+$numeroColumna].''.($fila-1).')');
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6+$numeroColumna,$fila,'=SUM('.$this->equivalencias[6+$numeroColumna].'4:'.$this->equivalencias[6+$numeroColumna].''.($fila-1).')');
@@ -417,6 +452,7 @@ class RPlanPagoProyectoXls
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12+$numeroColumna,$fila,'=SUM('.$this->equivalencias[12+$numeroColumna].'4:'.$this->equivalencias[12+$numeroColumna].''.($fila-1).')');
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13+$numeroColumna,$fila,'=SUM('.$this->equivalencias[13+$numeroColumna].'4:'.$this->equivalencias[13+$numeroColumna].''.($fila-1).')');
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14+$numeroColumna,$fila,'=SUM('.$this->equivalencias[14+$numeroColumna].'4:'.$this->equivalencias[14+$numeroColumna].''.($fila-1).')');
+		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15+$numeroColumna,$fila,'=SUM('.$this->equivalencias[15+$numeroColumna].'4:'.$this->equivalencias[15+$numeroColumna].''.($fila-1).')');
 		   $numeroColumna = $numeroColumna + 12;
 		   		   
 		   }
@@ -427,7 +463,6 @@ class RPlanPagoProyectoXls
 		   
 		   $numeroColumna = 0;
 		   for ($i=0; $i < count($col_arrays) ; $i++) {
-		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[3+$numeroColumna].''.(4).':'.$this->equivalencias[3+$numeroColumna].''.($fila-1).'')->applyFromArray($styleTitulos5);
 		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[4+$numeroColumna].''.(4).':'.$this->equivalencias[4+$numeroColumna].''.($fila-1).'')->applyFromArray($styleTitulos5);
 		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[5+$numeroColumna].''.(4).':'.$this->equivalencias[5+$numeroColumna].''.($fila-1).'')->applyFromArray($styleTitulos5);
 		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[6+$numeroColumna].''.(4).':'.$this->equivalencias[6+$numeroColumna].''.($fila-1).'')->applyFromArray($styleTitulos5);
@@ -439,13 +474,13 @@ class RPlanPagoProyectoXls
 		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[12+$numeroColumna].''.(4).':'.$this->equivalencias[12+$numeroColumna].''.($fila-1).'')->applyFromArray($styleTitulos5);
 		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[13+$numeroColumna].''.(4).':'.$this->equivalencias[13+$numeroColumna].''.($fila-1).'')->applyFromArray($styleTitulos5);
 		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[14+$numeroColumna].''.(4).':'.$this->equivalencias[14+$numeroColumna].''.($fila-1).'')->applyFromArray($styleTitulos5);
+		   $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[15+$numeroColumna].''.(4).':'.$this->equivalencias[15+$numeroColumna].''.($fila-1).'')->applyFromArray($styleTitulos5);
 		   $numeroColumna = $numeroColumna + 12;   
 			}
 
 		    $numeroColumna = 0;
 		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[2+$numeroColumna].''.(4).':'.$this->equivalencias[2+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		     for ($i=0; $i < count($col_arrays) ; $i++) {
-		  		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[3+$numeroColumna].''.(4).':'.$this->equivalencias[3+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		  		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[4+$numeroColumna].''.(4).':'.$this->equivalencias[4+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		  		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[5+$numeroColumna].''.(4).':'.$this->equivalencias[5+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		  		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[6+$numeroColumna].''.(4).':'.$this->equivalencias[6+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
@@ -457,6 +492,7 @@ class RPlanPagoProyectoXls
 		  		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[12+$numeroColumna].''.(4).':'.$this->equivalencias[12+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		  		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[13+$numeroColumna].''.(4).':'.$this->equivalencias[13+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		  		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[14+$numeroColumna].''.(4).':'.$this->equivalencias[14+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
+		  		  $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[15+$numeroColumna].''.(4).':'.$this->equivalencias[15+$numeroColumna].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		  
 		     $numeroColumna = $numeroColumna + 12;   
 			}
@@ -482,7 +518,7 @@ class RPlanPagoProyectoXls
 		   $this->docexcel->getActiveSheet()->getStyle('D'.(4).':D'.($fila-1).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		   $this->docexcel->getActiveSheet()->getStyle('E'.(4).':E'.($fila-1).'')->getNumberFormat()->setFormatCode('#,##0.00');
 		   $this->docexcel->getActiveSheet()->getStyle('F'.(4).':F'.($fila-1).'')->getNumberFormat()->setFormatCode('#,##0.00');	
-		   $this->docexcel->getActiveSheet()->getStyle('D'.($fila).':F'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
+		   $this->docexcel->getActiveSheet()->getStyle('C'.($fila).':D'.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
 
 				//Marca desde una celda y una columna 
 				/*

@@ -5,7 +5,9 @@
 *@author  (admin)
 *@date 28-09-2017 20:12:15
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+	Issue 			Fecha 			Autor				Descripcion
+ 	#3				31/12/2018		EGS					Aumentar Importe Stea
+ * */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -274,6 +276,34 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
             grid: true,
             form: true
         },
+        		//#3 31/12/2018		EGS	
+		{
+			config:{
+				name: 'importe_max',
+				fieldLabel: 'Stea',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:1179650,
+				allowNegative:false,
+			
+				renderer:function (value,p,record){
+						if(record.data.tipo_reg != 'summary'){
+							return  String.format('{0}',  Ext.util.Format.number(value,'000.000.000,00/i'));
+						}
+						else{
+							Ext.util.Format.usMoney
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+						}	
+				}
+			},
+				type:'MoneyField',
+				filters:{pfiltro:'proy.importe',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+				//#3 31/12/2018		EGS	
 		{
 			config:{
 				name: 'estado_reg',
@@ -415,6 +445,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_proceso_wf', type: 'numeric'},
 		{name:'id_estado_wf', type: 'numeric'},
 		{name:'estado', type: 'string'},
+		{name:'importe_max', type: 'numeric'},
 
 
 	],

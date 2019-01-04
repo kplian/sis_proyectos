@@ -15,10 +15,8 @@ $body$
  COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:
- AUTOR:
- FECHA:
+	Issue 			Fecha 			Autor				Descripcion
+ 	#3				31/12/2018		EGS					Aumentar Importe Stea
 ***************************************************************************/
 
 DECLARE
@@ -81,7 +79,8 @@ BEGIN
 						proy.fecha_fin_real,
 						cbte1.id_proceso_wf as id_proceso_wf_cbte_1,
 						cbte2.id_proceso_wf as id_proceso_wf_cbte_2,
-						cbte3.id_proceso_wf as id_proceso_wf_cbte_3
+						cbte3.id_proceso_wf as id_proceso_wf_cbte_3,
+                        proy.importe_max				--#3 31/12/2018	EGS
 						from pro.tproyecto proy
 						inner join segu.tusuario usu1 on usu1.id_usuario = proy.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = proy.id_usuario_mod
