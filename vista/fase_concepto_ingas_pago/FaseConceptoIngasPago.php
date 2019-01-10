@@ -34,51 +34,7 @@ Phx.vista.FaseConceptoIngasPago=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
-		/*
-		{
-			config: {
-				name: 'id_fase_concepto_ingas',
-				fieldLabel: 'id_fase_concepto_ingas',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_fase_concepto_ingas',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
-		*/
+
 		{
 			//configuracion del componente
 			config:{
@@ -114,9 +70,18 @@ Phx.vista.FaseConceptoIngasPago=Ext.extend(Phx.gridInterfaz,{
 				anchor: '80%',
 				gwidth: 100,
 				maxLength:1179650,
-				allowNegative:false
+				allowNegative:false,				
+				renderer:function (value,p,record){
+						if(record.data.tipo_reg != 'summary'){
+							return  String.format('{0}',  Ext.util.Format.number(value,'000.000.000,00/i'));
+						}
+						else{
+							Ext.util.Format.usMoney
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+						}	
+				}	
 			},
-				type:'NumberField',
+				type:'MoneyField',
 				filters:{pfiltro:'facoinpa.importe',type:'numeric'},
 				id_grupo:1,
 				grid:true,

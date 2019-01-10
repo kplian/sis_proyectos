@@ -746,8 +746,8 @@ IS 'Precio real para adquirir el concepto de gasto';
 
 /***********************************I-SCP-RCM-PRO-3-27/12/2018****************************************/
 ALTER TABLE pro.tproyecto
-  ADD COLUMN importe_stea NUMERIC(18,2);
+  ADD COLUMN importe_max NUMERIC(18,2);
 
-COMMENT ON COLUMN pro.tproyecto.importe_stea
+COMMENT ON COLUMN pro.tproyecto.importe_max
 IS 'Importe máximo aprobado por la AE para la ejecución del Proyecto';
 /***********************************F-SCP-RCM-PRO-3-27/12/2018****************************************/

@@ -125,7 +125,7 @@ Phx.vista.ProyectoPr = {
 	
 	diagramGanttItem: function (){			
 		var data=this.sm.getSelected().data.id_proyecto;
-		window.open('../../../sis_proyectos/reportes/gantt/gantt_dinamico_item.html?id_proyecto='+data)		
+		window.open('../../../sis_proyectos/reportes/gantt/gantt_dinamico_item_v2.html?id_proyecto='+data)		
 	},
    diagramGanttDinamico: function (){			
 		var data=this.sm.getSelected().data.id_proyecto;
