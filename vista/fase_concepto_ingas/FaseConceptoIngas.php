@@ -5,6 +5,8 @@
 *@author  (admin)
 *@date 24-05-2018 19:13:39
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+ 	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores de precio y precio_real
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -15,6 +17,8 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 	constructor:function(config){
 		this.maestro=config;
 		var estado_proyecto;
+		var precio_item;
+		var total;
 		console.log('fase concepto',this.maestro.id_fase);
     	//llama al constructor de la clase padre
 		Phx.vista.FaseConceptoIngas.superclass.constructor.call(this,config);
@@ -126,7 +130,12 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				qtip:'Si el concepto de gasto que necesita no existe por favor comuníquese con el área de presupuestos para solicitar la creación.',
 				//tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_ingas}</p></div></tpl>',
 				renderer:function(value, p, record){
-					return String.format('{0}', record.data['desc_ingas']);
+					if (record.json.precio == record.json.total_prorrateo){
+						return String.format('{0}', record.data['desc_ingas']);
+					}
+					else{
+						return String.format('<b><font size=3 style="color:#FF1700";>{0}</font><b>', record.data['desc_ingas']);												
+					}
 				}
             },
             type:'ComboBox',
@@ -162,7 +171,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 	                gwidth:200,
 	   				valueField: 'id_funcionario',
 	   			    gdisplayField: 'desc_funcionario',
-	   			    baseParams: { es_combo_solicitud : 'si' },
+	   			    //baseParams: { es_combo_solicitud : 'si' },
 	      			renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
 	       	     },
 	   			type:'ComboRec',//ComboRec
@@ -231,7 +240,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				type:'NumberField',
 				filters:{pfiltro:'facoing.cantidad_est',type:'numeric'},
 				id_grupo:1,
-				grid:true,
+				grid:false,
 				form:false
 		},
 		{
@@ -279,19 +288,28 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'precio',
-				fieldLabel: 'Precio Total',
+				fieldLabel: 'Precio Total Estimado',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 110,
+				galign: 'right',
 				maxLength:1179650,
 				allowNegative:false,											
 				renderer:function (value,p,record){
-						if(record.data.tipo_reg != 'summary'){
+						console.log('record',record)
+						if(record.json.tipo_reg != 'summary'){//#5
+							if (value == record.json.total_prorrateo){
 							return  String.format('{0}',  Ext.util.Format.number(value,'000.000.000,00/i'));
+								}
+							else{
+								return  String.format('<b><font size=3 style="color:#FF1700";>{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+							}	
 						}
 						else{
+							this.total=record.json.total;
 							Ext.util.Format.usMoney
 							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+											
 						}	
 				}
 			},
@@ -304,14 +322,15 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'precio_real',
-				fieldLabel: 'Precio Total Real',
+				fieldLabel: 'Precio Total Actualizado',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 110,
+				galign: 'right',
 				maxLength:1179650,
 				allowNegative:false,						
 				renderer:function (value,p,record){
-						if(record.data.tipo_reg != 'summary'){
+						if(record.json.tipo_reg != 'summary'){//#5
 							return  String.format('{0}',  Ext.util.Format.number(value,'000.000.000,00/i'));
 						}
 						else{
@@ -563,6 +582,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_funcionario', type: 'numeric'},
 		{name:'precio_real', type: 'numeric'},
 		{name:'desc_funcionario', type: 'string'},
+		{name:'total', type: 'numeric'},//cantidad de items en la grilla
 
 
 		
@@ -619,14 +639,20 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 	},
 	
 	onReloadPage: function (m) {
-				//alert ('asda');
-				  
+				//alert ('asda');				  
 		            this.maestro = m;
+		            this.precio_item = this.maestro.precio_item;
+		            console.log('m',m);
+		             if (this.maestro.id_fase != null || this.maestro.id_fase != '' ){
 		            this.store.baseParams = {id_fase: this.maestro.id_fase};
 		           
+		           
 		            this.load({params: {start: 0, limit: 50}})
+		            };
 		            this.Atributos[1].valorInicial = this.maestro.id_fase;
 		            this.obtenerProyecto(this.maestro.id_proyecto);
+		            
+		            
 	},
 	
 	
@@ -690,6 +716,33 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
           height:'50%',
           cls:'FaseConceptoIngasPago'
 	}],
+	
+	successDel:function(){
+			var data = this.getSelectedData();
+			console.log('data',data);
+			
+			//Phx.vista.FaseConceptoIngas.superclass.onButtonDel.call(this)
+			Phx.CP.loadingHide();
+			///solo actualiza al padre si ya no tiene items en la grilla	
+			if (data.total-1 == 0) {
+				Phx.CP.getPagina(this.idContenedorPadre).root.reload();
+            	Phx.CP.getPagina(this.idContenedorPadre).treePanel.expandAll();
+			};		
+            this.onButtonAct();
+	
+	},
+	 //al crear o editar un elemento actualiza el padre
+	successSave:function(resp)
+        {	
+ 			Phx.CP.loadingHide();
+			//solo actualiza al  padre si no cuenta con items
+            if (this.precio_item == null || this.precio_item == 0) {
+	            Phx.CP.getPagina(this.idContenedorPadre).root.reload();
+	            Phx.CP.getPagina(this.idContenedorPadre).treePanel.expandAll();
+            };
+            this.onButtonAct();
+            this.window.hide();///cierra el panel del formulario
+        },	
 	
 	
 	

@@ -83,8 +83,12 @@ BEGIN
                 raise exception 'No puede Ingresar un Plan de Pagos sin un precio total del Bien/Servicio';
             END IF;
             
+            IF(v_fecha_inicio is null or v_fecha_fin is null  )THEN
+                raise exception 'No ingreso una de la fechas del Bien/Servicio';
+            END IF;
+            
             SELECT 
-               sum(facoinpa.importe)
+                COALESCE(sum(facoinpa.importe),0)
             INTO
             	v_importe_total            	
             FROM pro.tfase_concepto_ingas_pago facoinpa
@@ -98,7 +102,7 @@ BEGIN
 
             v_total = v_importe_total + v_parametros.importe ;
             IF v_precio_total < v_total THEN
-                raise exception 'No puede Ingresar un Plan de Pagos la suma de los importes superan al Precio Total del Bien/Servicio';
+                raise exception 'No puede Ingresar un Plan de Pagos la suma de los importes ( % ) superan al Precio Total del Bien/Servicio(%)',v_total,v_precio_total;
             END IF;
             
             IF  v_fecha_inicio > v_parametros.fecha_pago     THEN
@@ -231,18 +235,21 @@ BEGIN
                 raise exception 'No puede Ingresar un Plan de Pagos sin un precio total del Bien/Servicio';
             END IF;
             
+            IF(v_fecha_inicio is null or v_fecha_fin is null  )THEN
+                raise exception 'No ingreso una de la fechas del Bien/Servicio';
+            END IF; 
             SELECT 
-               sum(facoinpa.importe)
+                 COALESCE(sum(facoinpa.importe),0)
             INTO
             	v_importe_total            	
             FROM pro.tfase_concepto_ingas_pago facoinpa
             LEFT JOIN pro.tfase_concepto_ingas facoin on facoin.id_fase_concepto_ingas = facoinpa.id_fase_concepto_ingas 
-            WHERE facoin.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas and facoinpa.id_fase_concepto_ingas_pago not in (v_parametros.id_fase_concepto_ingas_pago);
+            WHERE facoin.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas and facoinpa.id_fase_concepto_ingas_pago <>v_parametros.id_fase_concepto_ingas_pago;
         	
             --raise exception 'v_precio_total %  v_importe_total %',v_precio_total ,v_importe_total ;
-
-            IF v_precio_total < (v_importe_total + v_parametros.importe)  THEN
-                raise exception 'No puede Editar el importe del Plan de Pagos la suma de los importes superan al Precio Total del Bien/Servicio';
+            v_total= v_importe_total + v_parametros.importe;
+            IF v_precio_total < v_total  THEN
+                raise exception 'No puede Editar el importe del Plan de Pagos la suma de los importes (%) superan al Precio Total del Bien/Servicio(%)',v_total,v_precio_total;
             END IF;
             
               IF  v_fecha_inicio > v_parametros.fecha_pago     THEN
@@ -333,4 +340,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-

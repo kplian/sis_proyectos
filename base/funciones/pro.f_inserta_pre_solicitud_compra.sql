@@ -16,7 +16,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
-#
+   #5              21/01/2019          EGS                 Se hace update de del campo de Fecha real
  ***************************************************************************/
  */
  
@@ -247,7 +247,8 @@ BEGIN
             --Actualizando invitacion cuando se genera una solicitud
             
             UPDATE pro.tinvitacion
-            set id_presolicitud = v_id_presolicitud::INTEGER
+            set id_presolicitud = v_id_presolicitud::INTEGER,
+                fecha_real = v_fecha-- #5
             where id_invitacion = p_id_invitacion;           
             	
 	RETURN   v_resp;

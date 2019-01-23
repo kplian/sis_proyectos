@@ -5,6 +5,8 @@
 *@author  (eddy.gutierrez)
 *@date 22-08-2018 22:32:59
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+ 	  #5  endeEtr		23/012019   EGS				se actualizo el basparams de id_centro_costo cuando no es planificado
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -59,7 +61,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 			config: {
 				name: 'invitacion_det__tipo',
 				fieldLabel: 'Tipo',
-				anchor: '95%',
+				anchor: '100%',
 				tinit: false,
 				allowBlank: false,
 				origen: 'CATALOGO',
@@ -168,7 +170,8 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 					id: 'id_fase_concepto_ingas',
 					root: 'datos',
 					sortInfo: {
-						field: 'id_fase_concepto_ingas',
+						//field: 'id_fase_concepto_ingas',
+						field: 'fase.codigo',
 						direction: 'ASC'
 					},
 					totalProperty: 'total',
@@ -180,7 +183,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 				tpl:'<tpl for=".">\
 		                       <div class="x-combo-list-item"><p><b>Concepto Gasto: </b>{desc_ingas}</p>\<p><b>Fase: </b>{codigo_fase}-{nombre_fase}</p>\
 		                       <p><b>Servicio/Bien: </b>{tipo}</p>\
-		                      <p><b>Precio Total Estimada: </b>{precio}</p>\
+		                      <p><b>Precio Total Estimado: </b>{precio}</p>\
 		                      </div></tpl>',
 				valueField: 'id_fase_concepto_ingas',
 				displayField: 'desc_ingas',
@@ -242,7 +245,8 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
                 pageSize: 15,
                
                 minChars: 2,
-                gwidth: 120
+                anchor: '100%',
+				gwidth: 150,
 			},
 			type: 'ComboBox',
 			id_grupo: 0,
@@ -343,7 +347,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						
 					}
@@ -373,12 +377,12 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						
 					}
 				},
-					type:'NumberField',
+					type:'MoneyField',
 					filters:{pfiltro:'ivtd.precio',type:'numeric'},
 					id_grupo:0,
 					bottom_filter: true,
@@ -421,7 +425,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 				mode: 'remote',
 				pageSize: 15,
 				queryDelay: 1000,
-				anchor: '100%',
+				anchor: '80%',
 				gwidth: 150,
 				minChars: 2,
 				renderer : function(value, p, record) {
@@ -793,7 +797,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 							   
 							     //this.Cmp.id_fase_concepto_ingas.store.baseParams.tipo= this.maestro.data.tipo;
 							     
-							     this.Cmp.id_fase_concepto_ingas.store.baseParams= {tipo:this.maestro.data.tipo , id_proyecto:this.maestro.data.id_proyecto};
+							     this.Cmp.id_fase_concepto_ingas.store.baseParams= {tipo:this.maestro.data.tipo , id_proyecto:this.maestro.data.id_proyecto, invitacion:'no'};
 
 							     
 							     this.Cmp.id_concepto_ingas.store.baseParams.tipo= this.maestro.data.tipo;
@@ -850,8 +854,9 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 							     this.mostrarComponente(this.Cmp.descripcion);
 							     
 								 this.Cmp.id_fase.store.baseParams={id_proyecto:this.maestro.data.id_proyecto};
-							
-								
+								 this.Cmp.id_centro_costo.store.baseParams.id_gestion=this.maestro.data.id_gestion; //#5
+								 this.Cmp.id_centro_costo.store.baseParams.id_tipo_cc = this.maestro.data.id_tipo_cc ;//#5
+	
 						} 
 						
 					

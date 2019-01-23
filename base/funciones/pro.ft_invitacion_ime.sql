@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				22-08-2018 22:32:20								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tinvitacion'	
- #
+ #5	EndeEtr		17/01/2019          	EGS					    Se mejoro la validacion  para que solo presolicitudes compartan el codigo de invitacion	
  ***************************************************************************/
 
 DECLARE
@@ -102,13 +102,16 @@ BEGIN
                 raise exception 'No puede Ingresa una Invitacion el proyecto esta en estado de  %',v_rec_proyecto.estado;
             END IF;
         	
-        	---validamos que no se repita el codigo  
-        	IF EXISTS(
-              select 
-               1
-              from pro.tinvitacion inv 
-              where inv.codigo = v_parametros.codigo
-                    and inv.estado_reg = 'activo') THEN                  
+        	---validamos que no se repita el codigo #5
+            v_pre_solicitud = split_part(pxp.f_get_variable_global('py_gen_presolicitud'), ',', 1); 
+        	 select 
+               inv.codigo
+             into
+             v_record_invitacion 
+             from pro.tinvitacion inv 
+             where trim(upper(inv.codigo)) = trim(upper(v_parametros.codigo)) and inv.estado_reg = 'activo';
+              
+            IF v_record_invitacion.codigo is not null and v_parametros.pre_solicitud <> v_pre_solicitud  THEN                  
                raise exception 'ya existe el código de la Invitacion %',v_parametros.codigo;      
             END IF;
             
@@ -134,7 +137,7 @@ BEGIN
                 into
                 v_id_gestion
                 from param.tperiodo per
-                where per.fecha_ini <= v_parametros.fecha and per.fecha_fin >= v_parametros.fecha
+                where per.fecha_ini <= now()::date and per.fecha_fin >= now()::date
                 limit 1 offset 0;
              
              --recuperando funcionario
@@ -276,8 +279,23 @@ BEGIN
                 raise exception 'No puede Modificar una Invitacion el proyecto esta en estado de  %',v_rec_proyecto.estado;
             END IF;
             
+            ---validamos que no se repita el codigo a menos que sea un presolicitud 
+            v_pre_solicitud = split_part(pxp.f_get_variable_global('py_gen_presolicitud'), ',', 1); 
+         	select 
+               inv.codigo
+            into
+            v_record_invitacion 
+            from pro.tinvitacion inv 
+            where trim(upper(inv.codigo)) = trim(upper(v_parametros.codigo)) and inv.estado_reg = 'activo'and inv.id_invitacion <> v_parametros.id_invitacion;
+            
+            IF v_record_invitacion.codigo is not null and v_parametros.pre_solicitud <> v_pre_solicitud   THEN                  
+               raise exception 'ya existe el código de la Invitacion %',v_parametros.codigo;      
+            END IF;
+            
+            
 			--Sentencia de la modificacion
 			update pro.tinvitacion set
+            codigo = v_parametros.codigo,
 			fecha = v_parametros.fecha,
 			descripcion = v_parametros.descripcion,
 			--fecha_real = v_parametros.fecha_real,
@@ -359,7 +377,9 @@ BEGIN
         	select
             	inv.id_categoria_compra,
                 inv.lugar_entrega,
-                inv.dias_plazo_entrega
+                inv.dias_plazo_entrega,
+                inv.fecha,
+                inv.codigo
             into
             	v_record_invitacion
             from pro.tinvitacion inv
@@ -372,7 +392,9 @@ BEGIN
             	raise EXCEPTION 'No tiene dias de plazo entrega en la invitacion';
             END IF;
             
-            
+            IF  v_record_invitacion.fecha is null THEN 
+            	raise EXCEPTION 'No ingreso una fecha en la Invitacion %',v_record_invitacion.codigo;
+            END IF;	
             
          ---verificamos que existan detalles en la invitacion
            SELECT

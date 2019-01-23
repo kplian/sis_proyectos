@@ -15,9 +15,10 @@ $body$
  COMENTARIOS:	
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
-#ISSUE				FECHA				AUTOR				DESCRIPCION
- #0				24-05-2018 19:13:39								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tfase_concepto_ingas'	
- #3					31/12/2018			EGS						Validacion para qu la suma de los items no sobrepase el importe_max(Stea)
+#ISSUE	Fork			FECHA				AUTOR				DESCRIPCION
+ #0				 24-05-2018 19:13:39								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tfase_concepto_ingas'	
+ #3					   31/12/2018			EGS						Validacion para qu la suma de los items no sobrepase el importe_max(Stea)
+ #5		EndeEtr		   18/01/2019			EGS						Se hace validacion para no  eliminar registros si tiene pagos
  ***************************************************************************/
 
 DECLARE
@@ -32,6 +33,7 @@ DECLARE
     v_record_fase			record;
     v_rec_proyecto			record;
     v_importe_total			numeric;
+    v_pagos                 integer;
 			    
 BEGIN
 
@@ -237,6 +239,18 @@ BEGIN
            IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
                 raise exception 'No puede Eliminar el Bien/Servicio la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
             END IF;
+            --#5
+            SELECT
+                count(facoinpa.id_fase_concepto_ingas_pago)
+            into
+            v_pagos
+            FROM pro.tfase_concepto_ingas_pago facoinpa
+            WHERE facoinpa.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas;
+            
+            IF(v_pagos <> 0 )THEN
+                raise exception 'No puede Eliminar el Bien/Servicio cuenta con % pago(s)',v_pagos;
+            END IF;
+            --#5
 			--Sentencia de la eliminacion
 			delete from pro.tfase_concepto_ingas
             where id_fase_concepto_ingas=v_parametros.id_fase_concepto_ingas;

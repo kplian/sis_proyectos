@@ -31,7 +31,6 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true
 		},
-
 		{
 			config:{
 					labelSeparator:'',
@@ -40,9 +39,9 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'Field',
 			form:true
-		},
-
-			{
+		}
+		,
+		{
 				config:{
 					labelSeparator:'',
 					inputType:'hidden',
@@ -283,7 +282,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 	                gwidth:200,
 	   				valueField: 'id_funcionario',
 	   			    gdisplayField: 'desc_funcionario',
-	   			    baseParams: { es_combo_solicitud : 'si' },
+	   			    //baseParams: { es_combo_solicitud : 'si' },
 	      			renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
 	       	     },
 	   			type:'ComboRec',//ComboRec
@@ -293,6 +292,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 	   		    grid:false,
 	   			form:true
 			 },
+
 			{
 	   			config:{
 	   				name:'id_depto',

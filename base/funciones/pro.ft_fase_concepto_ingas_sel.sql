@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				24-05-2018 19:13:39								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tfase_concepto_ingas'	
- #
+ #5 endeEtr         09/01/2019          EGS                     se aumento totalizadores en count total_precio y total_precio_real
  ***************************************************************************/
 
 DECLARE
@@ -46,7 +46,19 @@ BEGIN
      				
     	begin 	
     		--Sentencia de la consulta
-			v_consulta:='select
+			v_consulta:='
+                    with total_prorrateo(
+                        id_fase_concepto_ingas,
+                        total_prorrateo
+                    )as(
+                        SELECT
+                            facoinpa.id_fase_concepto_ingas,
+                            sum(facoinpa.importe)
+                        FROM pro.tfase_concepto_ingas_pago facoinpa
+                        GROUP by facoinpa.id_fase_concepto_ingas
+                    
+                    )                   
+                    select
 						facoing.id_fase_concepto_ingas,
 						facoing.id_fase,
 						facoing.id_concepto_ingas,
@@ -81,7 +93,8 @@ BEGIN
                         pro.estado as estado_proyecto,
                         facoing.id_funcionario,
                         fun.desc_funcionario1::VARCHAR as desc_funcionario,
-                        facoing.precio_real
+                        facoing.precio_real,
+                        total_prorrateo
 						from pro.tfase_concepto_ingas facoing
 						inner join segu.tusuario usu1 on usu1.id_usuario = facoing.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = facoing.id_usuario_mod
@@ -90,6 +103,8 @@ BEGIN
                         left join pro.tfase fase on fase.id_fase = facoing.id_fase
                         left join orga.vfuncionario fun on fun.id_funcionario = facoing.id_funcionario
                         left join pro.tproyecto pro on pro.id_proyecto = fase.id_proyecto
+                        left join total_prorrateo tpro on tpro.id_fase_concepto_ingas =  facoing.id_fase_concepto_ingas
+                        left join pro.tinvitacion_det invd on invd.id_fase_concepto_ingas= facoing.id_fase_concepto_ingas                    
 				        where  ';
 			--raise exception 'v_consulta %',v_consulta;
 			--Definicion de la respuesta
@@ -112,14 +127,17 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_fase_concepto_ingas)
+			v_consulta:='select count(facoing.id_fase_concepto_ingas),
+                        Sum(facoing.precio)::numeric as total_precio,-- #5
+                        Sum(facoing.precio_real)::numeric as total_precio_real-- #5
 					    from pro.tfase_concepto_ingas facoing
 					    inner join segu.tusuario usu1 on usu1.id_usuario = facoing.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = facoing.id_usuario_mod
 						inner join param.tconcepto_ingas cig
 						on cig.id_concepto_ingas = facoing.id_concepto_ingas
 						inner join param.tunidad_medida ume on ume.id_unidad_medida = facoing.id_unidad_medida
-                        left join pro.tfase fase on fase.id_fase = facoing.id_fase 
+                        left join pro.tfase fase on fase.id_fase = facoing.id_fase
+                        left join pro.tinvitacion_det invd on invd.id_fase_concepto_ingas= facoing.id_fase_concepto_ingas                     
 					    where ';
 			
 			--Definicion de la respuesta		    

@@ -132,19 +132,19 @@ class RLanzamientoItemXls
 		/*	$this->docexcel->getActiveSheet()->getStyle('D1:J1')->applyFromArray($styleTitulos3);				
 			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,1,'FACTURAS Y SUS COBROS');	
 				*/
-					$this->docexcel->getActiveSheet()->getStyle('C1:F1')->applyFromArray($styleTitulos3);				
+					$this->docexcel->getActiveSheet()->getStyle('C1:J1')->applyFromArray($styleTitulos3);				
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,1,'Lanzamiento Items');		
 									
 					//aplica estilo a una linea a una fila de celdas
-					$this->docexcel->getActiveSheet()->getStyle('A2:I2')->applyFromArray($styleTitulos4);
+					$this->docexcel->getActiveSheet()->getStyle('A2:K2')->applyFromArray($styleTitulos4);
 					
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,2,'PROYECTO');											
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,2,$datosProy[0]['codigo'].'-'.$datosProy[0]['nombre']);	
 					
-					$this->docexcel->getActiveSheet()->getStyle('A3:I3')->applyFromArray($styleTitulos4);
-					$this->docexcel->getActiveSheet()->getStyle('A4:I4')->applyFromArray($styleTitulos4);
+					$this->docexcel->getActiveSheet()->getStyle('A3:K3')->applyFromArray($styleTitulos4);
+					$this->docexcel->getActiveSheet()->getStyle('A4:K4')->applyFromArray($styleTitulos4);
 					
-					$this->docexcel->getActiveSheet()->getStyle('A6:I6')->applyFromArray($styleTitulos2);
+					$this->docexcel->getActiveSheet()->getStyle('A6:K6')->applyFromArray($styleTitulos2);
 					//$this->docexcel->getActiveSheet()->getStyle('A3:V3')->applyFromArray($styleTitulos2);
 					//SE COLOCA LAS DIMENSIONES QUE TENDRA LAS CELDAS
 					$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(15);
@@ -175,7 +175,7 @@ class RLanzamientoItemXls
 					//$this->docexcel->getActiveSheet()->getStyle('A3:G3')->getAlignment()->setWrapText(true);
 					
 					 //une celdas 
-					$this->docexcel->getActiveSheet()->mergeCells('C1:G1');
+					$this->docexcel->getActiveSheet()->mergeCells('C1:J1');
 					//$this->docexcel->getActiveSheet()->mergeCells('A2:B2');
 					//$this->docexcel->getActiveSheet()->mergeCells('A3:B3');
 					//$this->docexcel->getActiveSheet()->mergeCells('A4:B4');
@@ -211,6 +211,8 @@ class RLanzamientoItemXls
 					$this->docexcel->getActiveSheet()->setCellValue('G6','FECHA ESTIMADA');		
 					$this->docexcel->getActiveSheet()->setCellValue('H6','DIAS FALTANTES');								
 					$this->docexcel->getActiveSheet()->setCellValue('I6','PRECIO REFERENCIAL');
+					$this->docexcel->getActiveSheet()->setCellValue('J6','ESTADO');
+					$this->docexcel->getActiveSheet()->setCellValue('K6','DIAS LANZAMIENTO');
 					
 				
 				
@@ -382,6 +384,9 @@ class RLanzamientoItemXls
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $newDateUP);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['dias']);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['precio']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila, $value['estado_lanzado']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila, $value['dias_lanzado']);
+						
 						$this->numero++;
 						
 						if ($value['dias']>=0) {
@@ -405,6 +410,8 @@ class RLanzamientoItemXls
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $newDateUP);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['dias']);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['precio']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila, $value['estado_lanzado']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila, $value['dias_lanzado']);						
 						
 						if ($value['dias']>=0) {
 								
@@ -434,6 +441,10 @@ class RLanzamientoItemXls
 		   $this->docexcel->getActiveSheet()->getStyle('G'.(7).':G'.($fila-1).'')->applyFromArray($styleTitulos5);
 		  // $this->docexcel->getActiveSheet()->getStyle('H'.(7).':H'.($fila).'')->applyFromArray($styleTitulos5);
 		   $this->docexcel->getActiveSheet()->getStyle('I'.(7).':I'.($fila).'')->applyFromArray($styleTitulos5);
+		   $this->docexcel->getActiveSheet()->getStyle('H'.(7).':H'.($fila-1).'')->applyFromArray($styleTitulos5);
+		   $this->docexcel->getActiveSheet()->getStyle('J'.(7).':J'.($fila-1).'')->applyFromArray($styleTitulos5);
+		   $this->docexcel->getActiveSheet()->getStyle('K'.(7).':K'.($fila-1).'')->applyFromArray($styleTitulos5);
+		   
 		  
 			
 			

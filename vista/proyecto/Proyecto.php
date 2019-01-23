@@ -13,6 +13,8 @@ Phx.vista.ProyectoPr = {
 	require:'../../../sis_proyectos/vista/proyecto/ProyectoBase.php',
     requireclase:'Phx.vista.ProyectoBase',
     constructor: function(config) {
+    	//this.initButtons=[this.cmbEstado];//Un combo que da la opcion de recargar el estado que se elija
+
     	Phx.vista.ProyectoPr.superclass.constructor.call(this,config);
         this.maestro = config;
         this.init();
@@ -62,8 +64,34 @@ Phx.vista.ProyectoPr = {
        	    disabled: false, 
        	    handler: this.reportesProyectoN, 
        	    tooltip: 'Reportes del Proyecto'});*/
+       	   
+		this.cmbEstado.on('select',this.capturaFiltros,this);
+		this.cmbEstado.fireEvent('select');
      
     },
+    
+    capturaFiltros:function(combo, record, index){
+		this.store.baseParams.nombre_vista = this.nombreVista;
+		//this.tipo = this.cmbVersion.getValue();
+		this.store.baseParams.estado=this.cmbEstado.getValue();//busca en la grilla el campo solicitado
+	    this.load(); 
+	},
+	
+	cmbEstado:new Ext.form.ComboBox({
+		            grupo:[0],
+	       			name:'cmp_estado',
+	       			fieldLabel:'Estado',
+	       			allowBlank:true,
+	       			forceSelection:false,
+	       			emptyText:'Estado',
+	       			typeAhead: false,
+	       		    triggerAction: 'all',
+	       		    lazyRender:true,
+	       		    //value:'1',
+	       		    mode: 'local',
+	       		    width: 100,
+	       		    store:['nuevo','ejecucion','cierre','finalizado']
+	 }),
     
     
     iniciarEventos: function(){

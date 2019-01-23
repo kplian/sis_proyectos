@@ -5,7 +5,9 @@
 *@author  (eddy.gutierrez)
 *@date 14-12-2018 13:31:35
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+ 	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores de importe
+ */
 
 class MODFaseConceptoIngasPago extends MODbase{
 	
@@ -18,7 +20,8 @@ class MODFaseConceptoIngasPago extends MODbase{
 		$this->procedimiento='pro.ft_fase_concepto_ingas_pago_sel';
 		$this->transaccion='PRO_FACOINPA_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+		$this->capturaCount('total_importe','numeric'); //#5
+						
 		//Definicion de la lista del resultado del query
 		$this->captura('id_fase_concepto_ingas_pago','int4');
 		$this->captura('id_fase_concepto_ingas','int4');

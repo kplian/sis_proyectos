@@ -5,17 +5,23 @@
 *@author  (eddy.gutierrez)
 *@date 22-08-2018 22:32:20
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
+ 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+ 	#5	  endeETR		09/01/2019	EGS				Se agrego parametros por defecto
 */
 
 class ACTInvitacion extends ACTbase{    
 			
 	function listarInvitacion(){
 		$this->objParam->defecto('ordenacion','id_invitacion');
-
 		$this->objParam->defecto('dir_ordenacion','asc');
+		$this->objParam->defecto('cantidad',1000000);#5
+		$this->objParam->defecto('puntero', 0);#5
 		
 		if($this->objParam->getParametro('id_proyecto')!=''){
 			$this->objParam->addFiltro("ivt.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));	
+		}
+		if($this->objParam->getParametro('id_grupo')!=''){
+			$this->objParam->addFiltro("ivt.id_grupo = ".$this->objParam->getParametro('id_grupo'));	
 		}
 		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){

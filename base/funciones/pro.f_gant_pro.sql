@@ -573,7 +573,7 @@ BEGIN
                     fase.codigo as codigo_fase,
                     fascon.fecha_estimada as fecha_ini,
                     fascon.fecha_fin as fecha_fin,
-                    fase.fecha_ini_real,
+                    sol.fecha_reg::date as fecha_ini_real,
                     fase.fecha_fin_real,
                     fascon.descripcion,
                     coin.desc_ingas,
@@ -584,6 +584,9 @@ BEGIN
                	left JOIN pro.tfase_concepto_ingas fascon on fascon.id_fase=fase.id_fase
              	left join param.tconcepto_ingas coin	on coin.id_concepto_ingas = fascon.id_concepto_ingas
              	left JOIN pro.tfase fass on fass.id_fase=fase.id_fase_fk
+                left join pro.tinvitacion_det invd on invd.id_fase_concepto_ingas = fascon.id_fase_concepto_ingas
+                left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
+                left join adq.tsolicitud sol on sol.id_solicitud = inv.id_solicitud
                 WHERE fascon.id_fase_concepto_ingas = v_nodos.id_fase_concepto_ingas;
                 v_agrupador = false;
              END IF;
