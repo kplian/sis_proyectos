@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				22-08-2018 22:32:20								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tinvitacion'	
- #
+ #5                 09/01/2019          EGS                     Se corrigio consulta 
  ***************************************************************************/
 
 DECLARE
@@ -97,7 +97,7 @@ BEGIN
                         left join wf.testado_wf ew on ew.id_estado_wf = ivt.id_estado_wf
 						left join segu.tusuario usu1 on usu1.id_usuario = ivt.id_usuario_reg
                         left join orga.vfuncionario fun on fun.id_funcionario = ivt.id_funcionario
-                        left join param.tdepto dep on dep.id_depto = ew.id_depto 
+                        left join param.tdepto dep on dep.id_depto = ivt.id_depto --#5
 						left join segu.tusuario usu2 on usu2.id_usuario = ivt.id_usuario_mod
                         
                         left join anio an on an.id_invitacion = ivt.id_invitacion

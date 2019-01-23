@@ -18,13 +18,12 @@ Phx.vista.Invitacion = {
 	
 	constructor:function(config){
 		this.maestro=config; ///config.maestro quitar para poder recibir datos
-		
+		var codigo_invitacion ;
 		//llama al constructor de la clase padre
 		Phx.vista.Invitacion.superclass.constructor.call(this,config);
 		
 		///carga el valor por dedfecto como un array en el arreglo de atributos segun posicion
-		this.Atributos[1].valorInicial=this.maestro.id_proyecto;
-		
+		this.Atributos[1].valorInicial=this.maestro.id_proyecto;		
 		///
 		this.init();
 		this.load({params:{start:0, limit:this.tam_pag,id_proyecto:this.maestro.id_proyecto}});
@@ -61,7 +60,7 @@ Phx.vista.Invitacion = {
 	},
 		
 	      iniciarEventos: function () {
-           
+
            	//console.log('maestro invitacion',this.maestro.id_proyecto);
            	//this.Cmp.id_proyecto.valorInicial = this.maestro.id_proyecto;
      	 	this.Cmp.tipo.store.loadData(this.arrayStore['Bien'].concat(this.arrayStore['Servicio'])); 
@@ -100,11 +99,19 @@ Phx.vista.Invitacion = {
     		    }
     		    else{
     		    	this.mostrarComponente(this.Cmp.id_grupo);
-    		    	this.Cmp.id_grupo.allowBlank=false;
+    		    	this.Cmp.id_grupo.allowBlank=false; 		    	
 			    }
     		}, this);
-            
-            },
+    		
+    		this.Cmp.id_grupo.on('select', function(combo, record, index){
+    			this.Cmp.codigo.reset(true);
+    			this.Cmp.codigo.enable(true);
+				this.obtenerCodigoInvGrupo();
+				console.log('this.codigo_invitacion',this.codigo_invitacion);
+
+
+			}, this);           
+        },
        
           arrayStore :{
 			'Bien':[
@@ -401,6 +408,78 @@ Phx.vista.Invitacion = {
         height: '40%',
         cls: 'InvitacionDet'
     }],
+    obtenerCodigoInvGrupo: function(config){
+			//console.log('config id_proyecto',config.id_proyecto);
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_proyectos/control/Invitacion/listarInvitacion',
+                params:{
+                    id_grupo:  this.Cmp.id_grupo.getValue(),
+                },
+                success: function(resp){
+                	 Phx.CP.loadingHide();
+                     var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+               			console.log('reg',reg);
+               			this.codigo_invitacion = null;
+               			if (reg.datos.length != 0){
+               			this.codigo_invitacion = reg.datos[0]['codigo'];
+               			console.log('this.codigo_invitacion',this.codigo_invitacion);
+               		 	this.Cmp.codigo.setValue(this.codigo_invitacion);
+						this.Cmp.codigo.disable(true);
+               		 	}
+                },	
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
+ 
+        },
+        onButtonNew: function(){
+
+			Phx.vista.Invitacion.superclass.onButtonNew.call(this);
+			this.Cmp.codigo.enable(true);
+			this.Cmp.pre_solicitud.on('change', function(cmp, check){
+    		    
+    		    if(check.getRawValue() =='no'){
+    		  		this.ocultarComponente(this.Cmp.id_grupo);
+	  				this.Cmp.id_grupo.allowBlank=true;
+	  				this.Cmp.id_grupo.reset();
+					this.Cmp.codigo.enable(true);			
+					this.Cmp.codigo.reset();
+    		    }
+    		    else{
+    		    	this.mostrarComponente(this.Cmp.id_grupo);
+    		    	this.Cmp.id_grupo.allowBlank=false; 		    	
+			    	this.Cmp.codigo.disable(true);
+			    	this.Cmp.codigo.reset();	
+			    }
+    		}, this);
+		},
+		onButtonEdit: function(){
+			Phx.vista.Invitacion.superclass.onButtonEdit.call(this);
+			if (this.Cmp.pre_solicitud.getValue() == 'si' ) {
+			this.Cmp.codigo.disable(true);				
+			} else{
+			this.Cmp.codigo.enable(true);				
+			};
+			this.Cmp.pre_solicitud.on('change', function(cmp, check){
+    		    
+    		    if(check.getRawValue() =='no'){
+    		  		this.ocultarComponente(this.Cmp.id_grupo);
+	  				this.Cmp.id_grupo.allowBlank=true;
+	  				this.Cmp.id_grupo.reset();
+					this.Cmp.codigo.enable(true);			
+					this.Cmp.codigo.reset();
+    		    }
+    		    else{
+    		    	this.mostrarComponente(this.Cmp.id_grupo);
+    		    	this.Cmp.id_grupo.allowBlank=false; 		    	
+			    	this.Cmp.codigo.disable(true);
+			    		
+			    }
+    		}, this);
+			
+		},
 	
 }
 //})

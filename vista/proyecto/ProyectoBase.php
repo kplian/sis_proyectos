@@ -66,6 +66,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				type:'TextField',
 				filters:{pfiltro:'proy.codigo',type:'string'},
 				id_grupo:1,
+				bottom_filter:true,
 				grid:true,
 				form:true
 		},
@@ -81,6 +82,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				type:'TextField',
 				filters:{pfiltro:'proy.estado',type:'string'},
 				id_grupo:1,
+				bottom_filter:true,
 				grid:true,
 				form:false
 		},
@@ -96,6 +98,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				type:'TextField',
 				filters:{pfiltro:'proy.nombre',type:'string'},
 				id_grupo:1,
+				bottom_filter:true,
 				grid:true,
 				form:true
 		},
@@ -284,6 +287,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,
+				galign: 'right',
 				maxLength:1179650,
 				allowNegative:false,
 			
@@ -298,8 +302,9 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				}
 			},
 				type:'MoneyField',
-				filters:{pfiltro:'proy.importe',type:'numeric'},
+				filters:{pfiltro:'proy.importe_max',type:'numeric'},
 				id_grupo:1,
+				bottom_filter:true,
 				grid:true,
 				form:true
 		},

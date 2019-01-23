@@ -15,10 +15,10 @@ $body$
  COMENTARIOS:	
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+#ISSUE				FECHA				AUTOR				DESCRIPCION
+ #0				24-05-2018 19:13:39								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tfase_concepto_ingas'	
+ #5 endeEtr         09/01/2019          EGS                     se aumento el precio total de las sumas de los items en la fase 
+	
 ***************************************************************************/
 
 DECLARE
@@ -48,7 +48,9 @@ BEGIN
      				
     	begin
     		--Sentencia de la consulta
-			v_consulta:='select
+			v_consulta:='
+                 
+                    select
 						fase.id_fase,
 						fase.id_proyecto,
 						fase.id_fase_fk,
@@ -67,7 +69,7 @@ BEGIN
 						fase.id_usuario_mod,
 						fase.fecha_mod,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod
 						from pro.tfase fase
 						inner join segu.tusuario usu1 on usu1.id_usuario = fase.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = fase.id_usuario_mod
@@ -133,7 +135,20 @@ BEGIN
 			v_filtro = ' 0=0 ';
               
             --Consulta
+            --se hizo un with para la suma de los precios de los items por fase
             v_consulta:='
+              WITH item_fase(
+                                id_fase,
+                                precio_item
+                        )AS(
+                            SELECT
+                                fas.id_fase,
+                                sum(fasco.precio)
+                            From pro.tfase_concepto_ingas fasco
+                            left join pro.tfase fas on fas.id_fase = fasco.id_fase
+                            GROUP by
+                            fas.id_fase                      
+                        )
                         select					
             			null::integer as id_fase_concepto_ingas,
                         fase.id_fase,
@@ -163,11 +178,13 @@ BEGIN
 							else ''hijo''::varchar
 						end as tipo_nodo,
                         fase.fecha_ini_real,
-                        fase.fecha_fin_real
+                        fase.fecha_fin_real,
+                        infa.precio_item::numeric ---#5  	
 						from pro.tfase fase
 						inner join segu.tusuario usu1 on usu1.id_usuario = fase.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = fase.id_usuario_mod
-                        where  '||v_where|| ' and ' || v_parametros.filtro || ' and '||v_filtro;
+                        left join item_fase infa on infa.id_fase = fase.id_fase
+                       where  '||v_where|| ' and ' || v_parametros.filtro || ' and '||v_filtro;
                         
             raise notice '%',v_consulta;
            

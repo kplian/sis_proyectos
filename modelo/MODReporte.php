@@ -5,7 +5,10 @@
 *@author  (admin)
 *@date 25-10-2017 13:16:54
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+ 	#5	  endeETR		09/01/2019	EGS				se agrego campos estado_lanzado y  dias_lanzado
+ * 
+ */
 
 class MODReporte extends MODbase{
 
@@ -44,10 +47,12 @@ class MODReporte extends MODbase{
 
 		//Definicion de la lista del resultado del query
 		$this->captura('id','int4');
-		$this->captura('id_padre','int4');
+		$this->captura('nivel','integer');		
 		$this->captura('nombre_padre','varchar');
 		$this->captura('item','varchar');
 		$this->captura('precio_estimado','numeric');
+		$this->captura('precio_real','numeric');
+		$this->captura('total_prorrateado','numeric');
 		$this->captura('mes','integer');
 
 		//Definicion de la lista dinámica de columnas
@@ -68,7 +73,10 @@ class MODReporte extends MODbase{
 			$this->captura('noviembre_'.$col_arrays[$i]['anio'],'numeric');
 			$this->captura('diciembre_'.$col_arrays[$i]['anio'],'numeric');			
 		}	
-		$this->captura('anio','integer');		
+		$this->captura('anio','integer');
+		$this->captura('id_nivel_I','integer');
+		$this->captura('id_nivel_II','integer');
+		$this->captura('id_nivel_III','integer');		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -122,11 +130,10 @@ class MODReporte extends MODbase{
 		$this->captura('gestion_item','integer');
 		$this->captura('mes_item','integer');
 		$this->captura('desc_funcionario','varchar');
-		
-		
-		
-		
-		
+		$this->captura('estado_lanzado','varchar');//#5
+		$this->captura('dias_lanzado','integer');//#5
+
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

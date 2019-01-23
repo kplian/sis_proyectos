@@ -5,7 +5,9 @@
 *@author  (admin)
 *@date 25-10-2017 13:16:54
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+	ISSUE FORK		FECHA		AUTHOR			DESCRIPCION
+ 	#5		EndeEtr	09/01/2019	EGS				Se aumento el campo precio_item que es la suma de los items en la fase
+ */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 
@@ -46,8 +48,14 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 	                disabled: true,
 	                handler: this.loadCheckDocumentosWf,
 	                tooltip: '<b>Documentos del Trámite</b><br/>Permite ver los documentos asociados al NRO de trámite.'
-	            });   
+	            }); 
+	     this.DesplegarArbol();  
 	},
+	//despliega el arbol al abrir la ventana
+	  DesplegarArbol:function(){
+            	this.treePanel.expandAll();	
+       },
+
 	   loadCheckDocumentosWf:function() {
        //var rec=this.sm.getSelected();
        var selectedNode = this.sm.getSelectedNode();
@@ -179,7 +187,18 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 200,
-				maxLength:20
+				maxLength:20,
+				gtpl: function (p){//Es como el Renderer de grilla pero para arboles
+					//pinta  el codigo cuando existe un item registrado en la fase
+					if(this.precio_item != null){
+					return  String.format('<b><font size=2 style="color:#B2B4FD";>'+this.codigo+'</font><b>');
+						
+					}else{
+					return  this.codigo;
+						
+					}
+                          // return this.codigo;
+			   }	
 			},
 			type:'TextField',
 			filters:{pfiltro:'fase.codigo',type:'string'},
@@ -328,6 +347,29 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 			grid: true,
 			form: true
 		},
+		//#5 EGS
+		{
+			config:{
+				name: 'precio_item',
+				fieldLabel: 'Precio Total Bienes/Servicios',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 110,
+				decimalSeparator :',',
+				maxLength:1179650,
+				galign: 'right',
+				allowNegative:false,
+				gtpl: function (p){//Es como el Renderer de grilla pero para arboles
+                           return Ext.util.Format.number(this.precio_item,'0.000,00/i');
+			   }									
+
+			},
+				type:'NumberField',
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
+		//#5 EGS
         {
 			config:{
 				id: 'pr-av-'+this.idContenedor,
@@ -501,6 +543,8 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				
 		{name:'id_proceso_wf', type: 'numeric'},
 		{name:'id_estado_wf', type: 'numeric'},
+		{name:'precio_item', type: 'numeric'},//#5 EGS
+
 	],
 	sortInfo:{
 		field: 'id_fase',

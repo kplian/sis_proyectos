@@ -5,7 +5,10 @@
 *@author  (admin)
 *@date 24-05-2018 19:13:39
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+ 	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores de total_precio y total_precio_real
+ * 
+ */
 
 class MODFaseConceptoIngas extends MODbase{
 	
@@ -18,7 +21,10 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->procedimiento='pro.ft_fase_concepto_ingas_sel';
 		$this->transaccion='PRO_FACOING_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+		
+		$this->capturaCount('total_precio','numeric');//#5 EGS
+		$this->capturaCount('total_precio_real','numeric');//#5 EGS
+		
 		//Definicion de la lista del resultado del query
 		$this->captura('id_fase_concepto_ingas','int4');
 		$this->captura('id_fase','int4');
@@ -62,6 +68,7 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->captura('id_funcionario','int4');
 		$this->captura('desc_funcionario','varchar');		
 		$this->captura('precio_real','numeric');
+		$this->captura('total_prorrateo','numeric');//#5
 		
 		
 		

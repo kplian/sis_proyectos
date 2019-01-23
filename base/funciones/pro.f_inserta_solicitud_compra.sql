@@ -16,7 +16,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
-#
+   #5              21/01/2019          EGS                 Se hace update de del campo de Fecha real
  ***************************************************************************/
  */
  
@@ -67,7 +67,8 @@ BEGIN
             inv.lugar_entrega,
             inv.descripcion,
             inv.dias_plazo_entrega,
-            inv.id_categoria_compra
+            inv.id_categoria_compra,
+            inv.nro_tramite
         INTO
         v_record_invitacion 
         FROM pro.tinvitacion inv
@@ -179,7 +180,7 @@ BEGIN
                                 ''::varchar,--'nro_po'
                                 ''::varchar,--'fecha_po'
                                 'no'::varchar,--'comprometer_87'
-                                ''::varchar--'observacion'
+                                'nro. Tramite:'||v_record_invitacion.nro_tramite::varchar--'observacion'
                                 ],
                             ARRAY[
                            		'varchar',
@@ -232,7 +233,8 @@ BEGIN
                  invd.cantidad_sol,
 				 invd.id_concepto_ingas,
                  invd.id_centro_costo,
-                 invd.descripcion
+                 invd.descripcion,
+                 invd.id_fase_concepto_ingas
                 FROM pro.tinvitacion_det invd
                 WHERE invd.id_invitacion = p_id_invitacion )LOOP
         
@@ -291,12 +293,18 @@ BEGIN
               v_id_solicitud_det	=  split_part(v_id_solicitud_det, '{', 2);
               v_id_solicitud_det	=  split_part(v_id_solicitud_det, '}', 1);
               v_resp	= 'exito';
+              
+              --actualizamos la fecha real de faseconceptoingas
+            
+              
+              
 			END LOOP;
 			
             --Actualizando invitacion cuando se genera una solicitud
-            
+           
             UPDATE pro.tinvitacion
-            set id_solicitud = v_id_solicitud::INTEGER
+            set id_solicitud = v_id_solicitud::INTEGER,
+                fecha_real = v_fecha    --#5
             where id_invitacion = p_id_invitacion;           
             	
 	RETURN   v_resp;

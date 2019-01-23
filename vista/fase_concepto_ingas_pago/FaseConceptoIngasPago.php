@@ -5,6 +5,8 @@
 *@author  (eddy.gutierrez)
 *@date 14-12-2018 13:31:35
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+ 	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores dE IMPORTE
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -15,7 +17,7 @@ Phx.vista.FaseConceptoIngasPago=Ext.extend(Phx.gridInterfaz,{
 	constructor:function(config){
 		this.maestro=config.maestro;
 	    var	estado_proyecto;
-		
+		var precio_maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.FaseConceptoIngasPago.superclass.constructor.call(this,config);
 		this.init();
@@ -69,15 +71,24 @@ Phx.vista.FaseConceptoIngasPago=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,
+				galign: 'right ',
 				maxLength:1179650,
 				allowNegative:false,				
 				renderer:function (value,p,record){
-						if(record.data.tipo_reg != 'summary'){
+					console.log('record',record)
+						if(record.json.tipo_reg != 'summary'){//#5
 							return  String.format('{0}',  Ext.util.Format.number(value,'000.000.000,00/i'));
 						}
 						else{
-							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+							///si es igual el precio del item al plan de pagos se vuelve blanco si no en rojo
+							if (value != record.json.precio_item) {
+								Ext.util.Format.usMoney
+								return  String.format('<b><font size=3 style="color:#FF1700";>{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+							} else{
+								Ext.util.Format.usMoney
+								return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+							};
+
 						}	
 				}	
 			},
@@ -245,7 +256,8 @@ Phx.vista.FaseConceptoIngasPago=Ext.extend(Phx.gridInterfaz,{
 	onReloadPage: function (m) {
 		//alert ('asda');
             this.maestro = m;
-            console.log('maestro',this.maestro);
+            console.log('maestro',this.maestro.precio);
+            this.precio_maestro = this.maestro.precio;
             //this.Atributos[1].valorInicial = this.maestro.id_fase_concepto_ingas;
 			this.Atributos[this.getIndAtributo('id_fase_concepto_ingas')].valorInicial = this.maestro.id_fase_concepto_ingas;
 			this.estado_proyecto = this.maestro.estado_proyecto;
@@ -268,11 +280,24 @@ Phx.vista.FaseConceptoIngasPago=Ext.extend(Phx.gridInterfaz,{
          if (tb && this.bdel && (this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado' )) {
             tb.items.get('b-del-' + this.idContenedor).disable();
             }
+ 
 		return tb;
 	},
+	 //al eliminar un elemento actualiza el padre
+	onButtonDel:function(){
+			Phx.vista.FaseConceptoIngasPago.superclass.onButtonDel.call(this);
+			 Phx.CP.loadingHide();
+            Phx.CP.getPagina(this.idContenedorPadre).reload();
 	
-	}
-)
+	},
+	 //al crear o editar un elemento actualiza el padre
+	successSave:function(resp)
+        {	console.log('resp',resp);
+            Phx.CP.loadingHide();
+            Phx.CP.getPagina(this.idContenedorPadre).reload();
+            this.window.hide();///cierra el panel del formulario
+        },	
+})
 </script>
 		
 		

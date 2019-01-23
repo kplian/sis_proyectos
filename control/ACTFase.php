@@ -5,7 +5,9 @@
 *@author  (admin)
 *@date 25-10-2017 13:16:54
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
-*/
+	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+
+ */
 class ACTFase extends ACTbase{
 
 	function listarFase(){
@@ -82,8 +84,7 @@ class ACTFase extends ACTbase{
 
 		$arreglo=array();
 		
-		
-		
+			
         array_push($arreglo,array('nombre'=>'id','valor'=>'id_fase'));
         array_push($arreglo,array('nombre'=>'id_p','valor'=>'id_fase_fk'));
 

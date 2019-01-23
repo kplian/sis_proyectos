@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				14-12-2018 13:31:35								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tfase_concepto_ingas_pago'	
- #
+ #5  endeEtr        09/01/2019          EGS                     Se agrego un total_importe en el count 
  ***************************************************************************/
 
 DECLARE
@@ -83,7 +83,8 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_fase_concepto_ingas_pago)
+			v_consulta:='select count(id_fase_concepto_ingas_pago),
+                            sum(facoinpa.importe) as total_importe   --#5 
 					    from pro.tfase_concepto_ingas_pago facoinpa
 					    inner join segu.tusuario usu1 on usu1.id_usuario = facoinpa.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = facoinpa.id_usuario_mod

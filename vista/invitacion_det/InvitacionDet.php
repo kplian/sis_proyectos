@@ -295,11 +295,11 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 					maxLength:1179650,
 					renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						
 					}
@@ -318,18 +318,18 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 					fieldLabel: 'Precio Unitario',
 					allowBlank: true,
 					anchor: '80%',
-					gwidth: 80,
+					gwidth: 150,
 					galign: 'right ',
 					maxLength:1179650,
 					renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
 							
 							//return value;
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						
 					}
@@ -349,16 +349,16 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 					fieldLabel: 'Cantidad Estimada',
 					allowBlank: true,
 					anchor: '80%',
-					gwidth: 80,
+					gwidth: 100,
 					galign: 'right ',
 					maxLength:1179650,
 					renderer:function (value,p,record){
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						
 					}
@@ -373,11 +373,11 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 			},
 			{
 				config:{
-					name: 'precio_est',
-					fieldLabel: 'Precio Total',
+					name: 'precio_t',
+					fieldLabel:'Precio Total',
 					allowBlank: true,
 					anchor: '80%',
-					gwidth: 80,
+					gwidth: 150,
 					galign: 'right ',
 					maxLength:1179650,
 					renderer:function (value,p,record){
@@ -387,41 +387,41 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 						var tol=total.toLocaleString();
 						var to = tol.toString();
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format(to,Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format(to,Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
 							
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						
 					}
 				},
 					type:'MoneyField',
-					filters:{pfiltro:'precio_est',type:'numeric'},
+					filters:{pfiltro:'precio_t',type:'numeric'},
 					id_grupo:0,
 					bottom_filter:false,
 					//egrid:true,
 					grid:true,
-					form:false
+					form:true
 			},
 			{
 				config:{
-					name: 'precio_est',
-					fieldLabel: 'Precio Total Estimado',
+					name:'precio_est',
+					fieldLabel:'Precio Total Estimado',
 					allowBlank: true,
 					anchor: '80%',
-					gwidth: 80,
+					gwidth: 200,
 					galign: 'right ',
 					maxLength:1179650,
 					renderer:function (value,p,record){
 						console.log('record',record);
 						if(record.data.tipo_reg != 'summary'){
-							return  String.format('{0}',  Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('{0}',  Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						else{
 							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00/i'));
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0.000,00/i'));
 						}
 						
 					}
@@ -432,7 +432,7 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 					bottom_filter:false,
 					//egrid:true,
 					grid:true,
-					form:false
+					form:true
 			},
 		{
 			config:{
@@ -660,11 +660,8 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 		'codigo',
 		'desc_fase',
 		'cantidad_est',
-		'precio_est'
-		
-		
-		
-											
+		{name:'precio_est', type: 'numeric'},
+									
 	],
 	sortInfo:{
 		field: 'id_invitacion_det',
@@ -680,6 +677,10 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
         this.estado_invitacion = this.maestro.estado; 
         this.Atributos[this.getIndAtributo('id_invitacion')].valorInicial = this.maestro.id_invitacion;
         //Filtro para los datos
+		
+	     this.setColumnHeader('precio',this.cmpPrecio.fieldLabel +' '+ this.maestro.desc_moneda)
+	     this.setColumnHeader('precio_t',this.cmpPrecioT.fieldLabel +' '+ this.maestro.desc_moneda)
+	     this.setColumnHeader('precio_est',this.cmpPrecioEst.fieldLabel +' '+ this.maestro.desc_moneda)
 
         this.store.baseParams = {
             id_invitacion: this.maestro.id_invitacion
@@ -765,7 +766,10 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 	},
     	
     	iniciarEventos: function(){		
-    		
+    		this.cmpPrecio = this.getComponente('precio');
+    		this.cmpPrecioT = this.getComponente('precio_t');
+    		this.cmpPrecioEst = this.getComponente('precio_est');
+			console.log('this.cmpPrecioT',this.cmpPrecioT)
 			 this.Cmp.invitacion_det__tipo.on('select',function(combo,record,index){
 		
 						if(record.data.ID == 'planif' ){
@@ -890,7 +894,6 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
             }
 		return tb;
 	},
-	
 	   
     
 })
