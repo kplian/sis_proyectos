@@ -7,6 +7,7 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	  #5  endeEtr		23/012019   EGS				se actualizo el basparams de id_centro_costo cuando no es planificado
+ 	  #6  endeEtr		24/01/2019	EGS				El campo concepto_ingas filtra por tipo segun tipo del maestro
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -856,6 +857,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 								 this.Cmp.id_fase.store.baseParams={id_proyecto:this.maestro.data.id_proyecto};
 								 this.Cmp.id_centro_costo.store.baseParams.id_gestion=this.maestro.data.id_gestion; //#5
 								 this.Cmp.id_centro_costo.store.baseParams.id_tipo_cc = this.maestro.data.id_tipo_cc ;//#5
+								 this.Cmp.id_concepto_ingas.store.baseParams.tipo= this.maestro.data.tipo;
 	
 						} 
 						

@@ -1,5 +1,9 @@
 <?php
- 
+
+/*
+ *  ISSUE			FECHA:			AUTOR:					DESCRIPCION:
+ 	#6             24/01/2019       EGS                     se agrego style y se aplico a una columna
+ */
 class RPlanPagoProyectoXls
 {
 	private $docexcel;
@@ -461,7 +465,32 @@ class RPlanPagoProyectoXls
 				)
 			)
 		);
-		
+		//blanco Centro  #6 
+		$styleTitulos11 = array(
+			'font'  => array(
+				'bold'  => false,
+				'size'  => 9,
+				'name'  => 'Arial',
+				'color' => array(
+					'rgb' => '000000'
+				)
+			),
+			'alignment' => array(
+				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER
+			),
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array(
+					'rgb' => 'FFFFFF'
+				)
+			),
+			'borders' => array(
+				'allborders' => array(
+					'style' => PHPExcel_Style_Border::BORDER_THIN
+				)
+			)
+		);
 		$this->numero = 1;
 		$fila = 6;
 		//var_dump($this->objParam->getParametro('datos'));
@@ -474,6 +503,8 @@ class RPlanPagoProyectoXls
 		$numeroColumna = 0;
 		$total=0;
 		foreach ($datos as $value){
+						$this->docexcel->getActiveSheet()->getStyle('A'.($fila).':A'.($fila).'')->applyFromArray($styleTitulos11);//#6 
+			
 						if ($value['nivel']== '3') {
 
 							
