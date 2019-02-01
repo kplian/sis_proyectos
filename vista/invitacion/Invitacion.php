@@ -5,7 +5,9 @@
 *@author  (eddy.gutierrez)
 *@date 22-08-2018 22:32:20
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+	ISSUE			FECHA		AUTHOR			DESCRIPCION
+    #6	eendeEtr	24/01/2019	 EGS		    se quito que el codigo haga reset al editar
+ */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -469,7 +471,6 @@ Phx.vista.Invitacion = {
 	  				this.Cmp.id_grupo.allowBlank=true;
 	  				this.Cmp.id_grupo.reset();
 					this.Cmp.codigo.enable(true);			
-					this.Cmp.codigo.reset();
     		    }
     		    else{
     		    	this.mostrarComponente(this.Cmp.id_grupo);

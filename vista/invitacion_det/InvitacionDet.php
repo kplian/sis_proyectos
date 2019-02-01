@@ -5,7 +5,9 @@
 *@author  (eddy.gutierrez)
 *@date 22-08-2018 22:32:59
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+		ISSUE		FECHA		AUTHOR			DESCRIPCION
+		 #6	EndeEtr 24/01/2019	 EGS		    Se hace validacion paa que la invitacion tenga fecha al querer añadir un detalle
+ * */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -740,8 +742,13 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
                				alert ('El proyecto se encuentra en estado de ' + this.estado_proyecto);
                			}
                			else{
+               				//#6
+               				if (this.maestro.id_gestion == null) {
+						    		alert('Ingrese una Fecha en la Invitacion Por Favor ');
+						    	}
+    						else{
                				this.abrirFormulario('news');  
-	
+							}
                			}
 	
 	},

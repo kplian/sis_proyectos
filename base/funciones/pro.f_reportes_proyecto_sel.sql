@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
  ISSUE			FECHA:			AUTOR:					DESCRIPCION:
  #5             09/01/2019      EGS                     Se agrego campo para cuantos dias pasaron desde el lanzamiento del item y si esta lanzado o no
- 
+ #6   Endeetr   24/01/2019      EGS                     Se modifico transaccion para que tome encuenta items sin un prorrateo en plan de pagos y validaciones para que funcione sin el nivel III y Nivel II
 ***************************************************************************/
 
 DECLARE
@@ -52,6 +52,7 @@ DECLARE
 	v_record_fase_padre		record;
     v_id_item_padre			integer;
     v_id_padre				integer;
+    v_id_padre_II			integer;
     v_prorrateo             record;
 BEGIN
 
@@ -74,14 +75,14 @@ BEGIN
              --p_id_proyecto = 74;
             
              Select 
-                count(facoinpa.id_fase_concepto_ingas_pago)
+                count(facoin.id_fase_concepto_ingas)--#6 
             INTO
             	v_count
             From pro.tfase_concepto_ingas facoin
             LEFT JOIN pro.tfase_concepto_ingas_pago facoinpa on facoinpa.id_fase_concepto_ingas = facoin.id_fase_concepto_ingas
             left join param.tconcepto_ingas coingas on coingas.id_concepto_ingas = facoin.id_concepto_ingas
-            left join pro.tfase fase on fase.id_fase = facoin.id_fase
-            Where facoinpa.id_fase_concepto_ingas_pago is not null  and fase.id_proyecto = p_id_proyecto ;
+            left join pro.tfase fase on fase.id_fase = facoin.id_fase--#6 
+            Where  fase.id_proyecto = p_id_proyecto ;
             
             IF v_count is null or v_count = 0 THEN
             	RAISE EXCEPTION'No existe datos en plan de pago del proyecto';
@@ -190,87 +191,94 @@ BEGIN
                 	v_columna = 'diciembre_'||v_plan_pago.anio;             
                 END IF;
 
+              ---se inserta al padre del grupo por nivel como item separador y agrupador  
+              IF v_plan_pago.id_padre_III is not null THEN --#6 
+             --verificamos si existe el nivel III 
+                    Select
+                          pla.id_nivel_III
+                    into
+                    v_id_padre 
+                    From plan_pago pla
+                    where pla.id_nivel_III = v_plan_pago.id_padre_III ;
+                    --insertamos un nivel III si no existe
+                     IF  v_id_padre is null then
+                         Select
+                              fase.id_fase,
+                              fase.codigo,
+                              fase.nombre,
+                              fase.id_fase_fk
+                          into
+                          v_record_fase_padre
+                          from pro.tfase fase
+                          where  fase.id_fase = v_plan_pago.id_padre_III ;
+                          v_consulta_into=' insert into plan_pago(
+                                                   id_nivel_III,
+                                                   nivel,
+                                                   nombre_padre,
+                                                   item
+                                                          )VALUES(
+                                                   '||v_record_fase_padre.id_fase||',
+                                                   '||3||',
+                                                   '''||v_record_fase_padre.codigo||''',
+                                                   '''||v_record_fase_padre.nombre||'''
+                                                          )'; 
+                         execute(v_consulta_into);
+                      
+                    END IF;
+               END IF;
+              
+              IF v_plan_pago.id_padre_II is not null THEN --#6
+              --verificamos si existe ya insertado el nivel II insertado en la tabla 
+
+                  Select
+                        pla.id_nivel_II
+                  into
+                  v_id_padre_II 
+                  From plan_pago pla
+                  where pla.id_nivel_II = v_plan_pago.id_padre_II;
+
+                  --insertamos un nivel II si no existe
+                IF  v_id_padre_II is null then                   
+               
+                    --datos de un nivel II
+                      Select
+                          fase.id_fase,
+                          fase.codigo,
+                          fase.nombre,
+                          fase.id_fase_fk
+                      into
+                      v_record_fase
+                      from pro.tfase fase
+                      where  fase.id_fase = v_plan_pago.id_padre_II ;
+                      ---se inserta el de los nivel 2  
+                      v_consulta_into=' insert into plan_pago(
+                                               id_nivel_II,
+                                               id_nivel_III,
+                                               nivel,
+                                               nombre_padre,
+                                                item
+                                                      )VALUES(
+                                               '||v_record_fase.id_fase||',
+                                               '||COALESCE(v_record_fase.id_fase_fk,0)||',--#6
+                                               '||2||',
+                                               '''||v_record_fase.codigo||''',
+                                               '''||v_record_fase.nombre||'''
+                                                      )'; 
+                      execute(v_consulta_into);
+
+                  END IF ;
+               END IF ;
+                
+              --verificamos si existe el item en l tabla
               SELECT
               	id_fase_concepto_ingas
               into
                 v_id_fase_concepto_ingas
               FROM plan_pago
               where id_fase_concepto_ingas = v_plan_pago.id_fase_concepto_ingas;
-              
-              ---se inserta al padre del grupo por nivel como item separador y agrupador  
-             
-             --verificamos si existe el nivel III 
-              Select
-              	 	pla.id_nivel_III
-              into
-              v_id_padre 
-              From plan_pago pla
-              where pla.id_nivel_III = v_plan_pago.id_padre_III;
-              --insertamos un nivel III si no existe
-               IF  v_id_padre is null then
-                   Select
-                        fase.id_fase,
-                        fase.codigo,
-                        fase.nombre,
-                        fase.id_fase_fk
-                    into
-                    v_record_fase_padre
-                    from pro.tfase fase
-                    where  fase.id_fase = v_plan_pago.id_padre_III;
-                    v_consulta_into=' insert into plan_pago(
-                                             id_nivel_III,
-                                             nivel,
-                                             nombre_padre,
-                                             item
-                                                    )VALUES(
-                                             '||v_record_fase_padre.id_fase||',
-                                             '||3||',
-                                             '''||v_record_fase_padre.codigo||''',
-                                             '''||v_record_fase_padre.nombre||'''
-                                                    )'; 
-                   execute(v_consulta_into);
-                
-              END IF;            
-              --verificamos si existe ya insertado el nivel II insertado en la tabla 
-              Select
-              	 	pla.id_nivel_II
-              into
-              v_id_padre 
-              From plan_pago pla
-              where pla.id_nivel_II = v_plan_pago.id_padre_II;
-              --insertamos un nivel II si no existe
-              IF  v_id_padre is null then                   
-           
-              --datos de un nivel II
-              	Select
-                	fase.id_fase,
-                	fase.codigo,
-                    fase.nombre,
-                    fase.id_fase_fk
-                into
-                v_record_fase
-                from pro.tfase fase
-                where  fase.id_fase = v_plan_pago.id_padre_II;
-                ---se inserta el de los nivel 2  
-              	v_consulta_into=' insert into plan_pago(
-                                         id_nivel_II,
-                                         id_nivel_III,
-                                         nivel,
-                                         nombre_padre,
-                                          item
-                                                )VALUES(
-                                         '||v_record_fase.id_fase||',
-                                         '||v_record_fase.id_fase_fk||',
-                                         '||2||',
-                                         '''||v_record_fase.codigo||''',
-                                         '''||v_record_fase.nombre||'''
-
-                                                )'; 
-               execute(v_consulta_into);
-              
-              END IF ;                              
+          
               IF v_id_fase_concepto_ingas is null THEN 
-                
+                --si tiene plan de pagos
                 IF v_plan_pago.id_fase_concepto_ingas_pago is not null THEN 
              	 v_consulta_into=' insert into plan_pago(
                                          id_nivel_I,
@@ -289,10 +297,10 @@ BEGIN
                                          total_prorrateo 
                                                 )VALUES(
                                          '||v_plan_pago.id_padre_I||',
-                                         '||v_plan_pago.id_padre_II||',
-                                         '||v_plan_pago.id_padre_III||',
+                                         '||COALESCE(v_plan_pago.id_padre_II,0)||',--#6
+                                         '||COALESCE(v_plan_pago.id_padre_III,0)||',--#6
                                          '||1||',
-                                    	 '''||v_plan_pago.nombre_padre_II||''',
+                                    	 '''||COALESCE(v_plan_pago.nombre_padre_II,' ')||''',--#6
                                          '||v_plan_pago.id_fase_concepto_ingas||',
                                          '||v_plan_pago.id_fase_concepto_ingas_pago||',
                                          '''||v_plan_pago.codigo_padre_I||'-'||v_plan_pago.desc_ingas||''',
@@ -304,7 +312,7 @@ BEGIN
                                          '||COALESCE(v_plan_pago.importe,0)||'
                                                 )'; 
                      execute(v_consulta_into);
-                  ELSE
+                    ELSE
                       ---se inserta los items que no tengan plan de pagos
                         	v_consulta_into=' insert into plan_pago(
                                          id_nivel_I,
@@ -319,10 +327,10 @@ BEGIN
                                          total_prorrateo
                                                 )VALUES(
                                          '||v_plan_pago.id_padre_I||',
-                                         '||v_plan_pago.id_padre_II||',
-                                         '||v_plan_pago.id_padre_III||',
+                                         '||COALESCE(v_plan_pago.id_padre_II,0)||',
+                                         '||COALESCE(v_plan_pago.id_padre_III,0)||',
                                          '||1||',
-                                         '''||v_plan_pago.nombre_padre_II||''',
+                                         '''||COALESCE(v_plan_pago.nombre_padre_II,' ')||''',
                                          '||v_plan_pago.id_fase_concepto_ingas||',
                                          '''||v_plan_pago.codigo_padre_I||'-'||v_plan_pago.desc_ingas||''',
                                          '||COALESCE(v_plan_pago.precio_estimado,0)||',
@@ -330,7 +338,7 @@ BEGIN
                                          '||COALESCE(v_plan_pago.importe,0)||'
                                                 )'; 
                             execute(v_consulta_into);
-                    END IF;
+                   END IF;
               
               ELSE
 
@@ -346,7 +354,7 @@ BEGIN
             END LOOP;          
             
             --los totales prorrateos de los niveles II y III
-            
+           
             FOR v_prorrateo in ( 
                 SELECT
                     nivel, 
