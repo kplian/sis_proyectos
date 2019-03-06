@@ -18,6 +18,7 @@ $body$
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				24-05-2018 19:13:39								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tfase_concepto_ingas'	
  #5 endeEtr         09/01/2019          EGS                     se aumento totalizadores en count total_precio y total_precio_real
+ #7	  endeETR		29/01/2019	        EGS				        Se agrego los campos de id_invitacion_det ,id_solicitud_det y codigo_inv
  ***************************************************************************/
 
 DECLARE
@@ -94,7 +95,10 @@ BEGIN
                         facoing.id_funcionario,
                         fun.desc_funcionario1::VARCHAR as desc_funcionario,
                         facoing.precio_real,
-                        total_prorrateo
+                        total_prorrateo,
+                        invd.id_invitacion_det, --#7
+                        invd.id_solicitud_det,  --#7                      
+                        inv.codigo as codigo_inv --#7
 						from pro.tfase_concepto_ingas facoing
 						inner join segu.tusuario usu1 on usu1.id_usuario = facoing.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = facoing.id_usuario_mod
@@ -104,7 +108,8 @@ BEGIN
                         left join orga.vfuncionario fun on fun.id_funcionario = facoing.id_funcionario
                         left join pro.tproyecto pro on pro.id_proyecto = fase.id_proyecto
                         left join total_prorrateo tpro on tpro.id_fase_concepto_ingas =  facoing.id_fase_concepto_ingas
-                        left join pro.tinvitacion_det invd on invd.id_fase_concepto_ingas= facoing.id_fase_concepto_ingas                    
+                        left join pro.tinvitacion_det invd on invd.id_fase_concepto_ingas= facoing.id_fase_concepto_ingas
+                        left join pro.tinvitacion inv on inv.id_invitacion= invd.id_invitacion                    
 				        where  ';
 			--raise exception 'v_consulta %',v_consulta;
 			--Definicion de la respuesta
@@ -137,7 +142,8 @@ BEGIN
 						on cig.id_concepto_ingas = facoing.id_concepto_ingas
 						inner join param.tunidad_medida ume on ume.id_unidad_medida = facoing.id_unidad_medida
                         left join pro.tfase fase on fase.id_fase = facoing.id_fase
-                        left join pro.tinvitacion_det invd on invd.id_fase_concepto_ingas= facoing.id_fase_concepto_ingas                     
+                        left join pro.tinvitacion_det invd on invd.id_fase_concepto_ingas= facoing.id_fase_concepto_ingas
+                        left join pro.tinvitacion inv on inv.id_invitacion= invd.id_invitacion                      
 					    where ';
 			
 			--Definicion de la respuesta		    

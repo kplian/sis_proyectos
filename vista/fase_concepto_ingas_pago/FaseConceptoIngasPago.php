@@ -7,6 +7,7 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores dE IMPORTE
+ *  #7	  endeETR		20/02/2019	EGS				se modifico funcion sucesave 
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -291,11 +292,23 @@ Phx.vista.FaseConceptoIngasPago=Ext.extend(Phx.gridInterfaz,{
 	
 	},
 	 //al crear o editar un elemento actualiza el padre
-	successSave:function(resp)
+	successSave:function(resp)//#7
         {	console.log('resp',resp);
             Phx.CP.loadingHide();
             Phx.CP.getPagina(this.idContenedorPadre).reload();
-            this.window.hide();///cierra el panel del formulario
+            //this.window.hide();///cierra el panel del formulario
+        if(resp.argument && resp.argument.news){
+			if(resp.argument.def == 'reset'){
+			  //this.form.getForm().reset();
+			  this.onButtonNew();
+			}			
+		}
+		else{
+			this.window.hide();
+		}
+
+		this.reload();    
+            
         },	
 })
 </script>

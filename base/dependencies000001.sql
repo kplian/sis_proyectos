@@ -1921,18 +1921,33 @@ WITH tproyecto_tcc AS(
 /***********************************F-DEP-RCM-PRO-1-19/12/2018****************************************/
 /***********************************I-DEP-EGS-PRO-5-21/12/2018****************************************/
 CREATE TRIGGER tr_tinvitacion_delete_presolicitud
-  AFTER UPDATE OF estado_reg 
-  ON adq.tpresolicitud
-  
-FOR EACH ROW 
-  EXECUTE PROCEDURE pro.tr_tinvitacion_delete_presolicitud();
+  AFTER UPDATE OF estado_reg, id_presolicitud, id_grupo 
+  ON adq.tpresolicitud FOR EACH ROW 
+  EXECUTE PROCEDURE pro.tr_tinvitacion_delete_presolicitud(); 
   
 CREATE TRIGGER tr_tinvitacion_delete_solicitud
-  AFTER UPDATE OF id_estado_wf 
-  ON adq.tsolicitud
-  
-FOR EACH ROW 
-  EXECUTE PROCEDURE pro.tr_tinvitacion_delete_solicitud();  
+  AFTER UPDATE OF id_estado_wf, lugar_entrega, justificacion, dias_plazo_entrega 
+  ON adq.tsolicitud FOR EACH ROW 
+  EXECUTE PROCEDURE pro.tr_tinvitacion_delete_solicitud();
   
 /***********************************F-DEP-EGS-PRO-5-21/12/2018****************************************/
+
+/***********************************I-DEP-EGS-PRO-6-08/02/2019****************************************/
+
+CREATE TRIGGER tr_ime_predet
+  BEFORE INSERT OR UPDATE OF id_concepto_ingas, id_centro_costo, cantidad, precio OR DELETE 
+  ON adq.tpresolicitud_det FOR EACH ROW 
+  EXECUTE PROCEDURE pro.f_tr_ime_predet();
+
+CREATE TRIGGER tr_ime_soldet
+  AFTER INSERT OR UPDATE OF estado_reg, id_centro_costo, id_concepto_ingas, precio_unitario, cantidad 
+  ON adq.tsolicitud_det FOR EACH ROW 
+  EXECUTE PROCEDURE pro.f_tr_ime_soldet();
+
+CREATE TRIGGER tr_update_invdet_presoldet
+  AFTER UPDATE OF id_solicitud_det 
+  ON adq.tpresolicitud_det FOR EACH ROW 
+  EXECUTE PROCEDURE pro.f_tr_update_invdet_presoldet();
+  
+/***********************************F-DEP-EGS-PRO-6-08/02/2019****************************************/
 

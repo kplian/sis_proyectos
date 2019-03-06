@@ -751,3 +751,20 @@ ALTER TABLE pro.tproyecto
 COMMENT ON COLUMN pro.tproyecto.importe_max
 IS 'Importe máximo aprobado por la AE para la ejecución del Proyecto';
 /***********************************F-SCP-RCM-PRO-3-27/12/2018****************************************/
+/***********************************I-SCP-EGS-PRO-4-28/01/2019****************************************/
+
+ALTER TABLE pro.tinvitacion_det
+  ADD COLUMN id_solicitud_det INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion_det.id_solicitud_det
+IS 'relaciona el detalle con un detalle de solicitud de compra';
+
+/***********************************F-SCP-EGS-PRO-4-28/01/2019****************************************/
+/***********************************I-SCP-EGS-PRO-5-05/02/2019****************************************/
+
+ALTER TABLE pro.tinvitacion_det
+  ADD COLUMN id_presolicitud_det INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion_det.id_presolicitud_det
+IS 'relaciona el detalle de una presolicitud a la invitacion';
+/***********************************F-SCP-EGS-PRO-5-05/02/2019****************************************/

@@ -19,6 +19,7 @@ $body$
  #0				 24-05-2018 19:13:39								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tfase_concepto_ingas'	
  #3					   31/12/2018			EGS						Validacion para qu la suma de los items no sobrepase el importe_max(Stea)
  #5		EndeEtr		   18/01/2019			EGS						Se hace validacion para no  eliminar registros si tiene pagos
+ #7		EndeEtr		   29/01/2019			EGS						se valida si el fase_concepto_ingas se encuentra en una invitacion antes de eliminar
  ***************************************************************************/
 
 DECLARE
@@ -34,7 +35,8 @@ DECLARE
     v_rec_proyecto			record;
     v_importe_total			numeric;
     v_pagos                 integer;
-			    
+	v_record_invitacion_det record;	
+    v_record_fase_coningas  record;	    
 BEGIN
 
     v_nombre_funcion = 'pro.ft_fase_concepto_ingas_ime';
@@ -74,10 +76,10 @@ BEGIN
             FROM pro.tfase_concepto_ingas facoin
             left join pro.tfase fase on fase.id_fase = facoin.id_fase
             WHERE fase.id_proyecto = v_rec_proyecto.id_proyecto;
-            
-            IF v_importe_total + coalesce(v_parametros.precio,0) > v_rec_proyecto.importe_max THEN
-            	RAISE EXCEPTION 'La Suma de los Servicios/Bienes (%)mas el precio nuevo(%) = % Superan al Stea(%) ', v_importe_total, coalesce(v_parametros.precio,0),v_importe_total+ coalesce(v_parametros.precio,0),v_rec_proyecto.importe_max;
+            IF  coalesce(v_importe_total,0) + coalesce(v_parametros.precio,0) > coalesce(v_rec_proyecto.importe_max,0) THEN
+            	RAISE EXCEPTION 'La Suma de los Servicios/Bienes (%)mas el precio nuevo(%) = % Superan al Stea(%) ', coalesce(v_importe_total,0), coalesce(v_parametros.precio,0),coalesce(v_importe_total,0)+ coalesce(v_parametros.precio,0),coalesce(v_rec_proyecto.importe_max,0);
             END IF;
+            --recuperamos los datos del fase_concepto_ingas
         	
         	--Sentencia de la insercion
         	insert into pro.tfase_concepto_ingas(
@@ -175,9 +177,61 @@ BEGIN
             WHERE fase.id_proyecto = v_rec_proyecto.id_proyecto
             AND facoin.id_fase_concepto_ingas <> v_parametros.id_fase_concepto_ingas;
             
-            IF v_importe_total + coalesce(v_parametros.precio,0) > v_rec_proyecto.importe_max THEN
-            	RAISE EXCEPTION 'La Suma de los Servicios/Bienes (%)mas el precio modificado(%)= % Superan al Stea(%) ',v_importe_total ,coalesce(v_parametros.precio,0),v_importe_total+ coalesce(v_parametros.precio,0),v_rec_proyecto.importe_max;
+            IF coalesce(v_importe_total,0) + coalesce(v_parametros.precio,0) > coalesce(v_rec_proyecto.importe_max,0) THEN
+            	RAISE EXCEPTION 'La Suma de los Servicios/Bienes (%)mas el precio modificado(%)= % Superan al Stea(%) ',coalesce(v_importe_total,0) ,coalesce(v_parametros.precio,0),coalesce(v_importe_total,0)+ coalesce(v_parametros.precio,0),coalesce(v_rec_proyecto.importe_max,0);
             END IF;
+            
+            ---recuperamos los registros de la fase concepto ingas
+            SELECT
+                inv.codigo as codigo_inv,
+                ind.id_invitacion_det,
+                facoin.id_concepto_ingas,
+                coin.desc_ingas,
+                facoin.id_funcionario,
+                fun.desc_funcionario1,
+                facoin.fecha_estimada,
+                facoin.fecha_fin,
+                facoin.descripcion,
+                facoin.id_unidad_medida,
+                un.codigo as codigo_um,
+                facoin.precio,
+                facoin.precio_real
+            INTO
+            v_record_fase_coningas
+            FROM pro.tfase_concepto_ingas facoin
+            left join pro.tinvitacion_det ind on ind.id_fase_concepto_ingas = facoin.id_fase_concepto_ingas
+            left join pro.tinvitacion inv on inv.id_invitacion = ind.id_invitacion
+            left join param.tconcepto_ingas coin on coin.id_concepto_ingas =  facoin.id_concepto_ingas
+            left join orga.vfuncionario fun on fun.id_funcionario = facoin.id_funcionario
+            left join param.tunidad_medida un on un.id_unidad_medida = facoin.id_unidad_medida
+            WHERE facoin.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas;
+            
+            --validamos si tiene una invitacion relacionada
+            IF v_record_fase_coningas.id_invitacion_det is not null THEN
+                --si tiene una invitacion no puede mofidicar los datos solo el precio real
+                IF v_record_fase_coningas.id_concepto_ingas <> v_parametros.id_concepto_ingas THEN
+                raise exception 'El concepto gasto: % no puede ser modificado ya que esta en el detalle de la invitacion % .Solo el Precio actualizado puede ser Editado',v_record_fase_coningas.desc_ingas,v_record_fase_coningas.codigo_inv;
+                END IF;
+                IF v_record_fase_coningas.id_funcionario <> v_parametros.id_funcionario THEN
+                raise exception 'El funcionario: % no puede ser modificado ya que esta en el detalle de la invitacion % .Solo el Precio actualizado puede ser Editado',v_record_fase_coningas.desc_funcionario1,v_record_fase_coningas.codigo_inv;
+                END IF;
+                IF v_record_fase_coningas.fecha_estimada <> v_parametros.fecha_estimada THEN
+                raise exception 'La fecha de inicio Estimada: % no puede ser modificado ya que esta en el detalle de la invitacion % .Solo el Precio actualizado puede ser Editado',v_record_fase_coningas.fecha_estimada,v_record_fase_coningas.codigo_inv;
+                END IF;
+                IF v_record_fase_coningas.fecha_fin <> v_parametros.fecha_fin THEN
+                raise exception 'La fecha de fin Estimada % no puede ser modificado ya que esta en el detalle de la invitacion % .Solo el Precio actualizado puede ser Editado',v_record_fase_coningas.fecha_fin,v_record_fase_coningas.codigo_inv;
+                END IF;
+                IF v_record_fase_coningas.descripcion <> v_parametros.descripcion THEN
+                raise exception 'La descripcion: % no puede ser modificado ya que esta en el detalle de la invitacion % .Solo el Precio actualizado puede ser Editado',v_record_fase_coningas.descripcion,v_record_fase_coningas.codigo_inv;
+                END IF;
+                IF v_record_fase_coningas.id_unidad_medida <> v_parametros.id_unidad_medida THEN
+                raise exception 'La unidad de medida % no puede ser modificado ya que esta en el detalle de la invitacion % .Solo el Precio actualizado puede ser Editado',v_record_fase_coningas.codigo_um,v_record_fase_coningas.codigo_inv;
+                END IF;
+                IF v_record_fase_coningas.precio <> v_parametros.precio THEN
+                raise exception 'El precio estimado: % no puede ser modificado ya que esta en el detalle de la invitacion % .Solo el Precio actualizado puede ser Editado',v_record_fase_coningas.precio,v_record_fase_coningas.codigo_inv;
+                END IF;
+             END IF;
+            
             
 			--Sentencia de la modificacion
 			update pro.tfase_concepto_ingas set
@@ -248,9 +302,24 @@ BEGIN
             WHERE facoinpa.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas;
             
             IF(v_pagos <> 0 )THEN
-                raise exception 'No puede Eliminar el Bien/Servicio cuenta con % pago(s)',v_pagos;
+                raise exception 'No puede Eliminar el Bien/Servicio tiene % fecha de pago(s)',v_pagos;
             END IF;
             --#5
+            -- #7	verificamos que el item no se encuentre en el detalle de una invitacion
+            SELECT
+                  invd.id_fase_concepto_ingas,
+                  invd.id_invitacion,
+                  inv.codigo
+            INTO
+                v_record_invitacion_det
+            FROM pro.tinvitacion_det invd
+            left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
+            WHERE invd.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas; 
+        	
+            IF v_record_invitacion_det.id_fase_concepto_ingas is not null THEN
+                RAISE EXCEPTION 'El Servicio/Bien no púede ser eliminado se encuentra en el detalle de la invitacion %',v_record_invitacion_det.codigo ;
+            END IF;
+             --#7	
 			--Sentencia de la eliminacion
 			delete from pro.tfase_concepto_ingas
             where id_fase_concepto_ingas=v_parametros.id_fase_concepto_ingas;

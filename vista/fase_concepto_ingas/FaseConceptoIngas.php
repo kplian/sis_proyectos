@@ -7,6 +7,8 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores de precio y precio_real
+  	#7	  endeETR		29/01/2019	EGS				Se agego los botones y validaciones para que se relaciones una solicitud con el fase_concepto_ingas
+ * 
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -19,11 +21,12 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		var estado_proyecto;
 		var precio_item;
 		var total;
+		var nro_items;
 		console.log('fase concepto',this.maestro.id_fase);
     	//llama al constructor de la clase padre
 		Phx.vista.FaseConceptoIngas.superclass.constructor.call(this,config);
 		this.init();
-
+		
 		this.Atributos[1].valorInicial = this.maestro.id_fase;
 		//Seteo del store de la grilla
 		this.store.baseParams = {
@@ -32,7 +35,46 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		//this.load({	params: {start: 0,limit: this.tam_pag}});
 		this.bloquearMenus();
 		this.iniciaEventos();
+		//#7 EGS
+		this.addButton('btnRsol',
+			{
+				text: 'Relacionar Solicitud',
+				iconCls: 'bchecklist',
+				handler: this.relacionSolicitud,
+				tooltip: '<b>Relacionar Solicitud</b>'
+			});
+		//#7 EGS
 	},
+	//#7 EGS
+	 relacionSolicitud : function()
+	{	
+        var data = this.getSelectedData();
+		if (data.id_invitacion_det != null ) {
+		    alert('No puede relacionar este item ya esta asociado a la invitacion '+data.codigo_inv);
+		} else{
+			//alert('Seguro que quiere relacionar un detalle de Solicitud al Item  '+data.desc_ingas +' Se creara una Invitacion de regularizacion o podra asociar a una invitacion existente');	
+			  var opcion = confirm('Seguro que quiere relacionar un detalle de Solicitud al Item  '+data.desc_ingas +' Se creara una Invitacion de regularizacion o podra asociar a una invitacion existente');
+			    if (opcion == true) {
+			        			Phx.CP.loadWindows('../../../sis_proyectos/vista/invitacion/InvitacionReg.php',
+								'Regularizacion',
+								{
+									modal:true,
+									width:600,
+									height:450
+								},
+								{ data: { 
+									    //maestro: this.maestro,
+										id_proyecto:this.maestro.id_proyecto,
+										id_fase:this.maestro.id_fase,
+										id_fase_concepto_ingas : data.id_fase_concepto_ingas
+						
+								 }},
+								this.idContenedor,
+								'InvitacionReg');
+				};
+		}
+
+	},//#7 EGS
 			
 	Atributos:[
 		{
@@ -130,7 +172,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				qtip:'Si el concepto de gasto que necesita no existe por favor comuníquese con el área de presupuestos para solicitar la creación.',
 				//tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_ingas}</p></div></tpl>',
 				renderer:function(value, p, record){
-					if (record.json.precio == record.json.total_prorrateo){
+					if (record.json.precio == record.json.total_prorrateo && record.json.precio != null ){
 						return String.format('{0}', record.data['desc_ingas']);
 					}
 					else{
@@ -171,7 +213,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 	                gwidth:200,
 	   				valueField: 'id_funcionario',
 	   			    gdisplayField: 'desc_funcionario',
-	   			    //baseParams: { es_combo_solicitud : 'si' },
+	   			    baseParams: {par_filtro: 'id_funcionario#desc_funcionario1'},
 	      			renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
 	       	     },
 	   			type:'ComboRec',//ComboRec
@@ -188,8 +230,9 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y',
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+				format: 'd/m/Y',
+				renderer:function (value,p,record){	
+					return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
 				filters:{pfiltro:'facoing.fecha_estimada',type:'date'},
@@ -296,7 +339,6 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				maxLength:1179650,
 				allowNegative:false,											
 				renderer:function (value,p,record){
-						console.log('record',record)
 						if(record.json.tipo_reg != 'summary'){//#5
 							if (value == record.json.total_prorrateo){
 							return  String.format('{0}',  Ext.util.Format.number(value,'000.000.000,00/i'));
@@ -576,14 +618,19 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{name:'tipo', type: 'string'},
 		{name:'desc_unidad_medida', type: 'string'},
 		{name:'precio_total', type: 'numeric'},
-		{name:'fecha_estimada', type: 'date'},
-		{name:'fecha_fin', type: 'date'},
+		{name:'fecha_estimada', type: 'date',dateFormat:'Y-m-d'},
+		{name:'fecha_fin', type: 'date',dateFormat:'Y-m-d'},
 		{name:'estado_proyecto', type: 'string'},
 		{name:'id_funcionario', type: 'numeric'},
 		{name:'precio_real', type: 'numeric'},
 		{name:'desc_funcionario', type: 'string'},
 		{name:'total', type: 'numeric'},//cantidad de items en la grilla
+		{name:'id_invitacion_det', type: 'numeric'},
+		{name:'id_solicitud_det', type: 'numeric'},
+		{name:'codigo_inv', type: 'string'},
+		{name:'nro_items', type: 'numeric'},
 
+		
 
 		
 
@@ -599,9 +646,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		//Evento para obtener el total
 		
 		this.Cmp.id_bien_servicio.on('select',function(combo,record,index){
-			console.log('tipo',record);
-			
-			
+
 			this.Cmp.id_concepto_ingas.store.baseParams.tipo=record.data.ID;
 			this.Cmp.id_concepto_ingas.store.load({params:{start:0,limit:this.tam_pag}, 
 					               callback : function (r) {                        
@@ -616,7 +661,6 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		},this)
 		
 	 this.Cmp.id_concepto_ingas.on('select',function(combo,record,index){
-			console.log('tipo',record);
 			
 			this.Cmp.id_concepto_ingas.store.baseParams.tipo=this.Cmp.id_bien_servicio.getValue();
 		
@@ -642,7 +686,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				//alert ('asda');				  
 		            this.maestro = m;
 		            this.precio_item = this.maestro.precio_item;
-		            console.log('m',m);
+		            this.nro_items =  this.maestro.nro_items;
 		             if (this.maestro.id_fase != null || this.maestro.id_fase != '' ){
 		            this.store.baseParams = {id_fase: this.maestro.id_fase};
 		           
@@ -654,10 +698,8 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		            
 		            
 	},
-	
-	
+		
 	obtenerProyecto: function(config){
-			console.log('config',config);
             Phx.CP.loadingShow();
             Ext.Ajax.request({
                 url:'../../sis_proyectos/control/Proyecto/listarProyecto',
@@ -688,14 +730,26 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
     	} else{
     	this.Cmp.id_bien_servicio.setValue('Servicio');
     	};
+    	if (rec.data.id_invitacion_det != null) {
+    	this.Cmp.id_bien_servicio.setDisabled(true);
+		};
 
 	},
+	//#7 EGS
+	liberaMenu: function() {
+		var tb = Phx.vista.FaseConceptoIngas.superclass.liberaMenu.call(this);
+		if (tb) {
+			this.getBoton('btnRsol').disable();
+
+		}
+		return tb
+	},//#7 EGS
 	
 	preparaMenu: function(n){
 
 		var tb = Phx.vista.FaseConceptoIngas.superclass.preparaMenu.call(this);
 		var data = this.getSelectedData();
-	
+		this.getBoton('btnRsol').enable();//#7 EGS
 		console.log('estado_proyecto',this.estado_proyecto );
 		if (tb && this.bnew && (this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado' )) {
             tb.items.get('b-new-' + this.idContenedor).disable();
@@ -736,12 +790,22 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
         {	
  			Phx.CP.loadingHide();
 			//solo actualiza al  padre si no cuenta con items
-            if (this.precio_item == null || this.precio_item == 0) {
+            if (this.nro_items == null || this.nro_items == 0) {
 	            Phx.CP.getPagina(this.idContenedorPadre).root.reload();
 	            Phx.CP.getPagina(this.idContenedorPadre).treePanel.expandAll();
             };
-            this.onButtonAct();
-            this.window.hide();///cierra el panel del formulario
+            if(resp.argument && resp.argument.news){
+				if(resp.argument.def == 'reset'){
+						  //this.form.getForm().reset();
+						this.onButtonNew();
+					}			
+			}
+				else{
+						this.window.hide();//cierra el panel del formulario
+			};
+			this.reload();
+            //this.onButtonAct();
+            //this.window.hide();///cierra el panel del formulario
         },	
 	
 	

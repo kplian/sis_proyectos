@@ -54,6 +54,7 @@ DECLARE
     v_id_padre				integer;
     v_id_padre_II			integer;
     v_prorrateo             record;
+    v_importe_padre_II      numeric;
 BEGIN
 
     v_nombre_funcion = 'pro.f_reportes_proyecto_sel';
@@ -276,7 +277,7 @@ BEGIN
                 v_id_fase_concepto_ingas
               FROM plan_pago
               where id_fase_concepto_ingas = v_plan_pago.id_fase_concepto_ingas;
-          
+              --si no existe se inserta en la tabla temporal
               IF v_id_fase_concepto_ingas is null THEN 
                 --si tiene plan de pagos
                 IF v_plan_pago.id_fase_concepto_ingas_pago is not null THEN 
@@ -312,6 +313,17 @@ BEGIN
                                          '||COALESCE(v_plan_pago.importe,0)||'
                                                 )'; 
                      execute(v_consulta_into);
+                    --actualizamos los importes totalizadores de los padres de nivel II segun columna dinamica 
+                     v_consulta_update = 'update  plan_pago set
+                                        '||v_columna||' = COALESCE('||v_columna||',0) +COALESCE('||v_plan_pago.importe||',0)
+                                      Where  nivel = 2 and id_nivel_II = '||COALESCE(v_plan_pago.id_padre_II,0)||'';
+                    execute(v_consulta_update);
+                --actualizamos los importes totalizadores de los padres de nivel III segun columna dinamica                     
+                    v_consulta_update = 'update  plan_pago set
+                                        '||v_columna||' = COALESCE('||v_columna||',0) +COALESCE('||v_plan_pago.importe||',0)
+                                      Where  nivel = 3 and id_nivel_III = '||COALESCE(v_plan_pago.id_padre_III,0)||'';
+                    execute(v_consulta_update);
+                     
                     ELSE
                       ---se inserta los items que no tengan plan de pagos
                         	v_consulta_into=' insert into plan_pago(
@@ -339,7 +351,7 @@ BEGIN
                                                 )'; 
                             execute(v_consulta_into);
                    END IF;
-              
+              --actualizamos la columna de item ya ensertado
               ELSE
 
                 --insertamos valores en las columnas de meses y acumulamos el prorrateo 
@@ -348,7 +360,17 @@ BEGIN
                                     total_prorrateo = COALESCE(total_prorrateo,0) + '||COALESCE(v_plan_pago.importe,0)||'
                                   Where id_fase_concepto_ingas = '||v_id_fase_concepto_ingas||'';
                	execute(v_consulta_update);
-               
+                --actualizamos los importes totalizadores de los padres de nivel II segun columna dinamica 
+                 v_consulta_update = 'update  plan_pago set
+                                        '||v_columna||' = COALESCE('||v_columna||',0) +COALESCE('||v_plan_pago.importe||',0)
+                                      Where  nivel = 2 and id_nivel_II = '||COALESCE(v_plan_pago.id_padre_II,0)||'';
+                 execute(v_consulta_update);
+                --actualizamos los importes totalizadores de los padres de nivel III segun columna dinamica 
+                 v_consulta_update = 'update  plan_pago set
+                                        '||v_columna||' = COALESCE('||v_columna||',0) +COALESCE('||v_plan_pago.importe||',0)
+                                      Where  nivel = 3 and id_nivel_III = '||COALESCE(v_plan_pago.id_padre_III,0)||'';
+                 execute(v_consulta_update);
+   
                END IF;
               v_count = v_count + 1; 
             END LOOP;          
@@ -392,8 +414,7 @@ BEGIN
                 END LOOP;
              
             END LOOP ;
-            
-            
+        
             v_consulta='
             	SELECT
                 	 id ,
