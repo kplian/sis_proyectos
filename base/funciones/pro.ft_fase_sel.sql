@@ -18,6 +18,7 @@ $body$
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				24-05-2018 19:13:39								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tfase_concepto_ingas'	
  #5 endeEtr         09/01/2019          EGS                     se aumento el precio total de las sumas de los items en la fase 
+ #7 endeEtr         20/02/2019          EGS                     se aumento campo nro_items
 	
 ***************************************************************************/
 
@@ -139,11 +140,13 @@ BEGIN
             v_consulta:='
               WITH item_fase(
                                 id_fase,
-                                precio_item
+                                precio_item,
+                                nro_items
                         )AS(
                             SELECT
                                 fas.id_fase,
-                                sum(fasco.precio)
+                                sum(fasco.precio),
+                                count(fasco.id_fase_concepto_ingas)
                             From pro.tfase_concepto_ingas fasco
                             left join pro.tfase fas on fas.id_fase = fasco.id_fase
                             GROUP by
@@ -179,7 +182,8 @@ BEGIN
 						end as tipo_nodo,
                         fase.fecha_ini_real,
                         fase.fecha_fin_real,
-                        infa.precio_item::numeric ---#5  	
+                        infa.precio_item::numeric, ---#5
+                        infa.nro_items::integer ---#7	
 						from pro.tfase fase
 						inner join segu.tusuario usu1 on usu1.id_usuario = fase.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = fase.id_usuario_mod

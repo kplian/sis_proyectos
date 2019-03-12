@@ -7,6 +7,7 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 	ISSUE			FECHA		AUTHOR			DESCRIPCION
     #6	eendeEtr	24/01/2019	 EGS		    se quito que el codigo haga reset al editar
+ *  #7	eendeEtr	24/01/2019	 EGS		    recarga de campos cuando se genera una presolicitud que comparte codigo y validaciones para la misma
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -21,6 +22,17 @@ Phx.vista.Invitacion = {
 	constructor:function(config){
 		this.maestro=config; ///config.maestro quitar para poder recibir datos
 		var codigo_invitacion ;
+		var	tipo_inv;
+		var id_compra_inv;  //#7
+		var fecha_inv;	//#7
+		var id_funcionario_inv;//#7
+		var id_depto_inv ;//#7
+		var id_moneda_inv;//#7
+		var lugar_entrega_inv;//#7
+		var dias_plazo_entrega_inv;//#7
+		var descripcion_inv;//#7
+		
+		var insertar;
 		//llama al constructor de la clase padre
 		Phx.vista.Invitacion.superclass.constructor.call(this,config);
 		
@@ -92,7 +104,7 @@ Phx.vista.Invitacion = {
 			}, this);
 			
 			this.ocultarComponente(this.Cmp.id_grupo);
-			this.Cmp.pre_solicitud.on('change', function(cmp, check){
+/*			this.Cmp.pre_solicitud.on('change', function(cmp, check){
     		    
     		    if(check.getRawValue() =='no'){
     		  		this.ocultarComponente(this.Cmp.id_grupo);
@@ -104,7 +116,7 @@ Phx.vista.Invitacion = {
     		    	this.Cmp.id_grupo.allowBlank=false; 		    	
 			    }
     		}, this);
-    		
+*/    		
     		this.Cmp.id_grupo.on('select', function(combo, record, index){
     			this.Cmp.codigo.reset(true);
     			this.Cmp.codigo.enable(true);
@@ -410,7 +422,7 @@ Phx.vista.Invitacion = {
         height: '40%',
         cls: 'InvitacionDet'
     }],
-    obtenerCodigoInvGrupo: function(config){
+    obtenerCodigoInvGrupo: function(config){ //#7
 			//console.log('config id_proyecto',config.id_proyecto);
             Phx.CP.loadingShow();
             Ext.Ajax.request({
@@ -424,10 +436,21 @@ Phx.vista.Invitacion = {
                			console.log('reg',reg);
                			this.codigo_invitacion = null;
                			if (reg.datos.length != 0){
+               			console.log('datos',reg.datos);
                			this.codigo_invitacion = reg.datos[0]['codigo'];
+               			this.tipo_inv = reg.datos[0]['tipo'];
+						this.id_compra_inv = reg.datos[0]['id_categoria_compra'];
+						this.fecha_inv = reg.datos[0]['fecha'];
+						this.id_funcionario_inv = reg.datos[0]['id_funcionario'];
+						this.id_depto_inv  = reg.datos[0]['id_depto'];
+						this.id_moneda_inv = reg.datos[0]['id_moneda'];
+						this.lugar_entrega_inv = reg.datos[0]['lugar_entrega'];
+						this.dias_plazo_entrega_inv = reg.datos[0]['dias_plazo_entrega'];
+						this.descripcion_inv = reg.datos[0]['descripcion'];
+               			
                			console.log('this.codigo_invitacion',this.codigo_invitacion);
-               		 	this.Cmp.codigo.setValue(this.codigo_invitacion);
-						this.Cmp.codigo.disable(true);
+               		 	this.cargaDatosInv();
+               
                		 	}
                 },	
                 failure: this.conexionFailure,
@@ -436,30 +459,92 @@ Phx.vista.Invitacion = {
             });
  
         },
-        onButtonNew: function(){
-
+        //carga los datos de la presolicitud incial con el mismo codigo
+         cargaDatosInv: function(){//#7
+         		 		this.Cmp.codigo.setValue(this.codigo_invitacion);
+ 	               		this.Cmp.tipo.setValue(this.tipo_inv);
+						this.Cmp.id_categoria_compra.store.baseParams.query = this.id_compra_inv;
+							    this.Cmp.id_categoria_compra.store.load({params:{start:0,limit:this.tam_pag}, 
+					               callback : function (r) {                        
+					                    if (r.length > 0 ) {                        
+					                    	
+					                       this.Cmp.id_categoria_compra.setValue(r[0].data.id_categoria_compra);
+					                    }     
+					                                    
+					                }, scope : this
+					            });
+						this.Cmp.fecha.setValue(this.fecha_inv);
+						this.Cmp.id_funcionario.store.baseParams.query = this.id_funcionario_inv;
+							    this.Cmp.id_funcionario.store.load({params:{start:0,limit:this.tam_pag}, 
+					               callback : function (r) {                        
+					                    if (r.length > 0 ) {                        
+					                    	
+					                       this.Cmp.id_funcionario.setValue(r[0].data.id_funcionario);
+					                    }     
+					                                    
+					                }, scope : this
+					            });
+					    this.Cmp.id_depto.store.baseParams.query = this.id_depto_inv;
+							    this.Cmp.id_depto.store.load({params:{start:0,limit:this.tam_pag}, 
+					               callback : function (r) {                        
+					                    if (r.length > 0 ) {                        
+					                    	
+					                       this.Cmp.id_depto.setValue(r[0].data.id_depto);
+					                    }     
+					                                    
+					                }, scope : this
+					            });
+					     this.Cmp.id_moneda.store.baseParams.query = this.id_moneda_inv;
+							    this.Cmp.id_moneda.store.load({params:{start:0,limit:this.tam_pag}, 
+					               callback : function (r) {                        
+					                    if (r.length > 0 ) {                        
+					                    	
+					                       this.Cmp.id_moneda.setValue(r[0].data.id_moneda);
+					                    }     
+					                                    
+					                }, scope : this
+					            });
+						this.Cmp.lugar_entrega.setValue(this.lugar_entrega_inv);
+						this.Cmp.dias_plazo_entrega.setValue(this.dias_plazo_entrega_inv);
+						this.Cmp.descripcion.setValue(this.descripcion_inv);
+						this.Cmp.codigo.disable(true);
+         },
+        onButtonNew: function(){//#7
+			this.insertar = 'nuevo';
 			Phx.vista.Invitacion.superclass.onButtonNew.call(this);
 			this.Cmp.codigo.enable(true);
 			this.Cmp.pre_solicitud.on('change', function(cmp, check){
-    		    
+    		//this.Cmp.pre_solicitud.getValue(); 
     		    if(check.getRawValue() =='no'){
     		  		this.ocultarComponente(this.Cmp.id_grupo);
+     		  		this.mostrarComponente(this.Cmp.id_categoria_compra);
 	  				this.Cmp.id_grupo.allowBlank=true;
 	  				this.Cmp.id_grupo.reset();
 					this.Cmp.codigo.enable(true);			
 					this.Cmp.codigo.reset();
+	  				this.Cmp.id_categoria_compra.reset();
+	  				this.Cmp.id_categoria_compra.allowBlank=false;
     		    }
     		    else{
     		    	this.mostrarComponente(this.Cmp.id_grupo);
+    		  		this.ocultarComponente(this.Cmp.id_categoria_compra);
     		    	this.Cmp.id_grupo.allowBlank=false; 		    	
 			    	this.Cmp.codigo.disable(true);
 			    	this.Cmp.codigo.reset();	
+	  				this.Cmp.id_categoria_compra.reset();
+	  				this.Cmp.id_categoria_compra.allowBlank=true;
+
 			    }
     		}, this);
 		},
-		onButtonEdit: function(){
+		onButtonEdit: function(){//#7
+			this.insertar = 'editar';
 			Phx.vista.Invitacion.superclass.onButtonEdit.call(this);
 			if (this.Cmp.pre_solicitud.getValue() == 'si' ) {
+    		 var opcion = confirm('Seguro que quiere editar la Inv. de presolicitud se cambiaran las Inv. de presolicitudes con el mismo codigo En cualquier Proyecto');
+		   	 if (opcion == false) {
+		   	 	this.window.hide();//cierra el panel del formulario
+			 }
 			this.Cmp.codigo.disable(true);				
 			} else{
 			this.Cmp.codigo.enable(true);				
@@ -468,20 +553,67 @@ Phx.vista.Invitacion = {
     		    
     		    if(check.getRawValue() =='no'){
     		  		this.ocultarComponente(this.Cmp.id_grupo);
+    		  		this.mostrarComponente(this.Cmp.id_categoria_compra);
 	  				this.Cmp.id_grupo.allowBlank=true;
 	  				this.Cmp.id_grupo.reset();
-					this.Cmp.codigo.enable(true);			
+					this.Cmp.codigo.enable(true);
+	  				this.Cmp.id_categoria_compra.allowBlank=false;
+			
     		    }
     		    else{
     		    	this.mostrarComponente(this.Cmp.id_grupo);
+    		  		this.ocultarComponente(this.Cmp.id_categoria_compra);
+	  				this.Cmp.id_categoria_compra.reset();
     		    	this.Cmp.id_grupo.allowBlank=false; 		    	
 			    	this.Cmp.codigo.disable(true);
-			    		
+	  				this.Cmp.id_categoria_compra.allowBlank=true;			    		
 			    }
     		}, this);
 			
 		},
-	
+    onSubmit: function(o, x, force) {//#7
+    	var me = this;
+    	var presolicitud = this.Cmp.pre_solicitud.getValue();
+    	if (presolicitud == 'si' && this.insertar == 'editar' ) {
+    		var opcion = confirm('Seguro que quiere editar la Inv. de presolicitud se cambiaran las Inv. de presolicitudes con el mismo codigo En cualquier Proyecto');
+		   	 if (opcion == true) {
+				this.onSubmitE(o, x, force);
+
+				};   		
+    	};
+    	
+		if (presolicitud == 'si' && this.insertar == 'nuevo' ) {
+		    var opcion = confirm('Si la invitacion nueva genera una presolicitud y comparte un codigo con otra invitacion y modifica los datos precargados estos se modificaran en todas las invitaciones que comparten el mismo Codigo en cualquier Proyecto');
+					if (opcion == true) {
+				this.onSubmitE(o, x, force);
+						}; 
+		}else{
+				this.onSubmitE(o, x, force);
+		};
+
+
+    },
+    	//funcion que envia los datos para guardar o editar la invitacion
+     onSubmitE: function(o, x, force){//#7
+     	var me = this;
+     	if (me.form.getForm().isValid() || force===true) {
+		
+		            Phx.CP.loadingShow();
+		            // arma json en cadena para enviar al servidor
+		            Ext.apply(me.argumentSave, o.argument);
+		 		    Ext.Ajax.request({
+		                    url: me.ActSave,
+		                    params: me.getValForm,
+		                    isUpload: me.fileUpload,
+		                    success: me.successSave,
+		                    argument: me.argumentSave,
+		
+		                    failure: me.conexionFailure,
+		                    timeout: me.timeout,
+		                    scope: me
+		                });
+		    }
+     }
 }
 //})
 

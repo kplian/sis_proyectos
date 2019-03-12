@@ -7,7 +7,7 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores de total_precio y total_precio_real
- * 
+ * 	#7	  endeETR		29/01/2019	EGS				Se agrego los campos de id_invitacion_det ,id_solicitud_det y codigo_inv
  */
 
 class MODFaseConceptoIngas extends MODbase{
@@ -69,7 +69,10 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->captura('desc_funcionario','varchar');		
 		$this->captura('precio_real','numeric');
 		$this->captura('total_prorrateo','numeric');//#5
-		
+		$this->captura('id_invitacion_det','int4');//#7 EGS
+		$this->captura('id_solicitud_det','int4');//#7 EGS
+		$this->captura('codigo_inv','varchar');	//#7 EGS	
+
 		
 		
 		//Ejecuta la instruccion

@@ -7,6 +7,8 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 		ISSUE		FECHA		AUTHOR			DESCRIPCION
 		 #6	EndeEtr 24/01/2019	 EGS		    Se hace validacion paa que la invitacion tenga fecha al querer añadir un detalle
+		 #7	EndeEtr 04/02/2019	 EGS		    Se hace validacion para que no guarde en estado de sol_compra
+ * 
  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -680,7 +682,7 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
         this.Atributos[this.getIndAtributo('id_invitacion')].valorInicial = this.maestro.id_invitacion;
         //Filtro para los datos
 		
-	     this.setColumnHeader('precio',this.cmpPrecio.fieldLabel +' '+ this.maestro.desc_moneda)
+	     this.setColumnHeader('precio','(e)'+this.cmpPrecio.fieldLabel +' '+ this.maestro.desc_moneda)
 	     this.setColumnHeader('precio_t',this.cmpPrecioT.fieldLabel +' '+ this.maestro.desc_moneda)
 	     this.setColumnHeader('precio_est',this.cmpPrecioEst.fieldLabel +' '+ this.maestro.desc_moneda)
 
@@ -899,6 +901,10 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
          if (tb && this.bdel && (this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado'  || this.estado_invitacion == 'sol_compra')) {
             tb.items.get('b-del-' + this.idContenedor).disable();
             }
+             //#7	
+         if (tb && this.bsave && (this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado'  || this.estado_invitacion == 'sol_compra')) {
+            tb.items.get('b-save-' + this.idContenedor).disable();
+            }//#7	
 		return tb;
 	},
 	   

@@ -178,7 +178,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 					fields: ['id_categoria_compra', 'nombre', 'codigo'],
 					// turn on remote sorting
 					remoteSort: true,
-					baseParams: {par_filtro: 'catcomp.nombre#catcomp.codigo',codigo_subsistema:'ADQ'}
+					baseParams: {par_filtro: 'catcomp.id_categoria_compra#catcomp.nombre#catcomp.codigo',codigo_subsistema:'ADQ'}
 				}),
 				valueField: 'id_categoria_compra',
 				displayField: 'nombre',
@@ -198,10 +198,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 			},
 			type: 'ComboBox',
 			id_grupo: 0,
-			filters: {
-				pfiltro: 'cat.nombre',
-				type: 'string'
-			},
+
 			grid: false,
 			form: true
 		},
@@ -282,6 +279,8 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 	                gwidth:200,
 	   				valueField: 'id_funcionario',
 	   			    gdisplayField: 'desc_funcionario',
+	   			    baseParams: {par_filtro: 'id_funcionario#desc_funcionario1'},
+
 	   			    //baseParams: { es_combo_solicitud : 'si' },
 	      			renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
 	       	     },
@@ -304,7 +303,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 		   				gdisplayField:'desc_depto',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
 		   				width:250,
 	   			        gwidth:180,
-		   				baseParams:{estado:'activo',codigo_subsistema:'ADQ'},//parametros adicionales que se le pasan al store
+		   				baseParams:{par_filtro: 'id_depto',estado:'activo',codigo_subsistema:'ADQ'},//parametros adicionales que se le pasan al store
 		      			renderer:function (value, p, record){return String.format('{0}', record.data['desc_depto']);}
 	   			},
 	   			//type:'TrigguerCombo',
@@ -323,7 +322,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
                 anchor: '100%',
                 gdisplayField: 'desc_moneda',//mapea al store del grid
                 gwidth: 50,
-                //baseParams: { 'filtrar_base': 'si' },
+                baseParams: { par_filtro: 'id_moneda' },
                 renderer: function (value, p, record){return String.format('{0}', record.data['desc_moneda']);}
              },
             type: 'ComboRec',

@@ -8,6 +8,8 @@
 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	  #5  endeEtr		23/012019   EGS				se actualizo el basparams de id_centro_costo cuando no es planificado
  	  #6  endeEtr		24/01/2019	EGS				El campo concepto_ingas filtra por tipo segun tipo del maestro
+	  #7  endeEtr		29/01/2019	EGS				Se modifico los parametros de busqueda para concepto ingas y se fuerza los campos cantidad y precio en no planificado
+ * 
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -178,14 +180,14 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 					totalProperty: 'total',
 					fields: ['id_fase_concepto_ingas','descripcion','desc_ingas','cantidad_est','precio','nombre_fase','codigo_fase','id_unidad_medida','tipo','id_fase','id_concepto_ingas'],
 					remoteSort: true,
-					baseParams: {par_filtro: 'facoing.id_fase_concepto_ingas#facoing.descripcion#facoing.id_unidad_medida#cig.tipo'}
+					baseParams: {par_filtro: 'facoing.id_fase_concepto_ingas#facoing.descripcion#facoing.id_unidad_medida#cig.tipo#fase.codigo'}//#7
 				}),
 				
 				tpl:'<tpl for=".">\
 		                       <div class="x-combo-list-item"><p><b>Concepto Gasto: </b>{desc_ingas}</p>\<p><b>Fase: </b>{codigo_fase}-{nombre_fase}</p>\
 		                       <p><b>Servicio/Bien: </b>{tipo}</p>\
-		                      <p><b>Precio Total Estimado: </b>{precio}</p>\
-		                      </div></tpl>',
+		                       <p><b>Precio Total Estimado: </b>{precio}</p>\
+		                       </div></tpl>',
 				valueField: 'id_fase_concepto_ingas',
 				displayField: 'desc_ingas',
 				gdisplayField: 'desc_ingas',
@@ -797,8 +799,10 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 							     
 							   
 							     //this.Cmp.id_fase_concepto_ingas.store.baseParams.tipo= this.maestro.data.tipo;
-							     
-							     this.Cmp.id_fase_concepto_ingas.store.baseParams= {tipo:this.maestro.data.tipo , id_proyecto:this.maestro.data.id_proyecto, invitacion:'no'};
+							     ///el parametro invitacion : 'no' hace que devuelva aquellos fase concepto de gasto que no esten en una invitacion
+							     this.Cmp.id_fase_concepto_ingas.store.baseParams.tipo = this.maestro.data.tipo ;//#7
+								 this.Cmp.id_fase_concepto_ingas.store.baseParams.id_proyecto = this.maestro.data.id_proyecto;//#7
+							     this.Cmp.id_fase_concepto_ingas.store.baseParams.invitacion = 'no';// #7
 
 							     
 							     this.Cmp.id_concepto_ingas.store.baseParams.tipo= this.maestro.data.tipo;
@@ -825,12 +829,14 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 					                                    
 					                }, scope : this
 					            });
-			 
+			 					 
 							     //this.Cmp.id_unidad_medida.setValue(rec.data.desc_unidad_medida);
 					             //this.Cmp.cantidad_sol.setValue(rec.data.cantidad_est);
 					             //this.Cmp.precio.setValue(rec.data.precio);
 					            
 					            } ,this);
+					            this.Cmp.cantidad_sol.allowBlank=true;
+							    this.Cmp.precio.allowBlank=true;
 
 						} else{
 								 this.Cmp.id_fase_concepto_ingas.reset();
@@ -858,6 +864,9 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 								 this.Cmp.id_centro_costo.store.baseParams.id_gestion=this.maestro.data.id_gestion; //#5
 								 this.Cmp.id_centro_costo.store.baseParams.id_tipo_cc = this.maestro.data.id_tipo_cc ;//#5
 								 this.Cmp.id_concepto_ingas.store.baseParams.tipo= this.maestro.data.tipo;
+							     this.Cmp.cantidad_sol.allowBlank=false;
+							     this.Cmp.precio.allowBlank=false;
+
 	
 						} 
 						

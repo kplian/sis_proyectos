@@ -17,6 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
    #5              21/01/2019          EGS                 Se hace update de del campo de Fecha real
+   #7              04/02/2019          EGS                 se actualiza tinvitacion en el campo id_solicitut_det al generar una solicitud
  ***************************************************************************/
  */
  
@@ -68,7 +69,8 @@ BEGIN
             inv.descripcion,
             inv.dias_plazo_entrega,
             inv.id_categoria_compra,
-            inv.nro_tramite
+            inv.nro_tramite,
+            inv.codigo
         INTO
         v_record_invitacion 
         FROM pro.tinvitacion inv
@@ -103,8 +105,6 @@ BEGIN
             ELSE
             	v_tipo_concepto ='servicio';
             END IF;
-            
-
          --insertando la solicitud de compra de la invitacion el precontrato y el comprometer_87 ya vienen directo de la vista de solicitud de compras
 
             v_codigo_trans = 'ADQ_SOL_INS';
@@ -158,7 +158,7 @@ BEGIN
                                 v_id_gestion::varchar,--'id_gestion'
                                 v_record_invitacion.tipo::varchar,--'tipo'
                                 --''::varchar,--'num_tramite'
-                                v_record_invitacion.descripcion::varchar,--'justificacion'
+                                'Codigo Invitacion:'||v_record_invitacion.codigo::varchar,--'justificacion'
                                 v_record_invitacion.id_depto::varchar,--'id_depto'
                                 v_record_invitacion.lugar_entrega::varchar,--'lugar_entrega'
                                 ''::varchar,--'extendida'
@@ -180,7 +180,7 @@ BEGIN
                                 ''::varchar,--'nro_po'
                                 ''::varchar,--'fecha_po'
                                 'no'::varchar,--'comprometer_87'
-                                'nro. Tramite:'||v_record_invitacion.nro_tramite::varchar--'observacion'
+                                COALESCE(v_record_invitacion.descripcion,' ')::varchar--'observacion'
                                 ],
                             ARRAY[
                            		'varchar',
@@ -237,12 +237,8 @@ BEGIN
                  invd.id_fase_concepto_ingas
                 FROM pro.tinvitacion_det invd
                 WHERE invd.id_invitacion = p_id_invitacion )LOOP
-        
-       
-              
               v_codigo_trans_2 = 'ADQ_SOLD_INS';
-              --crear tabla 
-              
+              --crear tabla              
               v_precio = v_record_detalle.precio * v_record_detalle.cantidad_sol;
              /*
              if v_count = 0 then
@@ -293,15 +289,14 @@ BEGIN
               v_id_solicitud_det	=  split_part(v_id_solicitud_det, '{', 2);
               v_id_solicitud_det	=  split_part(v_id_solicitud_det, '}', 1);
               v_resp	= 'exito';
-              
-              --actualizamos la fecha real de faseconceptoingas
-            
-              
-              
+             --actualizamos la tabla invitacion det 
+             UPDATE pro.tinvitacion_det
+                set id_solicitud_det = v_id_solicitud_det::INTEGER
+             where id_invitacion = p_id_invitacion;
 			END LOOP;
 			
-            --Actualizando invitacion cuando se genera una solicitud
-           
+         --Actualizando invitacion cuando se genera una solicitud
+         --actualizamos la fecha real de faseconceptoingas
             UPDATE pro.tinvitacion
             set id_solicitud = v_id_solicitud::INTEGER,
                 fecha_real = v_fecha    --#5

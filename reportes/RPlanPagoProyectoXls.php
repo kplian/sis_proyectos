@@ -440,6 +440,7 @@ class RPlanPagoProyectoXls
 				)
 			)
 		);
+		///naranja izquierda
 		$styleTitulos9 = array(
 			'font'  => array(
 				'bold'  => true,
@@ -491,6 +492,58 @@ class RPlanPagoProyectoXls
 				)
 			)
 		);
+		///naranja central
+		$styleTitulos12 = array(
+			'font'  => array(
+				'bold'  => true,
+				'size'  => 10,
+				'name'  => 'Arial',
+				'color' => array(
+					'rgb' => 'FFFFFF'
+				)
+			),
+			'alignment' => array(
+				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER
+			),
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array(
+					'rgb' => 'FFA500'
+				)
+			),
+			'borders' => array(
+				'allborders' => array(
+					'style' => PHPExcel_Style_Border::BORDER_THIN
+				)
+			)
+		);
+		//azul central
+		$styleTitulos13 = array(
+			'font'  => array(
+				'bold'  => true,
+				'size'  => 10,
+				'name'  => 'Arial',
+				'color' => array(
+					'rgb' => 'FFFFFF'
+				)
+			),
+			'alignment' => array(
+				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER
+			),
+			'fill' => array(
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array(
+					'rgb' => '2D83C5'
+				)
+			),
+			'borders' => array(
+				'allborders' => array(
+					'style' => PHPExcel_Style_Border::BORDER_THIN
+				)
+			)
+		);
 		$this->numero = 1;
 		$fila = 6;
 		//var_dump($this->objParam->getParametro('datos'));
@@ -522,6 +575,7 @@ class RPlanPagoProyectoXls
 
 							}
 							//Colocando style a la tabla
+							$this->docexcel->getActiveSheet()->getStyle('A'.($fila).':A'.($fila).'')->applyFromArray($styleTitulos12);
 							$this->docexcel->getActiveSheet()->getStyle('B'.($fila).':B'.($fila).'')->applyFromArray($styleTitulos9);
 							$this->docexcel->getActiveSheet()->getStyle('C'.($fila).':C'.($fila).'')->applyFromArray($styleTitulos10);
 							
@@ -565,6 +619,7 @@ class RPlanPagoProyectoXls
 
 							}
 							//Colocando style a la tabla
+							$this->docexcel->getActiveSheet()->getStyle('A'.($fila).':A'.($fila).'')->applyFromArray($styleTitulos13);
 							$this->docexcel->getActiveSheet()->getStyle('B'.($fila).':B'.($fila).'')->applyFromArray($styleTitulos3);
 							$this->docexcel->getActiveSheet()->getStyle('C'.($fila).':C'.($fila).'')->applyFromArray($styleTitulos4);
 							
@@ -619,8 +674,19 @@ class RPlanPagoProyectoXls
 							$a = 5 + $numeroColumna;
 							$b = 16 + $numeroColumna; 
 							$m=0; 
-						     for ($u=$a; $u <=$b ; $u++){
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($u, $fila, $value[$this->meses[$m].'_'.$col_arrays[$i]['anio']]);
+						     for ($u=$a; $u <=$b ; $u++){						     
+						     //se aplica el formato segun el nivel
+						      if ($value['nivel']== '3') {
+							 $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$u].''.($fila).':'.$this->equivalencias[$u].''.($fila).'')->applyFromArray($styleTitulos10);								 
+							 }		
+						     if ($value['nivel']== '2') {
+							 $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$u].''.($fila).':'.$this->equivalencias[$u].''.($fila).'')->applyFromArray($styleTitulos4);								 
+							 }
+							 if ($value['nivel']== '1') {
+							 $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$u].''.($fila).':'.$this->equivalencias[$u].''.($fila).'')->applyFromArray($styleTitulos5);								 
+							 }	
+							 //se inserta los datos		
+							 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($u, $fila, $value[$this->meses[$m].'_'.$col_arrays[$i]['anio']]);
 							 $m++;
 							 }
 					    $numeroColumna = $numeroColumna + 12;
@@ -633,11 +699,12 @@ class RPlanPagoProyectoXls
 			$precio_real=0;
 		}
 			//var_dump('EQUIVALENCIAS',$this->equivalencias[0]);
+			/*
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,$fila,'TOTALES:');
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,$fila,$total);
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,$fila,$totalPro);
 		   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4,$fila,$totalReal);
-
+			*/
 		   $numeroColumna = 0;
 		   //var_dump(count($col_arrays));exit;
 		   for ($i=0; $i < count($col_arrays) ; $i++) {
@@ -645,9 +712,9 @@ class RPlanPagoProyectoXls
 			$b = 16 + $numeroColumna;  
 		     for ($u=$a; $u <=$b ; $u++) {
 		     	///suma columnas  
-				 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($u,$fila,'=SUM('.$this->equivalencias[$u].'4:'.$this->equivalencias[$u].''.($fila-1).')');
+				// $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($u,$fila,'=SUM('.$this->equivalencias[$u].'4:'.$this->equivalencias[$u].''.($fila-1).')');
 				 //aplica formato en la columna
-				 $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$u].''.(6).':'.$this->equivalencias[$u].''.($fila-1).'')->applyFromArray($styleTitulos5);
+				 //$this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$u].''.(6).':'.$this->equivalencias[$u].''.($fila-1).'')->applyFromArray($styleTitulos5);
 				 //aplica formato de numero en la columna
 				 $this->docexcel->getActiveSheet()->getStyle(''.$this->equivalencias[$u].''.(6).':'.$this->equivalencias[$u].''.($fila).'')->getNumberFormat()->setFormatCode('#,##0.00');
 				 

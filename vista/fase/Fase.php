@@ -7,6 +7,7 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 	ISSUE FORK		FECHA		AUTHOR			DESCRIPCION
  	#5		EndeEtr	09/01/2019	EGS				Se aumento el campo precio_item que es la suma de los items en la fase
+ * 	#7		EndeEtr	20/02/2019	EGS				validacion que pinta de color cuando existe items en el nodo fase
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -190,7 +191,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				maxLength:20,
 				gtpl: function (p){//Es como el Renderer de grilla pero para arboles
 					//pinta  el codigo cuando existe un item registrado en la fase
-					if(this.precio_item != null){
+					if(this.nro_items != null){//#7
 					return  String.format('<b><font size=2 style="color:#B2B4FD";>'+this.codigo+'</font><b>');
 						
 					}else{
@@ -680,7 +681,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 		cls:'FaseConceptoIngas'
 	}, {
 		url:'../../../sis_proyectos/vista/fase_avance_obs/FaseAvanceObsAv.php',
-		title:'Avance Visual',
+		title:'Avance de Supervicion',
 		width:'40%',
 		height:'50%',
 		cls:'FaseAvanceObsAv'

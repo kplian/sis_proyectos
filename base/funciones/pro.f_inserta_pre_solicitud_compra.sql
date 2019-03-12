@@ -17,6 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
    #5              21/01/2019          EGS                 Se hace update de del campo de Fecha real
+   #7              20/02/2019          EGS                 se agrego el codigo de inv en obs cuando se genere una presolicitud
  ***************************************************************************/
  */
  
@@ -68,7 +69,8 @@ BEGIN
             inv.descripcion,
             inv.dias_plazo_entrega,
             inv.id_categoria_compra,
-            inv.id_grupo      
+            inv.id_grupo,
+            inv.codigo      
         INTO
         v_record_invitacion 
         FROM pro.tinvitacion inv
@@ -126,8 +128,8 @@ BEGIN
 
             --crear tabla 
             v_tabla = pxp.f_crear_parametro(ARRAY[	 
-    
-                     
+                                '_nombre_usuario_ai',
+                                '_id_usuario_ai',                    
                               	'id_grupo',
                                 'id_funcionario_supervisor',
                                 'id_funcionario',
@@ -141,12 +143,13 @@ BEGIN
                                                                               
                                         ],
             				ARRAY[
-                            
+                            	'NULL', ---'_nombre_usuario_ai',
+                                '',  -----'_id_usuario_ai',	
                            		v_record_invitacion.id_grupo::varchar,--'id_grupo'
                                 v_id_funcionario_supervisor[1]::varchar,--'id_funcionario_supervisor'
                                 v_record_invitacion.id_funcionario::varchar,--'id_funcionario'
                                --''::varchar,--'estado_reg'
-                                ''::varchar,--'obs'
+                                'Codigo Invitacion:'||v_record_invitacion.codigo::varchar,--'obs'--#7 
                                 v_record_uo.id_uo::varchar,--'id_uo'
                                 --''::varchar,--'estado'
                                 v_fecha::varchar,--'fecha_soli'
@@ -154,7 +157,8 @@ BEGIN
                                 v_id_gestion::varchar --'id_gestion'
                                 ],
                             ARRAY[
-       
+                                 'varchar',
+                                'integer',
                             	'int4',--'id_grupo'
                                 'int4',--'id_funcionario_supervisor'
                                 'int4',--'id_funcionario'
@@ -172,11 +176,13 @@ BEGIN
           	v_id_presolicitud  = pxp.f_recupera_clave(v_resp,'id_presolicitud');
             v_id_presolicitud	=  split_part(v_id_presolicitud, '{', 2);
             v_id_presolicitud	=  split_part(v_id_presolicitud, '}', 1);
-           
+          --raise EXCEPTION 'v_id_presolicitud %',v_id_presolicitud;
+
             ----insertando los detalles de la presolicitud respectivamente
  			v_count = 0;
 			FOR v_record_detalle in ( 
     			SELECT
+                 invd.id_invitacion_det,
                  invd.precio,
                  invd.cantidad_sol,
 				 invd.id_concepto_ingas,
@@ -197,6 +203,7 @@ BEGIN
               raise exception '%',v_record_detalle;
 			  end if;
              */
+             -- raise exception '%',v_record_detalle;
               v_tabla_2 = pxp.f_crear_parametro(ARRAY[
                                         
                                   'descripcion',
@@ -211,7 +218,7 @@ BEGIN
 
                                   ],
                               ARRAY[
-                              	  v_descripcion::varchar,--'descripcion'
+                              	  COALESCE(v_descripcion,' ')::varchar,--'descripcion'
                                   v_record_detalle.cantidad_sol::varchar,--'cantidad'
                                   v_record_detalle.id_centro_costo::varchar,--'id_centro_costo'
                                   v_record_detalle.id_concepto_ingas::varchar ,--'id_concepto_ingas'
@@ -239,7 +246,10 @@ BEGIN
               v_id_presolicitud_det  = pxp.f_recupera_clave(v_resp_2,'id_presolicitud_det');
               v_id_presolicitud_det	=  split_part(v_id_presolicitud_det, '{', 2);
               v_id_presolicitud_det	=  split_part(v_id_presolicitud_det, '}', 1);
-             -- raise EXCEPTION 'v_id_presolicitud_det %',v_id_presolicitud_det;
+             --actualizamos el detalle de la invitacion
+              UPDATE pro.tinvitacion_det
+              set id_presolicitud_det = v_id_presolicitud_det::INTEGER
+              where id_invitacion_det = v_record_detalle.id_invitacion_det;
 
               v_resp	= 'exito';
 			END LOOP;

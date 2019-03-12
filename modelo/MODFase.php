@@ -7,6 +7,7 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 	ISSUE FORK		FECHA		AUTHOR			DESCRIPCION
  	#5		EndeEtr	09/01/2019	EGS				Se aumento el campo precio_item que es la suma de los items en la fase
+ 	#7		EndeEtr	20/02/2019	EGS				se agrego el campo nro items
 */
 
 class MODFase extends MODbase{
@@ -175,7 +176,7 @@ class MODFase extends MODbase{
 		$this->captura('fecha_ini_real','date');
 		$this->captura('fecha_fin_real','date');
 		$this->captura('precio_item','numeric');//#5
-
+		$this->captura('nro_items','integer');//#7
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		//echo $this->consulta;exit;

@@ -5,7 +5,10 @@
 *@author  (eddy.gutierrez)
 *@date 22-08-2018 22:32:59
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+    ISSUE FORK			FECHA		AUTHOR			DESCRIPCION 
+ *  #7	  endeETR		29/01/2019	EGS				se agrego el parametro (invitacion_det__tipo) al insertar una invitacion
+ * 
+ */
 
 class MODInvitacionDet extends MODbase{
 	
@@ -79,6 +82,7 @@ class MODInvitacionDet extends MODbase{
 		$this->setParametro('descripcion','descripcion','text');
 		$this->setParametro('id_fase','id_fase','int4');
 		$this->setParametro('id_concepto_ingas','id_concepto_ingas','int4');
+		$this->setParametro('invitacion_det__tipo','invitacion_det__tipo','varchar');//#7 EGS
 		
 
 		//Ejecuta la instruccion

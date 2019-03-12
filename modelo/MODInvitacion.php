@@ -5,7 +5,9 @@
 *@author  (eddy.gutierrez)
 *@date 22-08-2018 22:32:20
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+ 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+    #7	  endeETR		29/01/2019	EGS				se creo las funciones para listar combos procesos de solicitudes de compra y sus detalles e insertar una invitacion regularizada  
+ */
 
 class MODInvitacion extends MODbase{
 
@@ -213,6 +215,85 @@ class MODInvitacion extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+	function listarSolicituCompraCombo(){//#7
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='pro.ft_invitacion_sel';
+		$this->transaccion='PRO_IVTADQ_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		//Definicion de la lista del resultado del query
+		$this->captura('id_estado_wf','int4');
+		$this->captura('id_solicitud','int4');
+		$this->captura('fecha_soli','date');
+		$this->captura('id_tipo_estado','int4');
+		$this->captura('num_tramite','varchar');
+		$this->captura('codigo_estado','varchar');		
+		$this->captura('cantidad_detalle_sol','integer');
+		$this->captura('cantidad_detalle_inv','integer');
+		$this->captura('id_moneda','int4');
+		$this->captura('codigo_moneda','varchar');
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	function listarSolicituCompraDetCombo(){//#7
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='pro.ft_invitacion_sel';
+		$this->transaccion='PRO_INDADQ_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		//Definicion de la lista del resultado del query
+		$this->captura('id','integer');
+		$this->captura('id_solicitud_det','int4');
+		$this->captura('id_solicitud','int4');
+		$this->captura('id_concepto_ingas','int4');
+		$this->captura('desc_ingas','varchar');
+		$this->captura('cantidad','integer');
+		$this->captura('precio_unitario','numeric');
+		$this->captura('precio_total','numeric');	
+		$this->captura('id_centro_costo','int4');
+		$this->captura('descripcion','text');
+		$this->captura('codigo_moneda','varchar');
+		$this->captura('precio_total_conversion','numeric');
+		$this->captura('codigo_moneda_total_conversion','varchar');
+		
+			
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+	
+	function invitacionRegularizada(){ //#7
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='pro.f_inserta_invitacion';
+		$this->transaccion='PRO_IVTREG_IME';
+		$this->tipo_procedimiento='IME';//tipo de transaccion
+		$this->setParametro('p_id_usuario','p_id_usuario','int4');
+		
+		//Definicion de la lista del resultado del query
+		$this->setParametro('id_fase','id_fase','int4');
+		$this->setParametro('id_proyecto','id_proyecto','int4');
+		$this->setParametro('codigo','codigo','varchar');
+		$this->setParametro('id_solicitud','id_solicitud','int4');
+		$this->setParametro('id_fase_concepto_ingas','id_fase_concepto_ingas','int4');
+		$this->setParametro('id_solicitud_det','id_solicitud_det','int4');
+		$this->setParametro('id_invitacion','id_invitacion','int4');
+		$this->setParametro('asociar_invitacion','asociar_invitacion','varchar');
+		
+	
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+ 
 
 }
 ?>

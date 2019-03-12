@@ -7,6 +7,7 @@
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
  	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	#5	  endeETR		09/01/2019	EGS				Se agrego parametros por defecto
+    #7	  endeETR		29/01/2019	EGS				se creo las funciones para listar combos procesos de solicitudes de compra y sus detalles e insertar una invitacion regularizada  
 */
 
 class ACTInvitacion extends ACTbase{    
@@ -36,7 +37,8 @@ class ACTInvitacion extends ACTbase{
 	}
 				
 	function insertarInvitacion(){
-		$this->objFunc=$this->create('MODInvitacion');	
+		$this->objFunc=$this->create('MODInvitacion');
+
 		if($this->objParam->insertar('id_invitacion')){
 			$this->res=$this->objFunc->insertarInvitacion($this->objParam);			
 		} else{			
@@ -62,7 +64,47 @@ class ACTInvitacion extends ACTbase{
         $this->res=$this->objFunc->anteriorEstado($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+	function listarSolicituCompraCombo(){ //#7
+		$this->objParam->defecto('ordenacion','id_solicitud');
+		$this->objParam->defecto('dir_ordenacion','asc');
+		$this->objParam->defecto('cantidad',1000000);
+		$this->objParam->defecto('puntero', 0);
+		
+		//var_dump($this->objParam);exit;
+		$this->objFunc=$this->create('MODInvitacion');
+			
+		$this->res=$this->objFunc->listarSolicituCompraCombo($this->objParam);
+		
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}	
+	function listarSolicituCompraDetCombo(){//#7
+		$this->objParam->defecto('ordenacion','id_solicitud_det');
+		$this->objParam->defecto('dir_ordenacion','asc');
+		$this->objParam->defecto('cantidad',1000000);
+		$this->objParam->defecto('puntero', 0);
+		
+		if($this->objParam->getParametro('id_solicitud')!=''){
+			$this->objParam->addFiltro("sold.id_solicitud = ".$this->objParam->getParametro('id_solicitud'));	
+		}
+		
+		//var_dump($this->objParam);exit;
+		$this->objFunc=$this->create('MODInvitacion');
+			
+		$this->res=$this->objFunc->listarSolicituCompraDetCombo($this->objParam);
+		
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+	function invitacionRegularizada(){//#7
+		
+		$this->objParam->addParametro('p_id_usuario',$_SESSION["ss_id_usuario"]);
+		
+		$this->objFunc=$this->create('MODInvitacion');	
 	
+		$this->res=$this->objFunc->invitacionRegularizada($this->objParam);			
+		
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+		
 			
 }
 

@@ -18,6 +18,7 @@ $body$
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				22-08-2018 22:32:20								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tinvitacion'	
  #5	EndeEtr		17/01/2019          	EGS					    Se mejoro la validacion  para que solo presolicitudes compartan el codigo de invitacion	
+ #7	EndeEtr		20/02/2019          	EGS					    Se mejoro la insercion y modificacion del codigo de inv
  ***************************************************************************/
 
 DECLARE
@@ -74,6 +75,7 @@ DECLARE
      v_id_periodo 					integer;
      v_rec_proyecto					record;
      v_pre_solicitud				varchar;
+     v_count_inv_sc                 integer;
 			    
 BEGIN
 
@@ -90,6 +92,9 @@ BEGIN
 	if(p_transaccion='PRO_IVT_INS')then
 					
         begin
+            --el codigo en mayusculas y sin espacios #7 
+            v_parametros.codigo=trim(upper(v_parametros.codigo));
+            v_parametros.codigo=REPLACE(v_parametros.codigo,' ', '');
         	--verificamos en que estado esta el proyecto
         	SELECT
             pro.estado
@@ -102,7 +107,7 @@ BEGIN
                 raise exception 'No puede Ingresa una Invitacion el proyecto esta en estado de  %',v_rec_proyecto.estado;
             END IF;
         	
-        	---validamos que no se repita el codigo #5
+        	---validamos que no se repita el codigo a menos que sea una presolicitud #5
             v_pre_solicitud = split_part(pxp.f_get_variable_global('py_gen_presolicitud'), ',', 1); 
         	 select 
                inv.codigo
@@ -219,7 +224,7 @@ BEGIN
             id_grupo
           	) values(
 			v_parametros.id_proyecto,
-			v_parametros.codigo,
+			UPPER(v_parametros.codigo),
 			v_parametros.fecha,
 			v_parametros.descripcion,
 		--	v_parametros.fecha_real,
@@ -245,6 +250,31 @@ BEGIN
 			
 			
 			)RETURNING id_invitacion into v_id_invitacion;
+            --Actualiza las invitaciones con el mismo codigo para generar una presolicitud
+            --con los mismos datos
+            IF v_parametros.pre_solicitud = v_pre_solicitud  THEN                            
+                  update pro.tinvitacion set
+                  codigo = v_parametros.codigo,
+                  fecha = v_parametros.fecha,
+                  descripcion = v_parametros.descripcion,
+                  --fecha_real = v_parametros.fecha_real,
+                  id_usuario_mod = p_id_usuario,
+                  fecha_mod = now(),
+                  id_usuario_ai = v_parametros._id_usuario_ai,
+                  usuario_ai = v_parametros._nombre_usuario_ai,
+                  id_funcionario=v_parametros.id_funcionario,
+                  id_depto=v_parametros.id_depto,
+                  id_moneda=v_parametros.id_moneda,
+                  tipo=v_parametros.tipo,
+                  lugar_entrega=v_parametros.lugar_entrega,
+                  dias_plazo_entrega=v_parametros.dias_plazo_entrega,
+                  id_categoria_compra = v_parametros.id_categoria_compra,
+                  pre_solicitud = v_parametros.pre_solicitud,
+                  id_grupo = v_parametros.id_grupo
+
+                  where codigo=v_parametros.codigo and id_invitacion <>v_id_invitacion ; 
+            
+            END IF;
 			
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','invitacion almacenado(a) con exito (id_invitacion'||v_id_invitacion||')'); 
@@ -265,7 +295,9 @@ BEGIN
 	elsif(p_transaccion='PRO_IVT_MOD')then
 
 		begin
-        
+            --el codigo en mayusculas y sin espacios  #7
+            v_parametros.codigo=trim(upper(v_parametros.codigo));
+            v_parametros.codigo=REPLACE(v_parametros.codigo,' ', '');
         	--verificamos en que estado esta el proyecto
         	SELECT
             pre.estado
@@ -292,7 +324,42 @@ BEGIN
                raise exception 'ya existe el código de la Invitacion %',v_parametros.codigo;      
             END IF;
             
+            --si la invitacion es una presolicitud y se comparte el codigo entre invitaciones se modificara todas las invitaciones que comparten el codigo 
+            --a menos que una invitacion con el mismo codigo ya genero una presolicitud estado(sol_compra)
+
+            IF v_parametros.pre_solicitud = v_pre_solicitud  THEN
+                 SELECT
+                     count(inv.id_invitacion)
+                 INTO
+                    v_count_inv_sc
+                FROM pro.tinvitacion inv
+                WHERE inv.codigo = v_parametros.codigo and inv.estado = 'sol_compra' ;
+                IF v_count_inv_sc <> 0 THEN
+                    RAISE EXCEPTION 'No puede modificar el Maestro de la INV. una Invitacion con el mismo Codigo ya genero una Presolicitud de Compra.Elimine la presolicitud con el mismo codigo en adquisiciones y la invitacion volvera a Vobo';
+                END IF;                  
+                  update pro.tinvitacion set
+                  codigo = v_parametros.codigo,
+                  fecha = v_parametros.fecha,
+                  descripcion = v_parametros.descripcion,
+                  --fecha_real = v_parametros.fecha_real,
+                  id_usuario_mod = p_id_usuario,
+                  fecha_mod = now(),
+                  id_usuario_ai = v_parametros._id_usuario_ai,
+                  usuario_ai = v_parametros._nombre_usuario_ai,
+                  id_funcionario=v_parametros.id_funcionario,
+                  id_depto=v_parametros.id_depto,
+                  id_moneda=v_parametros.id_moneda,
+                  tipo=v_parametros.tipo,
+                  lugar_entrega=v_parametros.lugar_entrega,
+                  dias_plazo_entrega=v_parametros.dias_plazo_entrega,
+                  id_categoria_compra = v_parametros.id_categoria_compra,
+                  pre_solicitud = v_parametros.pre_solicitud,
+                  id_grupo = v_parametros.id_grupo
+
+                  where codigo=v_parametros.codigo and id_invitacion <>v_parametros.id_invitacion ; 
             
+            END IF; 
+               
 			--Sentencia de la modificacion
 			update pro.tinvitacion set
             codigo = v_parametros.codigo,
@@ -334,6 +401,7 @@ BEGIN
 	elsif(p_transaccion='PRO_IVT_ELI')then
 
 		begin
+            v_pre_solicitud = split_part(pxp.f_get_variable_global('py_gen_presolicitud'), ',', 1);
         	
            --verificamos en que estado esta el proyecto
         	SELECT
@@ -347,7 +415,28 @@ BEGIN
             IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
                 raise exception 'No puede Eliminar una Invitacion el proyecto esta en estado de  %',v_rec_proyecto.estado;
             END IF;
-        	
+            /* 
+            SELECT
+                inv.pre_solicitud,
+                inv.codigo    
+               INTO
+                    v_record_invitacion
+            FROM pro.tinvitacion inv
+            WHERE inv.id_invitacion = v_parametros.id_invitacion ;
+            
+           
+            IF v_record_invitacion.pre_solicitud = v_pre_solicitud  THEN
+                 SELECT
+                     count(inv.id_invitacion)
+                 INTO
+                    v_count_inv_sc
+                FROM pro.tinvitacion inv
+                WHERE inv.codigo = v_record_invitacion.codigo and inv.estado = 'sol_compra' ;
+               IF v_count_inv_sc <> 0 THEN
+                      RAISE EXCEPTION 'No puede Eliminar el Maestro de la INV. una Invitacion con el mismo Codigo ya genero una Presolicitud de Compra';
+               END IF; 
+             END IF;   */   
+                  
 			--Sentencia de la eliminacion
 			delete from pro.tinvitacion
             where id_invitacion=v_parametros.id_invitacion;
@@ -372,14 +461,15 @@ BEGIN
         begin
         
          --raise exception 'invi';
-
+          v_pre_solicitud = split_part(pxp.f_get_variable_global('py_gen_presolicitud'), ',', 1); 
         ---recuperamos datos de la invitacion
         	select
             	inv.id_categoria_compra,
                 inv.lugar_entrega,
                 inv.dias_plazo_entrega,
                 inv.fecha,
-                inv.codigo
+                inv.codigo,
+                inv.pre_solicitud
             into
             	v_record_invitacion
             from pro.tinvitacion inv
@@ -483,10 +573,12 @@ BEGIN
             From adq.tcategoria_compra cat
             Where	cat.id_categoria_compra = v_record_invitacion.id_categoria_compra;
             --validamos si el total de los detalles pertenecen a la categoria ya insertada en la invitacion 
-            if v_record_categoria_compra.min > v_total_precio_invitacion	or v_total_precio_invitacion > v_record_categoria_compra.max  then
-            	Raise exception 'El total del detalle % no pertenence a la Categoria de Compra % asignada a la invitacion',v_total_precio_invitacion,v_record_categoria_compra.nombre;
-            end if;
-        
+            --solo cuando generamos una solicitud de compra y no una presolicitud
+            IF v_record_invitacion.pre_solicitud <> v_pre_solicitud THEN
+              if v_record_categoria_compra.min > v_total_precio_invitacion	or v_total_precio_invitacion > v_record_categoria_compra.max  then
+                  Raise exception 'El total del detalle % no pertenence a la Categoria de Compra % asignada a la invitacion',v_total_precio_invitacion,v_record_categoria_compra.nombre;
+              end if;
+            END IF;
 	        /*   PARAMETROS
 
 	        $this->setParametro('id_proceso_wf_act','id_proceso_wf_act','int4');
@@ -668,9 +760,6 @@ BEGIN
               inner join wf.testado_wf ew on ew.id_estado_wf =  c.id_estado_wf
               left join  wf.ttipo_estado es on es.id_tipo_estado = ew.id_tipo_estado
               where c.id_invitacion = v_parametros.id_invitacion;
-             
-             
-             v_pre_solicitud = split_part(pxp.f_get_variable_global('py_gen_presolicitud'), ',', 1);
 
              IF	v_rec.codigo_estado = 'sol_compra'  THEN
              	 
