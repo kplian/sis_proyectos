@@ -21,10 +21,9 @@ $body$
  ISSUE:         #7    
 ***************************************************************************
  HISTORIA DE MODIFICACIONES:
-
- DESCRIPCIÓN:
- AUTOR:       
- FECHA:      
+       
+ ISSUE  FECHA:          AUTOR:    DESCRIPCIÓN: 
+ #8      18/03/2019     EGS         Borrado de una consulta que se coloco por error      
 
 ***************************************************************************/
 
@@ -68,16 +67,7 @@ DECLARE
 
 BEGIN
     v_nombre_funcion ='pro.f_lista_funcionario_wf';
-  
-    select 
-      op.id_funcionario
-    into
-      v_id_funcionario
-    from plani.tlicencia op
-    where op.id_estado_wf = p_id_estado_wf;
     
-    
-   
     IF not p_count then
     
              v_consulta:='SELECT

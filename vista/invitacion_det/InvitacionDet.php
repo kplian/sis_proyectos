@@ -8,7 +8,7 @@
 		ISSUE		FECHA		AUTHOR			DESCRIPCION
 		 #6	EndeEtr 24/01/2019	 EGS		    Se hace validacion paa que la invitacion tenga fecha al querer añadir un detalle
 		 #7	EndeEtr 04/02/2019	 EGS		    Se hace validacion para que no guarde en estado de sol_compra
- * 
+ * 		#8	EndeEtr 18/03/2019	 EGS		    se fuerza a escoger centro de costo
  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -457,7 +457,7 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 		config: {
 				name: 'id_centro_costo',
 				fieldLabel: 'Centro Costo',
-				allowBlank: true,
+				allowBlank: true,//#8
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
 					url: '../../sis_parametros/control/CentroCosto/listarCentroCostoGrid',

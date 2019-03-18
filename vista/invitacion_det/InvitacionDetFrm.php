@@ -398,7 +398,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 			config: {
 				name: 'id_centro_costo',
 				fieldLabel: 'Centro Costo',
-				allowBlank: true,
+				allowBlank: false,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
 					url: '../../sis_parametros/control/TipoCc/listarTipoCcArbHijos',
