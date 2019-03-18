@@ -5,6 +5,8 @@
 *@author  (admin)
 *@date 28-09-2017 20:12:15
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ * ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+ 	#8	  endeETR		18/03/2019	EGS				se filtra por estado nuevo y ejecucion 
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -68,6 +70,7 @@ Phx.vista.ProyectoPr = {
 		this.cmbEstado.on('select',this.capturaFiltros,this);
 		this.cmbEstado.fireEvent('select');
      
+    this.load({params:{start:0, limit:this.tam_pag, planificacion:'si'}});//#8
     },
     
     capturaFiltros:function(combo, record, index){

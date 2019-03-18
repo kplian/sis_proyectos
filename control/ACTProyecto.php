@@ -5,6 +5,8 @@
 *@author  (admin)
 *@date 28-09-2017 20:12:15
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
+ * ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+ 	#8	  endeETR		18/03/2019	EGS				se filtra por estado nuevo y ejecucion en la vista de planificaion
 */
 include_once(dirname(__FILE__).'/../../lib/lib_general/ExcelInput.php');
 class ACTProyecto extends ACTbase{
@@ -22,7 +24,12 @@ class ACTProyecto extends ACTbase{
 		}
 
 		if($this->objParam->getParametro('estado')!=''){
-			$this->objParam->addFiltro("proy.estado = ''".$this->objParam->getParametro('estado')."''");
+
+				$this->objParam->addFiltro("proy.estado = ''".$this->objParam->getParametro('estado')."''");				
+		}
+		//#8
+		if($this->objParam->getParametro('planificacion') =='si'){
+				$this->objParam->addFiltro("proy.estado in (''nuevo'',''ejecucion'')");								
 		}
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
