@@ -18,6 +18,8 @@ $body$
  ISSUE			FECHA:			AUTOR:					DESCRIPCION:
  #5             09/01/2019      EGS                     Se agrego campo para cuantos dias pasaron desde el lanzamiento del item y si esta lanzado o no
  #6   Endeetr   24/01/2019      EGS                     Se modifico transaccion para que tome encuenta items sin un prorrateo en plan de pagos y validaciones para que funcione sin el nivel III y Nivel II
+ #9   EndeEtr   26/03/2019      EGS                     Se aumento como un nivel a la fase de los items que se registran n el plan de pago
+                                                        Se aumento el numero de tramite en los lanzamientos de items
 ***************************************************************************/
 
 DECLARE
@@ -55,6 +57,8 @@ DECLARE
     v_id_padre_II			integer;
     v_prorrateo             record;
     v_importe_padre_II      numeric;
+    v_id_padre_I            numeric;
+    v_record_proyecto       record;
 BEGIN
 
     v_nombre_funcion = 'pro.f_reportes_proyecto_sel';
@@ -74,8 +78,14 @@ BEGIN
 
         	 p_id_proyecto = v_parametros.id_proyecto;
              --p_id_proyecto = 74;
+            SELECT
+                pro.codigo
+            into
+            v_record_proyecto 
+            FROM pro.tproyecto pro               
+            WHERE pro.id_proyecto = p_id_proyecto ;
             
-             Select 
+            Select 
                 count(facoin.id_fase_concepto_ingas)--#6 
             INTO
             	v_count
@@ -92,14 +102,15 @@ BEGIN
               el nivel II al padre fase del nivel I 
               el nivel III el padre del nivel II
             */
-          	
+            	
             v_tabla='CREATE TEMPORARY TABLE plan_pago(
                                       id serial,
+                                      id_nivel integer,
                                       id_nivel_I integer,
                                       id_nivel_II integer,
                                       id_nivel_III integer,                                      
                                       nivel integer,
-                                      nombre_padre varchar,
+                                      codigo varchar,
                                       id_fase_concepto_ingas integer,
                                       id_fase_concepto_ingas_pago integer,
                                       item varchar,
@@ -148,13 +159,14 @@ BEGIN
                 facoinpa.id_fase_concepto_ingas_pago,
                 facoin.id_fase_concepto_ingas,
                 coingas.desc_ingas,
-                facoin.precio as precio_estimado,
-                facoin.precio_real,
+                facoin.precio as precio_real,
+                facoin.precio_est as precio_estimado,
                 facoinpa.fecha_pago,
                 date_part('month',facoinpa.fecha_pago) as mes,
     			date_part('year', facoinpa.fecha_pago)as anio,
                 facoinpa.importe,
-                facoinpa.fecha_pago_real
+                facoinpa.fecha_pago_real,
+                facoin.codigo
             From pro.tfase_concepto_ingas facoin
             LEFT JOIN pro.tfase_concepto_ingas_pago facoinpa on facoinpa.id_fase_concepto_ingas = facoin.id_fase_concepto_ingas
             left join param.tconcepto_ingas coingas on coingas.id_concepto_ingas = facoin.id_concepto_ingas
@@ -212,10 +224,13 @@ BEGIN
                           v_record_fase_padre
                           from pro.tfase fase
                           where  fase.id_fase = v_plan_pago.id_padre_III ;
+                          
+                          v_record_fase_padre.codigo = replace(v_record_fase_padre.codigo,'['||v_record_proyecto.codigo||']','');
+
                           v_consulta_into=' insert into plan_pago(
                                                    id_nivel_III,
                                                    nivel,
-                                                   nombre_padre,
+                                                   codigo,
                                                    item
                                                           )VALUES(
                                                    '||v_record_fase_padre.id_fase||',
@@ -251,12 +266,15 @@ BEGIN
                       v_record_fase
                       from pro.tfase fase
                       where  fase.id_fase = v_plan_pago.id_padre_II ;
+                     
+                     v_record_fase.codigo = replace(v_record_fase.codigo,'['||v_record_proyecto.codigo||']','');
+
                       ---se inserta el de los nivel 2  
                       v_consulta_into=' insert into plan_pago(
                                                id_nivel_II,
                                                id_nivel_III,
                                                nivel,
-                                               nombre_padre,
+                                               codigo,
                                                 item
                                                       )VALUES(
                                                '||v_record_fase.id_fase||',
@@ -269,6 +287,54 @@ BEGIN
 
                   END IF ;
                END IF ;
+               
+               IF v_plan_pago.id_padre_I is not null THEN --#9
+              --verificamos si existe ya insertado el nivel II insertado en la tabla 
+
+                  Select
+                        pla.id_nivel_I
+                  into
+                  v_id_padre_I
+                  From plan_pago pla
+                  where pla.id_nivel_I = v_plan_pago.id_padre_I;
+               IF  v_id_padre_I is null then                   
+               
+                    --datos de un nivel I
+                      Select
+                          fase.id_fase,
+                          fase.codigo,
+                          fase.nombre,
+                          fase.id_fase_fk,
+                          fasse.id_fase_fk as id_fase_fk_fk
+                      into
+                      v_record_fase
+                      from pro.tfase fase
+                      left JOIN pro.tfase fasse on fasse.id_fase = fase.id_fase_fk
+                      where  fase.id_fase = v_plan_pago.id_padre_I ;
+                      
+                      v_record_fase.codigo = replace(v_record_fase.codigo,'['||v_record_proyecto.codigo||']','');
+
+                      ---se inserta el de los nivel 1  
+                      v_consulta_into=' insert into plan_pago(
+                                               id_nivel_I,
+                                               id_nivel_II,
+                                               id_nivel_III,
+                                               nivel,
+                                               codigo,
+                                                item
+                                                      )VALUES(
+                                               '||v_record_fase.id_fase||',
+                                               '||COALESCE(v_record_fase.id_fase_fk,0)||',
+                                               '||COALESCE(v_record_fase.id_fase_fk_fk,0)||',
+                                               '||1||',
+                                               '''||v_record_fase.codigo||''',
+                                               '''||v_record_fase.nombre||'''
+                                                      )'; 
+                      execute(v_consulta_into);
+
+                  END IF ;
+               END IF ;
+               
                 
               --verificamos si existe el item en l tabla
               SELECT
@@ -282,11 +348,12 @@ BEGIN
                 --si tiene plan de pagos
                 IF v_plan_pago.id_fase_concepto_ingas_pago is not null THEN 
              	 v_consulta_into=' insert into plan_pago(
+                                         id_nivel,
                                          id_nivel_I,
                                          id_nivel_II,
                                          id_nivel_III,
                                          nivel,
-                 						 nombre_padre,
+                 						 codigo,
                  						 id_fase_concepto_ingas,
               							 id_fase_concepto_ingas_pago,
                                          item,
@@ -298,13 +365,14 @@ BEGIN
                                          total_prorrateo 
                                                 )VALUES(
                                          '||v_plan_pago.id_padre_I||',
+                                         '||COALESCE(v_plan_pago.id_padre_I,0)||',
                                          '||COALESCE(v_plan_pago.id_padre_II,0)||',--#6
                                          '||COALESCE(v_plan_pago.id_padre_III,0)||',--#6
-                                         '||1||',
-                                    	 '''||COALESCE(v_plan_pago.nombre_padre_II,' ')||''',--#6
+                                         '||0||',
+                                    	 '''||COALESCE(v_plan_pago.codigo,' ')||''',--#6
                                          '||v_plan_pago.id_fase_concepto_ingas||',
                                          '||v_plan_pago.id_fase_concepto_ingas_pago||',
-                                         '''||v_plan_pago.codigo_padre_I||'-'||v_plan_pago.desc_ingas||''',
+                                         '''||v_plan_pago.desc_ingas||''',
                                          '||v_plan_pago.importe||',
                                          '||v_plan_pago.mes||',
                                          '||v_plan_pago.anio||',
@@ -313,6 +381,11 @@ BEGIN
                                          '||COALESCE(v_plan_pago.importe,0)||'
                                                 )'; 
                      execute(v_consulta_into);
+                     --actualizamos los importes totalizadores de los padres de nivel II segun columna dinamica 
+                     v_consulta_update = 'update  plan_pago set
+                                        '||v_columna||' = COALESCE('||v_columna||',0) +COALESCE('||v_plan_pago.importe||',0)
+                                      Where  nivel = 1 and id_nivel_I = '||COALESCE(v_plan_pago.id_padre_I,0)||'';
+                    execute(v_consulta_update);
                     --actualizamos los importes totalizadores de los padres de nivel II segun columna dinamica 
                      v_consulta_update = 'update  plan_pago set
                                         '||v_columna||' = COALESCE('||v_columna||',0) +COALESCE('||v_plan_pago.importe||',0)
@@ -322,16 +395,16 @@ BEGIN
                     v_consulta_update = 'update  plan_pago set
                                         '||v_columna||' = COALESCE('||v_columna||',0) +COALESCE('||v_plan_pago.importe||',0)
                                       Where  nivel = 3 and id_nivel_III = '||COALESCE(v_plan_pago.id_padre_III,0)||'';
-                    execute(v_consulta_update);
-                     
+                    execute(v_consulta_update);                    
                     ELSE
                       ---se inserta los items que no tengan plan de pagos
                         	v_consulta_into=' insert into plan_pago(
+                                         id_nivel,
                                          id_nivel_I,
                                          id_nivel_II,
                                          id_nivel_III,
                                          nivel,
-                                         nombre_padre,
+                                         codigo,
                                     	 id_fase_concepto_ingas,
                                          item,
                                          precio_estimado,
@@ -339,12 +412,13 @@ BEGIN
                                          total_prorrateo
                                                 )VALUES(
                                          '||v_plan_pago.id_padre_I||',
+                                         '||v_plan_pago.id_padre_I||',
                                          '||COALESCE(v_plan_pago.id_padre_II,0)||',
                                          '||COALESCE(v_plan_pago.id_padre_III,0)||',
-                                         '||1||',
-                                         '''||COALESCE(v_plan_pago.nombre_padre_II,' ')||''',
+                                         '||0||',
+                                         '''||COALESCE(v_plan_pago.codigo,' ')||''',
                                          '||v_plan_pago.id_fase_concepto_ingas||',
-                                         '''||v_plan_pago.codigo_padre_I||'-'||v_plan_pago.desc_ingas||''',
+                                         '''||v_plan_pago.desc_ingas||''',
                                          '||COALESCE(v_plan_pago.precio_estimado,0)||',
                                          '||COALESCE(v_plan_pago.precio_real,0)||',
                                          '||COALESCE(v_plan_pago.importe,0)||'
@@ -360,6 +434,11 @@ BEGIN
                                     total_prorrateo = COALESCE(total_prorrateo,0) + '||COALESCE(v_plan_pago.importe,0)||'
                                   Where id_fase_concepto_ingas = '||v_id_fase_concepto_ingas||'';
                	execute(v_consulta_update);
+                --#9 actualizamos los importes totalizadores de los padres de nivel I segun columna dinamica 
+                 v_consulta_update = 'update  plan_pago set
+                                        '||v_columna||' = COALESCE('||v_columna||',0) +COALESCE('||v_plan_pago.importe||',0)
+                                      Where  nivel = 1 and id_nivel_I = '||COALESCE(v_plan_pago.id_padre_I,0)||'';
+                 execute(v_consulta_update);
                 --actualizamos los importes totalizadores de los padres de nivel II segun columna dinamica 
                  v_consulta_update = 'update  plan_pago set
                                         '||v_columna||' = COALESCE('||v_columna||',0) +COALESCE('||v_plan_pago.importe||',0)
@@ -375,26 +454,36 @@ BEGIN
               v_count = v_count + 1; 
             END LOOP;          
             
-            --los totales prorrateos de los niveles II y III
+            --los totales prorrateos de los niveles I,II y III
            
             FOR v_prorrateo in ( 
                 SELECT
-                    nivel, 
+                    nivel,
+                    id_nivel_I, 
                     id_nivel_II,
                     id_nivel_III
                 FROM plan_pago
-                WHERE nivel in (2,3)
+                WHERE nivel in (1,2,3)
             )LOOP             
                 FOR v_item IN(
                      SELECT
+                        id_nivel_I,
                         id_nivel_II,
                         id_nivel_III,
                         precio_estimado,
                         precio_real,
                         total_prorrateo
                      FROM plan_pago
-                     WHERE nivel = 1  
+                     WHERE nivel = 0  
                 )LOOP
+                    --#9
+                     IF v_prorrateo.id_nivel_I = v_item.id_nivel_I and v_prorrateo.nivel = 1  THEN
+                            UPDATE plan_pago SET
+                            precio_estimado = COALESCE(precio_estimado,0) + COALESCE(v_item.precio_estimado,0),
+                            precio_real = COALESCE(precio_real,0) +  COALESCE(v_item.precio_real,0),
+                            total_prorrateo = COALESCE(total_prorrateo,0) +  COALESCE(v_item.total_prorrateo,0)
+                            WHERE nivel = 1 and id_nivel_I = v_prorrateo.id_nivel_I;
+                     END IF;
                      IF v_prorrateo.id_nivel_II = v_item.id_nivel_II and v_prorrateo.nivel = 2  THEN
                             UPDATE plan_pago SET
                             precio_estimado = COALESCE(precio_estimado,0) + COALESCE(v_item.precio_estimado,0),
@@ -419,7 +508,7 @@ BEGIN
             	SELECT
                 	 id ,
                      nivel,
-                     nombre_padre,
+                     codigo,
                      item ,
                      precio_estimado,
                      precio_real,
@@ -451,6 +540,7 @@ BEGIN
                                          diciembre_'||v_gestion.anio||' ,';
               END LOOP;  
              v_consulta = v_consulta||' anio,
+                                        id_nivel,
                                         id_nivel_I, 
                                         id_nivel_II,
                                         id_nivel_III   
@@ -551,7 +641,7 @@ BEGIN
                               facoing.id_concepto_ingas,
                               facoing.id_unidad_medida,
                               facoing.tipo_cambio_mt,
-                              facoing.descripcion,
+                              invd.descripcion::varchar,
                               facoing.tipo_cambio_mb,
                               facoing.estado,
                               facoing.estado_reg,
@@ -567,12 +657,12 @@ BEGIN
                               facoing.fecha_mod,
                               usu1.cuenta as usr_reg,
                               usu2.cuenta as usr_mod,
-                              cig.desc_ingas,
+                             (COALESCE(facoing.codigo,'''')||''-''||cig.desc_ingas)::VARCHAR as desc_ingas,
                               cig.tipo,
                               fase.codigo as codigo_fase,
-                              fase.nombre as nombre_fase,
+                              (COALESCE(fase.codigo,'''')||''-''||fase.nombre)::VARCHAR as nombre_fase,
                               fase.id_proyecto,
-                              facoing.fecha_estimada,
+                              COALESCE(facoing.fecha_estimada,now()::date) as fecha_estimada,
                               (facoing.fecha_estimada-now()::date)::integer as dias,
                               est.estado::varchar as estado_tiempo,
                               meg.gestion_item::integer,
@@ -591,7 +681,11 @@ BEGIN
                              (COALESCE(facoing.fecha_estimada,now()::date)-COALESCE(presol.fecha_reg::date,now()::date))::integer   
                               ELSE   
                                     null
-                              END as dias_lanzado        --#5  F                     
+                              END as dias_lanzado,        --#5  F                     
+                              sol.num_tramite,            --#9
+                              facoing.id_funcionario::integer,
+                              invd.id_invitacion_det,
+                              (''[''||COALESCE(inv.codigo,'''')||'']-''||cigv.desc_ingas)::VARCHAR as desc_ingas_invd
                               from pro.tfase_concepto_ingas facoing
                               inner join segu.tusuario usu1 on usu1.id_usuario = facoing.id_usuario_reg
                               left join segu.tusuario usu2 on usu2.id_usuario = facoing.id_usuario_mod
@@ -604,10 +698,11 @@ BEGIN
                               left join pro.tinvitacion_det invd on invd.id_invitacion_det= doinv.id_invitacion_det
                               left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
                               left join adq.tsolicitud sol on sol.id_solicitud= inv.id_solicitud  
-                              left join adq.tpresolicitud presol on presol.id_presolicitud = inv.id_presolicitud  
+                              left join adq.tpresolicitud presol on presol.id_presolicitud = inv.id_presolicitud
+                              left join param.tconcepto_ingas cigv on cigv.id_concepto_ingas = invd.id_concepto_ingas  
                               where  fase.id_proyecto='||p_id_proyecto;
                               
-                             v_consulta=v_consulta||'order by meg.gestion_item ,meg.mes_item ,meg.dia_item ASC '; 
+                             v_consulta=v_consulta||'order by meg.gestion_item ,meg.mes_item ,meg.dia_item,invd.id_invitacion_det ASC '; 
 
           	return v_consulta;
 

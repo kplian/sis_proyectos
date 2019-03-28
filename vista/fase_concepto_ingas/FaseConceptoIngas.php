@@ -6,7 +6,7 @@
 *@date 24-05-2018 19:13:39
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
- 	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores de precio y precio_real
+ 	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores de precio y precio_est
   	#7	  endeETR		29/01/2019	EGS				Se agego los botones y validaciones para que se relaciones una solicitud con el fase_concepto_ingas
  * 
 */
@@ -49,11 +49,13 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 	 relacionSolicitud : function()
 	{	
         var data = this.getSelectedData();
-		if (data.id_invitacion_det != null ) {
-		    alert('No puede relacionar este item ya esta asociado a la invitacion '+data.codigo_inv);
+
+		if (data.precio == data.total_invitacion_det ) {
+		    //alert('No puede relacionar este item ya todo el total del precio esta asociado a la(s) invitacion(es) '+data.codigo_inv);
+			alert('No puede relacionar este item ya todo el total del precio ('+data.precio+' '+data.desc_moneda+') es igual a la suma ('+ data.total_invitacion_det +' '+data.desc_moneda+') de los items asignados a una o varias invitaciones');
 		} else{
 			//alert('Seguro que quiere relacionar un detalle de Solicitud al Item  '+data.desc_ingas +' Se creara una Invitacion de regularizacion o podra asociar a una invitacion existente');	
-			  var opcion = confirm('Seguro que quiere relacionar un detalle de Solicitud al Item  '+data.desc_ingas +' Se creara una Invitacion de regularizacion o podra asociar a una invitacion existente');
+			  var opcion = confirm('Seguro que quiere relacionar un detalle de Solicitud al Item  '+data.desc_ingas +' Se creara una Invitacion de regularizacion o podra asociar a una invitacion existente (Monto para poder asignar = '+(data.precio-data.total_invitacion_det)+' '+data.desc_moneda+')');
 			    if (opcion == true) {
 			        			Phx.CP.loadWindows('../../../sis_proyectos/vista/invitacion/InvitacionReg.php',
 								'Regularizacion',
@@ -97,6 +99,22 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
+		        
+            {
+				config:{
+					name: 'codigo',
+					fieldLabel: 'Codigo',
+					allowBlank: false,
+					anchor: '80%',
+					gwidth: 100,
+					maxLength:100
+				},
+					type:'TextField',
+					filters:{pfiltro:'facoing.tipo',type:'string'},
+					id_grupo:1,
+					grid:true,
+					form:true
+				},
 			{
 			config:{
 				name:'id_bien_servicio',
@@ -330,8 +348,34 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'precio',
+				name: 'precio_est',
 				fieldLabel: 'Precio Total Estimado',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 110,
+				galign: 'right',
+				maxLength:1179650,
+				allowNegative:false,						
+				renderer:function (value,p,record){
+						if(record.json.tipo_reg != 'summary'){//#5
+							return  String.format('{0}',  Ext.util.Format.number(value,'000.000.000,00/i'));
+						}
+						else{
+							Ext.util.Format.usMoney
+							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+						}	
+				}
+			},
+				type:'MoneyField',
+				filters:{pfiltro:'facoing.precio',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'precio',
+				fieldLabel: 'Precio Total Actualizado',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 110,
@@ -361,32 +405,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		{
-			config:{
-				name: 'precio_real',
-				fieldLabel: 'Precio Total Actualizado',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 110,
-				galign: 'right',
-				maxLength:1179650,
-				allowNegative:false,						
-				renderer:function (value,p,record){
-						if(record.json.tipo_reg != 'summary'){//#5
-							return  String.format('{0}',  Ext.util.Format.number(value,'000.000.000,00/i'));
-						}
-						else{
-							Ext.util.Format.usMoney
-							return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
-						}	
-				}
-			},
-				type:'MoneyField',
-				filters:{pfiltro:'facoing.precio',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
+
 		/*
 		{
 			config:{
@@ -622,17 +641,16 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_fin', type: 'date',dateFormat:'Y-m-d'},
 		{name:'estado_proyecto', type: 'string'},
 		{name:'id_funcionario', type: 'numeric'},
-		{name:'precio_real', type: 'numeric'},
+		{name:'precio_est', type: 'numeric'},
 		{name:'desc_funcionario', type: 'string'},
 		{name:'total', type: 'numeric'},//cantidad de items en la grilla
 		{name:'id_invitacion_det', type: 'numeric'},
 		{name:'id_solicitud_det', type: 'numeric'},
 		{name:'codigo_inv', type: 'string'},
 		{name:'nro_items', type: 'numeric'},
-
-		
-
-		
+		{name:'total_invitacion_det', type: 'numeric'},
+		{name:'desc_moneda', type: 'numeric'},
+		{name:'codigo', type: 'string'},
 
 	],
 	sortInfo:{

@@ -9,6 +9,7 @@
  	  #5  endeEtr		23/012019   EGS				se actualizo el basparams de id_centro_costo cuando no es planificado
  	  #6  endeEtr		24/01/2019	EGS				El campo concepto_ingas filtra por tipo segun tipo del maestro
 	  #7  endeEtr		29/01/2019	EGS				Se modifico los parametros de busqueda para concepto ingas y se fuerza los campos cantidad y precio en no planificado
+ * 	  #9  endeEtr       26/03/2019	EGS				Se agrego el total asignado al fasee concepto ingas
  * 
 */
 
@@ -111,6 +112,66 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 			id_grupo:1,
 			form:true
 		},*/
+		
+		{
+			config: {
+                name: 'id_fase',
+                fieldLabel: 'Fase',
+                allowBlank: false,
+                emptyText: 'Elija una opción',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_proyectos/control/Fase/listarFase',
+                    id: 'id_fase',
+                    root: 'datos',
+                    fields: ['id_fase','codigo','nombre','descripcion'],
+                    totalProperty: 'total',
+                    sortInfo: {
+                        field: 'codigo',
+                        direction: 'ASC'
+                    },
+                    baseParams:{
+                        start: 0,
+                        limit: 10,
+                        sort: 'id_fase',
+                        dir: 'ASC',
+                        par_filtro:'fase.id_fase#fase.codigo#fase.descripcion#fase.nombre'
+                    }
+                }),
+             	tpl:'<tpl for=".">\ <div class="x-combo-list-item"><p><b>Fase: </b>{codigo}-{nombre}</p>\<p><b>Descripcion: </b>{descripcion}</p>\</div></tpl>',
+                valueField: 'id_fase',
+                hiddenValue: 'id_fase',
+                displayField: 'codigo',
+                gdisplayField: 'descripcion',
+                mode: 'remote',
+                triggerAction: 'all',
+                lazyRender: true,
+                pageSize: 15,
+               
+                minChars: 2,
+                anchor: '100%',
+				gwidth: 150,
+			},
+			type: 'ComboBox',
+			id_grupo: 0,
+			filters: {pfiltro: 'fase.codigo',type: 'string'},
+			
+			grid: true,
+			form: true
+		},		
+		{//#9
+			config:{
+				name: 'codigo',
+				fieldLabel: 'Codigo',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:1000
+			},
+				type:'TextField',
+				id_grupo:1,
+				grid:false,
+				form:true
+		},
 		{
             config:{
                 name: 'id_concepto_ingas',
@@ -169,7 +230,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 				allowBlank: false,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
-					url: '../../sis_proyectos/control/FaseConceptoIngas/listarFaseConceptoIngas',
+					url: '../../sis_proyectos/control/FaseConceptoIngas/listarFaseConceptoIngasCombo',
 					id: 'id_fase_concepto_ingas',
 					root: 'datos',
 					sortInfo: {
@@ -178,15 +239,20 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 						direction: 'ASC'
 					},
 					totalProperty: 'total',
-					fields: ['id_fase_concepto_ingas','descripcion','desc_ingas','cantidad_est','precio','nombre_fase','codigo_fase','id_unidad_medida','tipo','id_fase','id_concepto_ingas'],
+					//#9	
+					fields: ['id_fase_concepto_ingas','descripcion','desc_ingas','cantidad_est','precio','nombre_fase','codigo_fase','id_unidad_medida','tipo','id_fase','id_concepto_ingas','desc_moneda','total_invitacion_det','codigo'],
 					remoteSort: true,
 					baseParams: {par_filtro: 'facoing.id_fase_concepto_ingas#facoing.descripcion#facoing.id_unidad_medida#cig.tipo#fase.codigo'}//#7
 				}),
 				
-				tpl:'<tpl for=".">\
-		                       <div class="x-combo-list-item"><p><b>Concepto Gasto: </b>{desc_ingas}</p>\<p><b>Fase: </b>{codigo_fase}-{nombre_fase}</p>\
-		                       <p><b>Servicio/Bien: </b>{tipo}</p>\
+				//#9	
+				tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>Codigo: </b>{codigo}</p>\
+							  <p><b>Concepto Gasto: </b>{desc_ingas}</p>\
+							  <p><b>Fase: </b>{codigo_fase}-{nombre_fase}</p>\
+		                       <p><b>Servicio-Bien: </b>{tipo}</p>\
+		                       <p><b>Moneda: </b>{desc_moneda}</p>\
 		                       <p><b>Precio Total Estimado: </b>{precio}</p>\
+		                       <p><b>Total Asignado: </b>{total_invitacion_det}</p>\
 		                       </div></tpl>',
 				valueField: 'id_fase_concepto_ingas',
 				displayField: 'desc_ingas',
@@ -213,51 +279,6 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 			form: true
 		},
 
-		{
-			config: {
-                name: 'id_fase',
-                fieldLabel: 'Fase',
-                allowBlank: false,
-                emptyText: 'Elija una opción',
-                store: new Ext.data.JsonStore({
-                    url: '../../sis_proyectos/control/Fase/listarFase',
-                    id: 'id_fase',
-                    root: 'datos',
-                    fields: ['id_fase','codigo','nombre','descripcion'],
-                    totalProperty: 'total',
-                    sortInfo: {
-                        field: 'codigo',
-                        direction: 'ASC'
-                    },
-                    baseParams:{
-                        start: 0,
-                        limit: 10,
-                        sort: 'id_fase',
-                        dir: 'ASC',
-                        par_filtro:'fase.id_fase#fase.codigo#fase.descripcion#fase.nombre'
-                    }
-                }),
-             	tpl:'<tpl for=".">\ <div class="x-combo-list-item"><p><b>Fase: </b>{codigo}-{nombre}</p>\<p><b>Descripcion: </b>{descripcion}</p>\</div></tpl>',
-                valueField: 'id_fase',
-                hiddenValue: 'id_fase',
-                displayField: 'codigo',
-                gdisplayField: 'descripcion',
-                mode: 'remote',
-                triggerAction: 'all',
-                lazyRender: true,
-                pageSize: 15,
-               
-                minChars: 2,
-                anchor: '100%',
-				gwidth: 150,
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'fase.codigo',type: 'string'},
-			
-			grid: true,
-			form: true
-		},
 		
 			{
 			//configuracion del componente
@@ -767,6 +788,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 	    
 	    this.ocultarComponente(this.Cmp.id_centro_costo);
 	    this.ocultarComponente(this.Cmp.descripcion);
+	    this.ocultarComponente(this.Cmp.codigo);//#9
 
 			 this.Cmp.invitacion_det__tipo.on('select',function(combo,record,index){
 						console.log('data',record.data);
@@ -837,6 +859,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 					            } ,this);
 					            this.Cmp.cantidad_sol.allowBlank=true;
 							    this.Cmp.precio.allowBlank=true;
+							    this.Cmp.codigo.allowBlank=false;//#9
 
 						} else{
 								 this.Cmp.id_fase_concepto_ingas.reset();
@@ -866,6 +889,7 @@ Phx.vista.InvitacionDetFrm=Ext.extend(Phx.frmInterfaz,{
 								 this.Cmp.id_concepto_ingas.store.baseParams.tipo= this.maestro.data.tipo;
 							     this.Cmp.cantidad_sol.allowBlank=false;
 							     this.Cmp.precio.allowBlank=false;
+								 this.mostrarComponente(this.Cmp.codigo);//#9
 
 	
 						} 

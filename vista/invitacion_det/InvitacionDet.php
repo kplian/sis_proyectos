@@ -435,7 +435,7 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 					id_grupo:0,
 					bottom_filter:false,
 					//egrid:true,
-					grid:true,
+					grid:false,
 					form:true
 			},
 		{
@@ -684,7 +684,7 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
 		
 	     this.setColumnHeader('precio','(e)'+this.cmpPrecio.fieldLabel +' '+ this.maestro.desc_moneda)
 	     this.setColumnHeader('precio_t',this.cmpPrecioT.fieldLabel +' '+ this.maestro.desc_moneda)
-	     this.setColumnHeader('precio_est',this.cmpPrecioEst.fieldLabel +' '+ this.maestro.desc_moneda)
+	     //this.setColumnHeader('precio_est',this.cmpPrecioEst.fieldLabel +' '+ this.maestro.desc_moneda)
 
         this.store.baseParams = {
             id_invitacion: this.maestro.id_invitacion
@@ -777,7 +777,7 @@ Phx.vista.InvitacionDet=Ext.extend(Phx.gridInterfaz,{
     	iniciarEventos: function(){		
     		this.cmpPrecio = this.getComponente('precio');
     		this.cmpPrecioT = this.getComponente('precio_t');
-    		this.cmpPrecioEst = this.getComponente('precio_est');
+    		//this.cmpPrecioEst = this.getComponente('precio_est');
 			console.log('this.cmpPrecioT',this.cmpPrecioT)
 			 this.Cmp.invitacion_det__tipo.on('select',function(combo,record,index){
 		

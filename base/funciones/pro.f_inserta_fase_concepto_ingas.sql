@@ -1,9 +1,8 @@
 CREATE OR REPLACE FUNCTION pro.f_inserta_fase_concepto_ingas (
   p_administrador integer,
   p_id_usuario integer,
-  p_id_solicitud integer,
-  p_id_fase integer,
-  p_id_invitacon_det integer
+  p_tabla varchar,
+  p_id_invitacion_det integer
 )
 RETURNS varchar AS
 $body$
@@ -30,74 +29,46 @@ DECLARE
     v_parametros                   record;
     v_tabla                        varchar;
     v_id_fase_concepto_ingas       varchar;
-    v_id_concepto_ingas            integer;
     v_descripcion                  varchar;
-    v_cantidad                     numeric;
-    v_precio_unitario              integer;
-    v_fecha_reg                    date;
-    v_id_funcionario               integer;
-    v_id_invitacion_det            integer;
-    v_id_fase                      integer;
     v_precio_total                 numeric;
+    v_date                         date;
+    v_record_proyecto               record;
+    v_record_invitacion             record;
+    v_id_invitacion_det             integer;
 BEGIN
        
      v_nombre_funcion = 'pro.f_inserta_fase_concepto_ingas';
-     
-        --RAISE EXCEPTION 'p_id_invitacon_det %',p_id_invitacon_det;
-            v_id_invitacion_det = p_id_invitacon_det;
-            v_id_fase = p_id_fase;
-           --si el ingreso de item se hace desde una regularizacion de solicitud de compra
-           IF p_id_solicitud is not null or p_id_solicitud <> 0 THEN
-                SELECT
-                    sold.id_concepto_ingas,
-                    sold.descripcion,
-                    sold.cantidad,
-                    sold.precio_unitario,
-                    sold.fecha_reg::date,
-                    sol.id_funcionario
-                INTO
-                    v_id_concepto_ingas,
-                    v_descripcion,
-                    v_cantidad,
-                    v_precio_unitario,
-                    v_fecha_reg,
-                    v_id_funcionario
-                FROM adq.tsolicitud_det sold
-                left join adq.tsolicitud sol on sol.id_solicitud = sold.id_solicitud
-                WHERE sold.id_solicitud = p_id_solicitud;
-               
+     v_parametros = pxp.f_get_record(p_tabla);
+     v_id_invitacion_det =p_id_invitacion_det;
+     SELECT
+        pro.id_moneda
+     Into
+        v_record_proyecto
+     FROM pro.tfase fase
+     left Join pro.tproyecto pro on pro.id_proyecto = fase.id_proyecto
+     WHERE fase.id_fase = v_parametros.id_fase;
+     SELECT
+          inv.id_funcionario,
+          inv.id_moneda,
+          inv.fecha
+     Into
+        v_record_invitacion
+     FROM pro.tinvitacion inv
+     WHERE inv.id_invitacion = v_parametros.id_invitacion;
+           IF param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_invitacion.fecha::DATE,'O') is null THEN
+                raise exception 'No tiene un tipo de cambio para la fecha de la invitacion %',v_record_invitacion.fecha::DATE;
            END IF;
-           
-           --si el ingreso es  del item no planificado del detalle de una invitacion
-           
-           IF v_id_invitacion_det is not null or v_id_invitacion_det <> 0  THEN
-
-              SELECT
-                    invd.id_concepto_ingas,
-                    invd.descripcion,
-                    invd.cantidad_sol,
-                    invd.precio,
-                    invd.fecha_reg::date,
-                    inv.id_funcionario
-                INTO
-                    v_id_concepto_ingas,
-                    v_descripcion,
-                    v_cantidad,
-                    v_precio_unitario,
-                    v_fecha_reg,
-                    v_id_funcionario
-                FROM pro.tinvitacion_det invd
-                left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
-                WHERE invd.id_invitacion_det = v_id_invitacion_det;
-                v_precio_total=v_cantidad*v_precio_unitario;
+           IF v_record_proyecto.id_moneda = v_record_invitacion.id_moneda THEN
+                v_precio_total = (COALESCE(v_parametros.precio,0))*(COALESCE(v_parametros.cantidad_sol,0));
+           ELSIF v_record_proyecto.id_moneda = param.f_get_moneda_base() THEN               
+                v_precio_total = (COALESCE(v_parametros.cantidad_sol,0))*((COALESCE(v_parametros.precio,0))*((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_invitacion.fecha::DATE,'O')):: numeric)):: numeric(18,2);
+           ELSIF v_record_proyecto.id_moneda = param.f_get_moneda_triangulacion() THEN
+                v_precio_total = (COALESCE(v_parametros.cantidad_sol,0))*((COALESCE(v_parametros.precio,0))/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_invitacion.fecha::DATE,'O')):: numeric)):: numeric(18,2);   
            END IF;
-           
- --RAISE EXCEPTION 'v_id_fase %,v_id_concepto_ingas %,v_descripcion %,v_cantidad %,v_precio_unitario %,v_fecha_reg %,v_id_funcionario %',v_id_fase,v_id_concepto_ingas,v_descripcion,v_cantidad,v_precio_unitario,v_fecha_reg,v_id_funcionario;
-
-         --insertando el  item
+     --insertando el  item
             v_descripcion = SUBSTRING (v_descripcion, 1, 500);
             v_codigo_trans = 'PRO_FACOING_INS';
-
+            v_date =now()::date;
                 --crear tabla 
             v_tabla = pxp.f_crear_parametro(ARRAY[      
                                 '_nombre_usuario_ai',
@@ -117,16 +88,17 @@ BEGIN
                                 'fecha_estimada',
                                 'fecha_fin',
                                 'id_funcionario',			
-                                'precio_real'        
+                                'precio_est',
+                                'codigo'        
                                                       ],
                             ARRAY[
                                 'NULL', ---'_nombre_usuario_ai',
                                 '',  -----'_id_usuario_ai',    
-                                v_id_fase::varchar,--'id_fase','int4'
-                                v_id_concepto_ingas::varchar,--'id_concepto_ingas'
+                                v_parametros.id_fase::varchar,--'id_fase','int4'
+                                v_parametros.id_concepto_ingas::varchar,--'id_concepto_ingas'
                                 '1'::varchar,--'id_unidad_medida'
                                 --''::varchar,--'tipo_cambio_mt'
-                                v_descripcion::varchar,--'descripcion'
+                                v_parametros.descripcion::varchar,--'descripcion'
                                 --''::varchar,--'tipo_cambio_mb'
                                 --''::varchar,--'estado'
                                 'activo'::varchar,--'estado_reg'
@@ -134,10 +106,11 @@ BEGIN
                                 --''::varchar,--'precio_mb'
                                  COALESCE(v_precio_total,0)::varchar,--'precio'
                                 --''::varchar,--'precio_mt'
-                                v_fecha_reg::varchar,--'fecha_estimada'
+                                v_date::varchar,--'fecha_estimada'
                                 ''::varchar,--'fecha_fin'
-                                v_id_funcionario::varchar,--'id_funcionario'				
-                                ''::varchar--'precio_real'
+                                v_record_invitacion.id_funcionario::varchar,--'id_funcionario'				
+                                COALESCE(v_precio_total,0)::varchar,--'precio_est'
+                                v_parametros.codigo::varchar--codigo
                                 ],
                             ARRAY[
                                 'varchar',
@@ -157,7 +130,8 @@ BEGIN
                                 'date',--'fecha_estimada'
                                 'date',--'fecha_fin'
                                 'int4',--'id_funcionario'				
-                                'numeric'--'precio_real'
+                                'numeric',--'precio_est'
+                                'varchar'--codigo
                                ]
                             );
            

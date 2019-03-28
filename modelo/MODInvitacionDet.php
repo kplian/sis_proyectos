@@ -83,7 +83,8 @@ class MODInvitacionDet extends MODbase{
 		$this->setParametro('id_fase','id_fase','int4');
 		$this->setParametro('id_concepto_ingas','id_concepto_ingas','int4');
 		$this->setParametro('invitacion_det__tipo','invitacion_det__tipo','varchar');//#7 EGS
-		
+		$this->setParametro('codigo','codigo','varchar');//#9 EGS
+				
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

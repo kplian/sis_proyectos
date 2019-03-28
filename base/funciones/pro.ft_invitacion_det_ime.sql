@@ -19,6 +19,7 @@ $body$
  #0				22-08-2018 22:32:59								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tinvitacion_det'	
  #7 endeEtr         29/01/2019          EGS                     Se habilita que se inserte el detalle de una invitacion en estado sol si este es de la regularizacion de proyectos(relacionar solicitud)
                                                                 y si es un item no planificado este se inserta en una fase del proyecto
+ #9 EndeEtr         26/03/2019          EGS                     La suma de los detalles relacionadas a un fase concepto de gasto no sobrepasan al mismo
  ***************************************************************************/
 
 DECLARE
@@ -43,7 +44,10 @@ DECLARE
     v_record_partida        record;
     v_asociar_invitacion    varchar;
     v_fase_coningas_planificado varchar;
-    v_importe_total         numeric;            
+    v_importe_total         numeric;
+    v_total_asignado        numeric;
+    v_precio                numeric;
+    v_record_fase_concepto_ingas    record;            
 BEGIN
 
     v_nombre_funcion = 'pro.ft_invitacion_det_ime';
@@ -63,11 +67,14 @@ BEGIN
             SELECT
             pre.id_proyecto,
             pre.estado,
-            pre.importe_max
+            pre.importe_max,
+            pre.id_moneda,
+            mo.codigo as desc_moneda
                INTO
             v_rec_proyecto
             FROM pro.tproyecto pre
             left join pro.tinvitacion inv on inv.id_proyecto = pre.id_proyecto
+            left join param.tmoneda mo on mo.id_moneda = pre.id_moneda
               WHERE inv.id_invitacion = v_parametros.id_invitacion;
             IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
                 raise exception 'No puede Eliminar el detalle de la invitacion el proyecto esta en estado de  %',v_rec_proyecto.estado;
@@ -81,7 +88,8 @@ BEGIN
                 gr.nombre as nombre_grupo,
                 inv.estado,
                 inv.id_estado_wf,
-                test.codigo as codigo_estado
+                test.codigo as codigo_estado,
+                inv.id_moneda
             INTO
             v_record_invitacion
             FROM pro.tinvitacion inv
@@ -171,21 +179,81 @@ BEGIN
                     END IF;
                     
                 END IF;
-           --validamos que la suma de los todos los items en la invitaciones no sobrepase el importe_max (STEA)
+                          
+            --#9 validacion que el total de los invitaciones det sea menor o igual al total del faseconcepto ingas
+            --#9 convirtiendo la suma de los precios totales de las invitaciones det relacionadas al fase concepto ingas a la moneda del proyecto  
+       WITH convertir(  
+            id_fase_concepto_ingas,
+            id_moneda_invitacion,
+            precio,
+            cantidad_sol,
+            id_moneda_proyecto,
+            precio_total_conversion,
+            codigo_moneda_total_conversion)AS(
             
-            
-            SELECT
-                sum(coalesce(invd.precio,0))
-            INTO
-                v_importe_total
-            FROM pro.tinvitacion_det invd
-            left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
-            WHERE inv.id_proyecto = v_rec_proyecto.id_proyecto;
-             --RAISE EXCEPTION 'v_importe_total %',v_importe_total;
-            IF  coalesce(v_importe_total,0) + coalesce(v_parametros.precio,0) > coalesce(v_rec_proyecto.importe_max,0) THEN
-            	RAISE EXCEPTION 'La Suma de los Conceptos de Gato (%) de las invitaciones del proyecto mas el precio nuevo(%) = % Superan al Stea(%) ', coalesce(v_importe_total,0), coalesce(v_parametros.precio,0),coalesce(v_importe_total,0)+ coalesce(v_parametros.precio,0),coalesce(v_rec_proyecto.importe_max,0);
-            END IF;
-            
+               SELECT
+                  invd.id_fase_concepto_ingas,
+                  inv.id_moneda,
+                  invd.precio,
+                  invd.cantidad_sol,
+                  pro.id_moneda,
+             CASE
+                  WHEN pro.id_moneda = inv.id_moneda  THEN
+                       invd.precio*invd.cantidad_sol
+                  WHEN pro.id_moneda =  param.f_get_moneda_base() THEN
+                       ((invd.precio*invd.cantidad_sol)*((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,'O')):: numeric)):: numeric(18,2)
+                  WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
+                       ((invd.precio*invd.cantidad_sol)/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,'O')):: numeric)):: numeric(18,2)   
+                  END as precio_total_conversion,
+                  case
+                  WHEN pro.id_moneda = inv.id_moneda  THEN
+                       mon.codigo
+                  WHEN pro.id_moneda =  param.f_get_moneda_base() THEN
+                       (SELECT mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda = param.f_get_moneda_base())::varchar
+                  WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
+                        (SELECT  mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda = param.f_get_moneda_triangulacion())::varchar
+                  END as codigo_moneda_total_conversion  
+              FROM pro.tinvitacion_det invd
+                  left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
+                  left join pro.tproyecto pro on pro.id_proyecto = inv.id_proyecto 
+                  left join param.tmoneda mon on mon.id_moneda = pro.id_moneda )
+             SELECT
+                  sum(COALESCE(precio_total_conversion,0))
+             INTO
+                v_total_asignado
+             FROM convertir co
+             WHERE  co.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas
+             group By co.id_fase_concepto_ingas;
+           --#9 verificamos que la fecha de la invitacion tenga un tipo de cambio
+           IF param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_invitacion.fecha::DATE,'O') is null THEN
+                raise exception 'No tiene un tipo de cambio para la fecha de la invitacion %',v_record_invitacion.fecha::DATE;
+           END IF;
+           --#9 convertimos el precio del detalle de la invitacion a la moneda del proyecto
+           IF v_rec_proyecto.id_moneda = v_record_invitacion.id_moneda THEN
+                v_precio = COALESCE(v_parametros.precio,0);
+           ELSIF v_rec_proyecto.id_moneda = param.f_get_moneda_base() THEN               
+                v_precio = ((COALESCE(v_parametros.precio,0))*((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_invitacion.fecha::DATE,'O')):: numeric)):: numeric(18,2);
+           ELSIF v_rec_proyecto.id_moneda = param.f_get_moneda_triangulacion() THEN
+                v_precio = ((COALESCE(v_parametros.precio,0))/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_invitacion.fecha::DATE,'O')):: numeric)):: numeric(18,2);   
+           END IF;        
+           --#9
+           SELECT
+                facoing.precio,
+                facoing.precio_est,
+                cig.desc_ingas
+           INTO
+                v_record_fase_concepto_ingas
+           FROM pro.tfase_concepto_ingas facoing
+           left join param.tconcepto_ingas cig on cig.id_concepto_ingas = facoing.id_concepto_ingas
+           WHERE facoing.id_fase_concepto_ingas=v_parametros.id_fase_concepto_ingas;
+           --#9
+           IF v_precio> v_record_fase_concepto_ingas.precio then
+                Raise EXCEPTION 'El precio % %  sobrepasan al precio registrado en la fase % %',v_precio,v_rec_proyecto.desc_moneda,v_record_fase_concepto_ingas.precio,v_rec_proyecto.desc_moneda;
+           END IF;
+           --#9
+           IF (v_precio + COALESCE(v_total_asignado,0))> v_record_fase_concepto_ingas.precio then
+                Raise EXCEPTION 'La suma de los detalles (%  %) de las invitaciones relacionadas al concepto de gasto (%) + el nuevo precio % % igual(%  %) sobrepasan al precio registrado en la fase % %',COALESCE(v_total_asignado,0),v_rec_proyecto.desc_moneda,v_record_fase_concepto_ingas.desc_ingas,v_precio,v_rec_proyecto.desc_moneda,(v_precio + v_total_asignado),v_rec_proyecto.desc_moneda,v_record_fase_concepto_ingas.precio,v_rec_proyecto.desc_moneda;
+           END IF;
             --Sentencia de la insercion
             insert into pro.tinvitacion_det(
             id_fase_concepto_ingas,
@@ -218,7 +286,7 @@ BEGIN
             null,
             v_parametros.cantidad_sol,
             v_parametros.id_unidad_medida,
-            v_parametros.precio,
+            COALESCE(v_parametros.precio,0),
             v_parametros.id_centro_costo,
             v_parametros.descripcion,
             v_parametros.id_fase,
@@ -229,7 +297,7 @@ BEGIN
             -- #7 si el item es no planificado se inserta en el proyecto y en una fase del proyecto 
             v_fase_coningas_planificado = split_part(pxp.f_get_variable_global('pro_fase_coningas_planificado'), ',', 2);
             IF v_parametros.invitacion_det__tipo = v_fase_coningas_planificado THEN
-              v_resp = pro.f_inserta_fase_concepto_ingas(p_administrador,p_id_usuario,0,v_parametros.id_fase,v_id_invitacion_det);    
+              v_resp = pro.f_inserta_fase_concepto_ingas(p_administrador,p_id_usuario,p_tabla,v_id_invitacion_det);    
 
             END IF;
             --Definicion de la respuesta
@@ -254,12 +322,16 @@ BEGIN
             SELECT
             pre.id_proyecto,
             pre.estado,
-            pre.importe_max
+            pre.importe_max,
+            pre.id_moneda,
+            mo.codigo as desc_moneda
                INTO
             v_rec_proyecto
             FROM pro.tproyecto pre
             left join pro.tinvitacion inv on inv.id_proyecto = pre.id_proyecto
             left join pro.tinvitacion_det invd on invd.id_invitacion = inv.id_invitacion
+            left join param.tmoneda mo on mo.id_moneda = pre.id_moneda
+
               WHERE invd.id_invitacion_det = v_parametros.id_invitacion_det;
             IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN
                 raise exception 'No puede Eliminar el Bien/Servicio la fase el proyecto esta en estado de  %',v_rec_proyecto.estado;
@@ -273,7 +345,8 @@ BEGIN
                 gr.nombre as nombre_grupo,
                 inv.estado,
                 inv.id_estado_wf,
-                test.codigo as codigo_estado
+                test.codigo as codigo_estado,
+                inv.id_moneda
             INTO
             v_record_invitacion
             FROM pro.tinvitacion inv
@@ -295,10 +368,82 @@ BEGIN
             left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
             WHERE inv.id_proyecto = v_rec_proyecto.id_proyecto
             AND invd.id_invitacion_det <> v_parametros.id_invitacion_det;
+
+            --#9 validacion que el total de los invitaciones det sea menor o igual al total del faseconcepto ingas
+            --#9 convirtiendo la suma de los precios totales de las invitaciones det relacionadas al fase concepto ingas a la moneda del proyecto  
+       WITH convertir(  
+            id_fase_concepto_ingas,
+            id_moneda_invitacion,
+            precio,
+            cantidad_sol,
+            id_moneda_proyecto,
+            precio_total_conversion,
+            codigo_moneda_total_conversion)AS(
             
-            IF coalesce(v_importe_total,0) + coalesce(v_parametros.precio,0) > coalesce(v_rec_proyecto.importe_max,0) THEN
-            	RAISE EXCEPTION 'La Suma de los Conceptos de Gasto(%) de las invitaciones del proyecto mas el precio modificado(%)= % Superan al Stea(%) ',coalesce(v_importe_total,0) ,coalesce(v_parametros.precio,0),coalesce(v_importe_total,0)+ coalesce(v_parametros.precio,0),coalesce(v_rec_proyecto.importe_max,0);
-            END IF;
+               SELECT
+                  invd.id_fase_concepto_ingas,
+                  inv.id_moneda,
+                  invd.precio,
+                  invd.cantidad_sol,
+                  pro.id_moneda,
+             CASE
+                  WHEN pro.id_moneda = inv.id_moneda  THEN
+                       invd.precio*invd.cantidad_sol
+                  WHEN pro.id_moneda =  param.f_get_moneda_base() THEN
+                       ((invd.precio*invd.cantidad_sol)*((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,'O')):: numeric)):: numeric(18,2)
+                  WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
+                       ((invd.precio*invd.cantidad_sol)/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,'O')):: numeric)):: numeric(18,2)   
+                  END as precio_total_conversion,
+                  case
+                  WHEN pro.id_moneda = inv.id_moneda  THEN
+                       mon.codigo
+                  WHEN pro.id_moneda =  param.f_get_moneda_base() THEN
+                       (SELECT mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda = param.f_get_moneda_base())::varchar
+                  WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
+                        (SELECT  mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda = param.f_get_moneda_triangulacion())::varchar
+                  END as codigo_moneda_total_conversion  
+              FROM pro.tinvitacion_det invd
+                  left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
+                  left join pro.tproyecto pro on pro.id_proyecto = inv.id_proyecto 
+                  left join param.tmoneda mon on mon.id_moneda = pro.id_moneda
+              WHERE invd.id_invitacion_det <> v_parametros.id_invitacion_det )
+            
+             SELECT
+                  sum(COALESCE(precio_total_conversion,0))
+             INTO
+                v_total_asignado
+             FROM convertir co
+             WHERE  co.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas
+             group By co.id_fase_concepto_ingas;
+           --#9 verificamos que la fecha de la invitacion tenga un tipo de cambio
+           IF param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_invitacion.fecha::DATE,'O') is null THEN
+                raise exception 'No tiene un tipo de cambio para la fecha de la invitacion %',v_record_invitacion.fecha::DATE;
+           END IF;
+           --#9 convertimos el precio del detalle de la invitacion a la moneda del proyecto
+           IF v_rec_proyecto.id_moneda = v_record_invitacion.id_moneda THEN
+                v_precio = COALESCE(v_parametros.precio,0);
+           ELSIF v_rec_proyecto.id_moneda = param.f_get_moneda_base() THEN               
+                v_precio = ((COALESCE(v_parametros.precio,0))*((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_invitacion.fecha::DATE,'O')):: numeric)):: numeric(18,2);
+           ELSIF v_rec_proyecto.id_moneda = param.f_get_moneda_triangulacion() THEN
+                v_precio = ((COALESCE(v_parametros.precio,0))/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_invitacion.fecha::DATE,'O')):: numeric)):: numeric(18,2);   
+           END IF;        
+           --#9
+           SELECT
+                facoing.precio,
+                facoing.precio_est,
+                cig.desc_ingas
+           INTO
+                v_record_fase_concepto_ingas
+           FROM pro.tfase_concepto_ingas facoing
+           left join param.tconcepto_ingas cig on cig.id_concepto_ingas = facoing.id_concepto_ingas
+           WHERE facoing.id_fase_concepto_ingas=v_parametros.id_fase_concepto_ingas;
+           --#9           
+           IF v_precio> v_record_fase_concepto_ingas.precio then
+                Raise EXCEPTION 'El precio % %  sobrepasan al precio registrado en la fase % %',v_precio,v_rec_proyecto.desc_moneda,v_record_fase_concepto_ingas.precio,v_rec_proyecto.desc_moneda;
+           END IF;
+           IF (v_precio + COALESCE(v_total_asignado,0))> v_record_fase_concepto_ingas.precio then
+                Raise EXCEPTION 'La suma de los detalles (%  %) de las invitaciones relacionadas al concepto de gasto (%) + el nuevo precio % % igual(%  %) sobrepasan al precio registrado en la fase % %', COALESCE(v_total_asignado,0),v_rec_proyecto.desc_moneda,v_record_fase_concepto_ingas.desc_ingas,v_precio,v_rec_proyecto.desc_moneda,(v_precio + v_total_asignado),v_rec_proyecto.desc_moneda,v_record_fase_concepto_ingas.precio,v_rec_proyecto.desc_moneda;
+           END IF;
             --Sentencia de la modificacion
             update pro.tinvitacion_det set
             id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas,

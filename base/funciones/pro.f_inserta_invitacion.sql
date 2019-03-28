@@ -17,6 +17,8 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
+  # 9               26/03/2019          EGS                 El precio acumulado de los detalles de la invitacion en moneda base y triangulacion 
+                                                            se convierten a moneda del proyecto y no sobrepasa al fase conceptoingas 
  ***************************************************************************/
  */
  
@@ -53,6 +55,17 @@ DECLARE
     v_id_moneda_proyecto    integer;
     v_id_moneda_solicitud   integer;
     v_conversion_moneda_solicitud_total numeric;
+    va_id_solicitudes       INTEGER[];
+    v_tamano                INTEGER;
+    v_solicitud_det_precio_total    numeric;
+    v_cantidad              numeric;
+    v_descripcion           varchar;
+    v_precio_total          numeric;
+    v_total_asignado        numeric;
+    v_record_invitacion     record;
+    va_id_invitacion         integer;
+
+
 BEGIN
        
         v_nombre_funcion = 'pro.f_inserta_invitacion';
@@ -67,7 +80,8 @@ BEGIN
 
   	if(p_transaccion='PRO_IVTREG_IME')then
         begin
-        
+           va_id_solicitudes = (string_to_array(v_parametros.id_solicitud_det,','))::INTEGER[];
+                 
            --si el ingreso de item se hace desde una regularizacion de solicitud de compra
            IF v_parametros.id_solicitud is not null  THEN
                 SELECT
@@ -89,8 +103,7 @@ BEGIN
                 WHERE sol.id_solicitud = v_parametros.id_solicitud;
                
            END IF; 
-         --Si el Servicio/bien se quiere asociar a los items de la solicitud a un Fase_concepto_ingas
-         IF v_parametros.id_fase_concepto_ingas is not NULL THEN
+
             --validaciones que el fase concepto ingas y la solicitud sean iguales 
             ---Recuperamos los datos de faseconcepto_ingas
                 SELECT
@@ -99,7 +112,7 @@ BEGIN
                     facoin.id_funcionario,
                     fun.desc_funcionario1::VARCHAR as desc_funcionario,
                     facoin.precio,
-                    facoin.precio_real,
+                    facoin.precio_est,
                     facoin.id_concepto_ingas,
                     coingas.desc_ingas,
                     pro.id_proyecto,
@@ -112,8 +125,11 @@ BEGIN
                 left join orga.vfuncionario fun on fun.id_funcionario = facoin.id_funcionario
                 left join pro.tfase fase on fase.id_fase = facoin.id_fase
                 left join pro.tproyecto pro on pro.id_proyecto = fase.id_proyecto
-                WHERE facoin.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas;
+                WHERE facoin.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas;  
             --resuperamos los datos del detalle de la solicitud
+            v_solicitud_det_precio_total = 0;
+             v_tamano:=array_upper(va_id_solicitudes,1);
+             FOR i IN 1..(v_tamano) LOOP
              SELECT
                   sold.cantidad,
                   sold.precio_unitario,
@@ -137,111 +153,143 @@ BEGIN
               left join orga.vfuncionario fun on fun.id_funcionario = sol.id_funcionario
               left join param.tcentro_costo cen on cen.id_centro_costo = sold.id_centro_costo
               left join param.ttipo_cc tcc on tcc.id_tipo_cc = cen.id_tipo_cc
-              WHERE  sold.id_solicitud = v_record_solicitud.id_solicitud and sold.id_solicitud_det = v_parametros.id_solicitud_det;
-           --conversion y validacion de montos segun moneda de la solicitud y del proyecto
-          
-         /* sol.id_moneda =  param.f_get_moneda_triangulacion()
-           (sold.precio_total/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),sol.fecha_soli::DATE,'O')):: numeric)):: numeric(18,2)
-           (sold.precio_total*((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),sol.fecha_soli::DATE,'O')):: numeric)):: numeric(18,2) */
-              
-           --se valida que los datos concuerden con la solicitud     
-           IF v_record_solicitud_det.id_concepto_ingas <> v_record_facoing.id_concepto_ingas THEN
-            RAISE EXCEPTION ' El Concepto de Gasto % no es igual al Concepto de Gasto % de la Solicitud',v_record_facoing.desc_ingas,v_record_solicitud_det.desc_ingas;
-           END IF;
-            IF v_record_solicitud_det.tipo <> v_record_facoing.tipo THEN
-            RAISE EXCEPTION ' El tipo % no es igual al tipo % de la Solicitud',v_record_facoing.tipo,v_record_solicitud_det.tipo;
-           END IF;  
-            IF v_record_solicitud_det.id_funcionario <> v_record_facoing.id_funcionario THEN
-            RAISE EXCEPTION ' El Funcionario % no es igual al % Funcionario de la Solicitud',v_record_facoing.desc_funcionario,v_record_solicitud_det.desc_funcionario;
-           END IF;
-           
-           v_id_moneda_proyecto = v_record_facoing.id_moneda;
-           v_id_moneda_solicitud = v_record_solicitud_det.id_moneda;
-           
-           IF v_id_moneda_proyecto = v_id_moneda_solicitud   THEN
-                   IF COALESCE(v_record_solicitud_det.precio_total,0) <> COALESCE(v_record_facoing.precio,0) THEN
-                    RAISE EXCEPTION ' El precio estimado % no es igual al % de la Solicitud',COALESCE(v_record_facoing.precio,0),COALESCE(v_record_solicitud_det.precio_total,0);
-                   END IF;    
-                    IF COALESCE(v_record_solicitud_det.precio_total,0) <> COALESCE(v_record_facoing.precio_real,0) THEN
-                    RAISE EXCEPTION ' El precio actualizado % no es igual al % de la Solicitud',COALESCE(v_record_facoing.precio_real,0),COALESCE(v_record_solicitud_det.precio_total,0);
-                   END IF;
-           ELSE     
-                    IF v_id_moneda_proyecto = param.f_get_moneda_base() and v_id_moneda_solicitud = param.f_get_moneda_triangulacion() THEN                   
-                     v_conversion_moneda_solicitud_total =(v_record_solicitud_det.precio_total*(param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_solicitud_det.fecha_soli::DATE,'O')))::numeric(18,2);
-                                 IF COALESCE(v_conversion_moneda_solicitud_total,0) <> COALESCE(v_record_facoing.precio,0) THEN
-                                  RAISE EXCEPTION ' El precio estimado % no es igual al % de la Solicitud',COALESCE(v_record_facoing.precio,0),COALESCE(v_conversion_moneda_solicitud_total,0);
-                                 END IF;    
-                                  IF COALESCE(v_conversion_moneda_solicitud_total,0) <> COALESCE(v_record_facoing.precio_real,0) THEN
-                                  RAISE EXCEPTION ' El precio actualizado % no es igual al % de la Solicitud',COALESCE(v_record_facoing.precio_real,0),COALESCE(v_conversion_moneda_solicitud_total,0);
-                                 END IF;
-                                  
-                    ELSIF v_id_moneda_proyecto = param.f_get_moneda_triangulacion() and v_id_moneda_solicitud = param.f_get_moneda_base() THEN
-                     v_conversion_moneda_solicitud_total = (v_record_solicitud_det.precio_total/(param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_solicitud_det.fecha_soli::DATE,'O')))::numeric(18,2);
-                                 
-                                 IF COALESCE(v_conversion_moneda_solicitud_total,0) <> COALESCE(v_record_facoing.precio,0) THEN
-                                  RAISE EXCEPTION ' El precio estimado % no es igual al % de la Solicitud',COALESCE(v_record_facoing.precio,0),COALESCE(v_conversion_moneda_solicitud_total,0);
-                                 END IF;    
-                                  IF COALESCE(v_conversion_moneda_solicitud_total,0) <> COALESCE(v_record_facoing.precio_real,0) THEN
-                                  RAISE EXCEPTION ' El precio actualizado % no es igual al % de la Solicitud',COALESCE(v_record_facoing.precio_real,0),COALESCE(v_conversion_moneda_solicitud_total,0);
-                                 END IF;
-                    
-                    END IF;
-           END IF;
-                     
+              WHERE  sold.id_solicitud = v_record_solicitud.id_solicitud and sold.id_solicitud_det = va_id_solicitudes[i];
+                
+              --convertimos los precios totales a la moneda del proyecto
+                IF param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_solicitud_det.fecha_soli::DATE,'O') is null THEN
+                            raise exception 'No tiene un tipo de cambio para la fecha de la invitacion %',v_record_solicitud_det.fecha_soli::DATE;
+                END IF;
+                 
+                IF v_record_facoing.id_moneda = v_record_solicitud_det.id_moneda THEN
+                      v_precio_total = COALESCE(v_record_solicitud_det.precio_total,0);
+                 ELSIF v_record_facoing.id_moneda = param.f_get_moneda_base() THEN
+                      v_precio_total = ((COALESCE(v_record_solicitud_det.precio_total,0))*((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_solicitud_det.fecha_soli::DATE,'O')):: numeric)):: numeric(18,2);
+                 ELSIF v_record_facoing.id_moneda = param.f_get_moneda_triangulacion() THEN
+                      v_precio_total = ((COALESCE(v_record_solicitud_det.precio_total,0))/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),v_record_solicitud_det.fecha_soli::DATE,'O')):: numeric)):: numeric(18,2);   
+                 END IF;
+
+              v_solicitud_det_precio_total =  COALESCE(v_solicitud_det_precio_total,0)+ COALESCE(v_precio_total,0);           
+               
+               IF v_record_solicitud_det.id_concepto_ingas <> v_record_facoing.id_concepto_ingas THEN
+                RAISE EXCEPTION ' El Concepto de Gasto % no es igual al Concepto de Gasto % de la Solicitud',v_record_facoing.desc_ingas,v_record_solicitud_det.desc_ingas;
+               END IF;
+                IF v_record_solicitud_det.tipo <> v_record_facoing.tipo THEN
+                RAISE EXCEPTION ' El tipo % no es igual al tipo % de la Solicitud',v_record_facoing.tipo,v_record_solicitud_det.tipo;
+               END IF;  
+                IF v_record_solicitud_det.id_funcionario <> v_record_facoing.id_funcionario THEN
+                RAISE EXCEPTION ' El Funcionario % no es igual al % Funcionario de la Solicitud',v_record_facoing.desc_funcionario,v_record_solicitud_det.desc_funcionario;
+               END IF;
+                          
          --validamos que el tipo de centro de costos de la solicitud sea un el tipo centro de costos del proyecto
          --recuperamos los tipos centro de costos del proyecto y comparamos si el tipo centro de costo de solicitud este en el tipo centro de costo del proyecto
-         v_existe = false;
-         FOR v_tipo_cc IN (   
-          with recursive arbol_tipo_cc AS (
-                                SELECT
-                                    tcc.id_tipo_cc,
-                                    tcc.id_tipo_cc_fk,
-                                    tcc.codigo,
-                                    tcc.tipo,
-                                    tcc.movimiento,
-                                    tcc.descripcion,
-                                    tcc.control_techo,
-                                    tcc.control_partida
-                                FROM param.ttipo_cc tcc
-                                WHERE tcc.id_tipo_cc = v_record_facoing.id_tipo_cc
-                                UNION
-                                SELECT
-                                    tcce.id_tipo_cc,
-                                    tcce.id_tipo_cc_fk,
-                                    tcce.codigo,
-                                    tcce.tipo,
-                                    tcce.movimiento,
-                                    tcce.descripcion,
-                                    tcce.control_techo,
-                                    tcce.control_partida
-                                FROM param.ttipo_cc tcce
-                                inner join arbol_tipo_cc ar on ar.id_tipo_cc = tcce.id_tipo_cc_fk
-                            )
-                            select 
-                                arb.id_tipo_cc,
-                                arb.id_tipo_cc_fk,
-                                arb.codigo,
-                                arb.tipo,
-                                arb.movimiento,
-                                arb.descripcion,
-                                arb.control_techo,
-                                arb.control_partida
-                            from arbol_tipo_cc arb
-                            where  arb.movimiento = 'si' 
-                            order by arb.id_tipo_cc ASC) LOOP
-                            IF v_tipo_cc.id_tipo_cc = v_record_solicitud_det.id_tipo_cc  THEN
-                               v_existe = true;
-                            END IF;              
-              END LOOP;
-              --Si el centro de costo no existe 
-              IF v_existe = false THEN
-               RAISE EXCEPTION 'El Tipo de Centro de Costo % de la solicitud no es un tipo de Centro de Costo del Proyecto',v_record_solicitud_det.codigo_cc;
-              END IF ;
-         END IF;
-                  
-        v_id_invitacion = v_parametros.id_invitacion;
+             v_existe = false;
+             FOR v_tipo_cc IN (   
+              with recursive arbol_tipo_cc AS (
+                                    SELECT
+                                        tcc.id_tipo_cc,
+                                        tcc.id_tipo_cc_fk,
+                                        tcc.codigo,
+                                        tcc.tipo,
+                                        tcc.movimiento,
+                                        tcc.descripcion,
+                                        tcc.control_techo,
+                                        tcc.control_partida
+                                    FROM param.ttipo_cc tcc
+                                    WHERE tcc.id_tipo_cc = v_record_facoing.id_tipo_cc
+                                    UNION
+                                    SELECT
+                                        tcce.id_tipo_cc,
+                                        tcce.id_tipo_cc_fk,
+                                        tcce.codigo,
+                                        tcce.tipo,
+                                        tcce.movimiento,
+                                        tcce.descripcion,
+                                        tcce.control_techo,
+                                        tcce.control_partida
+                                    FROM param.ttipo_cc tcce
+                                    inner join arbol_tipo_cc ar on ar.id_tipo_cc = tcce.id_tipo_cc_fk
+                                )
+                                select 
+                                    arb.id_tipo_cc,
+                                    arb.id_tipo_cc_fk,
+                                    arb.codigo,
+                                    arb.tipo,
+                                    arb.movimiento,
+                                    arb.descripcion,
+                                    arb.control_techo,
+                                    arb.control_partida
+                                from arbol_tipo_cc arb
+                                where  arb.movimiento = 'si' 
+                                order by arb.id_tipo_cc ASC) LOOP
+                                IF v_tipo_cc.id_tipo_cc = v_record_solicitud_det.id_tipo_cc  THEN
+                                   v_existe = true;
+                                END IF;              
+                  END LOOP;
+                  --Si el centro de costo no existe 
+                  IF v_existe = false THEN
+                   RAISE EXCEPTION 'El Tipo de Centro de Costo % de la solicitud no es un tipo de Centro de Costo del Proyecto',v_record_solicitud_det.codigo_cc;
+                  END IF ;
+                
+            END LOOP;
+          --conversion de los detalles ya registrados en la faseconceptoingas a moneda del proyecto
+         --#9 I          
+         WITH convertir(  
+            id_fase_concepto_ingas,
+            id_moneda_invitacion,
+            precio,
+            cantidad_sol,
+            id_moneda_proyecto,
+            precio_total_conversion,
+            codigo_moneda_total_conversion)AS(
+            
+               SELECT
+                  invd.id_fase_concepto_ingas,
+                  inv.id_moneda,
+                  invd.precio,
+                  invd.cantidad_sol,
+                  pro.id_moneda,
+             CASE
+                  WHEN pro.id_moneda = inv.id_moneda  THEN
+                       invd.precio*invd.cantidad_sol
+                  WHEN pro.id_moneda =  param.f_get_moneda_base() THEN
+                       ((invd.precio*invd.cantidad_sol)*((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,'O')):: numeric)):: numeric(18,2)
+                  WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
+                       ((invd.precio*invd.cantidad_sol)/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,'O')):: numeric)):: numeric(18,2)   
+                  END as precio_total_conversion,
+                  case
+                  WHEN pro.id_moneda = inv.id_moneda  THEN
+                       mon.codigo
+                  WHEN pro.id_moneda =  param.f_get_moneda_base() THEN
+                       (SELECT mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda = param.f_get_moneda_base())::varchar
+                  WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
+                        (SELECT  mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda = param.f_get_moneda_triangulacion())::varchar
+                  END as codigo_moneda_total_conversion  
+              FROM pro.tinvitacion_det invd
+                  left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
+                  left join pro.tproyecto pro on pro.id_proyecto = inv.id_proyecto 
+                  left join param.tmoneda mon on mon.id_moneda = pro.id_moneda )
+             SELECT
+                  sum(COALESCE(precio_total_conversion,0))
+             INTO
+                v_total_asignado
+             FROM convertir co
+             WHERE  co.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas
+             group By co.id_fase_concepto_ingas;
+            --sumamos el total de los detalles a registrar mas los detalles ya registrados a la fase conceptoingas
+             v_solicitud_det_precio_total = v_solicitud_det_precio_total+COALESCE(v_total_asignado,0);
+             --raise exception 'v_solicitud_det_precio_total %',v_solicitud_det_precio_total;
+
+             ---validamos que no se supere a la fase conceptoingas
+                   IF COALESCE(v_solicitud_det_precio_total,0) > COALESCE(v_record_facoing.precio,0) THEN
+                    RAISE EXCEPTION ' El precio actualizado %  es menor a la suma de los conceptos asigandos al Bien/servicio %',COALESCE(v_record_facoing.precio,0),COALESCE(v_solicitud_det_precio_total,0);
+                   END IF;    
+                   IF COALESCE(v_solicitud_det_precio_total,0) > COALESCE(v_record_facoing.precio_est,0) THEN
+                    RAISE EXCEPTION ' El precio estimado % es menor a la suma de los conceptos asigandos al Bien/servicio % .Al Relacionar el precio estimado tiene que ser igual al actualizado',COALESCE(v_record_facoing.precio_est,0),COALESCE(v_solicitud_det_precio_total,0);
+                   END IF;
+        --#9 F
+        va_id_invitacion = v_parametros.id_invitacion;
         -- sino se asocia con una invitacion se crea una nueva
-        IF v_id_invitacion is null THEN
+        IF va_id_invitacion is null THEN
         
             --insertando los datos de la solicitud  para la invitacion regularizada
             v_codigo_trans = 'PRO_IVT_INS';
@@ -320,22 +368,40 @@ BEGIN
             v_id_invitacion    =  split_part(v_id_invitacion, '{', 2);
             v_id_invitacion    =  split_part(v_id_invitacion, '}', 1);
            --insertamos el detalle de la solicitud 
-                      
+          ELSE
+                SELECT
+                  inv.id_moneda
+                INTO
+                 v_record_invitacion
+                FROM pro.tinvitacion inv 
+                WHERE inv.id_invitacion = va_id_invitacion;
           END IF ;
+          
+          --raise exception 'hola';            
+
           --insertamos el detalle a la invitacion
-           FOR v_item IN(
+          FOR i IN 1..(v_tamano) LOOP
            SELECT
                   sold.cantidad,
                   sold.precio_unitario,
                   sold.id_centro_costo,
                   sold.descripcion,
-                  sold.id_concepto_ingas
+                  sold.id_concepto_ingas,
+                  sol.id_moneda
+              INTO
+              v_item           
               FROM adq.tsolicitud_det sold
-              WHERE  sold.id_solicitud = v_record_solicitud.id_solicitud and sold.id_solicitud_det = v_parametros.id_solicitud_det         
-           )LOOP
-           
+              LEFT JOIN adq.tsolicitud sol on sol.id_solicitud = sold.id_solicitud
+              WHERE  sold.id_solicitud = v_record_solicitud.id_solicitud and sold.id_solicitud_det = va_id_solicitudes[i]::integer;                     
+           --raise exception 'v_item %',v_item;
+           IF va_id_invitacion is not null THEN
+              v_id_invitacion = va_id_invitacion::varchar;   
+              IF v_item.id_moneda <> v_record_invitacion.id_moneda THEN
+                Raise exception 'La moneda de la invitacion es diferente a la moneda de la solicitud';
+              END IF;
+           END IF;
+          
            v_codigo_trans_det = 'PRO_IVTD_INS';
-
                 --crear tabla 
             v_tabla_det = pxp.f_crear_parametro(ARRAY[      
                                 '_nombre_usuario_ai',
@@ -352,7 +418,7 @@ BEGIN
                                 'id_fase',
                                 'id_concepto_ingas',
                                 'invitacion_det__tipo',
-                                'id_solicitud_det',
+                                --'id_solicitud_det',
                                 'asociar_invitacion'
                                  ],
                             ARRAY[
@@ -370,8 +436,8 @@ BEGIN
                                 v_parametros.id_fase::VARCHAR,--'id_fase'
                                 v_item.id_concepto_ingas::VARCHAR, --'id_concepto_ingas'
                                 'planif'::varchar, --invitacion_det__tipo       ---si se quiere ingresar  un concepto desde la solicitud a una fase  automatico colocar no_planif
-                                 v_parametros.id_solicitud_det::varchar,--'id_solicitud_det'
-                                 v_parametros.asociar_invitacion::varchar --'asociar_invitacion'
+                               -- va_id_solicitudes[i]::varchar,--'id_solicitud_det'
+                                v_parametros.asociar_invitacion::varchar --'asociar_invitacion'
                                 ],
                             ARRAY[
                                 'varchar',
@@ -388,7 +454,7 @@ BEGIN
                                 'int4',--'id_fase'
                                 'int4', --'id_concepto_ingas'
                                 'varchar',--invitacion_det__tipo
-                                'int4', --'id_solicitud_det'
+                               -- 'int4', --'id_solicitud_det'
                                 'varchar'--'asociar_invitacion'
                                ]
                             );
@@ -400,10 +466,9 @@ BEGIN
                 
                ---actualizar el detalle de la invitacion y asociando al detalle de la solicitud
                UPDATE pro.tinvitacion_det SET
-                    id_solicitud_det = v_parametros.id_solicitud_det
+                    id_solicitud_det = va_id_solicitudes[i]::integer
                WHERE id_invitacion_det  =v_id_invitacion_det::integer; 
-
-            END LOOP;
+              END LOOP;
             
             --si la invitacion se crea se avanza hasta el estado de sol_compra en el workflow
             IF v_parametros.id_invitacion is null THEN
