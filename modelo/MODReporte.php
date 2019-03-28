@@ -48,7 +48,7 @@ class MODReporte extends MODbase{
 		//Definicion de la lista del resultado del query
 		$this->captura('id','int4');
 		$this->captura('nivel','integer');		
-		$this->captura('nombre_padre','varchar');
+		$this->captura('codigo','varchar');
 		$this->captura('item','varchar');
 		$this->captura('precio_estimado','numeric');
 		$this->captura('precio_real','numeric');
@@ -74,6 +74,7 @@ class MODReporte extends MODbase{
 			$this->captura('diciembre_'.$col_arrays[$i]['anio'],'numeric');			
 		}	
 		$this->captura('anio','integer');
+		$this->captura('id_nivel','integer');
 		$this->captura('id_nivel_I','integer');
 		$this->captura('id_nivel_II','integer');
 		$this->captura('id_nivel_III','integer');		
@@ -132,8 +133,10 @@ class MODReporte extends MODbase{
 		$this->captura('desc_funcionario','varchar');
 		$this->captura('estado_lanzado','varchar');//#5
 		$this->captura('dias_lanzado','integer');//#5
-
-
+		$this->captura('num_tramite','varchar');
+		$this->captura('id_funcionario','integer');//#5
+		$this->captura('id_invitacion_det','integer');//#5
+		$this->captura('desc_ingas_invd','varchar');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

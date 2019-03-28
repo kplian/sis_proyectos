@@ -17,6 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 	Issue 			Fecha 			Autor				Descripcion
  	#3				31/12/2018		EGS					Aumentar Importe Stea
+    #9              26/03/2019      EGS                 Se modifico que el codigo este antes del nombre del proyecto
 ***************************************************************************/
 
 DECLARE
@@ -307,8 +308,8 @@ BEGIN
                IF v_id_fase_fk is null THEN
                	  v_id_fase_fk = 'id';
                END IF ;
-              --RAISE EXCEPTION 'v_id_proyecto % v_id_fase_fk %,item.codigo % ,item.descripcion %,item.observaciones %,v_fecha_ini %',v_id_proyecto,v_id_fase_fk,item.codigo,item.descripcion,item.observaciones,v_fecha_ini;
-               item.codigo='['||v_codigo||']'||item.codigo;
+
+               item.codigo=item.codigo||'['||v_codigo||']';--#9
 
                 v_tabla = pxp.f_crear_parametro(ARRAY[
             					'_nombre_usuario_ai',

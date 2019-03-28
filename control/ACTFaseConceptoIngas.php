@@ -6,7 +6,7 @@
 *@date 24-05-2018 19:13:39
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
- 	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores de precio y precio_real
+ 	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores de precio y precio_est
  */
 
 class ACTFaseConceptoIngas extends ACTbase{    
@@ -47,7 +47,7 @@ class ACTFaseConceptoIngas extends ACTbase{
 		$temp = Array();
 		   	$temp['total']= $this->res->total;
 			$temp['precio'] = $this->res->extraData['total_precio'];
-			$temp['precio_real'] = $this->res->extraData['total_precio_real'];
+			$temp['precio_est'] = $this->res->extraData['total_precio_est'];
 			$temp['tipo_reg'] = 'summary';
 			$temp['id_fase_concepto_ingas'] = 0;
 			$this->res->total++;
@@ -98,6 +98,28 @@ class ACTFaseConceptoIngas extends ACTbase{
 			
 			$this->res=$this->objFunc->listarFaseConceptoIngasProgramado($this->objParam);
 		}
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+	
+		function listarFaseConceptoIngasCombo(){
+		$this->objParam->defecto('ordenacion','id_fase_concepto_ingas');
+		$this->objParam->defecto('dir_ordenacion','asc');
+
+		if($this->objParam->getParametro('id_fase')!=''){
+			$this->objParam->addFiltro("facoing.id_fase = ".$this->objParam->getParametro('id_fase'));
+		}
+		if($this->objParam->getParametro('id_proyecto')!=''){
+			$this->objParam->addFiltro("fase.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
+		}
+		if($this->objParam->getParametro('tipo')!=''){
+			$this->objParam->addFiltro("cig.tipo = ''".$this->objParam->getParametro('tipo')."''");
+		}
+		if($this->objParam->getParametro('invitacion')=='no'){
+			$this->objParam->addFiltro("facoing.precio != COALESCE(tinvd.total_invitacion_det,0)::numeric");
+		}
+		$this->objFunc=$this->create('MODFaseConceptoIngas');
+			
+		$this->res=$this->objFunc->listarFaseConceptoIngasCombo($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 		

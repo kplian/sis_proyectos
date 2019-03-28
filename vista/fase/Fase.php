@@ -277,13 +277,16 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				anchor: '80%',
 				gwidth: 100,
 				format: 'd/m/Y',
-				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+				gtpl:function (p){
+					console.log ('this.fecha_ini',this.fecha_ini);
+					return this.fecha_ini;
+					}
 			},
 			type:'DateField',
 			filters:{pfiltro:'fase.fecha_ini',type:'date'},
 			id_grupo:1,
 			grid:true,
-			form:true
+			form:false
 		},
 		{
 			config:{
@@ -293,13 +296,16 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				anchor: '80%',
 				gwidth: 100,
 				format: 'd/m/Y',
-				renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+				gtpl:function (p){
+					console.log ('this.fecha_fin',this.fecha_fin);
+					return this.fecha_fin;
+					}
 			},
 			type:'DateField',
 			filters:{pfiltro:'fase.fecha_fin',type:'date'},
 			id_grupo:1,
 			grid:true,
-			form:true
+			form:false
 		},
 		{
 			config:{

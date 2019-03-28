@@ -199,6 +199,9 @@ Phx.vista.InvitacionReg=Ext.extend(Phx.frmInterfaz,{
                 fieldLabel: 'Detalle Solicitud',
                 allowBlank: false,
                 emptyText: 'Elegir ...',
+                tinit:false,
+                resizable:true,
+                tasignacion:false,
                 store: new Ext.data.JsonStore({
                     url: '../../sis_proyectos/control/Invitacion/listarSolicituCompraDetCombo',
                     id : 'id_solicitud_det',
@@ -212,37 +215,36 @@ Phx.vista.InvitacionReg=Ext.extend(Phx.frmInterfaz,{
                     remoteSort: true,
                     baseParams: { par_filtro: 'sold.id_solicitud#coinga.desc_ingas#sold.cantidad'}
                 }),
-                tpl:'<tpl for=".">\
-		                       <div class="x-combo-list-item"><p><b>Concepto de Gasto: </b>{id}-{desc_ingas}</p>\
-		                       <p><b>Cantidad: </b>{cantidad}</p>\
-		                        <p><b>Precio Unitario: </b>{precio_unitario}</p>\
-		                        <p><b>Precio Total {codigo_moneda} : </b>{precio_total}</p> \
-		                        <p><b>Precio Total {codigo_moneda_total_conversion} : </b>{precio_total_conversion}</p> \
-		                        <p><b>Descripcion: </b>{descripcion}</p></div></tpl>',
+                tpl:'<tpl for="."><div class="x-combo-list-item" ><div class="awesomecombo-item {checked}"><p><b>Concepto de Gasto: </b>{id}-{desc_ingas}</p></div>\
+		                       <p style="padding-left: 20px;"><b>Cantidad: </b>{cantidad}</p>\
+		                        <p style="padding-left: 20px;"><b>Precio Unitario: </b>{precio_unitario}</p>\
+		                        <p style="padding-left: 20px;"><b>Precio Total {codigo_moneda} : </b>{precio_total}</p> \
+		                        <p style="padding-left: 20px;"><b>Precio Total {codigo_moneda_total_conversion} : </b>{precio_total_conversion}</p> \
+		                        <p style="padding-left: 20px;"><b>Descripcion: </b>{descripcion}</p></div></tpl>',
                	valueField: 'id_solicitud_det',
-				displayField: 'desc_ingas',
+				displayField: 'id+desc_ingas',
 				gdisplayField: 'desc_ingas',
 				hiddenName: 'id_solicitud_det',
 				forceSelection:true,
 				typeAhead: false,
 				triggerAction: 'all',
 				listWidth:500,
-				resizable:true,
+				//resizable:true,
 				lazyRender:true,
 				mode:'remote',
 				pageSize:10,
 				queryDelay:1000,
 				width: 250,
+                enableMultiSelect:true,
 				gwidth:250,
 				minChars:2,
 				anchor:'80%',
 				qtip:'Procesos de solicitutes de compra',
-				//tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_ingas}</p></div></tpl>',
 				renderer:function(value, p, record){
 				
 				}
             },
-            type:'ComboBox',
+            type:'AwesomeCombo',
 			bottom_filter: true,
             filters:{pfiltro:'coinga.desc_ingas',type:'string'},
             id_grupo:1,

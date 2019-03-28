@@ -281,7 +281,7 @@ class MODInvitacion extends MODbase{
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('id_solicitud','id_solicitud','int4');
 		$this->setParametro('id_fase_concepto_ingas','id_fase_concepto_ingas','int4');
-		$this->setParametro('id_solicitud_det','id_solicitud_det','int4');
+		$this->setParametro('id_solicitud_det','id_solicitud_det','varchar');
 		$this->setParametro('id_invitacion','id_invitacion','int4');
 		$this->setParametro('asociar_invitacion','asociar_invitacion','varchar');
 		

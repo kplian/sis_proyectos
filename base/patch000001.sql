@@ -738,10 +738,10 @@ COMMENT ON COLUMN pro.tfase_concepto_ingas.id_funcionario
 IS 'Encargado de item/servicio';
 
 ALTER TABLE pro.tfase_concepto_ingas
-  ADD COLUMN precio_real NUMERIC(18,2);
+  ADD COLUMN precio_est NUMERIC(18,2);
 
-COMMENT ON COLUMN pro.tfase_concepto_ingas.precio_real
-IS 'Precio real para adquirir el concepto de gasto';
+COMMENT ON COLUMN pro.tfase_concepto_ingas.precio_est
+IS 'Precio estimado para adquirir el concepto de gasto';
 /***********************************F-SCP-EGS-PRO-3-26/12/2018****************************************/
 
 /***********************************I-SCP-RCM-PRO-3-27/12/2018****************************************/
@@ -768,3 +768,9 @@ ALTER TABLE pro.tinvitacion_det
 COMMENT ON COLUMN pro.tinvitacion_det.id_presolicitud_det
 IS 'relaciona el detalle de una presolicitud a la invitacion';
 /***********************************F-SCP-EGS-PRO-5-05/02/2019****************************************/
+/***********************************I-SCP-EGS-PRO-6-26/03/2019****************************************/
+
+ALTER TABLE pro.tfase_concepto_ingas
+  ADD COLUMN codigo VARCHAR;
+  
+/***********************************F-SCP-EGS-PRO-6-26/03/2019****************************************/

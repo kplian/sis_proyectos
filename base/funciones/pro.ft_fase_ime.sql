@@ -16,9 +16,9 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ISSUE:           FECHA:	        AUTOR:                              DESCRIPCION:	
+ #9   EndeEtr    27/03/2019     EGS                                 Se deshabilito las fechas de inicio y fin     			
+ 	
 ***************************************************************************/
 
 DECLARE
@@ -207,11 +207,11 @@ BEGIN
 			id_fase_fk,
 			descripcion,
 			estado_reg,
-			fecha_ini,
+			--fecha_ini,--#9
 			nombre,
 			codigo,
             estado,
-			fecha_fin,
+			--fecha_fin,--#9
 			observaciones,
 			id_usuario_reg,
 			usuario_ai,
@@ -230,11 +230,11 @@ BEGIN
 			v_id_fase_fk,
 			v_parametros.descripcion,
 			'activo',
-			v_parametros.fecha_ini,
+			--v_parametros.fecha_ini,--#9
 			v_parametros.nombre,
 			v_codigo_fase,
 			v_codigo_estado,
-			v_parametros.fecha_fin,
+			--v_parametros.fecha_fin,--#9
 			v_parametros.observaciones,
 			p_id_usuario,
 			v_parametros._nombre_usuario_ai,
@@ -307,10 +307,10 @@ BEGIN
 			id_proyecto = v_parametros.id_proyecto,
 			id_fase_fk = v_parametros.id_fase_fk,
 			descripcion = v_parametros.descripcion,
-			fecha_ini = v_parametros.fecha_ini,
+			--fecha_ini = v_parametros.fecha_ini,--#9
 			nombre = v_parametros.nombre,
 			codigo = v_parametros.codigo,
-			fecha_fin = v_parametros.fecha_fin,
+			--fecha_fin = v_parametros.fecha_fin,--#9
 			observaciones = v_parametros.observaciones,
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
