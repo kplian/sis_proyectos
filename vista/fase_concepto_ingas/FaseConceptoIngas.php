@@ -8,6 +8,7 @@
 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores de precio y precio_est
   	#7	  endeETR		29/01/2019	EGS				Se agego los botones y validaciones para que se relaciones una solicitud con el fase_concepto_ingas
+ * 	#10	  endeEtr		02/04/2019	EGS				Se agrega funcion que actualiza panel de informacion al crear ,editar y eliminar un fase concepto de gasto	
  * 
 */
 
@@ -793,6 +794,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 			var data = this.getSelectedData();
 			console.log('data',data);
 			
+			Phx.CP.getPagina(this.idContenedorPadre).actualizarInfProyecto();///#10
 			//Phx.vista.FaseConceptoIngas.superclass.onButtonDel.call(this)
 			Phx.CP.loadingHide();
 			///solo actualiza al padre si ya no tiene items en la grilla	
@@ -801,11 +803,12 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
             	Phx.CP.getPagina(this.idContenedorPadre).treePanel.expandAll();
 			};		
             this.onButtonAct();
-	
+			
 	},
 	 //al crear o editar un elemento actualiza el padre
 	successSave:function(resp)
         {	
+        	Phx.CP.getPagina(this.idContenedorPadre).actualizarInfProyecto();//#10
  			Phx.CP.loadingHide();
 			//solo actualiza al  padre si no cuenta con items
             if (this.nro_items == null || this.nro_items == 0) {

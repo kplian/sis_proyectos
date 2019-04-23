@@ -348,27 +348,7 @@ BEGIN
             IF(v_pagos <> 0 and v_record_fase_coningas.precio > v_parametros.precio )THEN
                 raise exception 'No puede Modificar con un precio  menor al registrado en el Bien/Servicio este tiene % fecha de pago(s).Para modificar elimine las fechas de Pago',v_pagos;
             END IF;
-            --actualizamos las fechas de inicio y maximo de la fase
-              select
-                    facoing.id_fase,
-                    MIN(facoing.fecha_estimada)as fecha_min,
-                    MAX(facoing.fecha_fin) as fecha_max
-              INTO
-                    v_registro_fase_coningas
-              from pro.tfase_concepto_ingas facoing
-              WHERE facoing.id_fase = v_parametros.id_fase
-              GROUP BY facoing.id_fase;
 
-              IF COALESCE(v_registro_fase_coningas.fecha_min,now()::date) >= v_parametros.fecha_estimada::date THEN
-                    UPDATE pro.tfase SET
-                     fecha_ini = v_parametros.fecha_estimada::date
-                    WHERE id_fase = v_parametros.id_fase;
-              END IF;
-              IF COALESCE(v_registro_fase_coningas.fecha_max,now()::date) <= v_parametros.fecha_fin::date THEN
-                    UPDATE pro.tfase SET
-                     fecha_fin = v_parametros.fecha_fin::date
-                    WHERE id_fase = v_parametros.id_fase;
-              END IF;
             
 			--Sentencia de la modificacion
 			update pro.tfase_concepto_ingas set
@@ -393,6 +373,28 @@ BEGIN
             codigo = v_parametros.codigo
 
 			where id_fase_concepto_ingas=v_parametros.id_fase_concepto_ingas;
+            
+            --actualizamos las fechas de inicio y maximo de la fase
+              select
+                    facoing.id_fase,
+                    MIN(facoing.fecha_estimada)as fecha_min,
+                    MAX(facoing.fecha_fin) as fecha_max
+              INTO
+                    v_registro_fase_coningas
+              from pro.tfase_concepto_ingas facoing
+              WHERE facoing.id_fase = v_parametros.id_fase
+              GROUP BY facoing.id_fase;
+
+              IF COALESCE(v_registro_fase_coningas.fecha_min,now()::date) >= v_parametros.fecha_estimada::date THEN
+                    UPDATE pro.tfase SET
+                     fecha_ini = v_parametros.fecha_estimada::date
+                    WHERE id_fase = v_parametros.id_fase;
+              END IF;
+              IF COALESCE(v_registro_fase_coningas.fecha_max,now()::date) <= v_parametros.fecha_fin::date THEN
+                    UPDATE pro.tfase SET
+                     fecha_fin = v_parametros.fecha_fin::date
+                    WHERE id_fase = v_parametros.id_fase;
+              END IF;
                
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Fase Concepto de Gasto modificado(a)'); 

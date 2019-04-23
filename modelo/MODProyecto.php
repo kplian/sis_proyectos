@@ -7,6 +7,7 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 	Issue 			Fecha 			Autor				Descripcion
  	#3				31/12/2018		EGS					Aumentar Importe Stea
+ *  #10 EndeEtr		02/04/2019		EGS					Se agrego totalizadores de faseconceptoingas i det invitaion por proyecto
  * */
 
 class MODProyecto extends MODbase{
@@ -59,7 +60,10 @@ class MODProyecto extends MODbase{
 		$this->captura('id_proceso_wf_cbte_1','int4');
 		$this->captura('id_proceso_wf_cbte_2','int4');
 		$this->captura('id_proceso_wf_cbte_3','int4');
-		$this->captura('importe_max','numeric');	//#3 31/12/2018		EGS	
+		$this->captura('importe_max','numeric');	//#3 31/12/2018		EGS	                     
+                    
+		$this->captura('total_fase_concepto_ingas','numeric');//#10
+		$this->captura('total_invitacion','numeric');//#10
 		
 
 		//Ejecuta la instruccion

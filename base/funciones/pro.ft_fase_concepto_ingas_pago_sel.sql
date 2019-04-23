@@ -57,7 +57,8 @@ BEGIN
 						facoinpa.id_usuario_mod,
 						facoinpa.fecha_mod,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod,
+                        facoinpa.descripcion  --#	
 						from pro.tfase_concepto_ingas_pago facoinpa
 						inner join segu.tusuario usu1 on usu1.id_usuario = facoinpa.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = facoinpa.id_usuario_mod

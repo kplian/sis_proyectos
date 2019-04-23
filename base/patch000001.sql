@@ -774,3 +774,9 @@ ALTER TABLE pro.tfase_concepto_ingas
   ADD COLUMN codigo VARCHAR;
   
 /***********************************F-SCP-EGS-PRO-6-26/03/2019****************************************/
+/***********************************I-SCP-EGS-PRO-7-09/04/2019****************************************/
+
+ALTER TABLE pro.tfase_concepto_ingas_pago
+  ADD COLUMN descripcion VARCHAR;
+  
+/***********************************F-SCP-EGS-PRO-7-09/04/2019****************************************/

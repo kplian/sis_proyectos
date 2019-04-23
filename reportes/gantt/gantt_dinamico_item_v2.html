@@ -7,7 +7,7 @@
        <link href="../../../lib/jsGanttImproved-v2/docs/main.css" rel="stylesheet" type="text/css" />
       <script src="../../../lib/jsGanttImproved-v2/docs/main.js" type="text/javascript"></script>
    
-   <link rel="stylesheet" type="text/css" href="../../../lib/jsGanttImproved-v2/docs/jsgantt.css" />
+   <link rel="stylesheet" type="text/css" href="../../../lib/jsGanttImproved-v2/docs/jsgantt_item.css" />
 
     <script src="../../../lib/jsGanttImproved-v2/docs/jsgantt.js"></script> 
 
@@ -149,18 +149,25 @@
 							console.log(response);
 							 /*
 							  g.vAdditionalHeaders = {
+							      funcionario: {
+							        title: 'Funcionario'
+							      },
 							      descripcion: {
 							        title: 'Descripcion'
 							      },
 
-							  };
-							
-							*/
+							  };*/
+							const vDebug =  false;
+    						const vEditable = false;
+							const vUseSort = false;
+							vShowTaskInfoLink = 1;
+    						vShowEndWeekDate = 0;
+    						vTooltipDelay = 'delay';
 							g.setOptions({
 							  vShowRes:1,
 							  vShowComp:0,
-							  vShowPlanStartDate:1,
-							  vShowPlanEndDate:1,
+							  vShowPlanStartDate:0,
+							  vShowPlanEndDate:0,
 							  vCaptionType: 'Complete',  // Set to Show Caption : None,Caption,Resource,Duration,Complete,     
 							  vQuarterColWidth: 36,
 							  vDateTaskDisplayFormat: 'day dd month yyyy', // Shown in tool tip box
@@ -183,9 +190,16 @@
 							        planenddate: console.log,
 							        cost: console.log
 							      },
-							  vEventClickRow: console.log
+							 vEventClickRow: console.log,
+						      vShowTaskInfoLink, // Show link in tool tip (0/1)
+						      vShowEndWeekDate,  // Show/Hide the date for the last day of the week in header for daily view (1/0)
+						      vTooltipDelay,
+						      vDebug,
+						      vEditable,
+						      vUseSort,
+						      vFormatArr: ['Day', 'Week', 'Month', 'Quarter'], // Even with setUseSingleCell using Hour format on such a large chart can cause issues in some browsers
 							});
-							g.addLang('es2', {'resource':'Responsable'});
+							//g.addLang('es', {'resource':'Responsable'});
 							
 							
 											var resp = response.datos; 
@@ -219,10 +233,15 @@
 								               	 pName =  (resp[i].etapa != null)? resp[i].etapa + ' ['+ resp[i].codigo + '] '+cuenta : resp[i].codigo +': '+ resp[i].nombre ;
 								               	}
 								               else{
-								               	 pName='Item ' +resp[i].des_ingas;
+								               	 if(resp[i].duplicado =='false'){
+								               	 	
+								               	 	pName= resp[i].codigo+'-' +resp[i].des_ingas;
+								               	 }else{
+								               	 	pName=resp[i].codigo+'-'+resp[i].des_ingas+'(Ejecutado)';
+								               	 }
+								               	 
 								               }
-								         
-								   		
+		
 							                   	if(resp[i].agrupador == 'true'){
 							                   		pStart='';
 							                   		pEnd='';
@@ -232,11 +251,11 @@
 							                   	else{
 							                   	pStart =resp[i].fecha_ini;
 												pEnd = resp[i].fecha_fin ;
-												pPlanStart=resp[i].fecha_ini_real;
-							                    pPlanEnd=resp[i].fecha_fin_real;
+												//pPlanStart=resp[i].fecha_ini_real;
+							                    //pPlanEnd=resp[i].fecha_fin_real;
 							                   	}
 							                 
-							                    pClass = (resp[i].id_anterior == null)? 'ggroupblack':(resp[i].agrupador == 'true')? 'gtaskred':'gtaskblue';
+							                    pClass = (resp[i].id_anterior == null)? 'ggroupblack':(resp[i].agrupador == 'true')? 'gtaskred':(resp[i].duplicado == 'true')?'gtaskyellow':'gtaskblue';
 								               	pLink = '';
 						                    	pMile = 0;
 						                    	pRes = (resp[i].funcionario != null)? resp[i].funcionario:resp[i].depto? resp[i].depto:resp[i].cuenta? resp[i].cuenta:'';
@@ -286,7 +305,8 @@
 											  pCaption: pCaption,
 											  pCost: 1000,
 											  pNotes: pNotes,
-											  descripcion:pNotes
+											  descripcion:pNotes,
+											  funcionario:pRes
 											  });
 							}
 							g.Draw();

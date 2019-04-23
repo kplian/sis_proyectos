@@ -167,39 +167,54 @@
 											 'friday':'Viernes','saturday':'Sabado','sun':'Dom','mon':'Lun','tue':'Mar','wed':'Mie','thu':'Jue','fri':'Vie','sat':'Sab'});
 											 
 									if (g.getDivId() != null) {
-				                    			g.setShowComp(0);
-				                    			//g.setShowNote(1);
-				                    			
-												g.setShowRes(0);
-												//g.setCaptionType('Complete');  // Set to Show Caption (None,Caption,Resource,Duration,Complete)
-												g.setQuarterColWidth(36);
-												//g.setDayColWidth (400);
-												
-												//g.setHourColWidth(18);
-												g.setDayColWidth(18);
-												g.setWeekColWidth(36);
-												g.setMonthColWidth(36);
-												g.setQuarterColWidth(18);
-												
-												g.setDateTaskDisplayFormat('day dd month yyyy'); // Shown in tool tip box
-												g.setDayMajorDateDisplayFormat('mon yyyy - Week ww '); // Set format to display dates in the "Major" header of the "Day" view
-												g.setWeekMinorDateDisplayFormat('dd mon'); // Set format to display dates in the "Minor" header of the "Week" view
-												g.setShowTaskInfoLink(1); //Show link in tool tip (0/1)
-												g.setShowEndWeekDate(0); // Show/Hide the date for the last day of the week in header for daily view (1/0)
-												g.setUseSingleCell(1000000); // Set the threshold at which we will only use one cell per table row (0 disables).  Helps with rendering performance for large charts.
-												g.setFormatArr('Day', 'Week', 'Month', 'Quarter'); // Even with setUseSingleCell using Hour format on such a large chart can cause issues in some browsers
-												g.setRowHeight(20);
-												g.setShowTaskInfoLink(1);	
-												//g.setCaptionType('Caption');
-												
-												//g.setMinGpLen(50);
-												g.setRowHeight(25);	
-												
-													
-											 	g.setLang('en2');
+											 	
+												const vDebug =  false;
+					    						const vEditable = false;
+												const vUseSort = false;
+												vShowTaskInfoLink = 1;
+					    						vShowEndWeekDate = 0;
+					    						vTooltipDelay = 'delay';
+												g.setOptions({
+												  vShowRes:1,
+												  vShowComp:0,
+												  vShowPlanStartDate:0,
+												  vShowPlanEndDate:0,
+												  vCaptionType: 'Complete',  // Set to Show Caption : None,Caption,Resource,Duration,Complete,     
+												  vQuarterColWidth: 36,
+												  vDateTaskDisplayFormat: 'day dd month yyyy', // Shown in tool tip box
+												  vDayMajorDateDisplayFormat: 'mon yyyy - Week ww',// Set format to display dates in the "Major" header of the "Day" view
+												  vWeekMinorDateDisplayFormat: 'dd mon', // Set format to display dates in the "Minor" header of the "Week" view
+												  vLang: 'es',
+											
+												  vShowTaskInfoLink: 1, // Show link in tool tip (0/1)
+												  vShowEndWeekDate: 0,  // Show/Hide the date for the last day of the week in header for daily view (1/0)
+												  //vUseSingleCell: 10000, // Set the threshold at which we will only use one cell per table row (0 disables).  Helps with rendering performance for large charts.
+												  vFormatArr: ['Week', 'Month', 'Quarter'], // Even with setUseSingleCell using Hour format on such a large chart can cause issues in some browsers
+												  vEvents: {
+												        taskname: console.log,
+												        res: console.log,
+												        dur: console.log,
+												        comp: console.log,
+												        startdate: console.log,
+												        enddate: console.log,
+												        planstartdate: console.log,
+												        planenddate: console.log,
+												        cost: console.log
+												      },
+												 vEventClickRow: console.log,
+											      vShowTaskInfoLink, // Show link in tool tip (0/1)
+											      vShowEndWeekDate,  // Show/Hide the date for the last day of the week in header for daily view (1/0)
+											      vTooltipDelay,
+											      vDebug,
+											      vEditable,
+											      vUseSort,
+											      vFormatArr: ['Day', 'Week', 'Month', 'Quarter'], // Even with setUseSingleCell using Hour format on such a large chart can cause issues in some browsers
+												}); 	
+																 	
+											 	
 											
 											var resp = response.datos; 
-								            var pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, pGantt,pEstado;
+								            var pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, pGantt,pEstado,pPlanStart,pPlanEnd;
 								           
 								           for (var i = 0; i < response.datos.length; i++) {
 								            
@@ -231,17 +246,11 @@
 								               else{
 								                pName =  (resp[i].etapa != null)? resp[i].etapa + ' ['+ resp[i].codigo + '] '+cuenta +'  **********': resp[i].codigo +':'+ resp[i].nombre +cuenta+'  **************';
 								               }
-								               /*
-								               console.log('fecha_ini',resp[i].fecha_ini);
-								               console.log('fecha_fin',resp[i].fecha_fin);
-								               console.log('fecha_ini_real',resp[i].fecha_ini_real);
-								               console.log('fecha_fin_real',resp[i].fecha_fin_real);
-								               */
-								   		
+										   		
 							                   
 								                pStart =resp[i].fecha_ini;
 							                    pEnd = resp[i].fecha_fin ;
-							                    pClass = (resp[i].id_anterior != null)? 'gtaskblue':'ggroupblack';
+							                    pClass = (resp[i].id_anterior == null)? 'ggroupblack':(resp[i].grupo == 'true')? 'gtaskred':'gtaskblue';
 								               	pLink = '';
 						                    	pMile = 0;
 						                    	pRes = (resp[i].funcionario != null)? resp[i].funcionario:resp[i].depto? resp[i].depto:resp[i].cuenta? resp[i].cuenta:'';
@@ -272,8 +281,29 @@
 							                    }else {
 							                    pEstado = 1;
 							                    }
-							                    g.AddTaskItem(new JSGantt.TaskItem(pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, g,pEstado));
-								            
+								            	
+								       			g.AddTaskItemObject({
+											  	pID: pID,
+											  	pName:pName,
+											  	pStart: pStart,
+											  	pEnd: pEnd,
+											  	pPlanStart:pPlanStart,
+											  	pPlanEnd:pPlanEnd,
+											  	pClass:pClass,
+											  	pLink: pLink,
+											  	pMile: pMile,
+											  	pRes: pRes,
+											  	pComp:pComp,
+											  	pGroup:pGroup,
+											  	pParent:pParent,
+											  	pOpen:pOpen,
+											  	pDepend:pDepend,
+											  	pCaption: pCaption,
+											  	pCost: 1000,
+											  	pNotes: pNotes,
+											  	descripcion:pNotes,
+											  	funcionario:pRes
+											  });
 								            };
 								           
 								            g.Draw();

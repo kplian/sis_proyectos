@@ -7,6 +7,7 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 	Issue 			Fecha 			Autor				Descripcion
  	#3				31/12/2018		EGS					Aumentar Importe Stea
+ *  #10	EndeEtr		02/04/2019		EGS					Se agrego Totalizadores de fase_concepto y det invitacion
  * */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -451,6 +452,8 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_estado_wf', type: 'numeric'},
 		{name:'estado', type: 'string'},
 		{name:'importe_max', type: 'numeric'},
+		'total_fase_concepto_ingas',//#10
+		'total_invitacion',//#10
 
 
 	],

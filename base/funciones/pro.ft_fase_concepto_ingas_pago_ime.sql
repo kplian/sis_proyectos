@@ -169,7 +169,8 @@ BEGIN
 			usuario_ai,
 			fecha_reg,
 			id_usuario_mod,
-			fecha_mod
+			fecha_mod,
+            descripcion --#
           	) values(
 			v_parametros.id_fase_concepto_ingas,
 			v_parametros.importe,
@@ -181,7 +182,8 @@ BEGIN
 			v_parametros._nombre_usuario_ai,
 			now(),
 			null,
-			null
+			null,
+            v_parametros.descripcion --#
 							
 			
 			
@@ -269,7 +271,8 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
-			usuario_ai = v_parametros._nombre_usuario_ai
+			usuario_ai = v_parametros._nombre_usuario_ai,
+            descripcion = v_parametros.descripcion --#
 			where id_fase_concepto_ingas_pago=v_parametros.id_fase_concepto_ingas_pago;
                
 			--Definicion de la respuesta

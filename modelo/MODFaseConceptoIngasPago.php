@@ -37,6 +37,7 @@ class MODFaseConceptoIngasPago extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
+		$this->captura('descripcion','varchar');//#
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -58,6 +59,7 @@ class MODFaseConceptoIngasPago extends MODbase{
 		$this->setParametro('fecha_pago','fecha_pago','date');
 		$this->setParametro('fecha_pago_real','fecha_pago_real','date');
 		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('descripcion','descripcion','varchar');//#
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -80,6 +82,7 @@ class MODFaseConceptoIngasPago extends MODbase{
 		$this->setParametro('fecha_pago','fecha_pago','date');
 		$this->setParametro('fecha_pago_real','fecha_pago_real','date');
 		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('descripcion','descripcion','varchar');//#
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
