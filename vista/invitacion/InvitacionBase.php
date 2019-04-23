@@ -239,7 +239,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'fecha',
 				fieldLabel: 'Fecha',
-				allowBlank: true,
+				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,
 							format: 'd/m/Y',

@@ -8,6 +8,7 @@
 	ISSUE FORK		FECHA		AUTHOR			DESCRIPCION
  	#5		EndeEtr	09/01/2019	EGS				Se aumento el campo precio_item que es la suma de los items en la fase
  * 	#7		EndeEtr	20/02/2019	EGS				validacion que pinta de color cuando existe items en el nodo fase
+ *  #10		EndeEtr	02/04/2019	EGS				Se agrega funcion que actualiza panel de informacion al crear ,editar y eliminar un fase concepto de gasto
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -27,6 +28,7 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 
 		this.init();
 		this.addBotonesGantt();
+		this.retornarProyecto();
 
 		//Botón para abrir los conceptos de gasto
 		/*
@@ -56,6 +58,11 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 	  DesplegarArbol:function(){
             	this.treePanel.expandAll();	
        },
+       	onButtonAct : function() {
+			this.sm.clearSelections();
+			this.root.reload();
+			this.treePanel.expandAll();	
+		},
 
 	   loadCheckDocumentosWf:function() {
        //var rec=this.sm.getSelected();
@@ -278,9 +285,11 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				gwidth: 100,
 				format: 'd/m/Y',
 				gtpl:function (p){
-					console.log ('this.fecha_ini',this.fecha_ini);
-					return this.fecha_ini;
-					}
+						var fecha = '"'+this.fecha_ini+'"';
+	                    return this.fecha_ini?Ext.util.Format.date(fecha,'d/m/Y'):'';
+
+				},
+				
 			},
 			type:'DateField',
 			filters:{pfiltro:'fase.fecha_ini',type:'date'},
@@ -297,8 +306,9 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 				gwidth: 100,
 				format: 'd/m/Y',
 				gtpl:function (p){
-					console.log ('this.fecha_fin',this.fecha_fin);
-					return this.fecha_fin;
+						var fecha = '"'+this.fecha_fin+'"';
+	                    return this.fecha_fin?Ext.util.Format.date(fecha,'d/m/Y'):'';
+					
 					}
 			},
 			type:'DateField',
@@ -573,7 +583,6 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 	},
 	onButtonEdit: function(){
 		var selectedNode = this.sm.getSelectedNode();
-		console.log('selectedNode',selectedNode.attributes);
 		
 		Phx.vista.Fase.superclass.onButtonEdit.call(this);
 		this.Cmp.id_tipo_cc.setValue(this.maestro.id_tipo_cc);
@@ -698,6 +707,16 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
 		height:'50%',
 		cls:'FaseAvanceObsOb'
 	}],
+	tabwest : [   //#10	
+		{
+		url:'../../../sis_proyectos/vista/fase/InfProyecto.php',
+		title:'',
+		width:'20%',
+		height:'20%',
+		cls:'InfProyecto',
+
+		}
+		],
 	
 	antEstado: function(res){
 	  var selectedNode = this.sm.getSelectedNode();
@@ -808,6 +827,14 @@ Phx.vista.Fase=Ext.extend(Phx.arbGridInterfaz,{
         resp.argument.wizard.panel.destroy()
         this.root.reload();
     },
+    retornarProyecto:function (){// #10	
+    	return this.maestro;
+    },
+    actualizarInfProyecto: function (){ // #10	
+    		contenedor = this.idContenedor +'-west-0';
+    		
+    	Phx.CP.getPagina(contenedor).actualizarInfProyecto();
+    }
 })
 </script>
 

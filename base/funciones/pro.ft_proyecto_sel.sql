@@ -17,6 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 	Issue 			Fecha 			Autor				Descripcion
  	#3				31/12/2018		EGS					Aumentar Importe Stea
+    #10  EndeEtr    02/04/2019      EGS                 se agrega totalizadores de la suma de faseconceptoingas y de las invitaciones
 ***************************************************************************/
 
 DECLARE
@@ -42,7 +43,68 @@ BEGIN
 
     	begin
     		--Sentencia de la consulta
-			v_consulta:='select
+            --#10  se agrega totalizadores de la suma de faseconceptoingas y de las invitaciones por proyecto
+			v_consulta:='
+                  WITH total_facoing(   id_proyecto,
+                            total_fase_concepto_ingas
+                           )as(
+                        SELECT
+                            fase.id_proyecto,
+                            sum(COALESCE(facoing.precio,0))
+                        FROM pro.tfase_concepto_ingas facoing
+                        LEFT join pro.tfase fase on fase.id_fase = facoing.id_fase
+                        GROUP BY fase.id_proyecto
+                    ),
+                    convertion(
+                      id_proyecto,
+                      id_moneda_proyecto,
+                      id_invitacion,
+                      id_moneda_invitacion,
+                      precio,
+                      cantidad_sol,          
+                      precio_total_conversion,
+                      codigo_moneda_total_conversion
+                      )AS(
+                         SELECT
+                                      inv.id_proyecto,
+                                      pro.id_moneda,
+                                      inv.id_invitacion,
+                                      inv.id_moneda,
+                                      invd.precio,
+                                      invd.cantidad_sol,
+                                     
+                                     CASE
+                                      WHEN pro.id_moneda = inv.id_moneda  THEN
+                                           invd.precio*invd.cantidad_sol
+                                      WHEN pro.id_moneda =  param.f_get_moneda_base() THEN
+                                           ((invd.precio*invd.cantidad_sol)*((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,''O'')):: numeric)):: numeric(18,2)
+                                      WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
+                                           ((invd.precio*invd.cantidad_sol)/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,''O'')):: numeric)):: numeric(18,2)   
+                                      END as precio_total_conversion,
+                                      case
+                                       WHEN pro.id_moneda = inv.id_moneda  THEN
+                                          mon.codigo
+                                       WHEN pro.id_moneda =  param.f_get_moneda_base() THEN
+                                        (SELECT mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda =param.f_get_moneda_base())::varchar
+                                      WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
+                                       (SELECT  mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda = param.f_get_moneda_triangulacion())::varchar
+                                      END as codigo_moneda_total_conversion  
+                               
+                                  FROM pro.tinvitacion_det invd
+                                  left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
+                                  left join pro.tproyecto pro on pro.id_proyecto = inv.id_proyecto 
+                                  left join param.tmoneda mon on mon.id_moneda = pro.id_moneda ),
+                      total_invitacion(
+                                id_proyecto,
+                                total_invitacion
+                      )as(
+                        SELECT
+                          co.id_proyecto,
+                          sum(precio_total_conversion)
+                      FROM convertion co
+                      group by co.id_proyecto                    
+                      )                    
+                    select
 						proy.id_proyecto,
 						proy.codigo,
 						proy.nombre,
@@ -80,7 +142,9 @@ BEGIN
 						cbte1.id_proceso_wf as id_proceso_wf_cbte_1,
 						cbte2.id_proceso_wf as id_proceso_wf_cbte_2,
 						cbte3.id_proceso_wf as id_proceso_wf_cbte_3,
-                        proy.importe_max				--#3 31/12/2018	EGS
+                        proy.importe_max,				--#3 31/12/2018	EGS
+                        tfac.total_fase_concepto_ingas::numeric,
+                        tinv.total_invitacion::numeric(18,2)
 						from pro.tproyecto proy
 						inner join segu.tusuario usu1 on usu1.id_usuario = proy.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = proy.id_usuario_mod
@@ -90,6 +154,8 @@ BEGIN
 						left join conta.tint_comprobante cbte1 on cbte1.id_int_comprobante = proy.id_int_comprobante_1
 						left join conta.tint_comprobante cbte2 on cbte2.id_int_comprobante = proy.id_int_comprobante_2
 						left join conta.tint_comprobante cbte3 on cbte3.id_int_comprobante = proy.id_int_comprobante_3
+                        left join total_facoing tfac on tfac.id_proyecto = proy.id_proyecto
+                        left join total_invitacion tinv on tinv.id_proyecto = proy.id_proyecto
 				        where ';
 
 			--Definicion de la respuesta

@@ -19,6 +19,7 @@ $body$
 #ISSUE				FECHA				AUTOR				DESCRIPCION
   # 9               26/03/2019          EGS                 El precio acumulado de los detalles de la invitacion en moneda base y triangulacion 
                                                             se convierten a moneda del proyecto y no sobrepasa al fase conceptoingas 
+  #10  EndeEtr      05/04/2019          EGS                 Se actualiza las fechas reales al inserta la regularizacion
  ***************************************************************************/
  */
  
@@ -64,7 +65,7 @@ DECLARE
     v_total_asignado        numeric;
     v_record_invitacion     record;
     va_id_invitacion         integer;
-
+    v_fecha_real            date;
 
 BEGIN
        
@@ -367,10 +368,16 @@ BEGIN
             v_id_invitacion  = pxp.f_recupera_clave(v_resp,'id_invitacion');
             v_id_invitacion    =  split_part(v_id_invitacion, '{', 2);
             v_id_invitacion    =  split_part(v_id_invitacion, '}', 1);
+            --#10 actualizamos la fecha real de lanzamiento con la de la solicitud
+            UPDATE pro.tinvitacion SET
+                fecha_real = v_record_solicitud.fecha_soli::date
+            WHERE id_invitacion = v_id_invitacion::integer;
+            
            --insertamos el detalle de la solicitud 
           ELSE
                 SELECT
-                  inv.id_moneda
+                  inv.id_moneda,
+                  inv.fecha_real
                 INTO
                  v_record_invitacion
                 FROM pro.tinvitacion inv 
@@ -387,15 +394,33 @@ BEGIN
                   sold.id_centro_costo,
                   sold.descripcion,
                   sold.id_concepto_ingas,
-                  sol.id_moneda
+                  sol.id_moneda,
+                  sol.fecha_soli
               INTO
               v_item           
               FROM adq.tsolicitud_det sold
               LEFT JOIN adq.tsolicitud sol on sol.id_solicitud = sold.id_solicitud
               WHERE  sold.id_solicitud = v_record_solicitud.id_solicitud and sold.id_solicitud_det = va_id_solicitudes[i]::integer;                     
-           --raise exception 'v_item %',v_item;
+            --Se ejecuta el detalle se insertara en una invitacion existente
            IF va_id_invitacion is not null THEN
-              v_id_invitacion = va_id_invitacion::varchar;   
+              
+               ---#10 recuperamos la fecha de la invitacion al cual agregamos el detalle de la solicitud
+               SELECT
+                  inv.fecha_real
+                INTO
+                 v_fecha_real
+                FROM pro.tinvitacion inv 
+                WHERE inv.id_invitacion = va_id_invitacion;
+              
+              --#10 comparamos que la fecha de la invitacion sea menor a la fecha de la solicitud del item si es mayor actualizamos 
+              -- la invitacion con la fecha de la solicitud menor
+              IF v_fecha_real::date > v_item.fecha_soli::date THEN                 
+                   UPDATE pro.tinvitacion SET
+                    fecha = v_item.fecha_soli::date,
+                    fecha_real = v_item.fecha_soli::date
+                    WHERE id_invitacion = va_id_invitacion; 
+              END IF ;
+              v_id_invitacion = va_id_invitacion::varchar;    
               IF v_item.id_moneda <> v_record_invitacion.id_moneda THEN
                 Raise exception 'La moneda de la invitacion es diferente a la moneda de la solicitud';
               END IF;

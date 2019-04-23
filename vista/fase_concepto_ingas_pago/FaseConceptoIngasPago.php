@@ -116,6 +116,21 @@ Phx.vista.FaseConceptoIngasPago=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
+		{//#
+			config:{
+				name: 'descripcion',
+				fieldLabel: 'Descripcion',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100
+							
+			},
+				type:'TextField',
+				filters:{pfiltro:'facoinpa.descripcion',type:'date'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
 		{
 			config:{
 				name: 'estado_reg',
@@ -245,6 +260,8 @@ Phx.vista.FaseConceptoIngasPago=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+		{name:'descripcion', type: 'string'},
+
 		
 	],
 	sortInfo:{
