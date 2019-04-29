@@ -281,12 +281,13 @@ BEGIN
              --raise exception 'v_solicitud_det_precio_total %',v_solicitud_det_precio_total;
 
              ---validamos que no se supere a la fase conceptoingas
-                   IF COALESCE(v_solicitud_det_precio_total,0) > COALESCE(v_record_facoing.precio,0) THEN
+                 /*  IF COALESCE(v_solicitud_det_precio_total,0) > COALESCE(v_record_facoing.precio,0) THEN
                     RAISE EXCEPTION ' El precio actualizado %  es menor a la suma de los conceptos asigandos al Bien/servicio %',COALESCE(v_record_facoing.precio,0),COALESCE(v_solicitud_det_precio_total,0);
-                   END IF;    
+                   END IF;*/ 
+                   /*   
                    IF COALESCE(v_solicitud_det_precio_total,0) > COALESCE(v_record_facoing.precio_est,0) THEN
                     RAISE EXCEPTION ' El precio estimado % es menor a la suma de los conceptos asigandos al Bien/servicio % .Al Relacionar el precio estimado tiene que ser igual al actualizado',COALESCE(v_record_facoing.precio_est,0),COALESCE(v_solicitud_det_precio_total,0);
-                   END IF;
+                   END IF;*/
         --#9 F
         va_id_invitacion = v_parametros.id_invitacion;
         -- sino se asocia con una invitacion se crea una nueva
