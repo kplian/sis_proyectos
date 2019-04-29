@@ -247,13 +247,15 @@ BEGIN
            left join param.tconcepto_ingas cig on cig.id_concepto_ingas = facoing.id_concepto_ingas
            WHERE facoing.id_fase_concepto_ingas=v_parametros.id_fase_concepto_ingas;
            --#9
+           /*
            IF v_precio> v_record_fase_concepto_ingas.precio then
                 Raise EXCEPTION 'El precio % %  sobrepasan al precio registrado en la fase % %',v_precio,v_rec_proyecto.desc_moneda,v_record_fase_concepto_ingas.precio,v_rec_proyecto.desc_moneda;
            END IF;
-           --#9
+           --#9*/
+           /*
            IF (v_precio + COALESCE(v_total_asignado,0))> v_record_fase_concepto_ingas.precio then
                 Raise EXCEPTION 'La suma de los detalles (%  %) de las invitaciones relacionadas al concepto de gasto (%) + el nuevo precio % % igual(%  %) sobrepasan al precio registrado en la fase % %',COALESCE(v_total_asignado,0),v_rec_proyecto.desc_moneda,v_record_fase_concepto_ingas.desc_ingas,v_precio,v_rec_proyecto.desc_moneda,(v_precio + v_total_asignado),v_rec_proyecto.desc_moneda,v_record_fase_concepto_ingas.precio,v_rec_proyecto.desc_moneda;
-           END IF;
+           END IF;*/
             --Sentencia de la insercion
             insert into pro.tinvitacion_det(
             id_fase_concepto_ingas,
