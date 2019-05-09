@@ -5,6 +5,10 @@
 *@author  RCM
 *@date 31-08-2017 16:52:19
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+****************************************************************************
+* ISSUE       EMPRESA     FECHA:		      AUTOR       DESCRIPCION
+* #11  			ETR      09/05/2019          MZM         se incrementa opcion (boton) para exportar datos en CSV
+* 
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -285,13 +289,6 @@ Ext.define('Phx.vista.ProyectoActivo', {
             handler: this.onButtonAct,
             scope: this
         });
-        this.tbBtnDet = new Ext.Button({
-            iconCls: 'new',
-            tooltip: '<b>Incremento Actualización</b>',
-            text: 'Inc.Act.',
-            handler: this.onButtonDet,
-            scope: this
-        });
 
         /*this.tbBtnImp = new Ext.Button({
             iconCls: 'bact',
@@ -301,6 +298,25 @@ Ext.define('Phx.vista.ProyectoActivo', {
             scope: this
         });*/
 
+        this.tbBtnDet = new Ext.Button({
+            iconCls: 'new',
+            tooltip: '<b>Incremento Actualización</b>',
+            text: 'Inc.Act.',
+            handler: this.onButtonDet,
+            scope: this
+        });
+
+
+		//Inicio #11 Proyectos, adiciona el boton para exportacion de datos y añade a tbar
+		this.tbBtnExport = new Ext.Button({
+            iconCls: 'bexport',
+            tooltip: '<b>Exportar</b> Exporta el contenido visible de la grilla',
+            text: 'Exportar',
+            handler: this.onButtonExport,
+            scope: this
+        });
+		
+
         this.tbar = new Ext.Toolbar({
           enableOverflow: true,
           defaults: {
@@ -309,9 +325,10 @@ Ext.define('Phx.vista.ProyectoActivo', {
                minWidth: 50,
                boxMinWidth: 50
             },
-            items: [this.tbBtnNew,this.tbBtnEdit,this.tbBtnDel,this.tbBtnAct,this.tbBtnDet]
+            items: [this.tbBtnNew,this.tbBtnEdit,this.tbBtnDel,this.tbBtnAct,this.tbBtnDet,this.tbBtnExport]
         });
-
+		//Fin #11 Proyectos, adiciona el boton para exportacion de datos y añade a tbar
+		
         //Store para el grid
         this.storeGrid = new Ext.data.JsonStore({
             url: '../../sis_proyectos/control/ProyectoActivo/listarProyectoActivoTablaDatos',
@@ -949,6 +966,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
             region: 'center'
         });
 
+
         //Ventana
         this.winDatosDet = new Ext.Window({
             width: 800,
@@ -1128,7 +1146,97 @@ Ext.define('Phx.vista.ProyectoActivo', {
                 );
             }
         }
-    }
+    }//Inicio #11 Proyectos, funciones para exportacion de datos
+    ,getColumnasVisibles:function(valores,extra){
+		
+		
+		var fila;
+		if(valores){
+			fila=this.sm.getSelected();
+		}
+		
+		var col = new Array();
+		for(var i=1;i<this.colModel.config.length;i++){
+
+					if(this.colModel.config[i]!=undefined){ 
+						
+					   if(!this.colModel.config[i].scope.hidden){
+					   
+					   		if(this.colModel.config[i].isColumn){
+							   	
+							   	col.push({ 
+								   	   label:this.colModel.config[i].header,
+										name:this.colModel.config[i].gdisplayField?this.colModel.config[i].gdisplayField:this.colModel.config[i].dataIndex,
+										width:this.colModel.config[i].width,
+										type:this.colModel.config[i].dtype,
+										gdisplayField:this.colModel.config[i].gdisplayField,
+										value:(valores&&fila)?fila.data[this.colModel.config[i].scope.gdisplayField?this.colModel.config[i].gdisplayField:this.colModel.config[i].scope.dataIndex]:undefined
+									});	
+						   	}
+						}
+					}
+				}
+				
+				
+		return col
+	},
+	addMaestro: function(data){
+		return data;
+	},
+	successExport:function(resp){
+		Phx.CP.loadingHide();
+        var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+        console.log(objRes.ROOT.detalle);
+        var nomRep = objRes.ROOT.detalle.archivo_generado;
+        if(Phx.CP.config_ini.x==1){  			
+        	nomRep = Phx.CP.CRIPT.Encriptar(nomRep);
+        }
+        window.open('../../../lib/lib_control/Intermediario.php?r='+nomRep+'&t='+new Date().toLocaleTimeString())
+        
+	},
+    onButtonExport: function(a,b,c,d){
+        
+        var col = this.getColumnasVisibles(false,false);
+        if(this.idContenedorPadre){
+					var pagMaestro=Phx.CP.getPagina(this.idContenedorPadre);
+					var colMaestro;
+					  this.colMaestro=pagMaestro.getColumnasVisibles(true,false);
+				    
+				}
+				
+				this.colMaestro = this.addMaestro(this.colMaestro);
+				
+				var params={
+					tipoReporte: 'excel_grid',
+					titulo: 'Activos Fijos',
+					dir:this.storeGrid.getSortState().direction,
+					sort: this.storeGrid.getSortState()==undefined ? '':this.store.getSortState().field,
+					totalCount: this.storeGrid.getTotalCount(),
+					columnas: Ext.util.JSON.encode(col),
+					maestro: this.colMaestro?Ext.util.JSON.encode(this.colMaestro):undefined,
+					filaInicioEtiquetas: 10, 
+					filaInicioDatos:8,
+					desplegarMaestro: 'no',
+					fechaRep: this.fechaRep==undefined ? '':this.fechaRep
+				}
+				
+				Ext.apply(params,this.storeGrid.lastOptions.params)
+				Ext.apply(params,this.storeGrid.baseParams)
+				
+				Phx.CP.loadingShow()
+				
+				
+				Ext.Ajax.request({
+					url: '../../sis_proyectos/control/ProyectoActivo/listarProyectoActivoTablaDatos',
+					params:params,			
+					success:this.successExport,
+					failure: this.conexionFailure,
+					timeout:this.timeout,
+					scope:this
+				});
+        
+        
+    } //Fin #11 Proyectos, funciones para exportacion
 
 });
 </script>
