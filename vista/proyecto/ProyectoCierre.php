@@ -5,6 +5,11 @@
 *@author  (admin)
 *@date 28-09-2017 20:12:15
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #14    PRO       ETR           24/07/2019  RCM         Corrección filtro por columnas y adición filtro rápido
+***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -109,11 +114,12 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
                     return '<div id="'+ id + '"></div>';
                 }*/
             },
-                type:'TextField',
-                filters:{pfiltro:'proy.codigo',type:'string'},
-                id_grupo:1,
-                grid:true,
-                form:true
+            type:'TextField',
+            filters:{pfiltro:'proy.codigo',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:true,
+            bottom_filter: true //#14 adición de filtro
         },
         {
             config:{
@@ -139,11 +145,12 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
                 gwidth: 250,
                 maxLength:150
             },
-                type:'TextField',
-                filters:{pfiltro:'proy.nombre',type:'string'},
-                id_grupo:1,
-                grid:true,
-                form:true
+            type:'TextField',
+            filters:{pfiltro:'proy.nombre',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:true,
+            bottom_filter: true //#14 adición de filtro
         },
         {
             config:{
@@ -298,7 +305,7 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
             },
             type: 'ComboBox',
             id_grupo: 0,
-            filters: {pfiltro: 'faspla.id_fase_plantilla#faspla.codigo',type: 'string'},
+            //filters: {pfiltro: 'faspla.id_fase_plantilla#faspla.codigo',type: 'string'}, //#14 eliminación filtro
             grid: true,
             form: true
         },
