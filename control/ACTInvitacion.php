@@ -8,7 +8,8 @@
  	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	#5	  endeETR		09/01/2019	EGS				Se agrego parametros por defecto
     #7	  endeETR		29/01/2019	EGS				se creo las funciones para listar combos procesos de solicitudes de compra y sus detalles e insertar una invitacion regularizada  
-*/
+	#15	  Etr			31/07/2019	EGS		    	se agrego filtro para campo id_invitacion_fk
+ */
 
 class ACTInvitacion extends ACTbase{    
 			
@@ -24,6 +25,14 @@ class ACTInvitacion extends ACTbase{
 		if($this->objParam->getParametro('id_grupo')!=''){
 			$this->objParam->addFiltro("ivt.id_grupo = ".$this->objParam->getParametro('id_grupo'));	
 		}
+		
+		if($this->objParam->getParametro('id_invitacion_fk')!=''){ //#15
+			$this->objParam->addFiltro("ivt.id_invitacion_fk = ".$this->objParam->getParametro('id_invitacion_fk'));	
+		}
+		
+		if($this->objParam->getParametro('nombreVista')!=''){ //#15
+			$this->objParam->addFiltro("ivt.id_invitacion_fk is null");	
+		}		
 		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);

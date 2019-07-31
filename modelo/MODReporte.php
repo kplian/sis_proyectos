@@ -7,6 +7,8 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	#5	  endeETR		09/01/2019	EGS				se agrego campos estado_lanzado y  dias_lanzado
+ *  #15   ETR           31/07/2019	EGS             reporte Invitaciones 
+ * 
  * 
  */
 
@@ -172,6 +174,69 @@ function listarPresupuesto(){
 		//var_dump($this->respuesta);exit;
 		return $this->respuesta;
 	}
+ 	
+ 	function listarReporteInvitacion(){ //#15
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='pro.f_reportes_proyecto_sel';
+		$this->transaccion='PRO_REPIVT_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		$this->setParametro('id_tipo_estado','id_tipo_estado','varchar');
+		//Definicion de la lista del resultado del query
+		$this->captura('id_invitacion','int4');
+		$this->captura('id_proyecto','int4');
+		$this->captura('codigo','varchar');
+		$this->captura('fecha','date');
+		$this->captura('descripcion','varchar');
+		$this->captura('fecha_real','date');
+		$this->captura('estado_reg','varchar');
+		$this->captura('estado','varchar');
+		$this->captura('id_estado_wf','int4');
+		$this->captura('nro_tramite','varchar');
+		$this->captura('id_usuario_ai','int4');
+		$this->captura('usuario_ai','varchar');
+		$this->captura('fecha_reg','timestamp');
+		$this->captura('id_usuario_reg','int4');
+		$this->captura('id_usuario_mod','int4');
+		$this->captura('fecha_mod','timestamp');
+		$this->captura('usr_reg','varchar');
+		$this->captura('usr_mod','varchar');
+
+		$this->captura('id_funcionario','int4');
+		$this->captura('id_depto','int4');
+		$this->captura('id_moneda','int4');
+		$this->captura('tipo','varchar');
+		$this->captura('lugar_entrega','varchar');
+		$this->captura('dias_plazo_entrega','int4');
+
+		$this->captura('desc_moneda','varchar');
+		$this->captura('desc_funcionario','varchar');
+		$this->captura('desc_depto','varchar');
+		$this->captura('id_proceso_wf','int4');
+        $this->captura('anio','varchar');
+		$this->captura('id_gestion','int4');
+		$this->captura('id_categoria_compra','int4');
+		$this->captura('id_solicitud','int4');
+		
+		$this->captura('id_presolicitud','int4');
+		$this->captura('pre_solicitud','varchar');
+		$this->captura('id_grupo','int4');
+		
+		$this->captura('desc_categoria_compra','varchar');
+		$this->captura('desc_grupo','varchar');
+		
+
+		
+		
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
 		
 	
 }

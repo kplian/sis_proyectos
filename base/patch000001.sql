@@ -780,3 +780,25 @@ ALTER TABLE pro.tfase_concepto_ingas_pago
   ADD COLUMN descripcion VARCHAR;
   
 /***********************************F-SCP-EGS-PRO-7-09/04/2019****************************************/
+/***********************************I-SCP-EGS-PRO-8-31/07/2019****************************************/
+
+ALTER TABLE pro.tinvitacion
+  ADD COLUMN id_invitacion_fk_new INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion.id_invitacion_fk_new
+IS 'ID del primer lanzamiento (original)';
+
+ALTER TABLE pro.tinvitacion_det
+  ADD COLUMN estado_lanz VARCHAR DEFAULT 'activo'::character varying NOT NULL;
+
+COMMENT ON COLUMN pro.tinvitacion_det.estado_lanz
+IS 'Si el detalle esta activo para el lanzamiento(1,2,3,etc)';
+
+ALTER TABLE pro.tinvitacion_det
+  ADD COLUMN id_invitacion_det_fk INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion_det.id_invitacion_det_fk
+IS 'id del detalle original del primer lanzamiento';
+
+
+/***********************************F-SCP-EGS-PRO-8-31/07/2019****************************************/

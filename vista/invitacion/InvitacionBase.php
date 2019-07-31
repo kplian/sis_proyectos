@@ -5,7 +5,9 @@
 *@author  (eddy.gutierrez)
 *@date 22-08-2018 22:32:20
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+	ISSUE			FECHA		AUTHOR			DESCRIPCION
+    #15	Etr			31/07/2019	 EGS		    se agrego campo id_invitacion_fk
+ */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -84,7 +86,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
                     fields: ['id_grupo','nombre','obs'],
                     // turn on remote sorting
                     remoteSort: true,
-                    baseParams:{par_filtro:'nombre#obs'}
+                    baseParams:{par_filtro:'id_grupo#nombre#obs'}
                 }),
                 valueField: 'id_grupo',
                 displayField: 'nombre',
@@ -238,7 +240,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'fecha',
-				fieldLabel: 'Fecha',
+				fieldLabel: 'Fecha Estimada',
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,
@@ -266,7 +268,7 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'ivt.fecha_real',type:'date'},
 				id_grupo:1,
 				grid:true,
-				form:false
+				form:true
 		},
 
 			{
@@ -276,19 +278,18 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 	   				origen:'FUNCIONARIOCAR',
 	   				fieldLabel:'Funcionario',
 	   				allowBlank:false,
+	   				anchor: '80%',
 	                gwidth:200,
 	   				valueField: 'id_funcionario',
 	   			    gdisplayField: 'desc_funcionario',
 	   			    baseParams: {par_filtro: 'id_funcionario#desc_funcionario1'},
-
-	   			    //baseParams: { es_combo_solicitud : 'si' },
 	      			renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario']);}
 	       	     },
 	   			type:'ComboRec',//ComboRec
 	   			id_grupo:0,
 	   			filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
 	   			bottom_filter:true,
-	   		    grid:false,
+	   		    grid:true,
 	   			form:true
 			 },
 
@@ -512,7 +513,17 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
-		}
+		},
+		{//#15
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'id_invitacion_fk'
+			},
+			type:'Field',
+			form:true
+		},
 	],
 	tam_pag:50,
 	title:'invitacion',
@@ -556,8 +567,8 @@ Phx.vista.InvitacionBase=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_categoria_compra', type: 'numeric'},'desc_categoria_compra',
 		{name:'id_solicitud', type: 'numeric'},
 		{name:'pre_solicitud', type: 'string'},
-		{name:'id_grupo', type: 'numeric'},'desc_grupo','nombre'
-
+		{name:'id_grupo', type: 'numeric'},'desc_grupo','nombre',
+		{name:'id_invitacion_fk', type: 'numeric'},//#15
 
 	],
 	sortInfo:{

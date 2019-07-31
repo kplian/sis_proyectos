@@ -16,8 +16,8 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #0				22-08-2018 22:32:59								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tinvitacion_det'	
- #
+ #0				22-08-2018 22:32:59							Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tinvitacion_det'	
+ #15 ETR            31/07/2019          EGS                 se agrego campos id_solicitud_det, id_invitacion_det_fk y estado_lanz               
  ***************************************************************************/
 
 DECLARE
@@ -66,7 +66,12 @@ BEGIN
                         ivtd.descripcion,
                         cec.codigo_cc::varchar,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod,
+                        ivtd.id_unidad_constructiva,
+                        uc.codigo as codigo_uc,
+                        ivtd.id_invitacion_det_fk,--#15
+                        ivtd.estado_lanz,--#15
+                        ivtd.id_solicitud_det --#15	
 						from pro.tinvitacion_det ivtd
 						inner join segu.tusuario usu1 on usu1.id_usuario = ivtd.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = ivtd.id_usuario_mod
@@ -76,6 +81,7 @@ BEGIN
                         left join param.tunidad_medida um on um.id_unidad_medida = ivtd.id_unidad_medida
                         left join pro.tfase fas on fas.id_fase = ivtd.id_fase
                         left join param.vcentro_costo cec on cec.id_centro_costo = ivtd.id_centro_costo
+                        left join pro.tunidad_constructiva uc on uc.id_unidad_constructiva = ivtd.id_unidad_constructiva  
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -83,6 +89,7 @@ BEGIN
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
+            raise notice 'v_consulta %',v_consulta;
 			return v_consulta;
 						
 		end;
@@ -98,7 +105,7 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_invitacion_det)
+			v_consulta:='select count(ivtd.id_invitacion_det)
 					    from pro.tinvitacion_det ivtd
 					    inner join segu.tusuario usu1 on usu1.id_usuario = ivtd.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = ivtd.id_usuario_mod

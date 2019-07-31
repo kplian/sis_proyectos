@@ -7,6 +7,8 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
  	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
     #7	  endeETR		29/01/2019	EGS				se creo las funciones para listar combos procesos de solicitudes de compra y sus detalles e insertar una invitacion regularizada  
+    #15	Etr				31/07/2019	EGS		    se agrego boton para lanzamientos y reporte invitaciones
+ 
  */
 
 class MODInvitacion extends MODbase{
@@ -63,6 +65,7 @@ class MODInvitacion extends MODbase{
 		
 		$this->captura('desc_categoria_compra','varchar');
 		$this->captura('desc_grupo','varchar');
+		$this->captura('id_invitacion_fk','int4');//#15
 		
 
 		
@@ -103,7 +106,7 @@ class MODInvitacion extends MODbase{
 		
 		$this->setParametro('pre_solicitud','pre_solicitud','varchar');
 		$this->setParametro('id_grupo','id_grupo','int4');
-		
+		$this->setParametro('id_invitacion_fk','id_invitacion_fk','int4');//#15
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -141,7 +144,8 @@ class MODInvitacion extends MODbase{
 		
 		$this->setParametro('pre_solicitud','pre_solicitud','varchar');
 		$this->setParametro('id_grupo','id_grupo','int4');
-
+		$this->setParametro('id_invitacion_fk','id_invitacion_fk','int4');//#15
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

@@ -19,6 +19,7 @@ $body$
  #0				22-08-2018 22:32:20								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tinvitacion'	
  #5	EndeEtr		17/01/2019          	EGS					    Se mejoro la validacion  para que solo presolicitudes compartan el codigo de invitacion	
  #7	EndeEtr		20/02/2019          	EGS					    Se mejoro la insercion y modificacion del codigo de inv
+ #15	Etr	    31/07/2019	            EGS		                se agrego campo id_invitacion_fk
  ***************************************************************************/
 
 DECLARE
@@ -76,7 +77,7 @@ DECLARE
      v_rec_proyecto					record;
      v_pre_solicitud				varchar;
      v_count_inv_sc                 integer;
-			    
+     			    
 BEGIN
 
     v_nombre_funcion = 'pro.ft_invitacion_ime';
@@ -115,8 +116,8 @@ BEGIN
              v_record_invitacion 
              from pro.tinvitacion inv 
              where trim(upper(inv.codigo)) = trim(upper(v_parametros.codigo)) and inv.estado_reg = 'activo';
-              
-            IF v_record_invitacion.codigo is not null and v_parametros.pre_solicitud <> v_pre_solicitud  THEN                  
+            --Verificamos si el primer lanzamiento no se repita el codigo
+            IF v_record_invitacion.codigo is not null and v_parametros.pre_solicitud <> v_pre_solicitud and v_parametros.id_invitacion_fk is NULL THEN                  
                raise exception 'ya existe el código de la Invitacion %',v_parametros.codigo;      
             END IF;
             
@@ -221,7 +222,8 @@ BEGIN
             dias_plazo_entrega,
             id_categoria_compra,
             pre_solicitud,
-            id_grupo
+            id_grupo,
+            id_invitacion_fk --#15
           	) values(
 			v_parametros.id_proyecto,
 			UPPER(v_parametros.codigo),
@@ -246,16 +248,20 @@ BEGIN
             v_parametros.dias_plazo_entrega,
 			v_parametros.id_categoria_compra,
             v_parametros.pre_solicitud,
-            v_parametros.id_grupo				
+            v_parametros.id_grupo,
+            v_parametros.id_invitacion_fk	--#15			
 			
 			
 			)RETURNING id_invitacion into v_id_invitacion;
+            
+            
+            
             --Actualiza las invitaciones con el mismo codigo para generar una presolicitud
             --con los mismos datos
             IF v_parametros.pre_solicitud = v_pre_solicitud  THEN                            
                   update pro.tinvitacion set
                   codigo = v_parametros.codigo,
-                  fecha = v_parametros.fecha,
+                  --fecha = v_parametros.fecha,
                   descripcion = v_parametros.descripcion,
                   --fecha_real = v_parametros.fecha_real,
                   id_usuario_mod = p_id_usuario,
@@ -272,9 +278,18 @@ BEGIN
                   pre_solicitud = v_parametros.pre_solicitud,
                   id_grupo = v_parametros.id_grupo
 
-                  where codigo=v_parametros.codigo and id_invitacion <>v_id_invitacion ; 
+                  where codigo=v_parametros.codigo and id_invitacion <> v_id_invitacion ; 
             
             END IF;
+            
+            --Cuando la invitacion es un 2,3,etc lanzamiento se clona todos los detalles del primer lanzamiento a la nueva invitacion
+            --como estan se inhabilitan los detalles del primer lanzamiento
+            IF v_parametros.id_invitacion_fk is not null THEN   --#15                    
+                v_resp = pro.f_invitacion_lanzamiento(p_administrador,p_id_usuario,p_tabla,v_id_invitacion);
+            END IF;     
+           
+            
+            
 			
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','invitacion almacenado(a) con exito (id_invitacion'||v_id_invitacion||')'); 
@@ -320,7 +335,7 @@ BEGIN
             from pro.tinvitacion inv 
             where trim(upper(inv.codigo)) = trim(upper(v_parametros.codigo)) and inv.estado_reg = 'activo'and inv.id_invitacion <> v_parametros.id_invitacion;
             
-            IF v_record_invitacion.codigo is not null and v_parametros.pre_solicitud <> v_pre_solicitud   THEN                  
+            IF v_record_invitacion.codigo is not null and v_parametros.pre_solicitud <> v_pre_solicitud and v_parametros.id_invitacion_fk is NULL  THEN                  
                raise exception 'ya existe el código de la Invitacion %',v_parametros.codigo;      
             END IF;
             
@@ -339,7 +354,7 @@ BEGIN
                 END IF;                  
                   update pro.tinvitacion set
                   codigo = v_parametros.codigo,
-                  fecha = v_parametros.fecha,
+                  --fecha = v_parametros.fecha,
                   descripcion = v_parametros.descripcion,
                   --fecha_real = v_parametros.fecha_real,
                   id_usuario_mod = p_id_usuario,
@@ -354,8 +369,7 @@ BEGIN
                   dias_plazo_entrega=v_parametros.dias_plazo_entrega,
                   id_categoria_compra = v_parametros.id_categoria_compra,
                   pre_solicitud = v_parametros.pre_solicitud,
-                  id_grupo = v_parametros.id_grupo
-
+                  id_grupo = v_parametros.id_grupo                
                   where codigo=v_parametros.codigo and id_invitacion <>v_parametros.id_invitacion ; 
             
             END IF; 
@@ -378,7 +392,8 @@ BEGIN
             dias_plazo_entrega=v_parametros.dias_plazo_entrega,
             id_categoria_compra = v_parametros.id_categoria_compra,
             pre_solicitud = v_parametros.pre_solicitud,
-            id_grupo = v_parametros.id_grupo
+            id_grupo = v_parametros.id_grupo,
+            id_invitacion_fk = v_parametros.id_invitacion_fk --#15
 
 			where id_invitacion=v_parametros.id_invitacion;
                

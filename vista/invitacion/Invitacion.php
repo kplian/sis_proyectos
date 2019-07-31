@@ -8,13 +8,14 @@
 	ISSUE			FECHA		AUTHOR			DESCRIPCION
     #6	eendeEtr	24/01/2019	 EGS		    se quito que el codigo haga reset al editar
  *  #7	eendeEtr	24/01/2019	 EGS		    recarga de campos cuando se genera una presolicitud que comparte codigo y validaciones para la misma
+    #15	Etr			31/07/2019	 EGS		    se agrego boton para lanzamientos y reporte invitaciones
  */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.Invitacion = {
-	
+	nombreVista:'Invitacion',
 	require:'../../../sis_proyectos/vista/invitacion/InvitacionBase.php',
     requireclase:'Phx.vista.InvitacionBase',
 //Phx.vista.Invitacion=Ext.extend(Phx.gridInterfaz,{
@@ -40,7 +41,7 @@ Phx.vista.Invitacion = {
 		this.Atributos[1].valorInicial=this.maestro.id_proyecto;		
 		///
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag,id_proyecto:this.maestro.id_proyecto}});
+		this.load({params:{start:0, limit:this.tam_pag,id_proyecto:this.maestro.id_proyecto, nombreVista:this.nombreVista}});
 		
 		this.addButton('ant_estado',{ argument: {estado: 'anterior'},text:'Atras',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
         
@@ -68,15 +69,33 @@ Phx.vista.Invitacion = {
                     tooltip : '<b>Observaciones</b><br/><b>Observaciones del WF</b>'
         });
 		*/
-		this.iniciarEventos(); 
+		this.iniciarEventos();
+		
+		this.addButton('btnRepInvitacion',//#15
+            {
+                text: 'Reporte Invitacion',
+                grupo:[0],
+                iconCls: 'bprint',
+                disabled: false,
+                handler: this.reporteInvitacion,
+                tooltip: '<b>Reporte de Invitaciones</b><br/>Reporte de Invitaciones.'
+            });
+        
+        this.addButton('btnInvLanz',//#15
+            {
+                text: 'Lanzamientos',
+                grupo:[0],
+                iconCls: 'bchecklist',
+                disabled: false,
+                handler: this.invLanzamiento,
+                tooltip: '<b>Lanzamientos</b><br/>'
+            }); 
 		          
 
 	},
 		
 	      iniciarEventos: function () {
 
-           	//console.log('maestro invitacion',this.maestro.id_proyecto);
-           	//this.Cmp.id_proyecto.valorInicial = this.maestro.id_proyecto;
      	 	this.Cmp.tipo.store.loadData(this.arrayStore['Bien'].concat(this.arrayStore['Servicio'])); 
             
             this.Cmp.id_funcionario.on('select', function(combo, record, index){
@@ -104,27 +123,16 @@ Phx.vista.Invitacion = {
 			}, this);
 			
 			this.ocultarComponente(this.Cmp.id_grupo);
-/*			this.Cmp.pre_solicitud.on('change', function(cmp, check){
-    		    
-    		    if(check.getRawValue() =='no'){
-    		  		this.ocultarComponente(this.Cmp.id_grupo);
-	  				this.Cmp.id_grupo.allowBlank=true;
-	  				this.Cmp.id_grupo.reset();
-    		    }
-    		    else{
-    		    	this.mostrarComponente(this.Cmp.id_grupo);
-    		    	this.Cmp.id_grupo.allowBlank=false; 		    	
-			    }
-    		}, this);
-*/    		
+
     		this.Cmp.id_grupo.on('select', function(combo, record, index){
     			this.Cmp.codigo.reset(true);
     			this.Cmp.codigo.enable(true);
 				this.obtenerCodigoInvGrupo();
-				console.log('this.codigo_invitacion',this.codigo_invitacion);
 
 
-			}, this);           
+			}, this); 
+			
+			this.Cmp.fecha_real.disable(true);          
         },
        
           arrayStore :{
@@ -186,10 +194,7 @@ Phx.vista.Invitacion = {
                
      },
      onSaveWizard:function(wizard,resp){
-        //console.log(wizard);
-        //Phx.CP.loadingShow();
         Ext.Ajax.request({
-            //url:'../../sis_workflow/control/ProcesoWf/siguienteEstadoProcesoWf',
             url:'../../sis_proyectos/control/Invitacion/siguienteEstado',
             params:{
                 id_invitacion:      wizard.data.id_invitacion,
@@ -236,7 +241,6 @@ Phx.vista.Invitacion = {
         var operacion = 'cambiar';
 
         Ext.Ajax.request({
-              //url:'../../sis_workflow/control/ProcesoWf/anteriorEstadoProcesoWf',
                 url:'../../sis_proyectos/control/Invitacion/anteriorEstado',
             params:{
             	id_invitacion: wizard.data.id_invitacion,
@@ -321,7 +325,9 @@ Phx.vista.Invitacion = {
 	
 		this.getBoton('ant_estado').disable();
 		this.getBoton('sig_estado').disable();
-	
+		this.getBoton('btnRepInvitacion').enable();//#15
+        this.getBoton('btnInvLanz').enable();//#15
+
 			if(data.estado == 'borrador') {			
 		
 				this.getBoton('sig_estado').enable();
@@ -346,7 +352,6 @@ Phx.vista.Invitacion = {
         //this.getBoton('btnObs').enable();
         //this.getBoton('btnChequeoDocumentosWf').enable();
         
-		console.log('maestro', this.maestro.estado);
 		if (tb && this.bnew && (this.maestro.estado == 'cierre' || this.maestro.estado == 'finalizado' )) {
             tb.items.get('b-new-' + this.idContenedor).disable();
             }
@@ -366,6 +371,9 @@ Phx.vista.Invitacion = {
 			this.getBoton('sig_estado').disable();
 			this.getBoton('ant_estado').disable();
             this.getBoton('diagrama_gantt').disable();
+            this.getBoton('btnRepInvitacion').disable();//#15
+            this.getBoton('btnInvLanz').disable();//#15
+
             //this.getBoton('btnObs').disable();
             //this.getBoton('btnChequeoDocumentosWf').disable();
            // this.getBoton('btnDetalleDocumentoCobroSimple').disable();
@@ -423,7 +431,6 @@ Phx.vista.Invitacion = {
         cls: 'InvitacionDet'
     }],
     obtenerCodigoInvGrupo: function(config){ //#7
-			//console.log('config id_proyecto',config.id_proyecto);
             Phx.CP.loadingShow();
             Ext.Ajax.request({
                 url:'../../sis_proyectos/control/Invitacion/listarInvitacion',
@@ -433,10 +440,8 @@ Phx.vista.Invitacion = {
                 success: function(resp){
                 	 Phx.CP.loadingHide();
                      var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-               			console.log('reg',reg);
                			this.codigo_invitacion = null;
                			if (reg.datos.length != 0){
-               			console.log('datos',reg.datos);
                			this.codigo_invitacion = reg.datos[0]['codigo'];
                			this.tipo_inv = reg.datos[0]['tipo'];
 						this.id_compra_inv = reg.datos[0]['id_categoria_compra'];
@@ -448,7 +453,6 @@ Phx.vista.Invitacion = {
 						this.dias_plazo_entrega_inv = reg.datos[0]['dias_plazo_entrega'];
 						this.descripcion_inv = reg.datos[0]['descripcion'];
                			
-               			console.log('this.codigo_invitacion',this.codigo_invitacion);
                		 	this.cargaDatosInv();
                
                		 	}
@@ -530,12 +534,18 @@ Phx.vista.Invitacion = {
     		  		this.ocultarComponente(this.Cmp.id_categoria_compra);
     		    	this.Cmp.id_grupo.allowBlank=false; 		    	
 			    	this.Cmp.codigo.disable(true);
-			    	this.Cmp.codigo.reset();	
+			    	//this.Cmp.codigo.reset();	
 	  				this.Cmp.id_categoria_compra.reset();
 	  				this.Cmp.id_categoria_compra.allowBlank=true;
 
 			    }
     		}, this);
+    		
+			var fecha =  new Date();
+                fecha = Ext.util.Format.date(fecha,'d/m/Y'); 
+    		this.Cmp.id_funcionario.store.baseParams.fecha = fecha;
+			console.log('hola');
+		   
 		},
 		onButtonEdit: function(){//#7
 			this.insertar = 'editar';
@@ -569,7 +579,7 @@ Phx.vista.Invitacion = {
 	  				this.Cmp.id_categoria_compra.allowBlank=true;			    		
 			    }
     		}, this);
-			
+			 this.Cmp.id_funcionario.store.baseParams.fecha = this.Cmp.fecha.getValue().dateFormat(this.Cmp.fecha.format);
 		},
     onSubmit: function(o, x, force) {//#7
     	var me = this;
@@ -613,7 +623,42 @@ Phx.vista.Invitacion = {
 		                    scope: me
 		                });
 		    }
+     },
+     
+     reporteInvitacion: function(){//#15
+     	
+     	Phx.CP.loadWindows('../../../sis_proyectos/vista/invitacion/InvitacionRep.php',
+								'Reporte',
+								{
+									modal:true,
+									width:600,
+									height:450
+								},
+								{ data: {
+									id_proyecto:this.maestro.id_proyecto
+								}},
+								this.idContenedor,
+								'InvitacionRep');
+     	
+     	
+     },
+     invLanzamiento: function(){//#15
+     	var data = this.getSelectedData();
+     	Phx.CP.loadWindows('../../../sis_proyectos/vista/invitacion/InvitacionLanz.php',
+								'Lanzamiento',
+								{
+									modal:true,
+									width:900,
+									height:750
+								},
+								{ data},
+								this.idContenedor,
+								'InvitacionLanz');
+     	
+     	
      }
+     
+     
 }
 //})
 

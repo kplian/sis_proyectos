@@ -19,6 +19,7 @@ $body$
  #0				22-08-2018 22:32:20								Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tinvitacion'	
  #5                 09/01/2019          EGS                     Se corrigio consulta 
  #7	  endeETR		29/01/2019	        EGS				        se creo las funciones para listar combos procesos de solicitudes de compra y sus detalles 
+ #15	Etr			31/07/2019	        EGS		                se agrego campo id_invitacion_fk
  ***************************************************************************/
 
 DECLARE
@@ -92,7 +93,8 @@ BEGIN
                         ivt.pre_solicitud,
                         ivt.id_grupo,
                         cat.nombre as desc_categoria_compra,
-                        gru.nombre as desc_grupo
+                        gru.nombre as desc_grupo,
+                        ivt.id_invitacion_fk  --#15
 						from pro.tinvitacion ivt
                         left join param.tmoneda mon on mon.id_moneda = ivt.id_moneda
                         left join wf.testado_wf ew on ew.id_estado_wf = ivt.id_estado_wf
@@ -113,6 +115,7 @@ BEGIN
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
+            raise notice 'v_consulta %',v_consulta; 
 			return v_consulta;
 						
 		end;
