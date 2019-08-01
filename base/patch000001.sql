@@ -783,9 +783,9 @@ ALTER TABLE pro.tfase_concepto_ingas_pago
 /***********************************I-SCP-EGS-PRO-8-31/07/2019****************************************/
 
 ALTER TABLE pro.tinvitacion
-  ADD COLUMN id_invitacion_fk_new INTEGER;
+  ADD COLUMN id_invitacion_fk INTEGER;
 
-COMMENT ON COLUMN pro.tinvitacion.id_invitacion_fk_new
+COMMENT ON COLUMN pro.tinvitacion.id_invitacion_fk
 IS 'ID del primer lanzamiento (original)';
 
 ALTER TABLE pro.tinvitacion_det
@@ -841,5 +841,10 @@ CREATE TABLE pro.tunidad_constructiva_plantilla (
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
 
+ALTER TABLE pro.tinvitacion_det
+  ADD COLUMN id_unidad_constructiva INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion_det.id_unidad_constructiva
+IS 'Id de la unidad Constructiva a detalle puede ser la UC del concepto_ingas o una ramificacion del arbol de esta';
 
 /***********************************F-SCP-EGS-PRO-8-31/07/2019****************************************/
