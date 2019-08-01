@@ -23,7 +23,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		var precio_item;
 		var total;
 		var nro_items;
-		console.log('fase concepto',this.maestro.id_fase);
+		var cmpIdConceptoIngas;
     	//llama al constructor de la clase padre
 		Phx.vista.FaseConceptoIngas.superclass.constructor.call(this,config);
 		this.init();
@@ -148,6 +148,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 			id_grupo:1,
 			form:true
 		},
+		/*
 		{
             config:{
                 name: 'id_concepto_ingas',
@@ -205,8 +206,115 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
             id_grupo:1,
             grid:true,
             form:true
+        },*/
+        {
+            config:{
+                name: 'id_concepto_ingas',
+                fieldLabel: 'Concepto de Gasto',
+                allowBlank: false,
+                emptyText: 'Concepto...',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_proyectos/control/UnidadConstructiva/listarConceptoingasUcCombo',
+                    id : 'id_concepto_ingas',
+                    root: 'datos',
+                    sortInfo:{
+                        field: 'desc_ingas',
+                        direction: 'ASC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_concepto_ingas','desc_ingas','tipo'],
+                    remoteSort: true,
+                    baseParams: { par_filtro: 'cig.desc_ingas'}//, autorizacion: 'viatico'}
+                }),
+                tpl:'<tpl for=".">\
+		                       <div class="x-combo-list-item"><p><b>Tipo: </b>{tipo}</p>\ <p><b>Concepto de Gasto: </b>{desc_ingas}</p>\ </div></tpl>',
+               	valueField: 'id_concepto_ingas',
+				displayField: 'desc_ingas',
+				gdisplayField: 'desc_ingas',
+				hiddenName: 'id_concepto_ingas',
+				forceSelection:true,
+				typeAhead: false,
+				triggerAction: 'all',
+				listWidth:500,
+				resizable:true,
+				lazyRender:true,
+				mode:'remote',
+				pageSize:10,
+				queryDelay:1000,
+				width: 250,
+				gwidth:250,
+				minChars:2,
+				anchor:'100%',
+				qtip:'Si el concepto de gasto que necesita no existe por favor comuníquese con el área de presupuestos para solicitar la creación.',
+				//tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_ingas}</p></div></tpl>',
+				renderer:function(value, p, record){
+					if (record.json.precio == record.json.total_prorrateo && record.json.precio != null ){
+						return String.format('{0}', record.data['desc_ingas']);
+					}
+					else{
+						return String.format('<b><font size=3 style="color:#FF1700";>{0}</font><b>', record.data['desc_ingas']);												
+					}
+				}
+            },
+            type:'ComboBox',
+			bottom_filter: true,
+            filters:{pfiltro:'cig.desc_ingas',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },/*
+        {
+            config:{
+                name: 'id_unidad_constructiva',
+                fieldLabel: 'Unidad Constructiva',
+                allowBlank: false,
+                emptyText: 'Concepto...',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_proyectos/control/UnidadConstructiva/listarUnidadConstructiva',
+                    id : 'id_unidad_constructiva',
+                    root: 'datos',
+                    sortInfo:{
+                        field: 'id_unidad_constructiva',
+                        direction: 'ASC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_unidad_constructiva','codigo','nombre'],
+                    remoteSort: true,
+                    baseParams: { par_filtro: 'uncon.id_unidad_constructiva#uncon.codigo#uncon.nombre'}//, autorizacion: 'viatico'}
+                }),
+                tpl:'<tpl for=".">\
+		                       <div class="x-combo-list-item"><p><b>Codigo: </b>{codigo}</p>\ <p><b>Nombre: </b>{nombre}</p>\ </div></tpl>',
+               	valueField: 'id_unidad_constructiva',
+				displayField: 'codigo',
+				gdisplayField: 'codigo',
+				hiddenName: 'id_unidad_constructiva',
+				forceSelection:true,
+				typeAhead: false,
+				triggerAction: 'all',
+				listWidth:500,
+				resizable:true,
+				lazyRender:true,
+				mode:'remote',
+				pageSize:10,
+				queryDelay:1000,
+				width: 250,
+				gwidth:250,
+				minChars:2,
+				anchor:'100%',
+				qtip:'La unidad Constructiva en la que pertenece el concepto de gasto',
+				renderer:function(value, p, record){
+							return String.format('{0}', record.data['codigo_uc']);
+
+				}
+            },
+            type:'ComboBox',
+			bottom_filter: true,
+            filters:{pfiltro:'uncon.codigo',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:true
         },
-        
+        */
          {
 			config:{
 				name: 'tipo',
@@ -650,9 +758,10 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		{name:'codigo_inv', type: 'string'},
 		{name:'nro_items', type: 'numeric'},
 		{name:'total_invitacion_det', type: 'numeric'},
-		{name:'desc_moneda', type: 'numeric'},
+		{name:'desc_moneda', type: 'string'},
 		{name:'codigo', type: 'string'},
-
+		{name:'id_unidad_constructiva', type: 'numeric'},
+		{name:'codigo_uc', type: 'string'},
 	],
 	sortInfo:{
 		field: 'id_fase_concepto_ingas',
@@ -662,28 +771,55 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 	bsave:true,
 
 	iniciaEventos: function(){
-		//Evento para obtener el total
+		//Evento para obtener el bien o servicio
 		
 		this.Cmp.id_bien_servicio.on('select',function(combo,record,index){
-
-			this.Cmp.id_concepto_ingas.store.baseParams.tipo=record.data.ID;
+			
+			console.log( 'record', record);
+			console.log( 'record.data.ID', record.data.ID);
+			this.Cmp.id_concepto_ingas.store.baseParams.tipo = record.data.ID;
 			this.Cmp.id_concepto_ingas.store.load({params:{start:0,limit:this.tam_pag}, 
-					               callback : function (r) {                        
-					                    if (r.length > 0 ) {                        
-					                    	
-					                       this.Cmp.id_concepto_ingas.setValue(r[0].data.id_concepto_ingas);
-					                    }     
+					               callback : function (r) {
+					                    if (r.length > 0 ) {     
+					                    		                   
+					                      this.Cmp.id_concepto_ingas.setValue(r[0].data.id_concepto_ingas);
+					                      /*
+					                      this.Cmp.id_unidad_constructiva.store.baseParams.id_proyecto = this.maestro.id_proyecto;					                       			        
+									      this.Cmp.id_unidad_constructiva.store.baseParams.id_concepto_ingas = r[0].data.id_concepto_ingas;
+										  this.Cmp.id_unidad_constructiva.store.load({params:{start:0,limit:this.tam_pag},
+													            callback : function (r) {
+													                    if (r.length > 0 ) {                     													                    	
+													                      this.Cmp.id_unidad_constructiva.setValue(r[0].data.id_unidad_constructiva);
+													                    }else{
+													                      this.Cmp.id_unidad_constructiva.setValue(null);
+													                    }    
+													                                    
+													                }, scope : this
+													            });
+													                       
+					                       
+					                     */  
+					                       
+					                    }else{
+					                      this.Cmp.id_concepto_ingas.setValue(null);
+					                    }    
 					                                    
 					                }, scope : this
 					            });
+
+		
 			
 		},this)
 		
 	 this.Cmp.id_concepto_ingas.on('select',function(combo,record,index){
 			
 			this.Cmp.id_concepto_ingas.store.baseParams.tipo=this.Cmp.id_bien_servicio.getValue();
+			
+			
 		
 		},this)
+		
+
 		/*
 		this.Cmp.precio.on('blur',function(cmp){
 			this.Cmp.precio_total.setValue(0);
@@ -708,7 +844,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		            this.nro_items =  this.maestro.nro_items;
 		             if (this.maestro.id_fase != null || this.maestro.id_fase != '' ){
 		            this.store.baseParams = {id_fase: this.maestro.id_fase};
-		           
+		            this.Cmp.id_concepto_ingas.store.baseParams.id_proyecto = this.maestro.id_proyecto;
 		           
 		            this.load({params: {start: 0, limit: 50}})
 		            };
@@ -729,7 +865,6 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
                 	 Phx.CP.loadingHide();
                      var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
                    
-                        //console.log(reg.datos[0]['estado']);
                			this.estado_proyecto =reg.datos[0]['estado'];
                 },
                 failure: this.conexionFailure,
@@ -738,11 +873,30 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
             });
  
         },
-	
+	onButtonNew: function(){
+		Phx.vista.FaseConceptoIngas.superclass.onButtonNew.call(this);
+    	
+    	this.Cmp.id_concepto_ingas.on('select',function(combo,record,index){
+    		/*
+			this.Cmp.id_unidad_constructiva.store.baseParams.id_proyecto = this.maestro.id_proyecto;
+			this.Cmp.id_unidad_constructiva.store.baseParams.id_concepto_ingas = this.Cmp.id_concepto_ingas.getValue();
+			this.Cmp.id_unidad_constructiva.store.load({params:{start:0,limit:this.tam_pag}, 
+					               callback : function (r) {
+					                    if (r.length > 0 ) {                        
+					                    	
+					                      this.Cmp.id_unidad_constructiva.setValue(r[0].data.id_unidad_constructiva);
+					                    }else{
+					                      this.Cmp.id_unidad_constructiva.setValue(null);
+					                    }    
+					                                    
+					                }, scope : this
+					            });*/
+		},this)
+
+	},
 	 onButtonEdit: function(){
 		Phx.vista.FaseConceptoIngas.superclass.onButtonEdit.call(this);
     	var rec=this.sm.getSelected();
-    	console.log('rec',rec);
     	if (rec.data.tipo == 'Bien') {
     	this.Cmp.id_bien_servicio.setValue('Bien');
 
@@ -752,6 +906,52 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
     	if (rec.data.id_invitacion_det != null) {
     	this.Cmp.id_bien_servicio.setDisabled(true);
 		};
+		
+		this.Cmp.id_concepto_ingas.store.baseParams.tipo = this.Cmp.id_bien_servicio.getValue();
+			this.Cmp.id_concepto_ingas.store.load({params:{start:0,limit:this.tam_pag}, 
+					               callback : function (r) {
+					                    if (r.length > 0 ) {     
+					                    		                   
+					                      this.Cmp.id_concepto_ingas.setValue(rec.data.id_concepto_ingas);					                       			        
+					                      		   				                       
+					                    }else{
+					                      this.Cmp.id_concepto_ingas.setValue(null);
+					                    }    
+					                                    
+					                }, scope : this
+					            });
+		/*
+		this.Cmp.id_unidad_constructiva.store.baseParams.id_proyecto = this.maestro.id_proyecto;
+	   	this.Cmp.id_unidad_constructiva.store.baseParams.id_concepto_ingas = this.Cmp.id_concepto_ingas.getValue();
+		this.Cmp.id_unidad_constructiva.store.load({params:{start:0,limit:this.tam_pag}, 
+					               callback : function (r) {
+					                    if (r.length > 0 ) {                        
+					                      		
+					                      this.Cmp.id_unidad_constructiva.setValue(rec.data.id_unidad_constructiva);
+					                    }else{
+					                      this.Cmp.id_unidad_constructiva.setValue(null);
+					                    }    
+					                                    
+					                }, scope : this
+					            });*/
+
+		this.Cmp.id_concepto_ingas.on('select',function(combo,record,index){
+			
+			/*
+			this.Cmp.id_unidad_constructiva.store.baseParams.id_proyecto = this.maestro.id_proyecto;
+			this.Cmp.id_unidad_constructiva.store.baseParams.id_concepto_ingas = this.Cmp.id_concepto_ingas.getValue();
+			this.Cmp.id_unidad_constructiva.store.load({params:{start:0,limit:this.tam_pag}, 
+					               callback : function (r) {
+					                    if (r.length > 0 ) {                        
+					                    	
+					                      this.Cmp.id_unidad_constructiva.setValue(r[0].data.id_unidad_constructiva);
+					                    }else{
+					                      this.Cmp.id_unidad_constructiva.setValue(null);
+					                    }    
+					                                    
+					                }, scope : this
+					            });*/
+		},this)
 
 	},
 	//#7 EGS
@@ -769,7 +969,6 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 		var tb = Phx.vista.FaseConceptoIngas.superclass.preparaMenu.call(this);
 		var data = this.getSelectedData();
 		this.getBoton('btnRsol').enable();//#7 EGS
-		console.log('estado_proyecto',this.estado_proyecto );
 		if (tb && this.bnew && (this.estado_proyecto == 'cierre' || this.estado_proyecto == 'finalizado' )) {
             tb.items.get('b-new-' + this.idContenedor).disable();
             }
@@ -792,7 +991,6 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 	
 	successDel:function(){
 			var data = this.getSelectedData();
-			console.log('data',data);
 			
 			Phx.CP.getPagina(this.idContenedorPadre).actualizarInfProyecto();///#10
 			//Phx.vista.FaseConceptoIngas.superclass.onButtonDel.call(this)

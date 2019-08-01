@@ -801,4 +801,45 @@ COMMENT ON COLUMN pro.tinvitacion_det.id_invitacion_det_fk
 IS 'id del detalle original del primer lanzamiento';
 
 
+CREATE TABLE pro.tunidad_constructiva (
+  id_unidad_constructiva SERIAL,
+  codigo VARCHAR,
+  nombre VARCHAR,
+  id_proyecto INTEGER,
+  descripcion VARCHAR,
+  id_unidad_constructiva_fk INTEGER,
+  activo VARCHAR(2) DEFAULT 'no'::character varying NOT NULL,
+  CONSTRAINT tunidad_cons_pkey PRIMARY KEY(id_unidad_constructiva),
+  CONSTRAINT tunidad_constructiva_codigo_key UNIQUE(codigo),
+  CONSTRAINT tunidad_constructiva__id_unidad_constructiva_fk FOREIGN KEY (id_unidad_constructiva_fk)
+    REFERENCES pro.tunidad_constructiva(id_unidad_constructiva)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT tunidad_constructiva_fk FOREIGN KEY (id_proyecto)
+    REFERENCES pro.tproyecto(id_proyecto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+CREATE TABLE pro.tunidad_constructiva_plantilla (
+  id_unidad_constructiva_plantilla SERIAL,
+  codigo VARCHAR,
+  nombre VARCHAR,
+  descripcion VARCHAR,
+  id_unidad_constructiva_plantilla_fk INTEGER,
+  activo VARCHAR(2) DEFAULT 'no'::character varying NOT NULL,
+  CONSTRAINT tunidad_constructiva_plantilla_codigo_key UNIQUE(codigo),
+  CONSTRAINT tunidad_constructiva_plantilla_tunidad_cons_pkey PRIMARY KEY(id_unidad_constructiva_plantilla),
+  CONSTRAINT tunidad_constructiva_plantilla__id_unidad_constructiva_plant_fk FOREIGN KEY (id_unidad_constructiva_plantilla_fk)
+    REFERENCES pro.tunidad_constructiva_plantilla(id_unidad_constructiva_plantilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+
 /***********************************F-SCP-EGS-PRO-8-31/07/2019****************************************/

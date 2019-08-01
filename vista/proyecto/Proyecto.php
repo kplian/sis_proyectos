@@ -7,7 +7,8 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  * ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	#8	  endeETR		18/03/2019	EGS				se filtra por estado nuevo y ejecucion 
-*/
+	#16	 ETR			01/08/2019	EGS				Se agrega boton de unidades Contructivas
+ * */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -32,6 +33,14 @@ Phx.vista.ProyectoPr = {
 			disabled : true,
 			handler : this.openFases,
 			tooltip : '<b>Fases del Proyecto</b><br>Interfaz para el registro de las fases que componen al proyecto'
+		});
+		
+		this.addButton('btnUniCons', { //#16
+			text : 'Unidades Const.',
+			iconCls : 'bexecdb',
+			disabled : true,
+			handler : this.openUniCons,
+			tooltip : '<b>Unidades Constructoras'
 		});
 
 		this.addButton('btnInvitacion',{
@@ -59,6 +68,7 @@ Phx.vista.ProyectoPr = {
        	    disabled: false, 
        	    handler: this.adquisicionesProgramadas, 
        	    tooltip: 'Adquicisiones Programadas'});
+
        	 /*
        	 this.addButton('btnReportPro',{ 
        	    text: 'Reporte', 
@@ -163,7 +173,8 @@ Phx.vista.ProyectoPr = {
 		window.open('../../../sis_proyectos/reportes/gantt/gantt_dinamico.html?id_proyecto='+data)		
 	},
 
-	tabsouth: [{
+	tabsouth: [
+	{
 		url:'../../../sis_proyectos/vista/fase_avance_obs/FaseAvanceObsProy.php',
 		title:'Avance Visual',
 		height:'50%',
@@ -190,6 +201,19 @@ Phx.vista.ProyectoPr = {
 			data,
 			this.idContenedor,
 			'Fase'
+		);
+	},
+	openUniCons: function(){//#16
+		var data = this.getSelectedData();
+		var win = Phx.CP.loadWindows(
+			'../../../sis_proyectos/vista/unidad_constructiva/UnidadConstructiva.php',
+			'Unidad Constructiva', {
+			    width: '95%',
+			    height: '90%'
+			},
+			data,
+			this.idContenedor,
+			'UnidadConstructiva'
 		);
 	},
 
@@ -309,6 +333,8 @@ Phx.vista.ProyectoPr = {
 		this.getBoton('btnFases').enable();
 		this.getBoton('btnInvitacion').enable();
 		this.getBoton('btnAdqPro').enable();
+		this.getBoton('btnUniCons').enable();//#16
+
 		//this.getBoton('btnReportPro').enable();
 
 		if(data.estado == 'finalizado' ){
@@ -347,6 +373,7 @@ Phx.vista.ProyectoPr = {
 		this.getBoton('ant_estado').disable();
 		
         this.getBoton('diagrama_gantt').disable();
+		this.getBoton('btnUniCons').disable();//#16
         
         //this.getBoton('btnReportPro').disable();
 

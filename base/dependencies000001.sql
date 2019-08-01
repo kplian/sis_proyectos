@@ -1950,4 +1950,8 @@ CREATE TRIGGER tr_update_invdet_presoldet
   EXECUTE PROCEDURE pro.f_tr_update_invdet_presoldet();
   
 /***********************************F-DEP-EGS-PRO-6-08/02/2019****************************************/
+/***********************************I-DEP-EGS-PRO-7-01/08/2019****************************************/
+select pxp.f_insert_testructura_gui ('UCPLA', 'PRO_1');
+/***********************************F-DEP-EGS-PRO-7-01/08/2019****************************************/
+
 

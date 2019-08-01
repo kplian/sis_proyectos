@@ -111,3 +111,7 @@ INSERT INTO param.tunidad_medida ("id_usuario_reg", "codigo", "descripcion", "ti
 VALUES 
   (1, E'Tn', E'Tonelada', E'Masa');
 /***********************************F-DAT-EGS-PRO-2-24/12/2018****************************************/
+
+/***********************************I-DAT-EGS-PRO-3-01/08/2018****************************************/
+select pxp.f_insert_tgui ('Plantilla Unidades Constructivas', 'Plantilla Unidades Constructivas', 'UCPLA', 'si', 5, 'sis_proyectos/vista/unidad_constructiva_plantilla/UnidadConstructivaPlantilla.php', 2, '', 'UnidadConstructivaPlantilla', 'PRO');
+/***********************************F-DAT-EGS-PRO-3-01/08/2018****************************************/
