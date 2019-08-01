@@ -211,7 +211,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         },
                         totalProperty: 'total',
                         //#9
-                        fields: ['id_fase_concepto_ingas','descripcion','desc_ingas','cantidad_est','precio','nombre_fase','codigo_fase','id_unidad_medida','tipo','id_fase','id_concepto_ingas','desc_moneda','total_invitacion_det','codigo','codigo_uc'],
+                        fields: ['id_fase_concepto_ingas','descripcion','desc_ingas','cantidad_est','precio','nombre_fase','codigo_fase','id_unidad_medida','tipo','id_fase','id_concepto_ingas','desc_moneda','total_invitacion_det','codigo'],
                         remoteSort: true,
                         baseParams: {par_filtro: 'facoing.id_fase_concepto_ingas#facoing.descripcion#facoing.id_unidad_medida#cig.tipo#fase.codigo'}//#7
                     }),
@@ -224,7 +224,6 @@ header("content-type: text/javascript; charset=UTF-8");
 		                       <p><b>Moneda: </b>{desc_moneda}</p>\
 		                       <p><b>Precio Total Estimado: </b>{precio}</p>\
 		                       <p><b>Total Asignado: </b>{total_invitacion_det}</p>\
-		                       <p><b>Unidad Constructiva: </b>{codigo_uc}</p>\
 		                       </div></tpl>',
                     valueField: 'id_fase_concepto_ingas',
                     displayField: 'desc_ingas',

@@ -232,63 +232,7 @@ BEGIN
                   END IF ;
                 
             END LOOP;
-          --conversion de los detalles ya registrados en la faseconceptoingas a moneda del proyecto
-         --#9 I          
-         WITH convertir(  
-            id_fase_concepto_ingas,
-            id_moneda_invitacion,
-            precio,
-            cantidad_sol,
-            id_moneda_proyecto,
-            precio_total_conversion,
-            codigo_moneda_total_conversion)AS(
-            
-               SELECT
-                  invd.id_fase_concepto_ingas,
-                  inv.id_moneda,
-                  invd.precio,
-                  invd.cantidad_sol,
-                  pro.id_moneda,
-             CASE
-                  WHEN pro.id_moneda = inv.id_moneda  THEN
-                       invd.precio*invd.cantidad_sol
-                  WHEN pro.id_moneda =  param.f_get_moneda_base() THEN
-                       ((invd.precio*invd.cantidad_sol)*((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,'O')):: numeric)):: numeric(18,2)
-                  WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
-                       ((invd.precio*invd.cantidad_sol)/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,'O')):: numeric)):: numeric(18,2)   
-                  END as precio_total_conversion,
-                  case
-                  WHEN pro.id_moneda = inv.id_moneda  THEN
-                       mon.codigo
-                  WHEN pro.id_moneda =  param.f_get_moneda_base() THEN
-                       (SELECT mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda = param.f_get_moneda_base())::varchar
-                  WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
-                        (SELECT  mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda = param.f_get_moneda_triangulacion())::varchar
-                  END as codigo_moneda_total_conversion  
-              FROM pro.tinvitacion_det invd
-                  left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
-                  left join pro.tproyecto pro on pro.id_proyecto = inv.id_proyecto 
-                  left join param.tmoneda mon on mon.id_moneda = pro.id_moneda )
-             SELECT
-                  sum(COALESCE(precio_total_conversion,0))
-             INTO
-                v_total_asignado
-             FROM convertir co
-             WHERE  co.id_fase_concepto_ingas = v_parametros.id_fase_concepto_ingas
-             group By co.id_fase_concepto_ingas;
-            --sumamos el total de los detalles a registrar mas los detalles ya registrados a la fase conceptoingas
-             v_solicitud_det_precio_total = v_solicitud_det_precio_total+COALESCE(v_total_asignado,0);
-             --raise exception 'v_solicitud_det_precio_total %',v_solicitud_det_precio_total;
 
-             ---validamos que no se supere a la fase conceptoingas
-                 /*  IF COALESCE(v_solicitud_det_precio_total,0) > COALESCE(v_record_facoing.precio,0) THEN
-                    RAISE EXCEPTION ' El precio actualizado %  es menor a la suma de los conceptos asigandos al Bien/servicio %',COALESCE(v_record_facoing.precio,0),COALESCE(v_solicitud_det_precio_total,0);
-                   END IF;*/ 
-                   /*   
-                   IF COALESCE(v_solicitud_det_precio_total,0) > COALESCE(v_record_facoing.precio_est,0) THEN
-                    RAISE EXCEPTION ' El precio estimado % es menor a la suma de los conceptos asigandos al Bien/servicio % .Al Relacionar el precio estimado tiene que ser igual al actualizado',COALESCE(v_record_facoing.precio_est,0),COALESCE(v_solicitud_det_precio_total,0);
-                   END IF;*/
-        --#9 F
         va_id_invitacion = v_parametros.id_invitacion;
         -- sino se asocia con una invitacion se crea una nueva
         IF va_id_invitacion is null THEN

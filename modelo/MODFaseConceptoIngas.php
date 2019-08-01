@@ -75,8 +75,7 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->captura('total_invitacion_det','numeric');//#5
 		$this->captura('desc_moneda','varchar');		
 		$this->captura('codigo','varchar');
-		$this->captura('id_unidad_constructiva','int4');
-		$this->captura('codigo_uc','varchar');				
+				
 				
 		
 		
@@ -113,7 +112,6 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->setParametro('id_funcionario','id_funcionario','int4');				
 		$this->setParametro('precio_est','precio_est','numeric');
 		$this->setParametro('codigo','codigo','varchar');
-		$this->setParametro('id_unidad_constructiva','id_unidad_constructiva','int4');
 		
 
 		//Ejecuta la instruccion
@@ -149,7 +147,6 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->setParametro('id_funcionario','id_funcionario','int4');				
 		$this->setParametro('precio_est','precio_est','numeric');
 		$this->setParametro('codigo','codigo','varchar');
-		$this->setParametro('id_unidad_constructiva','id_unidad_constructiva','int4');
 		
 
 		//Ejecuta la instruccion
@@ -278,7 +275,6 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->captura('desc_moneda','varchar');	
 		$this->captura('total_invitacion_det','numeric');
 		$this->captura('codigo','varchar');	
-		$this->captura('codigo_uc','varchar');	
 		
 		
 		//Ejecuta la instruccion
