@@ -1954,4 +1954,9 @@ CREATE TRIGGER tr_update_invdet_presoldet
 select pxp.f_insert_testructura_gui ('UCPLA', 'PRO_1');
 /***********************************F-DEP-EGS-PRO-7-01/08/2019****************************************/
 
+/***********************************I-DEP-EGS-PRO-8-01/08/2019****************************************/
+select pxp.f_insert_testructura_gui ('CFGPRO', 'PRO_1');
+select pxp.f_insert_testructura_gui ('CIGPRO', 'CFGPRO');
+/***********************************F-DEP-EGS-PRO-8-01/08/2019****************************************/
+
 

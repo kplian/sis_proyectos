@@ -25,22 +25,27 @@ Phx.vista.ProyectoPr = {
         this.iniciarEventos();
 		
         this.addBotonesGantt();
-
-        //Botón para Imprimir el Comprobante
-		this.addButton('btnFases', {
-			text : 'Fases',
+		
+		this.addButton('btnCompMacr', {//#
+			text : 'Componentes',
 			iconCls : 'bexecdb',
 			disabled : true,
-			handler : this.openFases,
-			tooltip : '<b>Fases del Proyecto</b><br>Interfaz para el registro de las fases que componen al proyecto'
+			handler : this.compMacr,
+			tooltip : '<b>Componentes'
 		});
-		
 		this.addButton('btnUniCons', { //#16
 			text : 'Unidades Const.',
 			iconCls : 'bexecdb',
 			disabled : true,
 			handler : this.openUniCons,
 			tooltip : '<b>Unidades Constructoras'
+       		 });
+		this.addButton('btnFases', {
+			text : 'Fases',
+			iconCls : 'bexecdb',
+			disabled : true,
+			handler : this.openFases,
+			tooltip : '<b>Fases del Proyecto</b><br>Interfaz para el registro de las fases que componen al proyecto'
 		});
 
 		this.addButton('btnInvitacion',{
@@ -190,6 +195,19 @@ Phx.vista.ProyectoPr = {
 		height: '50%',
 		cls: 'ProyectoContrato'
 	}],
+    compMacr: function(){//#
+        var data = this.getSelectedData();
+        var win = Phx.CP.loadWindows(
+            '../../../sis_proyectos/vista/componente_macro/ComponenteMacro.php',
+            'Componentes', {
+                width: '95%',
+                height: '90%'
+            },
+            data,
+            this.idContenedor,
+            'ComponenteMacro'
+        );
+    },
 	openFases: function(){
 		var data = this.getSelectedData();
 		var win = Phx.CP.loadWindows(
@@ -334,7 +352,7 @@ Phx.vista.ProyectoPr = {
 		this.getBoton('btnInvitacion').enable();
 		this.getBoton('btnAdqPro').enable();
 		this.getBoton('btnUniCons').enable();//#16
-
+		this.getBoton('btnCompMacr').enable();//#
 		//this.getBoton('btnReportPro').enable();
 
 		if(data.estado == 'finalizado' ){
@@ -374,7 +392,7 @@ Phx.vista.ProyectoPr = {
 		
         this.getBoton('diagrama_gantt').disable();
 		this.getBoton('btnUniCons').disable();//#16
-        
+		this.getBoton('btnCompMacr').disable();//#
         //this.getBoton('btnReportPro').disable();
 
         

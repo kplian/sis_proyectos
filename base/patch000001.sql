@@ -848,3 +848,54 @@ COMMENT ON COLUMN pro.tinvitacion_det.id_unidad_constructiva
 IS 'Id de la unidad Constructiva a detalle puede ser la UC del concepto_ingas o una ramificacion del arbol de esta';
 
 /***********************************F-SCP-EGS-PRO-8-31/07/2019****************************************/
+/***********************************I-SCP-EGS-PRO-0-01/08/2019****************************************/
+CREATE TABLE pro.tcomponente_macro (
+  id_componente_macro SERIAL,
+  nombre VARCHAR,
+  descripcion VARCHAR,
+  id_proyecto INTEGER,
+  CONSTRAINT tcomponente_macro_pkey PRIMARY KEY(id_componente_macro),
+  CONSTRAINT tcomponente_macro_fk_id_proyecto FOREIGN KEY (id_proyecto)
+    REFERENCES pro.tproyecto(id_proyecto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+CREATE TABLE pro.tcomponente_concepto_ingas (
+  id_componente_concepto_ingas SERIAL,
+  id_concepto_ingas INTEGER,
+  id_componente_macro INTEGER,
+  CONSTRAINT tcomp_concepto_ingas_pkey PRIMARY KEY(id_componente_concepto_ingas),
+  CONSTRAINT tcomp_concepto_ingas_fk_id_componente_macro FOREIGN KEY (id_componente_macro)
+    REFERENCES pro.tcomponente_macro(id_componente_macro)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+CREATE TABLE pro.tcomponente_concepto_ingas_det (
+  id_componente_concepto_ingas_det SERIAL,
+  id_concepto_ingas_det INTEGER,
+  id_componente_concepto_ingas INTEGER,
+  cantidad_est NUMERIC(18,0),
+  precio NUMERIC(18,2),
+  id_unidad_constructiva INTEGER,
+  CONSTRAINT tcomp_concepto_ingas_det_pkey PRIMARY KEY(id_componente_concepto_ingas_det),
+  CONSTRAINT tcomponente_concepto_ingas_det_fk_id_componente_concepto_ingas FOREIGN KEY (id_componente_concepto_ingas)
+    REFERENCES pro.tcomponente_concepto_ingas(id_componente_concepto_ingas)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT tcomponente_concepto_ingas_det_fk_id_concepto_ingas FOREIGN KEY (id_concepto_ingas_det)
+    REFERENCES param.tconcepto_ingas_det(id_concepto_ingas_det)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+/***********************************F-SCP-EGS-PRO-8-01/08/2019****************************************/
+
+

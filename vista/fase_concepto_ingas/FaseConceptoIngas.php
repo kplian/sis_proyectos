@@ -8,7 +8,8 @@
 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	#5	  endeETR		09/01/2019	EGS				Se agrego totalizadores de precio y precio_est
   	#7	  endeETR		29/01/2019	EGS				Se agego los botones y validaciones para que se relaciones una solicitud con el fase_concepto_ingas
- * 	#10	  endeEtr		02/04/2019	EGS				Se agrega funcion que actualiza panel de informacion al crear ,editar y eliminar un fase concepto de gasto	
+ * 	#10	  endeEtr		02/04/2019	EGS				Se agrega funcion que actualiza panel de informacion al crear ,editar y eliminar un fase concepto de gasto
+ *  #17	  endeETR		01/08/2019	EGS				se agrega listado desde ccomponente_concepto_ingas
  * 
 */
 
@@ -207,114 +208,51 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },*/
-        {
-            config:{
+        {//#17
+
+            config: {
                 name: 'id_concepto_ingas',
                 fieldLabel: 'Concepto de Gasto',
-                allowBlank: false,
-                emptyText: 'Concepto...',
+                allowBlank: true,
+                emptyText: 'Elija una opción...',
                 store: new Ext.data.JsonStore({
-                    url: '../../sis_proyectos/control/UnidadConstructiva/listarConceptoingasUcCombo',
-                    id : 'id_concepto_ingas',
+                    url: '../../sis_proyectos/control/ComponenteConceptoIngas/listarComponenteConceptoIngas',
+                    id: 'id_concepto_ingas',
                     root: 'datos',
-                    sortInfo:{
+                    sortInfo: {
                         field: 'desc_ingas',
                         direction: 'ASC'
                     },
                     totalProperty: 'total',
-                    fields: ['id_concepto_ingas','desc_ingas','tipo'],
+                    fields: ['id_concepto_ingas', 'desc_ingas','tipo'],
                     remoteSort: true,
-                    baseParams: { par_filtro: 'cig.desc_ingas'}//, autorizacion: 'viatico'}
+                    baseParams: {par_filtro: 'id_concepto_ingas#desc_ingas#',start:0, limit:50}
                 }),
-                tpl:'<tpl for=".">\
-		                       <div class="x-combo-list-item"><p><b>Tipo: </b>{tipo}</p>\ <p><b>Concepto de Gasto: </b>{desc_ingas}</p>\ </div></tpl>',
-               	valueField: 'id_concepto_ingas',
-				displayField: 'desc_ingas',
-				gdisplayField: 'desc_ingas',
-				hiddenName: 'id_concepto_ingas',
-				forceSelection:true,
-				typeAhead: false,
-				triggerAction: 'all',
-				listWidth:500,
-				resizable:true,
-				lazyRender:true,
-				mode:'remote',
-				pageSize:10,
-				queryDelay:1000,
-				width: 250,
-				gwidth:250,
-				minChars:2,
-				anchor:'100%',
-				qtip:'Si el concepto de gasto que necesita no existe por favor comuníquese con el área de presupuestos para solicitar la creación.',
-				//tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_ingas}</p></div></tpl>',
-				renderer:function(value, p, record){
-					if (record.json.precio == record.json.total_prorrateo && record.json.precio != null ){
-						return String.format('{0}', record.data['desc_ingas']);
-					}
-					else{
-						return String.format('<b><font size=3 style="color:#FF1700";>{0}</font><b>', record.data['desc_ingas']);												
-					}
-				}
+                tpl:'<tpl for=".">\<div class="x-combo-list-item"><p><b>Tipo: </b>{tipo}</p>\ <p><b>Concepto de Gasto: </b>{desc_ingas}</p>\ </div></tpl>',
+                valueField: 'id_concepto_ingas',
+                displayField: 'desc_ingas',
+                gdisplayField: 'desc_ingas',
+                hiddenName: 'id_concepto_ingas',
+                forceSelection: true,
+                typeAhead: false,
+                triggerAction: 'all',
+                lazyRender: true,
+                mode: 'remote',
+                pageSize: 15,
+                queryDelay: 1000,
+                anchor: '100%',
+                gwidth: 150,
+                minChars: 2,
+                renderer : function(value, p, record) {
+                    return String.format('{0}', record.data['desc_ingas']);
+                }
             },
-            type:'ComboBox',
-			bottom_filter: true,
-            filters:{pfiltro:'cig.desc_ingas',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:true
-        },/*
-        {
-            config:{
-                name: 'id_unidad_constructiva',
-                fieldLabel: 'Unidad Constructiva',
-                allowBlank: false,
-                emptyText: 'Concepto...',
-                store: new Ext.data.JsonStore({
-                    url: '../../sis_proyectos/control/UnidadConstructiva/listarUnidadConstructiva',
-                    id : 'id_unidad_constructiva',
-                    root: 'datos',
-                    sortInfo:{
-                        field: 'id_unidad_constructiva',
-                        direction: 'ASC'
-                    },
-                    totalProperty: 'total',
-                    fields: ['id_unidad_constructiva','codigo','nombre'],
-                    remoteSort: true,
-                    baseParams: { par_filtro: 'uncon.id_unidad_constructiva#uncon.codigo#uncon.nombre'}//, autorizacion: 'viatico'}
-                }),
-                tpl:'<tpl for=".">\
-		                       <div class="x-combo-list-item"><p><b>Codigo: </b>{codigo}</p>\ <p><b>Nombre: </b>{nombre}</p>\ </div></tpl>',
-               	valueField: 'id_unidad_constructiva',
-				displayField: 'codigo',
-				gdisplayField: 'codigo',
-				hiddenName: 'id_unidad_constructiva',
-				forceSelection:true,
-				typeAhead: false,
-				triggerAction: 'all',
-				listWidth:500,
-				resizable:true,
-				lazyRender:true,
-				mode:'remote',
-				pageSize:10,
-				queryDelay:1000,
-				width: 250,
-				gwidth:250,
-				minChars:2,
-				anchor:'100%',
-				qtip:'La unidad Constructiva en la que pertenece el concepto de gasto',
-				renderer:function(value, p, record){
-							return String.format('{0}', record.data['codigo_uc']);
-
-				}
-            },
-            type:'ComboBox',
-			bottom_filter: true,
-            filters:{pfiltro:'uncon.codigo',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:true
+            type: 'ComboBox',
+            id_grupo: 0,
+            filters: {pfiltro: 'nombre',type: 'string'},
+            grid: true,
+            form: true
         },
-        */
          {
 			config:{
 				name: 'tipo',

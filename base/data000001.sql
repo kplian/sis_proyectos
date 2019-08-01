@@ -115,3 +115,10 @@ VALUES
 /***********************************I-DAT-EGS-PRO-3-01/08/2018****************************************/
 select pxp.f_insert_tgui ('Plantilla Unidades Constructivas', 'Plantilla Unidades Constructivas', 'UCPLA', 'si', 5, 'sis_proyectos/vista/unidad_constructiva_plantilla/UnidadConstructivaPlantilla.php', 2, '', 'UnidadConstructivaPlantilla', 'PRO');
 /***********************************F-DAT-EGS-PRO-3-01/08/2018****************************************/
+
+/***********************************I-DAT-EGS-PRO-4-01/08/2018****************************************/
+
+select pxp.f_insert_tgui ('Configuraciones', 'Configuraciones', 'CFGPRO', 'si', 1, '', 2, '', '', 'PRO');
+select pxp.f_insert_tgui ('Concepto Ingre/Gasto', 'Concepto Ingre/Gasto', 'CIGPRO', 'si', 1, 'sis_proyectos/vista/componente_concepto_ingas/ConceptoIngasPro.php', 3, '', 'ConceptoIngasPro', 'PRO');
+
+/***********************************F-DAT-EGS-PRO-4-01/08/2018****************************************/
