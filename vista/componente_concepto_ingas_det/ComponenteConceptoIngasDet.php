@@ -61,7 +61,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                     totalProperty: 'total',
                     fields: ['id_concepto_ingas_det', 'nombre','descripcion'],
                     remoteSort: true,
-                    baseParams: {par_filtro: 'id_concepto_ingas_det#nombre#descripcion',start: 0, limit: 50,agrupador:'no'}
+                    baseParams: {par_filtro: 'coind.id_concepto_ingas_det#coind.nombre#coind.descripcion',start: 0, limit: 50,agrupador:'no'}
                 }),
                 valueField: 'id_concepto_ingas_det',
                 displayField: 'nombre',
@@ -83,7 +83,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             },
             type: 'ComboBox',
             id_grupo: 0,
-            filters: {pfiltro: 'nombre',type: 'string'},
+            filters: {pfiltro: 'coind.nombre',type: 'string'},
             grid: true,
             form: true
         },

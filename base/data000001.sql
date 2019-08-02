@@ -119,6 +119,6 @@ select pxp.f_insert_tgui ('Plantilla Unidades Constructivas', 'Plantilla Unidade
 /***********************************I-DAT-EGS-PRO-4-01/08/2018****************************************/
 
 select pxp.f_insert_tgui ('Configuraciones', 'Configuraciones', 'CFGPRO', 'si', 1, '', 2, '', '', 'PRO');
-select pxp.f_insert_tgui ('Concepto Ingre/Gasto', 'Concepto Ingre/Gasto', 'CIGPRO', 'si', 1, 'sis_proyectos/vista/componente_concepto_ingas/ConceptoIngasPro.php', 3, '', 'ConceptoIngasPro', 'PRO');
+select pxp.f_insert_tgui ('Concepto Ingre/Gasto', 'Concepto Ingreso/Gasto', 'CIGPRO', 'si', 1, 'sis_proyectos/vista/componente_concepto_ingas/ConceptoIngasPro.php', 3, '', 'ConceptoIngasPro', 'PRO');
 
 /***********************************F-DAT-EGS-PRO-4-01/08/2018****************************************/
