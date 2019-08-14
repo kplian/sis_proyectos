@@ -19,13 +19,14 @@ header("content-type: text/javascript; charset=UTF-8");
             this.maestro=config.maestro;
             //llama al constructor de la clase padre
             Phx.vista.ConceptoIngasPro.superclass.constructor.call(this,config);
-            this.init();
-            this.load({params:{start:0, limit:this.tam_pag , nombreVista:this.nombreVista }});
-            this.iniciarEventos();
             //ocultar botones
             this.getBoton('inserOT').hide();
             this.getBoton('inserAuto').hide();
             this.getBoton('addImagen').hide();
+            this.init();
+            this.load({params:{start:0, limit:this.tam_pag , nombreVista:this.nombreVista }});
+            this.iniciarEventos();
+
         },
         bedit:false,
         bnew:false,

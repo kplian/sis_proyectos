@@ -61,7 +61,10 @@ BEGIN
                         cigd.nombre as desc_ingas_det,
                         comindet.id_unidad_constructiva,
                         uc.codigo as codigo_uc,
-                        cigdfk.nombre as desc_agrupador
+                        cigdfk.nombre as desc_agrupador,
+                        comindet.aislacion,
+                        comindet.tension,
+                        comindet.peso
 						from pro.tcomponente_concepto_ingas_det comindet
 						inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
@@ -69,20 +72,20 @@ BEGIN
                         left join param.tconcepto_ingas_det cigdfk on cigdfk.id_concepto_ingas_det = cigd.id_concepto_ingas_det_fk
 				        left join pro.tunidad_constructiva uc on uc.id_unidad_constructiva = comindet.id_unidad_constructiva
                         where  ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'PRO_COMINDET_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		22-07-2019 14:50:29
 	***********************************/
 
@@ -97,23 +100,23 @@ BEGIN
                         left join param.tconcepto_ingas_det cigd on cigd.id_concepto_ingas_det = comindet.id_concepto_ingas_det
                         left join pro.tunidad_constructiva uc on uc.id_unidad_constructiva = comindet.id_unidad_constructiva
 					    where ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-					
+
 	else
-					     
+
 		raise exception 'Transaccion inexistente';
-					         
+
 	end if;
-					
+
 EXCEPTION
-					
+
 	WHEN OTHERS THEN
 			v_resp='';
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

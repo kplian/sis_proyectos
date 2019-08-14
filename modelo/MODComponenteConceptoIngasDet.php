@@ -38,6 +38,10 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->captura('id_unidad_constructiva','int4');
         $this->captura('codigo_uc','varchar');
         $this->captura('desc_agrupador','varchar');
+        $this->captura('aislacion','varchar');
+        $this->captura('tension','varchar');
+        $this->captura('peso','numeric');
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -59,6 +63,10 @@ class MODComponenteConceptoIngasDet extends MODbase{
 		$this->setParametro('cantidad_est','cantidad_est','numeric');
 		$this->setParametro('precio','precio','numeric');
         $this->setParametro('id_unidad_constructiva','id_unidad_constructiva','int4');
+        $this->setParametro('aislacion','aislacion','varchar');
+        $this->setParametro('tension','tension','varchar');
+        $this->setParametro('peso','peso','numeric');
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -81,6 +89,9 @@ class MODComponenteConceptoIngasDet extends MODbase{
 		$this->setParametro('cantidad_est','cantidad_est','numeric');
 		$this->setParametro('precio','precio','numeric');
         $this->setParametro('id_unidad_constructiva','id_unidad_constructiva','int4');
+        $this->setParametro('aislacion','aislacion','varchar');
+        $this->setParametro('tension','tension','varchar');
+        $this->setParametro('peso','peso','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

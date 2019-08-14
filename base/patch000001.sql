@@ -897,5 +897,13 @@ CREATE TABLE pro.tcomponente_concepto_ingas_det (
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
 /***********************************F-SCP-EGS-PRO-8-01/08/2019****************************************/
+/***********************************I-SCP-EGS-PRO-9-14/08/2019****************************************/
+   ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN aislacion VARCHAR;
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN tension VARCHAR;
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN peso_new NUMERIC(18,2);
+/***********************************F-SCP-EGS-PRO-9-14/08/2019****************************************/
 
 

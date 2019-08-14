@@ -122,3 +122,10 @@ select pxp.f_insert_tgui ('Configuraciones', 'Configuraciones', 'CFGPRO', 'si', 
 select pxp.f_insert_tgui ('Concepto Ingre/Gasto', 'Concepto Ingreso/Gasto', 'CIGPRO', 'si', 1, 'sis_proyectos/vista/componente_concepto_ingas/ConceptoIngasPro.php', 3, '', 'ConceptoIngasPro', 'PRO');
 
 /***********************************F-DAT-EGS-PRO-4-01/08/2018****************************************/
+/***********************************I-DAT-EGS-PRO-5-14/08/2019****************************************/
+INSERT INTO param.tcolumna ("id_usuario_reg", "estado_reg", "nombre_columna", "tipo_dato")
+VALUES
+  (1, E'activo', E'aislacion', E'varchar'),
+  (1, E'activo', E'tension', E'varchar'),
+  (1, E'activo', E'peso', E'numeric');
+/***********************************F-DAT-EGS-PRO-5-14/08/2019****************************************/

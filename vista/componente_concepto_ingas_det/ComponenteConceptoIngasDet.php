@@ -48,10 +48,10 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             config: {
                 name: 'id_concepto_ingas_det',
                 fieldLabel: 'Concepto Ingreso/Gasto Detalle',
-                allowBlank: true,
+                allowBlank: false,
                 emptyText: 'Elija una opción...',
                 store: new Ext.data.JsonStore({
-                    url: '../../sis_parametros/control/ConceptoIngasDet/listarConceptoIngasDet',
+                    url: '../../sis_parametros/control/ConceptoIngasDet/listarConceptoIngasDetCombo',
                     id: 'id_concepto_ingas_det',
                     root: 'datos',
                     sortInfo: {
@@ -87,6 +87,46 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             grid: true,
             form: true
         },
+        {
+            config:{
+                name: 'aislacion',
+                fieldLabel: 'Aislacion',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'TextField',
+            id_grupo:1,
+            grid:true,
+            form:false
+        },        {
+            config:{
+                name: 'tension',
+                fieldLabel: 'Tension',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'TextField',
+            id_grupo:1,
+            grid:true,
+            form:false
+        },        {
+            config:{
+                name: 'peso',
+                fieldLabel: 'Peso',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'NumberField',
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
 		{
 			config:{
 				name: 'cantidad_est',
@@ -117,49 +157,6 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-        {
-            config: {
-                name: 'id_unidad_constructiva',
-                fieldLabel: 'Unidad Constructiva',
-                allowBlank: true,
-                emptyText: 'Elija una opción...',
-                store: new Ext.data.JsonStore({
-                    url: '../../sis_proyectos/control/UnidadConstructiva/listarUnidadConstructiva',
-                    id: 'id_unidad_constructiva',
-                    root: 'datos',
-                    sortInfo: {
-                        field: 'codigo',
-                        direction: 'ASC'
-                    },
-                    totalProperty: 'total',
-                    fields: ['id_unidad_constructiva', 'nombre', 'codigo'],
-                    remoteSort: true,
-                    baseParams: {par_filtro: 'id_unidad_constructiva#nombre#codigo',start: 0, limit: 50}
-                }),
-                valueField: 'id_unidad_constructiva',
-                displayField: 'codigo',
-                gdisplayField: 'codigo',
-                hiddenName: 'id_unidad_constructiva',
-                forceSelection: true,
-                typeAhead: false,
-                triggerAction: 'all',
-                lazyRender: true,
-                mode: 'remote',
-                pageSize: 15,
-                queryDelay: 1000,
-                anchor: '100%',
-                gwidth: 150,
-                minChars: 2,
-                renderer : function(value, p, record) {
-                    return String.format('{0}', record.data['codigo_uc']);
-                }
-            },
-            type: 'ComboBox',
-            id_grupo: 0,
-            filters: {pfiltro: 'codigo',type: 'string'},
-            grid: true,
-            form: true
-        },
         {
             config:{
                 name: 'desc_agrupador',
@@ -306,7 +303,10 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 		{name:'desc_ingas_det', type: 'string'},
         {name:'id_unidad_constructiva', type: 'numeric'},
         {name:'codigo_uc', type: 'string'},
-        {name:'desc_agrupador', type: 'string'}
+        {name:'desc_agrupador', type: 'string'},
+        {name:'aislacion', type: 'string'},
+        {name:'tension', type: 'string'},
+        {name:'peso', type: 'numeric'}
 	],
 	sortInfo:{
 		field: 'id_componente_concepto_ingas_det',
@@ -320,7 +320,6 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.Atributos[this.getIndAtributo('id_componente_concepto_ingas')].valorInicial = this.maestro.id_componente_concepto_ingas;
         this.store.baseParams = {id_componente_concepto_ingas: this.maestro.id_componente_concepto_ingas};
         this.Cmp.id_concepto_ingas_det.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
-        this.Cmp.id_unidad_constructiva.store.baseParams.id_proyecto = this.maestro.id_proyecto;
         this.load({params: {start: 0, limit: 50}})
     },
     onButtonNew:function(){
@@ -334,20 +333,6 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
         Phx.vista.ComponenteConceptoIngasDet.superclass.onButtonEdit.call(this);
         this.ocultarComponente(this.Cmp.id_concepto_ingas_det);
-        let v_existe = data.id_unidad_constructiva;
-        if ( v_existe != null ) {
-            this.Cmp.id_unidad_constructiva.store.baseParams.query = this.Cmp.id_unidad_constructiva.getValue();
-            this.Cmp.id_unidad_constructiva.store.load({
-                params: {start: 0, limit: this.tam_pag},
-                callback: function (r) {
-                    console.log('r', r);
-                    if (r.length > 0) {
-                        this.Cmp.id_unidad_constructiva.setValue(r[0].data.id_unidad_constructiva);
-                    }
-
-                }, scope: this
-            });
-        }
         this.Cmp.id_concepto_ingas_det.store.baseParams.query = this.Cmp.id_concepto_ingas_det.getValue();
         this.Cmp.id_concepto_ingas_det.store.load({params:{start:0,limit:this.tam_pag},
                 callback : function (r) {
@@ -359,19 +344,27 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 }, scope : this
          });
 
+
     },
 
-        tipoStore: 'GroupingStore',//GroupingStore o JsonStore #
-        remoteGroup: true,
-        groupField: 'desc_agrupador',
-        viewGrid: new Ext.grid.GroupingView({
+    tipoStore: 'GroupingStore',//GroupingStore o JsonStore #
+    remoteGroup: true,
+    groupField: 'desc_agrupador',
+    viewGrid: new Ext.grid.GroupingView({
             forceFit: false,
             // custom grouping text template to display the number of items per group
             //groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Items" : "Item"]})'
         }),
-        fwidth: 500,
-        fheight: 480,
-
+    fwidth: 500,
+    fheight: 480,
+    tabsouth: [
+        {
+            url:'../../../sis_proyectos/vista/unidad_comingdet/UnidadComingdet.php',
+            title:'Unidad Constructiva',
+            width:'100%',
+            height:'40%',
+            cls:'UnidadComingdet'
+        }],
 
 
     }

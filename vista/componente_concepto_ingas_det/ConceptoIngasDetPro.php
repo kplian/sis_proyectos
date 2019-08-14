@@ -16,6 +16,7 @@ header("content-type: text/javascript; charset=UTF-8");
         title:'Concepto Ingreso/Gasto Det',
         nombreVista: 'ConceptoIngasDetPro',
         constructor:function(config){
+            this.unirAtributos(); //ejecutamos primero para que los atributos extra se carguen y visualizaen //#4
             this.maestro=config.maestro;
             //llama al constructor de la clase padre
             Phx.vista.ConceptoIngasDetPro.superclass.constructor.call(this,config);
@@ -35,7 +36,8 @@ header("content-type: text/javascript; charset=UTF-8");
             console.log('rec',rec);
             //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentes
             Phx.vista.ConceptoIngasDetPro.superclass.onButtonEdit.call(this);
-            this.Cmp.id_concepto_ingas_det_fk.store.baseParams.query = rec.id_concepto_ingas_det_fk;
+            this.Cmp.id_concepto_ingas_det_fk.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
+            //this.Cmp.id_concepto_ingas_det_fk.store.baseParams.query = rec.id_concepto_ingas_det_fk;
             this.Cmp.id_concepto_ingas_det_fk.store.load({params:{start:0,limit:50},
                 callback : function (r) {
                     if (r.length > 0 ) {
@@ -66,6 +68,65 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Atributos[this.getIndAtributo('id_concepto_ingas')].valorInicial = this.maestro.id_concepto_ingas;
             this.load({params: {start: 0, limit: 50, nombreVista:this.nombreVista, id_concepto_ingas: this.maestro.id_concepto_ingas, agrupador:'no'}})
         },
+
+    unirAtributos: function (){
+        var me = this;
+        this.Atributos = this.Atributos.concat(me.extraAtributos);
+        this.fields = this.fields.concat(me.extraFields);
+    },
+
+    extraAtributos:[
+        {
+            config:{
+                name: 'aislacion',
+                fieldLabel: 'Aislacion',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 150,
+                maxLength:30
+            },
+            type:'TextField',
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {
+            config:{
+                name: 'tension',
+                fieldLabel: 'Tension',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 150,
+                maxLength:30
+            },
+            type:'TextField',
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {
+            config:{
+                name: 'peso',
+                fieldLabel: 'Peso',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 150,
+                maxLength:30
+            },
+            type:'TextField',
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+    ],
+
+        extraFields:[
+        {name:'aislacion', type: 'string'},
+        {name:'tension', type: 'string'},
+        {name:'peso', type: 'string'}
+
+        ],
+        arrayDefaultColumHidden:['fecha_mod','usr_reg','usr_mod','estado_reg','fecha_reg','id_usuario_ai','usuario_ai'],
 
 
 
