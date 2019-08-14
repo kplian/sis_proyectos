@@ -905,5 +905,20 @@ WITH (oids = false);
   ALTER TABLE pro.tcomponente_concepto_ingas_det
   ADD COLUMN peso_new NUMERIC(18,2);
 /***********************************F-SCP-EGS-PRO-9-14/08/2019****************************************/
+/***********************************I-SCP-EGS-PRO-10-14/08/2019****************************************/
+CREATE TABLE pro.tunidad_comingdet (
+  id_unidad_comingdet SERIAL,
+  id_unidad_constructiva INTEGER,
+  id_componente_concepto_ingas_det INTEGER,
+  cantidad_asignada NUMERIC(18,2),
+  CONSTRAINT tunidad_coingdet_pkey PRIMARY KEY(id_unidad_comingdet),
+  CONSTRAINT tunidad_comingdet_fk FOREIGN KEY (id_componente_concepto_ingas_det)
+    REFERENCES pro.tcomponente_concepto_ingas_det(id_componente_concepto_ingas_det)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+/***********************************F-SCP-EGS-PRO-10-14/08/2019****************************************/
 
 
