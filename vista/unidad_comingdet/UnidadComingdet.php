@@ -17,7 +17,8 @@ Phx.vista.UnidadComingdet=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.UnidadComingdet.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag}})
+		//this.load({params:{start:0, limit:this.tam_pag}})
+        this.bloquearMenus();
 	},
 			
 	Atributos:[
