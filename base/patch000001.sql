@@ -903,7 +903,7 @@ WITH (oids = false);
   ALTER TABLE pro.tcomponente_concepto_ingas_det
   ADD COLUMN tension VARCHAR;
   ALTER TABLE pro.tcomponente_concepto_ingas_det
-  ADD COLUMN peso_new NUMERIC(18,2);
+  ADD COLUMN peso NUMERIC(18,2);
 /***********************************F-SCP-EGS-PRO-9-14/08/2019****************************************/
 /***********************************I-SCP-EGS-PRO-10-14/08/2019****************************************/
 CREATE TABLE pro.tunidad_comingdet (

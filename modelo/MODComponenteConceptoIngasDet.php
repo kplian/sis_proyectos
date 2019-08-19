@@ -41,6 +41,7 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->captura('aislacion','varchar');
         $this->captura('tension','varchar');
         $this->captura('peso','numeric');
+        $this->captura('id_proyecto','int4');//#17
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

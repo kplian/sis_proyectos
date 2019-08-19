@@ -242,6 +242,7 @@ Phx.vista.UnidadComingdet=Ext.extend(Phx.gridInterfaz,{
         this.maestro = m;
         this.Atributos[this.getIndAtributo('id_componente_concepto_ingas_det')].valorInicial = this.maestro.id_componente_concepto_ingas_det;
         this.store.baseParams = {id_componente_concepto_ingas_det: this.maestro.id_componente_concepto_ingas_det};
+        this.Cmp.id_unidad_constructiva.store.baseParams.id_proyecto=this.maestro.id_proyecto;
         this.load({params: {start: 0, limit: 50}})
     },
 	}
