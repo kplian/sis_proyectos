@@ -66,11 +66,11 @@ class MODInvitacion extends MODbase{
 		$this->captura('desc_categoria_compra','varchar');
 		$this->captura('desc_grupo','varchar');
 		$this->captura('id_invitacion_fk','int4');//#15
-		
 
-		
-		
-		
+
+
+
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -296,6 +296,22 @@ class MODInvitacion extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+    function estadosInvitacion(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.ft_invitacion_ime';
+        $this->transaccion='PRO_ESTIVT_IME';
+        $this->tipo_procedimiento='IME';//tipo de transaccion
+        //$this->setCount(false);
+        //Definicion de la lista del resultado del query
+        $this->setParametro('id_invitacion','id_invitacion','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //var_dump('rsp', $this->respuesta);
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 
  
 

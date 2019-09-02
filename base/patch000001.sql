@@ -921,4 +921,13 @@ CREATE TABLE pro.tunidad_comingdet (
 WITH (oids = false);
 /***********************************F-SCP-EGS-PRO-10-14/08/2019****************************************/
 
+/***********************************I-SCP-EGS-PRO-11-30/08/2019****************************************/
+
+ALTER TABLE pro.tinvitacion_det
+  ADD COLUMN id_componente_concepto_ingas_det INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion_det.id_componente_concepto_ingas_det
+IS 'id de la lista de detalles aprobados n la planificacion';
+
+/***********************************F-SCP-EGS-PRO-11-30/08/2019****************************************/
 

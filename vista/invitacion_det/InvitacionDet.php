@@ -10,6 +10,7 @@ ISSUE		FECHA		AUTHOR			DESCRIPCION
 #7	EndeEtr 04/02/2019	 EGS		    Se hace validacion para que no guarde en estado de sol_compra
 #8	EndeEtr 18/03/2019	 EGS		    se fuerza a escoger centro de costo
 #15 EndeEtr	31/07/2019	 EGS			reestrctura de los archivos
+#20 EndEtr  30/08/2019   EGS            Se agrega campos para relanzamientos y para detalle de componente concepto ingas
  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -49,6 +50,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_invitacion: this.maestro.id_invitacion
             };
             this.load({ params: {start: 0,limit: 50 }});
+            this.Cmp.id_componente_concepto_ingas_det.store.baseParams.id_proyecto = this.maestro.id_proyecto;
         },
 
         obtenerProyecto: function(config){
@@ -129,6 +131,34 @@ header("content-type: text/javascript; charset=UTF-8");
             this.ocultarComponente(this.Cmp.descripcion);
             this.ocultarComponente(this.Cmp.codigo);
             this.ocultarComponente(this.Cmp.id_unidad_constructiva);
+            this.ocultarComponente(this.Cmp.id_componente_concepto_ingas_det);
+
+            this.Cmp.id_fase_concepto_ingas.on('select', function(cmb,rec,i){
+                this.Cmp.id_componente_concepto_ingas_det.reset();
+                this.Cmp.id_componente_concepto_ingas_det.store.baseParams.id_concepto_ingas = rec.data.id_concepto_ingas;
+                this.Cmp.id_componente_concepto_ingas_det.store.load({params:{start:0,limit:this.tam_pag},
+                    callback : function (r) {
+                        if (r.length > 0 ) {
+                            this.Cmp.id_componente_concepto_ingas_det.setValue(r[0].data.id_componente_concepto_ingas_det);
+                        }else{
+                            this.Cmp.id_componente_concepto_ingas_det.reset();
+                        }
+                    }, scope : this
+                });
+            } ,this);
+            this.Cmp.id_concepto_ingas.on('select', function(cmb,rec,i){
+                this.Cmp.id_componente_concepto_ingas_det.reset();
+                this.Cmp.id_componente_concepto_ingas_det.store.baseParams.id_concepto_ingas = rec.data.id_concepto_ingas;
+                this.Cmp.id_componente_concepto_ingas_det.store.load({params:{start:0,limit:this.tam_pag},
+                    callback : function (r) {
+                        if (r.length > 0 ) {
+                            this.Cmp.id_componente_concepto_ingas_det.setValue(r[0].data.id_componente_concepto_ingas_det);
+                        }else{
+                            this.Cmp.id_componente_concepto_ingas_det.reset();
+                        }
+                    }, scope : this
+                });
+            } ,this);
 
             this.Cmp.invitacion_det__tipo.on('select',function(combo,record,index){
                 //if(record.data.ID == 'planif' ){
@@ -142,7 +172,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.id_concepto_ingas.reset();
                     this.Cmp.id_fase.reset();
                     this.Cmp.id_unidad_constructiva.reset();
-
                     this.ocultarComponente(this.Cmp.id_concepto_ingas);
                     this.ocultarComponente(this.Cmp.id_fase);
                     this.Cmp.id_concepto_ingas.allowBlank=true;
@@ -152,24 +181,16 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.id_unidad_medida);
                     this.mostrarComponente(this.Cmp.cantidad_sol);
                     this.mostrarComponente(this.Cmp.precio);
-
                     this.mostrarComponente(this.Cmp.id_centro_costo);
                     this.mostrarComponente(this.Cmp.descripcion);
                     this.mostrarComponente(this.Cmp.id_unidad_constructiva);
-
                     ///el parametro invitacion : 'no' hace que devuelva aquellos fase concepto de gasto que no esten en una invitacion
                     this.Cmp.id_fase_concepto_ingas.store.baseParams.tipo = this.maestro.tipo ;
                     this.Cmp.id_fase_concepto_ingas.store.baseParams.id_proyecto = this.maestro.id_proyecto;
                     //this.Cmp.id_fase_concepto_ingas.store.baseParams.invitacion = 'no';
-
-
                     this.Cmp.id_concepto_ingas.store.baseParams.tipo= this.maestro.tipo;
-
                     this.Cmp.id_centro_costo.store.baseParams.id_gestion=this.maestro.id_gestion;
-
                     this.Cmp.id_centro_costo.store.baseParams.id_tipo_cc = this.id_tipo_cc ;
-
-
 
                     this.Cmp.id_fase_concepto_ingas.on('select', function(cmb,rec,i){
 
@@ -204,6 +225,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.cantidad_sol.allowBlank=true;
                     this.Cmp.precio.allowBlank=true;
                     this.Cmp.codigo.allowBlank=false;//#9
+                    this.mostrarComponente(this.Cmp.id_componente_concepto_ingas_det);
                 } else{
                     this.Cmp.id_fase_concepto_ingas.reset();
                     this.Cmp.observaciones.reset();
@@ -243,19 +265,15 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.id_unidad_constructiva.store.load({params:{start:0,limit:this.tam_pag},
                             callback : function (r) {
                                 if (r.length > 0 ) {
-
                                     this.Cmp.id_unidad_constructiva.setValue(r[0].data.id_unidad_constructiva);
                                 }
                                 else{
                                     this.Cmp.id_unidad_constructiva.reset();
-
                                 }
-
                             }, scope : this
                         });
-
                     } ,this);
-
+                    this.mostrarComponente(this.Cmp.id_componente_concepto_ingas_det);
 
                 }
 

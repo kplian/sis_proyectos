@@ -27,7 +27,7 @@ Phx.vista.ProyectoPr = {
         this.addBotonesGantt();
 		
 		this.addButton('btnCompMacr', {//#
-			text : 'Componentes',
+			text : 'Subesta. y Lineas',//#
 			iconCls : 'bexecdb',
 			disabled : true,
 			handler : this.compMacr,
@@ -199,7 +199,7 @@ Phx.vista.ProyectoPr = {
         var data = this.getSelectedData();
         var win = Phx.CP.loadWindows(
             '../../../sis_proyectos/vista/componente_macro/ComponenteMacro.php',
-            'Componentes', {
+            'Subestaciones y Lineas', {
                 width: '95%',
                 height: '90%'
             },

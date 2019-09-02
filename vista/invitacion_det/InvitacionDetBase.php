@@ -10,6 +10,7 @@ ISSUE		FECHA		AUTHOR			DESCRIPCION
 #7	EndeEtr 04/02/2019	 EGS		    Se hace validacion para que no guarde en estado de sol_compra
 #8	EndeEtr 18/03/2019	 EGS		    se fuerza a escoger centro de costo
 #15 EndeEtr	31/07/2019	 EGS			se hace reestructura de archivos
+#20 EndeEtr 30/08/2019   EGS            Se añaden campos para relanzamientos
  *  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -60,6 +61,30 @@ header("content-type: text/javascript; charset=UTF-8");
                 filters:{pfiltro:'mov.prestamo',type:'string'},
                 grid: false,
                 form: true
+            },
+            {//#20
+                config:{
+                    name: 'estado_lanz',
+                    fieldLabel: 'Estado Lanzamiento',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:10,
+                    renderer : function(value,metaData, record,rowIndex, colIndex, store) {
+                        if (record.data['estado_lanz']==='activo'){
+                            return String.format('<b><font size=3 style="color:#008000";>{0}</font><b>', record.data['estado_lanz']);
+                        }
+                        if (record.data['estado_lanz']==='inactivo'){
+                            return String.format('<b><font size=3 style="color:#FF0000";>{0}</font><b>', record.data['estado_lanz']);
+                        }
+
+                    }
+                },
+                type:'TextField',
+                filters:{pfiltro:'ivtd.estado_lanz',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
             },
 
             {
@@ -249,6 +274,56 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: false,
                 form: true
             },
+            {//#20
+                config: {
+                    name: 'id_componente_concepto_ingas_det',
+                    fieldLabel: 'Concepto Detalle',
+                    allowBlank: true,
+                    emptyText: 'Elija una opción...',
+                    store: new Ext.data.JsonStore({
+                        url: '../../sis_proyectos/control/ComponenteConceptoIngasDet/listarComponenteConceptoIngasDet',
+                        id: 'id_componente_concepto_ingas_det',
+                        root: 'datos',
+                        sortInfo: {
+                            field: 'id_componente_concepto_ingas_det',
+                            direction: 'ASC'
+                        },
+                        totalProperty: 'total',
+                        fields: ['id_componente_concepto_ingas_det','id_componente_concepto_ingas', 'id_concepto_ingas_det', 'desc_ingas_det'],
+                        remoteSort: true,
+                        baseParams: {par_filtro: 'comindet.id_componente_concepto_ingas_det#comindet.id_concepto_ingas_det#cigd.nombre',start:0,limit:this.tam_pag}
+                    }),
+                    valueField: 'id_componente_concepto_ingas_det',
+                    displayField: 'desc_ingas_det',
+                    gdisplayField: 'desc_ingas_det',
+                    hiddenName: 'id_componente_concepto_ingas_det',
+                    forceSelection: true,
+                    typeAhead: false,
+                    triggerAction: 'all',
+                    lazyRender: true,
+                    mode: 'remote',
+                    pageSize: 15,
+                    queryDelay: 1000,
+                    anchor: '100%',
+                    gwidth: 150,
+                    minChars: 2,
+                    renderer : function(value, p, record) {
+                        return String.format('{0}', record.data['desc_ingas_det']);
+                    },
+                    listeners: {
+                        'expand':function (combo) {
+                            console.log('expande');
+                            this.store.reload();
+                        }
+                    }
+                },
+                type: 'ComboBox',
+                id_grupo: 0,
+                filters: {pfiltro: 'cigd.nombre',type: 'string'},
+                grid: true,
+                form: true
+            },
+
             {
                 config:{
                     name: 'id_unidad_constructiva',
@@ -566,7 +641,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 150,
                     minChars: 2,
                     renderer : function(value, p, record) {
-                        return String.format('{0}', record.data['codigo']);
+                        return String.format('{0}', record.data['codigo_cc']);
                     }
                 },
                 type: 'ComboBox',
@@ -590,7 +665,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid:true,
                 form:true
             },
-
             {
                 config:{
                     name: 'estado_reg',
@@ -739,7 +813,7 @@ header("content-type: text/javascript; charset=UTF-8");
             'desc_fase',
             'cantidad_est',
             {name:'precio_est', type: 'numeric'},
-            {name:'id_unidad_constructiva', type: 'numeric'},'codigo_uc'
+            {name:'id_unidad_constructiva', type: 'numeric'},'codigo_uc','desc_ingas_det','estado_lanz'//#20
 
 
         ],

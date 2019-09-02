@@ -59,6 +59,9 @@ class MODInvitacionDet extends MODbase{
 		$this->captura('id_invitacion_det_fk','int4');
 		$this->captura('estado_lanz','varchar');
         $this->captura('id_solicitud_det','int4');
+        $this->captura('id_componente_concepto_ingas_det','int4');//#
+        $this->captura('desc_ingas_det','varchar');
+        $this->captura('cantidad_adju','numeric');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -90,7 +93,7 @@ class MODInvitacionDet extends MODbase{
 		$this->setParametro('invitacion_det__tipo','invitacion_det__tipo','varchar');//#7 EGS
 		$this->setParametro('codigo','codigo','varchar');//#9 EGS
 	    $this->setParametro('id_unidad_constructiva','id_unidad_constructiva','int4');//#15				
-
+        $this->setParametro('id_componente_concepto_ingas_det','id_componente_concepto_ingas_det','int4');//#
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -122,7 +125,8 @@ class MODInvitacionDet extends MODbase{
 		$this->setParametro('id_fase','id_fase','int4');
 		$this->setParametro('id_concepto_inga','id_concepto_ingas','int4');
 	    $this->setParametro('id_unidad_constructiva','id_unidad_constructiva','int4');//#15				
-		
+        $this->setParametro('id_componente_concepto_ingas_det','id_componente_concepto_ingas_det','int4');//#
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

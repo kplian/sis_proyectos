@@ -113,7 +113,14 @@ class ACTInvitacion extends ACTbase{
 		
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
-		
+    function estadosInvitacion(){
+
+        $this->objFunc=$this->create('MODInvitacion');
+
+        $this->res=$this->objFunc->estadosInvitacion($this->objParam);
+
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 

@@ -643,19 +643,33 @@ Phx.vista.Invitacion = {
      	
      },
      invLanzamiento: function(){//#15
-     	var data = this.getSelectedData();
-     	Phx.CP.loadWindows('../../../sis_proyectos/vista/invitacion/InvitacionLanz.php',
-								'Lanzamiento',
-								{
-									modal:true,
-									width:900,
-									height:750
-								},
-								{ data},
-								this.idContenedor,
-								'InvitacionLanz');
-     	
-     	
+         var data = this.getSelectedData();
+         var estado = '';
+         Ext.Ajax.request({
+             url:'../../sis_proyectos/control/Invitacion/estadosInvitacion',
+             params:{
+                 id_invitacion: data.id_invitacion,
+             },
+             success: function(resp){
+                 Phx.CP.loadingHide();
+                 var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                 console.log('datos ajax',reg);
+                 Phx.CP.loadWindows('../../../sis_proyectos/vista/invitacion/InvitacionLanz.php',
+                     'Lanzamiento',
+                     {
+                         modal:true,
+                         width:900,
+                         height:750
+                     },
+                     { data},
+                     this.idContenedor,
+                     'InvitacionLanz');
+              },
+             failure: this.conexionFailure,
+             timeout: this.timeout,
+             scope:this
+         });
+
      }
      
      

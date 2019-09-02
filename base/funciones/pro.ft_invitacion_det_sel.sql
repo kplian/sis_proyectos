@@ -18,6 +18,7 @@ $body$
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				22-08-2018 22:32:59							Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tinvitacion_det'	
  #15 ETR            31/07/2019          EGS                 se agrego campos id_solicitud_det, id_invitacion_det_fk y estado_lanz               
+ #20                30/08/2019          EGS                 Se agrega el campo id_componente_concepto_ingas_det y la cantidad de adjudicacion
  ***************************************************************************/
 
 DECLARE
@@ -26,24 +27,36 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
-			    
+
 BEGIN
 
 	v_nombre_funcion = 'pro.ft_invitacion_det_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'PRO_IVTD_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		eddy.gutierrez	
+ 	#AUTOR:		eddy.gutierrez
  	#FECHA:		22-08-2018 22:32:59
 	***********************************/
 
 	if(p_transaccion='PRO_IVTD_SEL')then
-  
+
     	begin
-    		--Sentencia de la consulta
-			v_consulta:='select
+    		--#20 Sentencia de la consulta
+			v_consulta:='
+                    with cotizacion_det(
+                          id_solicitud_det,
+                          cantidad_adju
+                     )AS(
+                          SELECT
+                              cotd.id_solicitud_det,
+                              sum(COALESCE(cotd.cantidad_adju,0))
+                          FROM adq.tcotizacion_det cotd
+                          GROUP BY cotd.id_solicitud_det
+
+                     )
+                    select
 						ivtd.id_invitacion_det,
 						ivtd.id_fase_concepto_ingas,
 						ivtd.id_invitacion,
@@ -71,7 +84,10 @@ BEGIN
                         uc.codigo as codigo_uc,
                         ivtd.id_invitacion_det_fk,--#15
                         ivtd.estado_lanz,--#15
-                        ivtd.id_solicitud_det --#15	
+                        ivtd.id_solicitud_det, --#15
+                        ivtd.id_componente_concepto_ingas_det,--#20
+                        cigd.nombre as desc_ingas_det, --#20
+                        cotd.cantidad_adju --#20
 						from pro.tinvitacion_det ivtd
 						inner join segu.tusuario usu1 on usu1.id_usuario = ivtd.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = ivtd.id_usuario_mod
@@ -81,9 +97,12 @@ BEGIN
                         left join param.tunidad_medida um on um.id_unidad_medida = ivtd.id_unidad_medida
                         left join pro.tfase fas on fas.id_fase = ivtd.id_fase
                         left join param.vcentro_costo cec on cec.id_centro_costo = ivtd.id_centro_costo
-                        left join pro.tunidad_constructiva uc on uc.id_unidad_constructiva = ivtd.id_unidad_constructiva  
-				        where  ';
-			
+                        left join pro.tunidad_constructiva uc on uc.id_unidad_constructiva = ivtd.id_unidad_constructiva
+				        left join pro.tcomponente_concepto_ingas_det comcdet on comcdet.id_componente_concepto_ingas_det = ivtd.id_componente_concepto_ingas_det --#20
+                        left join param.tconcepto_ingas_det cigd on cigd.id_concepto_ingas_det = comcdet.id_concepto_ingas_det --#20
+                        left join cotizacion_det cotd on cotd.id_solicitud_det = ivtd.id_solicitud_det  --#20
+                        where  ';
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
@@ -91,21 +110,33 @@ BEGIN
 			--Devuelve la respuesta
             raise notice 'v_consulta %',v_consulta;
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'PRO_IVTD_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		eddy.gutierrez	
+ 	#AUTOR:		eddy.gutierrez
  	#FECHA:		22-08-2018 22:32:59
 	***********************************/
 
 	elsif(p_transaccion='PRO_IVTD_CONT')then
 
 		begin
-			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(ivtd.id_invitacion_det)
+			----#20 Sentencia de la consulta de conteo de registros
+			v_consulta:='
+                        with cotizacion_det(
+                          id_solicitud_det,
+                          cantidad_adju
+                     )AS(
+                          SELECT
+                              cotd.id_solicitud_det,
+                              sum(COALESCE(cotd.cantidad_adju,0))
+                          FROM adq.tcotizacion_det cotd
+                          GROUP BY cotd.id_solicitud_det
+
+                     )
+                    select count(ivtd.id_invitacion_det)
 					    from pro.tinvitacion_det ivtd
 					    inner join segu.tusuario usu1 on usu1.id_usuario = ivtd.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = ivtd.id_usuario_mod
@@ -113,24 +144,25 @@ BEGIN
                         left join param.tconcepto_ingas cig on cig.id_concepto_ingas = facoing.id_concepto_ingas
                         left join param.tunidad_medida um on um.id_unidad_medida = ivtd.id_unidad_medida
                         left join pro.tfase fas on fas.id_fase = facoing.id_fase
+                        left join cotizacion_det cotd on cotd.id_solicitud_det = ivtd.id_solicitud_det --#20
 				        where ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-					
+
 	else
-					     
+
 		raise exception 'Transaccion inexistente';
-					         
+
 	end if;
-					
+
 EXCEPTION
-					
+
 	WHEN OTHERS THEN
 			v_resp='';
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

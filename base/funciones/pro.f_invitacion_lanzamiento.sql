@@ -18,7 +18,8 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 	ISSUE			FECHA		AUTHOR			DESCRIPCION
-    #15	Etr			31/07/2019	 EGS		    creacion     
+    #15	Etr			31/07/2019	 EGS		    creacion
+    #20 EndeEtr     30/08/2019   EGS            Validacion para Relanzamientos
 ***************************************************************************/
 
 DECLARE
@@ -31,12 +32,14 @@ DECLARE
     v_id_invitacion             integer;
     v_record_coti_det           record;
     v_cantidad_adju             numeric;
-                
+    v_codigo_trans              varchar;
+    v_tabla                     varchar;
+
 BEGIN
 
     v_nombre_funcion = 'pro.f_invitacion_lanzamiento';
     v_parametros = pxp.f_get_record(p_tabla);
-    --verificamos si el lanzamiento es el de segundo  
+    --verificamos si el lanzamiento es el de segundo
            SELECT
                 inv.id_invitacion
            INTO
@@ -45,10 +48,10 @@ BEGIN
            WHERE inv.id_invitacion_fk =  v_parametros.id_invitacion_fk and inv.id_invitacion <> p_id_invitacion ;
 
        IF v_id_invitacion is NULL THEN
-       
-            --si es el segundo clonamos el detalle del primer lanzamiento    
+
+            --si es el segundo clonamos el detalle del primer lanzamiento
             FOR v_record IN(
-                SELECT 
+                SELECT
                     invd.id_invitacion_det,
                     invd.observaciones,
                     invd.cantidad_sol,
@@ -64,26 +67,26 @@ BEGIN
                     invd.id_unidad_constructiva
                 FROM pro.tinvitacion_det invd
                 WHERE invd.id_invitacion = v_parametros.id_invitacion_fk )LOOP
-                
+
                 --Se recupera si el detalle tuvo alguna adjudicacion
-                  
+
                    v_cantidad_adju = 0;
-                   FOR v_record_coti_det IN (   
-                      SELECT 
-                          cotd.cantidad_adju      
+                   FOR v_record_coti_det IN (
+                      SELECT
+                          cotd.cantidad_adju
                       FROM adq.tcotizacion_det cotd
                       WHERE cotd.id_solicitud_det = v_record.id_solicitud_det
                     )LOOP
                       v_cantidad_adju = v_cantidad_adju + v_record_coti_det.cantidad_adju;
                    END LOOP;
-                   --si la cantidad sol no es igual a la cantidad adjudicada restamos 
-                   IF v_record.cantidad_sol > v_cantidad_adju THEN   
+                   --si la cantidad sol no es igual a la cantidad adjudicada restamos
+                   IF v_record.cantidad_sol > v_cantidad_adju THEN
                       v_record.cantidad_sol = v_record.cantidad_sol - v_cantidad_adju; --Al clonar solo dejamos el saldo despues de la adjudicacion
                    ELSIF v_record.cantidad_sol < v_cantidad_adju THEN
                       RAISE EXCEPTION 'La cantidad adjudicada es mayor a la cantidad lanzada en la invitacion ';
                    END IF;
-    
-                INSERT INTO 
+
+                INSERT INTO
                               pro.tinvitacion_det
                             (
                               id_usuario_reg,
@@ -134,53 +137,62 @@ BEGIN
                               'activo',
                               v_record.id_invitacion_det
                             );
-                            
+
                    IF v_cantidad_adju <> 0 THEN
                      UPDATE  pro.tinvitacion_det  SET
                           cantidad_sol = v_cantidad_adju
                      WHERE id_invitacion_det = v_record.id_invitacion_det;
-                   
+
                    ELSE
                      UPDATE  pro.tinvitacion_det  SET
                           estado_lanz = 'inactivo'
                      WHERE id_invitacion_det = v_record.id_invitacion_det;
-                   END IF; 
-            END LOOP; 
+                   END IF;
+            END LOOP;
     ELSE
-        
-         --creamos tabla temporal
+
+        --si es el tercer o cuarto , etc lanzamientos
+        --creamos tabla temporal
           CREATE TEMPORARY TABLE temp_invitacion(
                                 id_invitacion integer,
                                 fecha_reg     timestamp
                                 ) ON COMMIT DROP;
-          --insertamos las invitaciones relacionadas al primer lanzamiento por fecha  
+          --insertamos las invitaciones relacionadas al primer lanzamiento por fecha
           FOR v_record IN(
-                SELECT 
+                SELECT
                     inv.id_invitacion,
                     fecha_reg
            FROM pro.tinvitacion inv
           WHERE inv.id_invitacion_fk = v_parametros.id_invitacion_fk and inv.id_invitacion <> p_id_invitacion
           ORDER BY fecha_reg ASC
            )LOOP
-                
+
                 INSERT INTO temp_invitacion
-                    (   
+                    (
                     id_invitacion,
                     fecha_reg
                     )values(
                     v_record.id_invitacion,
-                    v_record.fecha_reg                   
-                    );               
+                    v_record.fecha_reg
+                    );
           END LOOP;
-          
-          --Seleccionamos la invitacion con la ultima fecha de creacion
+
+          --#20 Seleccionamos la invitacion con la ultima fecha de creacion
           SELECT
             t.id_invitacion
           INTO
             v_id_invitacion
           FROM temp_invitacion t
           WHERE t.fecha_reg = (SELECT max(t.fecha_reg) FROM temp_invitacion t );
-          
+          v_codigo_trans='PRO_ESTIVT_IME';
+          v_tabla = pxp.f_crear_parametro(
+          ARRAY['id_invitacion'],
+          ARRAY[v_id_invitacion::varchar],
+          ARRAY['int4']
+                            );
+          v_resp = pro.ft_invitacion_ime(p_administrador,p_id_usuario,v_tabla,v_codigo_trans);
+
+
           --clonamos los detalles relacionados al ultimo lanzamiento        
           FOR v_record IN(
                 SELECT 
