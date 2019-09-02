@@ -307,7 +307,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {name:'aislacion', type: 'string'},
         {name:'tension', type: 'string'},
         {name:'peso', type: 'numeric'},
-        {name:'id_proyecto', type: 'numeric'}
+        {name:'id_proyecto', type: 'numeric'}//#21
 	],
 	sortInfo:{
 		field: 'id_componente_concepto_ingas_det',

@@ -5,6 +5,8 @@
 *@author  (admin)
 *@date 22-07-2019 14:50:29
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
+#ISSUE				FECHA				AUTOR				DESCRIPCION
+#21 EndeEtr         30/08/2019          EGS                 filtro de concepto ingas
 */
 
 class ACTComponenteConceptoIngasDet extends ACTbase{    
@@ -13,6 +15,12 @@ class ACTComponenteConceptoIngasDet extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_componente_concepto_ingas_det');
         if($this->objParam->getParametro('id_componente_concepto_ingas')!='' ){
             $this->objParam->addFiltro("comindet.id_componente_concepto_ingas = ".$this->objParam->getParametro('id_componente_concepto_ingas'));
+        }
+        if($this->objParam->getParametro('id_concepto_ingas')!='' ){//#21
+            $this->objParam->addFiltro("cci.id_concepto_ingas = ".$this->objParam->getParametro('id_concepto_ingas'));
+        }
+        if($this->objParam->getParametro('id_proyecto')!='' ){
+            $this->objParam->addFiltro("cm.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
         }
 		$this->objParam->defecto('dir_ordenacion','asc');
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){

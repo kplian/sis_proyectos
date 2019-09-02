@@ -5,7 +5,9 @@
 *@author  (admin)
 *@date 22-07-2019 14:50:29
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+#ISSUE				FECHA				AUTOR				DESCRIPCION
+#21 EndeEtr         30/08/2019          EGS                 Se adiciona el id del proyecto
+ */
 
 class MODComponenteConceptoIngasDet extends MODbase{
 	
@@ -41,7 +43,8 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->captura('aislacion','varchar');
         $this->captura('tension','varchar');
         $this->captura('peso','numeric');
-        $this->captura('id_proyecto','int4');//#17
+        $this->captura('id_proyecto','int4');//#21
+        $this->captura('id_concepto_ingas','int4');//#21
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
