@@ -108,7 +108,7 @@ VALUES
 /***********************************I-DAT-EGS-PRO-2-24/12/2018****************************************/
 
 INSERT INTO param.tunidad_medida ("id_usuario_reg", "codigo", "descripcion", "tipo")
-VALUES 
+VALUES
   (1, E'Tn', E'Tonelada', E'Masa');
 /***********************************F-DAT-EGS-PRO-2-24/12/2018****************************************/
 
@@ -122,6 +122,7 @@ select pxp.f_insert_tgui ('Configuraciones', 'Configuraciones', 'CFGPRO', 'si', 
 select pxp.f_insert_tgui ('Concepto Ingre/Gasto', 'Concepto Ingreso/Gasto', 'CIGPRO', 'si', 1, 'sis_proyectos/vista/componente_concepto_ingas/ConceptoIngasPro.php', 3, '', 'ConceptoIngasPro', 'PRO');
 
 /***********************************F-DAT-EGS-PRO-4-01/08/2018****************************************/
+
 /***********************************I-DAT-EGS-PRO-5-14/08/2019****************************************/
 INSERT INTO param.tcolumna ("id_usuario_reg", "estado_reg", "nombre_columna", "tipo_dato")
 VALUES
@@ -129,3 +130,12 @@ VALUES
   (1, E'activo', E'tension', E'varchar'),
   (1, E'activo', E'peso', E'numeric');
 /***********************************F-DAT-EGS-PRO-5-14/08/2019****************************************/
+
+/***********************************I-DAT-RCM-PRO-18-02/09/2019****************************************/
+select conta.f_import_ttipo_relacion_contable ('insert','PRO-CIECB3NEG',NULL,'Cierre Proyectos Cbte 3 saldos negativos','activo','no','si','no','flujo_presupuestaria','recurso_gasto','no','no','no',NULL);
+/***********************************F-DAT-RCM-PRO-18-02/09/2019****************************************/
+/***********************************I-DAT-EGS-PRO-6-05/09/2019****************************************/
+select param.f_import_tcatalogo_tipo ('insert','tcomponente_macro_tipo','PRO','tcomponente_macro');
+select param.f_import_tcatalogo ('insert','PRO','Subestacion','tsubestacion','tcomponente_macro_tipo');
+select param.f_import_tcatalogo ('insert','PRO','Linea','tlinea','tcomponente_macro_tipo');
+/***********************************F-DAT-EGS-PRO-6-05/09/2019****************************************/
