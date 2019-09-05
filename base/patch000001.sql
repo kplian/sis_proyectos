@@ -930,4 +930,11 @@ COMMENT ON COLUMN pro.tinvitacion_det.id_componente_concepto_ingas_det
 IS 'id de la lista de detalles aprobados n la planificacion';
 
 /***********************************F-SCP-EGS-PRO-11-30/08/2019****************************************/
+/***********************************I-SCP-EGS-PRO-12-05/09/2019****************************************/
+ ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN codigo VARCHAR UNIQUE;
+
+ ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN componente_macro_tipo VARCHAR;
+/***********************************F-SCP-EGS-PRO-12-05/09/2019****************************************/
 

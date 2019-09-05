@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION pro.ft_componente_macro_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -17,7 +19,8 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #17                22-07-2019 14:47:14    EGS                  Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomponente_macro'    
- #
+ #22 EndeEtr          05/09/2019            EGS                 Se agrega cmp codigo   
+
  ***************************************************************************/
 
 DECLARE
@@ -56,10 +59,14 @@ BEGIN
                         compm.id_usuario_mod,
                         compm.fecha_mod,
                         usu1.cuenta as usr_reg,
-                        usu2.cuenta as usr_mod    
+                        usu2.cuenta as usr_mod,
+                        compm.codigo,--#22
+                        compm.componente_macro_tipo,--#22
+                        ct.descripcion as desc_componente_macro_tipo   
                         from pro.tcomponente_macro compm
                         inner join segu.tusuario usu1 on usu1.id_usuario = compm.id_usuario_reg
                         left join segu.tusuario usu2 on usu2.id_usuario = compm.id_usuario_mod
+                        left join param.tcatalogo ct on ct.codigo = compm.componente_macro_tipo
                         where  ';
             
             --Definicion de la respuesta

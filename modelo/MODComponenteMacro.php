@@ -33,6 +33,9 @@ class MODComponenteMacro extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
+        $this->captura('codigo','varchar');//#22
+        $this->captura('componente_macro_tipo','varchar');//#22
+        $this->captura('desc_componente_macro_tipo','varchar');//#22
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -53,7 +56,8 @@ class MODComponenteMacro extends MODbase{
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('descripcion','descripcion','varchar');
 		$this->setParametro('id_proyecto','id_proyecto','int4');
-
+        $this->setParametro('codigo','codigo','varchar');//#22
+        $this->setParametro('componente_macro_tipo','componente_macro_tipo','varchar');//#22
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -74,6 +78,9 @@ class MODComponenteMacro extends MODbase{
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('descripcion','descripcion','varchar');
 		$this->setParametro('id_proyecto','id_proyecto','int4');
+        $this->setParametro('codigo','codigo','varchar');//#22
+        $this->setParametro('componente_macro_tipo','componente_macro_tipo','varchar');//#22
+
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

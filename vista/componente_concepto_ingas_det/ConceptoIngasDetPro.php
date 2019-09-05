@@ -24,6 +24,26 @@ header("content-type: text/javascript; charset=UTF-8");
             this.init();
 
             this.bloquearMenus();
+            this.addButton('btnAgrup', {
+                text : 'Agrupadores',
+                iconCls : 'bexecdb',
+                disabled : true,
+                handler : this.cigDetAgr,
+                tooltip : '<b>Componentes'
+            });
+        },
+        cigDetAgr: function(){//#
+            var data = this.getSelectedData();
+            var win = Phx.CP.loadWindows(
+                '../../../sis_proyectos/vista/componente_concepto_ingas_det/ConceptoIngasDetAgrPro.php',
+                'Agrupadores de detalle', {
+                    width: '95%',
+                    height: '90%'
+                },
+                this.maestro,
+                this.idContenedor,
+                'ConceptoIngasDetAgrPro'
+            );
         },
         onButtonNew:function(){
             //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentes
@@ -127,9 +147,6 @@ header("content-type: text/javascript; charset=UTF-8");
 
         ],
         arrayDefaultColumHidden:['fecha_mod','usr_reg','usr_mod','estado_reg','fecha_reg','id_usuario_ai','usuario_ai'],
-
-
-
     }
     Ext.extend(Phx.vista.ConceptoIngasDetPro,Phx.gridInterfaz,{
         tipoStore: 'GroupingStore',//GroupingStore o JsonStore #

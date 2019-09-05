@@ -33,12 +33,54 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
+        {//#22
+            config: {
+                name: 'componente_macro_tipo',
+                fieldLabel: 'Tipo',
+                anchor: '95%',
+                tinit: false,
+                allowBlank: true,
+                origen: 'CATALOGO',
+                gdisplayField: 'componente_macro_tipo',
+                hiddenName: 'componente_macro_tipo',
+                gwidth: 55,
+                baseParams:{
+                    cod_subsistema:'PRO',
+                    catalogo_tipo:'tcomponente_macro_tipo'
+                },
+                valueField: 'codigo',
+                hidden: false,
+                renderer: function(value, p, record) {
+                    return String.format('{0}', record.data['desc_componente_macro_tipo']);
+                },
+            },
+            type: 'ComboRec',
+            id_grupo: 0,
+            grid: true,
+            form: true
+        },
+
+        {//#22
+            config:{
+                name: 'codigo',
+                fieldLabel: 'Codigo',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:200
+            },
+            type:'TextField',
+            filters:{pfiltro:'compm.codigo',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
 
 		{
 			config:{
 				name: 'nombre',
 				fieldLabel: 'nombre',
-				allowBlank: true,
+				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,
 				maxLength:200
@@ -202,7 +244,9 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		
+        {name:'codigo', type: 'string'},//#22
+        {name:'componente_macro_tipo', type: 'string'},//#22
+        {name:'desc_componente_macro_tipo', type: 'string'},//#22
 	],
 	sortInfo:{
 		field: 'id_componente_macro',
