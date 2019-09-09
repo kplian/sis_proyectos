@@ -2381,7 +2381,7 @@ pr.id_proyecto, pr.id_proyecto_activo, pr.id_clasificacion, pr.denominacion,
 FROM tsaldo sa
 INNER JOIN tprorrateo pr
 ON pr.id_proyecto = sa.id_proyecto;
-
+DROP VIEW pro.v_cbte_cierre_proy_3_haber_det;
 CREATE OR REPLACE VIEW pro.v_cbte_cierre_proy_3_haber_det(
     id_proyecto,
     codigo,
