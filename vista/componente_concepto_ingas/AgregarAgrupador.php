@@ -104,7 +104,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.id_concepto_ingas_agrupador.store.load({params:{start:0,limit:this.tam_pag},
                 callback : function (r) {
                     if (r.length > 0 ) {
-                        this.Cmp.id_concepto_ingas_agrupador.setValue(r[0].data.id_concepto_ingas_agrupador);
+                        this.Cmp.id_concepto_ingas_agrupador.setValue(this.maestro.id_concepto_ingas_agrupador);
                     }else{
                         this.Cmp.id_concepto_ingas_agrupador.reset();
                     }

@@ -116,6 +116,26 @@ BEGIN
     elsif(p_transaccion='PRO_UNCOM_MOD')then
 
         begin
+            SELECT
+                ccig.cantidad_est
+            INTO
+                v_cantidad_est
+            FROM pro.tcomponente_concepto_ingas_det ccig
+            WHERE ccig.id_componente_concepto_ingas_det = v_parametros.id_componente_concepto_ingas_det;
+            IF v_cantidad_est is null or v_cantidad_est = 0 THEN
+                RAISE EXCEPTION 'Ingrese una cantidad en el detalle Ingreso/Gasto';
+            END IF;
+
+            SELECT
+                    SUM(COALESCE(t.cantidad_asignada,0))
+            INTO
+                v_cantidad_asignada
+            FROM pro.tunidad_comingdet t
+            WHERE t.id_componente_concepto_ingas_det = v_parametros.id_componente_concepto_ingas_det and id_unidad_comingdet<>v_parametros.id_unidad_comingdet ;
+
+            IF (v_cantidad_asignada + COALESCE(v_parametros.cantidad_asignada,0)) > v_cantidad_est THEN
+                RAISE EXCEPTION 'La suma de las cantidades asignadas ( % + % )  a Unidades Constructivas Sobrepasan a la cantidad del detalle (%)',v_cantidad_asignada, COALESCE(v_parametros.cantidad_asignada,0),v_cantidad_est;
+            END IF;
             --Sentencia de la modificacion
             update pro.tunidad_comingdet set
             id_unidad_constructiva = v_parametros.id_unidad_constructiva,

@@ -34,6 +34,7 @@ DECLARE
     v_id_unidad_constructiva_fk integer;
     v_codigo_trans              varchar;
     v_tabla                     varchar;
+    v_id_unidad_constructiva    varchar;
 
 BEGIN
 
@@ -96,6 +97,14 @@ BEGIN
             ARRAY['int4','varchar','int4','varchar','varchar','varchar','varchar','varchar','integer']
                             );
             v_resp = pro.ft_unidad_constructiva_ime(p_administrador,p_id_usuario,v_tabla,v_codigo_trans);
+
+            v_id_unidad_constructiva  = pxp.f_recupera_clave(v_resp,'id_unidad_constructiva');
+            v_id_unidad_constructiva	=  split_part(v_id_unidad_constructiva, '{', 2);
+            v_id_unidad_constructiva	=  split_part(v_id_unidad_constructiva, '}', 1);
+
+            UPDATE pro.tcomponente_macro SET
+            id_unidad_constructiva = v_id_unidad_constructiva::INTEGER
+            WHERE id_componente_macro = v_id_componente_macro;
 
             /*
             INSERT INTO  pro.tunidad_constructiva (

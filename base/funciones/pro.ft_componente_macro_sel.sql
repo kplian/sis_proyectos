@@ -62,7 +62,8 @@ BEGIN
                         usu2.cuenta as usr_mod,
                         compm.codigo,--#22
                         compm.componente_macro_tipo,--#22
-                        ct.descripcion as desc_componente_macro_tipo   
+                        ct.descripcion as desc_componente_macro_tipo,
+                        compm.id_unidad_constructiva
                         from pro.tcomponente_macro compm
                         inner join segu.tusuario usu1 on usu1.id_usuario = compm.id_usuario_reg
                         left join segu.tusuario usu2 on usu2.id_usuario = compm.id_usuario_mod

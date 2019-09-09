@@ -33,7 +33,9 @@ DECLARE
     v_id_componente_concepto_ingas_det  integer;
     v_valor                 varchar;
     v_id_columna            integer;
-
+    v_columnas_extra        varchar;
+    v_consulta              varchar;
+    v_filtro                varchar;
 BEGIN
 
     v_nombre_funcion = 'pro.ft_componente_concepto_ingas_ime';
@@ -74,25 +76,30 @@ BEGIN
 
 
 			)RETURNING id_componente_concepto_ingas into v_id_componente_concepto_ingas;
+           --Recreamos la tabla para su facil filtrado con las columnas dinamicas de concepto detalle
+            CREATE TEMPORARY TABLE temp_comp_t_concepto_ingas_det(
+                                      id_componente_concepto_ingas_det SERIAL,
+                                      id_componente_concepto_ingas INTEGER,
+                                      tension   varchar,
+                                      aislacion varchar,
+                                      id_concepto_ingas_det INTEGER
+                                     ) ON COMMIT DROP;
 
-            --ingresamos todos los detalles del concepto de gasto
-
+             --ingresamos todos los detalles del concepto de gasto
             FOR v_record IN(
-            SELECT
-                id_concepto_ingas_det
-            FROM param.tconcepto_ingas_det cigd
-            WHERE cigd.estado_reg = 'activo' and cigd.agrupador = 'no' and cigd.id_concepto_ingas = v_parametros.id_concepto_ingas
-            order By cigd.id_concepto_ingas_det_fk ASC
+              SELECT
+                  id_concepto_ingas_det
+              FROM param.tconcepto_ingas_det cigd
+              WHERE cigd.estado_reg = 'activo' and cigd.agrupador = 'no' and cigd.id_concepto_ingas = v_parametros.id_concepto_ingas
+              order By cigd.id_concepto_ingas_det_fk ASC
             )LOOP
-                 INSERT INTO pro.tcomponente_concepto_ingas_det
+                 INSERT INTO temp_comp_t_concepto_ingas_det
                     (
                         id_componente_concepto_ingas,
-                        id_concepto_ingas_det,
-                        id_usuario_reg
+                        id_concepto_ingas_det
                     )VALUES(
                         v_id_componente_concepto_ingas,
-                        v_record.id_concepto_ingas_det,
-                        p_id_usuario
+                        v_record.id_concepto_ingas_det
                     )RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
                       SELECT
                           c.id_columna
@@ -108,7 +115,7 @@ BEGIN
                       FROM param.tcolumna_concepto_ingas_det cd
                       WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_record.id_concepto_ingas_det;
 
-                      UPDATE pro.tcomponente_concepto_ingas_det SET
+                      UPDATE temp_comp_t_concepto_ingas_det SET
                       tension = v_valor
                       WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
 
@@ -126,13 +133,59 @@ BEGIN
                       FROM param.tcolumna_concepto_ingas_det cd
                       WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_record.id_concepto_ingas_det;
 
-                      UPDATE pro.tcomponente_concepto_ingas_det SET
+                      UPDATE temp_comp_t_concepto_ingas_det SET
                       aislacion = v_valor
                       WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
 
 
 
 
+            END LOOP;
+
+
+            v_filtro = '0=0 and ';
+            IF pxp.f_existe_parametro(p_tabla,'tension') THEN
+                IF v_parametros.tension <> '' THEN
+                     v_filtro =v_filtro||'t.tension = '''||v_parametros.tension||''' and ';
+                END IF;
+
+            END IF;
+            IF pxp.f_existe_parametro(p_tabla,'aislacion') THEN
+                IF v_parametros.aislacion <> '' THEN
+                    v_filtro =v_filtro||'t.aislacion = '''||v_parametros.aislacion||''' and ';
+                END IF;
+            END IF;
+             v_filtro = v_filtro ||'0=0';
+             --RAISE EXCEPTION 'v_filtro %',v_filtro;
+            v_consulta ='
+                        SELECT
+                            t.id_componente_concepto_ingas,
+                            t.id_concepto_ingas_det,
+                            t.tension,
+                            t.aislacion
+                        FROM temp_comp_t_concepto_ingas_det t
+                        where '||v_filtro;
+
+
+            FOR v_record IN EXECUTE (
+                        v_consulta
+            )LOOP
+
+              INSERT INTO pro.tcomponente_concepto_ingas_det
+                    (
+                        id_componente_concepto_ingas,
+                        id_concepto_ingas_det,
+                        id_usuario_reg,
+                        tension,
+                        aislacion
+
+                    )VALUES(
+                        v_record.id_componente_concepto_ingas,
+                        v_record.id_concepto_ingas_det,
+                        p_id_usuario,
+                        v_record.tension,
+                        v_record.aislacion
+                    )RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
             END LOOP;
 
 

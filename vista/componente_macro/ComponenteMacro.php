@@ -247,6 +247,7 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
         {name:'codigo', type: 'string'},//#22
         {name:'componente_macro_tipo', type: 'string'},//#22
         {name:'desc_componente_macro_tipo', type: 'string'},//#22
+        {name:'id_unidad_constructiva', type: 'numeric'},
 	],
 	sortInfo:{
 		field: 'id_componente_macro',

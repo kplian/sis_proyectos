@@ -36,6 +36,7 @@ class MODComponenteMacro extends MODbase{
         $this->captura('codigo','varchar');//#22
         $this->captura('componente_macro_tipo','varchar');//#22
         $this->captura('desc_componente_macro_tipo','varchar');//#22
+        $this->captura('id_unidad_constructiva','int4');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

@@ -937,4 +937,7 @@ IS 'id de la lista de detalles aprobados n la planificacion';
  ALTER TABLE pro.tcomponente_macro
   ADD COLUMN componente_macro_tipo VARCHAR;
 /***********************************F-SCP-EGS-PRO-12-05/09/2019****************************************/
-
+/***********************************I-SCP-EGS-PRO-13-09/09/2019****************************************/
+ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN id_unidad_constructiva INTEGER;
+/***********************************F-SCP-EGS-PRO-13-09/09/2019****************************************/
