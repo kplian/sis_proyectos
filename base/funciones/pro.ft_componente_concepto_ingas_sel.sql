@@ -1,4 +1,6 @@
-CREATE OR REPLACE FUNCTION pro.ft_componente_concepto_ingas_sel (
+--------------- SQL ---------------
+
+CREATE OR REPLACE FUNCTION pro.ft_componente_concepto_ingas_det_sel (
   p_administrador integer,
   p_id_usuario integer,
   p_tabla varchar,
@@ -8,17 +10,18 @@ RETURNS varchar AS
 $body$
 /**************************************************************************
  SISTEMA:		Sistema de Proyectos
- FUNCION: 		pro.ft_componente_concepto_ingas_sel
- DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomp_concepto_ingas'
+ FUNCION: 		pro.ft_componente_concepto_ingas_det_sel
+ DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomp_concepto_ingas_det'
  AUTOR: 		 (admin)
- FECHA:	        22-07-2019 14:49:24
+ FECHA:	        22-07-2019 14:50:29
  COMENTARIOS:	
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #17				22-07-2019 14:49:24	EGS					Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomp_concepto_ingas'	
- #
- ***************************************************************************/
+ #17				22-07-2019 14:50:29	EGS					Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomp_concepto_ingas_det'	
+#21 EndeEtr         30/08/2019          EGS                 Se adiciona el id del proyecto al PRO_COMINDET_SEL a la consulta
+#25 EndeEtr         10/09/2019          EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
+***************************************************************************/
 
 DECLARE
 
@@ -29,71 +32,86 @@ DECLARE
 			    
 BEGIN
 
-	v_nombre_funcion = 'pro.ft_componente_concepto_ingas_sel';
+	v_nombre_funcion = 'pro.ft_componente_concepto_ingas_det_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
 	/*********************************    
- 	#TRANSACCION:  'PRO_COMINGAS_SEL'
+ 	#TRANSACCION:  'PRO_COMINDET_SEL'
  	#DESCRIPCION:	Consulta de datos
  	#AUTOR:		admin	
- 	#FECHA:		22-07-2019 14:49:24
+ 	#FECHA:		22-07-2019 14:50:29
 	***********************************/
 
-	if(p_transaccion='PRO_COMINGAS_SEL')then
+	if(p_transaccion='PRO_COMINDET_SEL')then
      				
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
-						comingas.id_componente_concepto_ingas,
-						comingas.estado_reg,
-						comingas.id_concepto_ingas,
-						comingas.id_componente_macro,
-						comingas.id_usuario_reg,
-						comingas.fecha_reg,
-						comingas.id_usuario_ai,
-						comingas.usuario_ai,
-						comingas.id_usuario_mod,
-						comingas.fecha_mod,
-						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod,
-                        cig.desc_ingas,
-                        cm.id_proyecto,
-                        cig.tipo	
-						from pro.tcomponente_concepto_ingas comingas
-						inner join segu.tusuario usu1 on usu1.id_usuario = comingas.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = comingas.id_usuario_mod
-                        left join param.tconcepto_ingas cig on cig.id_concepto_ingas = comingas.id_concepto_ingas
-                        left join pro.tcomponente_macro cm on cm.id_componente_macro=comingas.id_componente_macro
-				        where  ';
+                        comindet.id_componente_concepto_ingas_det,
+                        comindet.estado_reg,
+                        comindet.id_concepto_ingas_det,
+                        comindet.id_componente_concepto_ingas,
+                        comindet.cantidad_est,
+                        comindet.precio,
+                        comindet.id_usuario_reg,
+                        comindet.fecha_reg,
+                        comindet.id_usuario_ai,
+                        comindet.usuario_ai,
+                        comindet.id_usuario_mod,
+                        comindet.fecha_mod,
+                        usu1.cuenta as usr_reg,
+						usu2.cuenta as usr_mod,	
+                        cigd.nombre as desc_ingas_det,
+                        comindet.id_unidad_constructiva,
+                        uc.codigo as codigo_uc,
+                        cigdfk.nombre as desc_agrupador,
+                        comindet.aislacion,
+                        comindet.tension,
+                        comindet.peso,
+                        cm.id_proyecto,--#21
+                        cci.id_concepto_ingas, --#21
+                        comindet.precio_montaje,  --#25
+                        comindet.precio_obra_civil,--#25
+                        comindet.precio_prueba --#25
+						from pro.tcomponente_concepto_ingas_det comindet
+						inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
+                        left join param.tconcepto_ingas_det cigd on cigd.id_concepto_ingas_det = comindet.id_concepto_ingas_det
+                        left join param.tconcepto_ingas_det cigdfk on cigdfk.id_concepto_ingas_det = cigd.id_concepto_ingas_det_fk
+				        left join pro.tunidad_constructiva uc on uc.id_unidad_constructiva = comindet.id_unidad_constructiva
+                        left join pro.tcomponente_concepto_ingas cci on cci.id_componente_concepto_ingas = comindet.id_componente_concepto_ingas  --#21
+                        left join pro.tcomponente_macro cm on cm.id_componente_macro = cci.id_componente_macro  --#21
+                        where  ';
 			
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-            
+            raise notice 'v_consulta %',v_consulta;
 			--Devuelve la respuesta
-			raise notice 'v_consulta %',v_consulta;
-            return v_consulta;
+			return v_consulta;
 						
 		end;
 
 	/*********************************    
- 	#TRANSACCION:  'PRO_COMINGAS_CONT'
+ 	#TRANSACCION:  'PRO_COMINDET_CONT'
  	#DESCRIPCION:	Conteo de registros
  	#AUTOR:		admin	
- 	#FECHA:		22-07-2019 14:49:24
+ 	#FECHA:		22-07-2019 14:50:29
 	***********************************/
 
-	elsif(p_transaccion='PRO_COMINGAS_CONT')then
+	elsif(p_transaccion='PRO_COMINDET_CONT')then
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_componente_concepto_ingas)
-					    from pro.tcomponente_concepto_ingas comingas
-					    inner join segu.tusuario usu1 on usu1.id_usuario = comingas.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = comingas.id_usuario_mod
-                        left join param.tconcepto_ingas cig on cig.id_concepto_ingas = comingas.id_concepto_ingas
-                        left join pro.tcomponente_macro cm on cm.id_componente_macro=comingas.id_componente_macro
-					    where ';
+			v_consulta:='select count(id_componente_concepto_ingas_det)
+					    from pro.tcomponente_concepto_ingas_det comindet
+					    inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
+                        left join param.tconcepto_ingas_det cigd on cigd.id_concepto_ingas_det = comindet.id_concepto_ingas_det
+                        left join pro.tunidad_constructiva uc on uc.id_unidad_constructiva = comindet.id_unidad_constructiva
+					    left join pro.tcomponente_concepto_ingas cci on cci.id_componente_concepto_ingas = comindet.id_componente_concepto_ingas --#21
+                        left join pro.tcomponente_macro cm on cm.id_componente_macro = cci.id_componente_macro --#21
+                        where ';
 			
 			--Definicion de la respuesta		    
 			v_consulta:=v_consulta||v_parametros.filtro;

@@ -222,7 +222,17 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
-		}
+		},
+        {
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'id_unidad_constructiva'
+            },
+            type:'Field',
+            form:true
+        },
 	],
 	tam_pag:50,	
 	title:'Componente Macro',

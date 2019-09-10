@@ -7,6 +7,7 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #21 EndeEtr         30/08/2019          EGS                 Se adiciona el id del proyecto
+#25 EndeEtr         10/09/2019          EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
  */
 
 class MODComponenteConceptoIngasDet extends MODbase{
@@ -45,7 +46,9 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->captura('peso','numeric');
         $this->captura('id_proyecto','int4');//#21
         $this->captura('id_concepto_ingas','int4');//#21
-
+        $this->captura('precio_montaje','numeric');//#25
+        $this->captura('precio_obra_civil','numeric');//#25
+        $this->captura('precio_prueba','numeric');//#25
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -70,6 +73,9 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->setParametro('aislacion','aislacion','varchar');
         $this->setParametro('tension','tension','varchar');
         $this->setParametro('peso','peso','numeric');
+        $this->setParametro('precio_montaje','precio_montaje','numeric');//#25
+        $this->setParametro('precio_obra_civil','precio_obra_civil','numeric');//#25
+        $this->setParametro('precio_prueba','precio_prueba','numeric');//#25
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -96,6 +102,9 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->setParametro('aislacion','aislacion','varchar');
         $this->setParametro('tension','tension','varchar');
         $this->setParametro('peso','peso','numeric');
+        $this->setParametro('precio_montaje','precio_montaje','numeric');//#25
+        $this->setParametro('precio_obra_civil','precio_obra_civil','numeric');//#25
+        $this->setParametro('precio_prueba','precio_prueba','numeric');//#25
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

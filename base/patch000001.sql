@@ -941,3 +941,11 @@ IS 'id de la lista de detalles aprobados n la planificacion';
 ALTER TABLE pro.tcomponente_macro
   ADD COLUMN id_unidad_constructiva INTEGER;
 /***********************************F-SCP-EGS-PRO-13-09/09/2019****************************************/
+/***********************************I-SCP-EGS-PRO-14-10/09/2019****************************************/
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN precio_montaje NUMERIC(19,2);
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN precio_obra_civil NUMERIC(19,2);
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN precio_prueba NUMERIC(19,2);
+/***********************************F-SCP-EGS-PRO-14-10/09/2019****************************************/
