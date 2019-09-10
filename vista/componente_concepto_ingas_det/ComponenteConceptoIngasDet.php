@@ -5,7 +5,10 @@
 *@author  (admin)
 *@date 22-07-2019 14:50:29
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+ * ISSUE                FECHA               AUTHOR          DESCRIPCION
+    #25 EndeEtr         10/09/2019          EGS             Adicion de cmp precio montaje, precio obci y precio pruebas
+
+ */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -157,6 +160,51 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
+        {//#25
+            config:{
+                name: 'precio_montaje',
+                fieldLabel: 'Precio Montaje',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:1179650
+            },
+            type:'NumberField',
+            filters:{pfiltro:'comindet.precio_montaje',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {//#25
+            config:{
+                name: 'precio_obra_civil',
+                fieldLabel: 'Precio O.Civiles',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:1179650
+            },
+            type:'NumberField',
+            filters:{pfiltro:'comindet.precio_obra_civil',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {//#25
+            config:{
+                name: 'precio_prueba',
+                fieldLabel: 'Precio Pruebas',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:1179650
+            },
+            type:'NumberField',
+            filters:{pfiltro:'comindet.precio_prueba',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
         {
             config:{
                 name: 'desc_agrupador',
@@ -307,7 +355,10 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {name:'aislacion', type: 'string'},
         {name:'tension', type: 'string'},
         {name:'peso', type: 'numeric'},
-        {name:'id_proyecto', type: 'numeric'}//#21
+        {name:'id_proyecto', type: 'numeric'},//#21
+        {name:'precio_montaje', type: 'numeric'},//#25
+        {name:'precio_obra_civil', type: 'numeric'},//#25
+        {name:'precio_prueba', type: 'numeric'},//#25
 	],
 	sortInfo:{
 		field: 'id_componente_concepto_ingas_det',
