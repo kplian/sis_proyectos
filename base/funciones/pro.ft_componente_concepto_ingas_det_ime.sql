@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION pro.ft_componente_concepto_ingas_det_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -12,11 +14,12 @@ $body$
  DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomp_concepto_ingas_det'
  AUTOR: 		 (admin)
  FECHA:	        22-07-2019 14:50:29
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #17				22-07-2019 14:50:29	EGS					Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomp_concepto_ingas_det'	
+ #17				22-07-2019 14:50:29	EGS					Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomp_concepto_ingas_det'
+ #25 EndeEtr         10/09/2019          EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
  ***************************************************************************/
 
 DECLARE
@@ -59,7 +62,10 @@ BEGIN
 			usuario_ai,
 			id_usuario_mod,
 			fecha_mod,
-            peso
+            peso,
+            precio_montaje,--#25
+            precio_obra_civil,--#25
+            precio_prueba--#25
           	) values(
 			'activo',
 			v_parametros.id_concepto_ingas_det,
@@ -72,7 +78,10 @@ BEGIN
 			v_parametros._nombre_usuario_ai,
             NULL,
             NULL,
-            v_parametros.peso
+            v_parametros.peso,
+            v_parametros.precio_montaje,--#25
+            v_parametros.precio_obra_civil,--#25
+            v_parametros.precio_prueba--#25
 			)RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
             --#
             SELECT
@@ -143,7 +152,10 @@ BEGIN
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
-            peso = v_parametros.peso
+            peso = v_parametros.peso,
+            precio_montaje = v_parametros.precio_montaje,--#25
+            precio_obra_civil = v_parametros.precio_obra_civil,--#25
+            precio_prueba = v_parametros.precio_prueba--#25
             where id_componente_concepto_ingas_det=v_parametros.id_componente_concepto_ingas_det;
 
             --Definicion de la respuesta

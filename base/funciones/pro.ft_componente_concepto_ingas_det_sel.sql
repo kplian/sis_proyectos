@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION pro.ft_componente_concepto_ingas_det_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -12,13 +14,14 @@ $body$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomp_concepto_ingas_det'
  AUTOR: 		 (admin)
  FECHA:	        22-07-2019 14:50:29
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #17				22-07-2019 14:50:29	EGS					Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomp_concepto_ingas_det'	
+ #17				22-07-2019 14:50:29	EGS					Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomp_concepto_ingas_det'
 #21 EndeEtr         30/08/2019          EGS                 Se adiciona el id del proyecto al PRO_COMINDET_SEL a la consulta
- ***************************************************************************/
+#25 EndeEtr         10/09/2019          EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
+***************************************************************************/
 
 DECLARE
 
@@ -66,7 +69,10 @@ BEGIN
                         comindet.tension,
                         comindet.peso,
                         cm.id_proyecto,--#21
-                        cci.id_concepto_ingas --#21
+                        cci.id_concepto_ingas, --#21
+                        comindet.precio_montaje,  --#25
+                        comindet.precio_obra_civil,--#25
+                        comindet.precio_prueba --#25
 						from pro.tcomponente_concepto_ingas_det comindet
 						inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
