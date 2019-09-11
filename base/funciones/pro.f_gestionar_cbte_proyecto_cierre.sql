@@ -16,13 +16,12 @@ $body$
  FECHA:         24/09/2018
  COMENTARIOS:
 
- ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:
- AUTOR:
- FECHA:
-***************************************************************************/
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ 0      PRO       ETR           24/09/2018  RCM         Creación del archivo
+ #18    PRO       ETR           02/09/2019  RCM         Lógica para considerar que a veces generará 2 cbtes y otras 3 cbtes.
+***************************************************************************
+*/
 
 DECLARE
 
@@ -86,9 +85,11 @@ BEGIN
     from conta.tint_comprobante
     where id_int_comprobante = v_registros.id_int_comprobante_3;
 
-    if coalesce(v_estado_1,'')='validado' and coalesce(v_estado_2,'')='validado' and coalesce(v_estado_3,'')='validado' then
-        v_sw_fin = true;
-    end if;
+    --Inicio #18
+    IF COALESCE(v_estado_1, '') = 'validado' AND COALESCE(v_estado_2, '') = 'validado' AND ((COALESCE(v_estado_3, '') = 'validado' AND v_registros.id_int_comprobante_3 IS NOT NULL) OR v_registros.id_int_comprobante_3 IS NULL) THEN
+        v_sw_fin = TRUE;
+    END IF;
+    --Fin #18
 
 
     --4) Finaliza el movimiento si es que los 3 comprobantes de depreciación generados han sido validados
@@ -146,11 +147,13 @@ BEGIN
 EXCEPTION
 
   WHEN OTHERS THEN
-          v_resp='';
-          v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-          v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-          v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-          raise exception '%',v_resp;
+
+          v_resp = '';
+          v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', SQLERRM);
+          v_resp = pxp.f_agrega_clave(v_resp, 'codigo_error', SQLSTATE);
+          v_resp = pxp.f_agrega_clave(v_resp, 'procedimientos', v_nombre_funcion);
+
+          RAISE EXCEPTION '%', v_resp;
 END;
 $body$
 LANGUAGE 'plpgsql'

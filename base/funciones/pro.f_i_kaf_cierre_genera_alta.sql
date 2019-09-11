@@ -4,10 +4,19 @@ CREATE OR REPLACE FUNCTION pro.f_i_kaf_cierre_genera_alta (
 )
 RETURNS varchar AS
 $body$
-/*
-Autor: RCM  (KPLIAN)
-Fecha: 14/11/2018
-Descripción: Generación del Alta de Activos en el cierre de proyectos
+/**************************************************************************
+ SISTEMA:       Sistema de Proyectos
+ FUNCION:       pro.ft_proyecto_ime
+ DESCRIPCION:   Generación del Alta de Activos en el cierre de proyectos
+ AUTOR:         RCM  (KPLIAN)
+ FECHA:         14/11/2018
+ COMENTARIOS:
+
+***************************************************************************
+  ISSUE  SIS  EMPRESA  FECHA        AUTOR       DESCRIPCION
+  #0     PRO  ETR      14/11/2018   RCM         Creación de archivo
+  #18    PRO  ETR      02/09/2019   RCM         Filtro de activos ya existentes para no incluirlo en el movimiento
+***************************************************************************
 */
 DECLARE
 
@@ -99,29 +108,30 @@ BEGIN
     v_id_movimiento = kaf.f_insercion_movimiento(p_id_usuario, hstore(v_rec_af));
 
     --Bucle del detalle de activos
-    for v_rec_det in (select id_activo_fijo
-                    from pro.tproyecto_activo
-                    where id_proyecto = p_id_proyecto) loop
+    FOR v_rec_det IN (SELECT id_activo_fijo
+                    FROM pro.tproyecto_activo
+                    WHERE id_proyecto = p_id_proyecto
+                    AND COALESCE(codigo_af_rel, '') = '') LOOP --#18 se filtra que no entren los registros de activo fijos ya existentes
 
         --Definición de parámetros
-        select
-        v_id_movimiento as id_movimiento,
-        v_rec_det.id_activo_fijo as id_activo_fijo,
-        null as id_movimiento_motivo,
-        null as importe,
-        null as vida_util,
-        null as _nombre_usuario_ai,
-        null as _id_usuario_ai,
-        null as depreciacion_acum
-        into v_rec_af_det;
+        SELECT
+        v_id_movimiento AS id_movimiento,
+        v_rec_det.id_activo_fijo AS id_activo_fijo,
+        NULL AS id_movimiento_motivo,
+        NULL AS importe,
+        NULL AS vida_util,
+        NULL AS _nombre_usuario_ai,
+        NULL AS _id_usuario_ai,
+        NULL AS depreciacion_acum
+        INTO v_rec_af_det;
 
         --Inserción del movimiento
         v_id_movimiento_af = kaf.f_insercion_movimiento_af(p_id_usuario, hstore(v_rec_af_det));
 
-    end loop;
+    END LOOP;
 
     --Respuesta
-    return 'Hecho';
+    RETURN 'Hecho';
 
 EXCEPTION
 
