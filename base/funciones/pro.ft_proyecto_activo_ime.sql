@@ -14,11 +14,9 @@ $body$
  FECHA:	        31-08-2017 16:52:19
  COMENTARIOS:
 ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:
- AUTOR:
- FECHA:
+ ISSUE  SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
+        PRO     ETR      31/08/2017   RCM         Creación del archivo
+ #19    PRO     ETR      21/08/2019   RCM         Adición del id_activo_fijo para el caso de activos fijos existentes relacionados
 ***************************************************************************/
 
 DECLARE
@@ -306,7 +304,6 @@ BEGIN
 				v_responsable = v_parametros.responsable;
 			end if;
 
---raise exception 'responsable: %',v_responsable;
 			--Verifica que exista el responsable
 			v_id_funcionario = null;
 			if coalesce(v_responsable,'') <> '' then
@@ -335,7 +332,7 @@ BEGIN
 				into v_id_grupo_ae
 				from kaf.tgrupo
 				where tipo = 'grupo'
-				and codigo = v_parametros.grupo_ae or codigo = '0' || v_parametros.grupo_ae;
+				and (codigo = v_parametros.grupo_ae or codigo = '0' || v_parametros.grupo_ae); --#19 se agrega parámetros por error lógico
             end if;
 
             if v_codigo_af_rel <> 'GASTO' then
@@ -356,7 +353,7 @@ BEGIN
 				into v_id_grupo_clasif
 				from kaf.tgrupo
 				where tipo = 'clasificacion'
-				and codigo = v_parametros.clasificacion_ae or codigo = '0' || v_parametros.clasificacion_ae;
+				and (codigo = v_parametros.clasificacion_ae or codigo = '0' || v_parametros.clasificacion_ae); --#19 se agrega parámetros por error lógico
             end if;
 
             if v_codigo_af_rel <> 'GASTO' then
@@ -458,29 +455,30 @@ BEGIN
 			end if;
 
 			--Preparación del record para la inserción
-			select
-	        coalesce(v_parametros.id_proyecto,null) as id_proyecto,
-			v_denominacion as denominacion,
-			coalesce(v_descripcion,null) as descripcion,
-			v_cantidad_det as cantidad_det,
-			coalesce(v_ubicacion,null) as ubicacion,
+			SELECT
+	        COALESCE(v_parametros.id_proyecto, NULL) AS id_proyecto,
+			v_denominacion AS denominacion,
+			COALESCE(v_descripcion, NULL) AS descripcion,
+			v_cantidad_det AS cantidad_det,
+			COALESCE(v_ubicacion, NULL) AS ubicacion,
 			v_id_clasificacion id_clasificacion,
-			v_id_depto as id_depto,
-			v_id_centro_costo as id_centro_costo,
-			v_id_ubicacion as id_ubicacion,
-			v_id_grupo_ae as id_grupo,
-			v_id_grupo_clasif as id_grupo_clasif,
-			coalesce(v_parametros._nombre_usuario_ai,null) as _nombre_usuario_ai,
-			coalesce(v_parametros._id_usuario_ai,null) as _id_usuario_ai,
-			v_nro_serie as nro_serie,
-			v_observaciones as observaciones,
-			v_marca as marca,
-			coalesce(v_fecha_ini_dep,null) as fecha_ini_dep,
-			coalesce(v_vida_util_anios,null) as vida_util_anios,
-			coalesce(v_id_unidad_medida,null) as id_unidad_medida,
-			coalesce(v_codigo_af_rel,null) as codigo_af_rel,
-			v_id_funcionario as id_funcionario
-	        into v_rec;
+			v_id_depto AS id_depto,
+			v_id_centro_costo AS id_centro_costo,
+			v_id_ubicacion AS id_ubicacion,
+			v_id_grupo_ae AS id_grupo,
+			v_id_grupo_clasif AS id_grupo_clasif,
+			COALESCE(v_parametros._nombre_usuario_ai, NULL) AS _nombre_usuario_ai,
+			COALESCE(v_parametros._id_usuario_ai, NULL) AS _id_usuario_ai,
+			v_nro_serie AS nro_serie,
+			v_observaciones AS observaciones,
+			v_marca AS marca,
+			COALESCE(v_fecha_ini_dep, NULL) AS fecha_ini_dep,
+			COALESCE(v_vida_util_anios, NULL) AS vida_util_anios,
+			COALESCE(v_id_unidad_medida, NULL) AS id_unidad_medida,
+			COALESCE(v_codigo_af_rel, NULL) AS codigo_af_rel,
+			v_id_funcionario AS id_funcionario,
+			(SELECT id_activo_fijo FROM kaf.tactivo_fijo WHERE codigo = v_codigo_af_rel OR codigo_ant = v_codigo_af_rel) AS id_activo_fijo
+	        INTO v_rec;
 
 	        --Inserción del movimiento
 	        v_id_proyecto_activo = pro.f_insercion_proyecto_activo(p_id_usuario, hstore(v_rec));
