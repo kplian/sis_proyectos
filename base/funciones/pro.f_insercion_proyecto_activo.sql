@@ -4,11 +4,18 @@ CREATE OR REPLACE FUNCTION pro.f_insercion_proyecto_activo (
 )
 RETURNS integer AS
 $body$
-/*
-Autor: RCM
-Fecha: 14/09/2018
-Descripción: Función para crear un nuevo proyecto activo
-*/
+/**************************************************************************
+ SISTEMA:       Sistema de Proyectos
+ FUNCION:       pro.f_insercion_proyecto_activo
+ DESCRIPCION:   Función para crear un nuevo proyecto activo
+ AUTOR:         RCM
+ FECHA:         14/09/2018
+ COMENTARIOS:
+***************************************************************************
+ ISSUE  SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
+        PRO     ETR      14/09/2018   RCM         Creación del archivo
+ #19    PRO     ETR      21/08/2019   RCM         Adición del id_activo_fijo para el caso de activos fijos existentes relacionados
+***************************************************************************/
 DECLARE
 
 	v_id_proyecto_activo    integer;
@@ -49,7 +56,8 @@ BEGIN
     vida_util_anios,
     id_unidad_medida,
     codigo_af_rel,
-    id_funcionario
+    id_funcionario,
+    id_activo_fijo --#19
     ) values(
     (p_parametros->'id_proyecto')::integer,
     (p_parametros->'observaciones')::varchar,
@@ -78,19 +86,23 @@ BEGIN
     (p_parametros->'vida_util_anios')::integer,
     (p_parametros->'id_unidad_medida')::integer,
     (p_parametros->'codigo_af_rel')::varchar,
-    (p_parametros->'id_funcionario')::integer
-    )RETURNING id_proyecto_activo into v_id_proyecto_activo;
+    (p_parametros->'id_funcionario')::integer,
+    (p_parametros->'id_activo_fijo')::integer --#19
+    ) RETURNING id_proyecto_activo INTO v_id_proyecto_activo;
 
     --Respuesta
-    return v_id_proyecto_activo;
+    RETURN v_id_proyecto_activo;
 
 EXCEPTION
+
     WHEN OTHERS THEN
-        v_resp='';
-        v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-        v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-        v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-        raise exception '%',v_resp;
+
+        v_resp = '';
+        v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', SQLERRM);
+        v_resp = pxp.f_agrega_clave(v_resp, 'codigo_error', SQLSTATE);
+        v_resp = pxp.f_agrega_clave(v_resp, 'procedimientos', v_nombre_funcion);
+
+        RAISE EXCEPTION '%', v_resp;
 
 END;
 $body$

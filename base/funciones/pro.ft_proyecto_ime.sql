@@ -18,6 +18,7 @@ $body$
 	Issue 			Fecha 			Autor				Descripcion
  	#3				31/12/2018		EGS					Aumentar Importe Stea
     #9              26/03/2019      EGS                 Se modifico que el codigo este antes del nombre del proyecto
+    #22             02/09/2019      EGS                 Se crea unidad constructiva principal
 ***************************************************************************/
 
 DECLARE
@@ -240,7 +241,7 @@ BEGIN
             v_num_tramite,
             v_parametros.id_fase_plantilla,
 			v_id_depto_conta,
-            v_parametros.importe_max			--#3 31/12/2018	EGS	
+            v_parametros.importe_max			--#3 31/12/2018	EGS
 			)RETURNING id_proyecto into v_id_proyecto;
 
          ---Insercion de plantilla de fases
@@ -408,6 +409,19 @@ BEGIN
                                     );
       				END IF;
              END LOOP;
+            ---#22 Crea la Unidad Constructiva raiz del proyecto
+            INSERT INTO  pro.tunidad_constructiva (
+                           id_usuario_reg,
+                           codigo,
+                           nombre,
+                           id_proyecto
+                          ) values(
+                           p_id_usuario,
+                           v_codigo,
+                           v_parametros.nombre,
+                           v_id_proyecto
+                           );
+
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Proyecto almacenado(a) con exito (id_proyecto'||v_id_proyecto||')');
             v_resp = pxp.f_agrega_clave(v_resp,'id_proyecto',v_id_proyecto::varchar);
@@ -481,7 +495,7 @@ BEGIN
 			fecha_fin_real = v_parametros.fecha_fin_real,
             id_tipo_cc = v_parametros.id_tipo_cc,
 			id_depto_conta = v_id_depto_conta,
-            importe_max = v_parametros.importe_max  --#3 31/12/2018	EGS	
+            importe_max = v_parametros.importe_max  --#3 31/12/2018	EGS
 			where id_proyecto=v_parametros.id_proyecto;
 
 			--Definicion de la respuesta

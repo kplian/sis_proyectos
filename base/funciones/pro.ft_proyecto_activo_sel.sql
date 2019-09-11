@@ -16,8 +16,9 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- ISSUE      FECHA:		      AUTOR               DESCRIPCION
+ ISSUE      FECHA		      AUTOR             DESCRIPCION
  #1			19-12-2018        RCM 				Cambio de criterio para obtención de las cuentas contables a excluir
+ #18 		08/08/2019		  RCM 				Adición de fecha tope inferior al obtener el mayor de contabilidad
 ***************************************************************************/
 
 DECLARE
@@ -563,16 +564,18 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 						sum(tr.importe_debe_mt) - sum(tr.importe_haber_mt) AS total
 						FROM pro.tproyecto py
 						INNER JOIN pro.tproyecto_columna_tcc ctcc
-						on ctcc.id_proyecto = py.id_proyecto
+						ON ctcc.id_proyecto = py.id_proyecto
 						JOIN param.ttipo_cc tcc ON tcc.id_tipo_cc = ctcc.id_tipo_cc
-						JOIN param.ttipo_cc tcc1 ON tcc1.codigo::text ~~(tcc.codigo::text || '%'
-						::text)
+						JOIN param.ttipo_cc tcc1 ON tcc1.codigo::text ~~(tcc.codigo::text || '%'::text)
 						JOIN param.tcentro_costo cc ON cc.id_tipo_cc = tcc1.id_tipo_cc
 						JOIN conta.tint_transaccion tr ON tr.id_centro_costo = cc.id_centro_costo
-						JOIN conta.tint_comprobante cbte ON cbte.id_int_comprobante =
-						tr.id_int_comprobante AND cbte.estado_reg::text = 'validado'::text AND
-						cbte.fecha <= py.fecha_fin
-						and (cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_1,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_2,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_3,0))
+						--Inicio #18
+						JOIN conta.tint_comprobante cbte
+						ON cbte.id_int_comprobante = tr.id_int_comprobante
+						AND cbte.estado_reg::text = 'validado'::text
+						AND cbte.fecha BETWEEN py.fecha_ini AND  py.fecha_fin
+						AND (cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_1,0) AND cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_2,0) AND cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_3,0))
+						--Fin #18
 						JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
 						WHERE NOT (cue.nro_cuenta IN ( --#1
 							SELECT tcuenta_excluir.nro_cuenta --#1
@@ -605,10 +608,13 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 						::text)
 						JOIN param.tcentro_costo cc ON cc.id_tipo_cc = tcc1.id_tipo_cc
 						JOIN conta.tint_transaccion tr ON tr.id_centro_costo = cc.id_centro_costo
-						JOIN conta.tint_comprobante cbte ON cbte.id_int_comprobante =
-						tr.id_int_comprobante AND cbte.estado_reg::text = 'validado'::text AND
-						cbte.fecha <= py.fecha_fin
-						and (cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_1,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_2,0) and cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_3,0))
+						--Inicio #18
+						JOIN conta.tint_comprobante cbte
+						ON cbte.id_int_comprobante = tr.id_int_comprobante
+						AND cbte.estado_reg::text = 'validado'::text
+						AND cbte.fecha BETWEEN py.fecha_ini AND  py.fecha_fin
+						AND (cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_1,0) AND cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_2,0) AND cbte.id_int_comprobante <> coalesce(py.id_int_comprobante_3,0))
+						--Fin #18
 						JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
 						WHERE NOT (cue.nro_cuenta IN ( --#1
 							SELECT tcuenta_excluir.nro_cuenta --#1

@@ -20,6 +20,8 @@ $body$
  #6   Endeetr   24/01/2019      EGS                     Se modifico transaccion para que tome encuenta items sin un prorrateo en plan de pagos y validaciones para que funcione sin el nivel III y Nivel II
  #9   EndeEtr   26/03/2019      EGS                     Se aumento como un nivel a la fase de los items que se registran n el plan de pago
                                                         Se aumento el numero de tramite en los lanzamientos de items
+ #15 ETR        31/07/2019      EGS                     Reportes para invitacion  
+
 ***************************************************************************/
 
 DECLARE
@@ -943,6 +945,92 @@ BEGIN
 
 
           END;
+         /*********************************    
+          #TRANSACCION:  'PRO_REPIVT_SEL'
+          #DESCRIPCION:	Reporte de invitaciones
+          #AUTOR:		eddy.gutierrez	
+          #FECHA:		09/07/2019
+          #ISSUE:       #15 
+          ***********************************/
+          
+          elsif(p_transaccion='PRO_REPIVT_SEL')then
+     				
+            begin
+               
+                
+                --Sentencia de la consulta
+                v_consulta:=' 
+                WITH   anio(
+                            id_invitacion,
+                                anio	
+                            )AS(
+                            SELECT
+                                inv.id_invitacion,
+                                date_part(''year'',inv.fecha)as anio
+                            from pro.tinvitacion inv
+
+                            )
+                    select
+                            ivt.id_invitacion,
+                            ivt.id_proyecto,
+                            ivt.codigo,
+                            ivt.fecha,
+                            ivt.descripcion,
+                            ivt.fecha_real,
+                            ivt.estado_reg,
+                            ivt.estado,
+                            ivt.id_estado_wf,
+                            ivt.nro_tramite,
+                            ivt.id_usuario_ai,
+                            ivt.usuario_ai,
+                            ivt.fecha_reg,
+                            ivt.id_usuario_reg,
+                            ivt.id_usuario_mod,
+                            ivt.fecha_mod,
+                            usu1.cuenta as usr_reg,
+                            usu2.cuenta as usr_mod,
+                            ivt.id_funcionario,
+                            ivt.id_depto,
+                            ivt.id_moneda,
+                            ivt.tipo,
+                            ivt.lugar_entrega,
+                            ivt.dias_plazo_entrega,
+                            mon.codigo as desc_moneda,
+                            fun.desc_funcionario1::VARCHAR as desc_funcionario,
+                            dep.nombre::VARCHAR	as desc_depto,
+                            ew.id_proceso_wf,
+                            an.anio::varchar,
+                            ges.id_gestion,
+                            ivt.id_categoria_compra,
+                            ivt.id_solicitud,
+                            ivt.id_presolicitud,
+                            ivt.pre_solicitud,
+                            ivt.id_grupo,
+                            cat.nombre as desc_categoria_compra,
+                            gru.nombre as desc_grupo
+                            from pro.tinvitacion ivt
+                            left join param.tmoneda mon on mon.id_moneda = ivt.id_moneda
+                            left join wf.testado_wf ew on ew.id_estado_wf = ivt.id_estado_wf
+                            left join segu.tusuario usu1 on usu1.id_usuario = ivt.id_usuario_reg
+                            left join orga.vfuncionario fun on fun.id_funcionario = ivt.id_funcionario
+                            left join param.tdepto dep on dep.id_depto = ivt.id_depto 
+                            left join segu.tusuario usu2 on usu2.id_usuario = ivt.id_usuario_mod                           
+                            left join anio an on an.id_invitacion = ivt.id_invitacion
+                            left JOIN param.tgestion ges on ges.gestion = an.anio
+                            left join adq.tcategoria_compra cat on cat.id_categoria_compra = ivt.id_categoria_compra
+                            left JOIN adq.tgrupo gru on gru.id_grupo = ivt.id_grupo
+
+                            where  ';
+    			
+                --Definicion de la respuesta
+                v_consulta:=v_consulta||v_parametros.filtro;
+                v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+                --Devuelve la respuesta
+                return v_consulta;
+    						
+            end;	 
+         
 
 	else
 

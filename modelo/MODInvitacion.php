@@ -7,6 +7,8 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
  	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
     #7	  endeETR		29/01/2019	EGS				se creo las funciones para listar combos procesos de solicitudes de compra y sus detalles e insertar una invitacion regularizada  
+    #15	Etr				31/07/2019	EGS		    se agrego boton para lanzamientos y reporte invitaciones
+ 
  */
 
 class MODInvitacion extends MODbase{
@@ -63,11 +65,12 @@ class MODInvitacion extends MODbase{
 		
 		$this->captura('desc_categoria_compra','varchar');
 		$this->captura('desc_grupo','varchar');
-		
+		$this->captura('id_invitacion_fk','int4');//#15
 
-		
-		
-		
+
+
+
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -103,7 +106,7 @@ class MODInvitacion extends MODbase{
 		
 		$this->setParametro('pre_solicitud','pre_solicitud','varchar');
 		$this->setParametro('id_grupo','id_grupo','int4');
-		
+		$this->setParametro('id_invitacion_fk','id_invitacion_fk','int4');//#15
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -141,7 +144,8 @@ class MODInvitacion extends MODbase{
 		
 		$this->setParametro('pre_solicitud','pre_solicitud','varchar');
 		$this->setParametro('id_grupo','id_grupo','int4');
-
+		$this->setParametro('id_invitacion_fk','id_invitacion_fk','int4');//#15
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -292,6 +296,22 @@ class MODInvitacion extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+    function estadosInvitacion(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.ft_invitacion_ime';
+        $this->transaccion='PRO_ESTIVT_IME';
+        $this->tipo_procedimiento='IME';//tipo de transaccion
+        //$this->setCount(false);
+        //Definicion de la lista del resultado del query
+        $this->setParametro('id_invitacion','id_invitacion','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //var_dump('rsp', $this->respuesta);
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 
  
 

@@ -74,7 +74,8 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->captura('codigo_inv','varchar');	//#7 EGS	
 		$this->captura('total_invitacion_det','numeric');//#5
 		$this->captura('desc_moneda','varchar');		
-		$this->captura('codigo','varchar');		
+		$this->captura('codigo','varchar');
+				
 				
 		
 		
@@ -274,7 +275,6 @@ class MODFaseConceptoIngas extends MODbase{
 		$this->captura('desc_moneda','varchar');	
 		$this->captura('total_invitacion_det','numeric');
 		$this->captura('codigo','varchar');	
-		
 		
 		
 		//Ejecuta la instruccion

@@ -8,7 +8,8 @@
 ****************************************************************************
 * ISSUE       EMPRESA     FECHA:		      AUTOR       DESCRIPCION
 * #11  			ETR      09/05/2019          MZM         se incrementa opcion (boton) para exportar datos en CSV
-* 
+* #23           ETR      03/09/2019          RCM         colorear celda para activos fijos existentes
+* ****************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -141,13 +142,26 @@ Ext.define('Phx.vista.ProyectoActivo', {
         var _cols=[],
             col1='#c2f0cc',
             col2='#EAA8A8',
-            col3='#fafbd9';
+            col3='#fafbd9',
+            col4='#e8974a', //#23
+            col5='#706e6d'; //#23
 
         //Columnas por defecto
         _cols.push(new Ext.grid.RowNumberer());
         _cols.push({header: 'Código AF', dataIndex: 'codigo',renderer: function(value,metadata,rec,index){
             if(rec.data.id_proyecto_activo>0){
-                metadata.style="background-color:"+col1;
+                //Inicio #23: Si es un activo fijo existente, pinta la celda de un color. Si es Gasto de otro color. En otro caso el color por defecto verde
+                if(rec.data.codigo_af_rel!=''&&rec.data.codigo_af_rel!='GASTO'){
+                    //Activo fijo existente
+                    metadata.style="background-color:"+col4;
+                } else if (rec.data.codigo_af_rel=='GASTO'){
+                    //Gasto
+                    metadata.style="background-color:"+col5;
+                } else {
+                    //Activos fijos nuevos
+                    metadata.style="background-color:"+col1;
+                }
+                //Fin #23
             }
             return value;
         }});
@@ -315,7 +329,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
             handler: this.onButtonExport,
             scope: this
         });
-		
+
 
         this.tbar = new Ext.Toolbar({
           enableOverflow: true,
@@ -328,7 +342,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
             items: [this.tbBtnNew,this.tbBtnEdit,this.tbBtnDel,this.tbBtnAct,this.tbBtnDet,this.tbBtnExport]
         });
 		//Fin #11 Proyectos, adiciona el boton para exportacion de datos y añade a tbar
-		
+
         //Store para el grid
         this.storeGrid = new Ext.data.JsonStore({
             url: '../../sis_proyectos/control/ProyectoActivo/listarProyectoActivoTablaDatos',
@@ -1148,36 +1162,36 @@ Ext.define('Phx.vista.ProyectoActivo', {
         }
     }//Inicio #11 Proyectos, funciones para exportacion de datos
     ,getColumnasVisibles:function(valores,extra){
-		
-		
+
+
 		var fila;
 		if(valores){
 			fila=this.sm.getSelected();
 		}
-		
+
 		var col = new Array();
 		for(var i=1;i<this.colModel.config.length;i++){
 
-					if(this.colModel.config[i]!=undefined){ 
-						
+					if(this.colModel.config[i]!=undefined){
+
 					   if(!this.colModel.config[i].scope.hidden){
-					   
+
 					   		if(this.colModel.config[i].isColumn){
-							   	
-							   	col.push({ 
+
+							   	col.push({
 								   	   label:this.colModel.config[i].header,
 										name:this.colModel.config[i].gdisplayField?this.colModel.config[i].gdisplayField:this.colModel.config[i].dataIndex,
 										width:this.colModel.config[i].width,
 										type:this.colModel.config[i].dtype,
 										gdisplayField:this.colModel.config[i].gdisplayField,
 										value:(valores&&fila)?fila.data[this.colModel.config[i].scope.gdisplayField?this.colModel.config[i].gdisplayField:this.colModel.config[i].scope.dataIndex]:undefined
-									});	
+									});
 						   	}
 						}
 					}
 				}
-				
-				
+
+
 		return col
 	},
 	addMaestro: function(data){
@@ -1188,24 +1202,24 @@ Ext.define('Phx.vista.ProyectoActivo', {
         var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
         console.log(objRes.ROOT.detalle);
         var nomRep = objRes.ROOT.detalle.archivo_generado;
-        if(Phx.CP.config_ini.x==1){  			
+        if(Phx.CP.config_ini.x==1){
         	nomRep = Phx.CP.CRIPT.Encriptar(nomRep);
         }
         window.open('../../../lib/lib_control/Intermediario.php?r='+nomRep+'&t='+new Date().toLocaleTimeString())
-        
+
 	},
     onButtonExport: function(a,b,c,d){
-        
+
         var col = this.getColumnasVisibles(false,false);
         if(this.idContenedorPadre){
 					var pagMaestro=Phx.CP.getPagina(this.idContenedorPadre);
 					var colMaestro;
 					  this.colMaestro=pagMaestro.getColumnasVisibles(true,false);
-				    
+
 				}
-				
+
 				this.colMaestro = this.addMaestro(this.colMaestro);
-				
+
 				var params={
 					tipoReporte: 'excel_grid',
 					titulo: 'Activos Fijos',
@@ -1214,28 +1228,28 @@ Ext.define('Phx.vista.ProyectoActivo', {
 					totalCount: this.storeGrid.getTotalCount(),
 					columnas: Ext.util.JSON.encode(col),
 					maestro: this.colMaestro?Ext.util.JSON.encode(this.colMaestro):undefined,
-					filaInicioEtiquetas: 10, 
+					filaInicioEtiquetas: 10,
 					filaInicioDatos:8,
 					desplegarMaestro: 'no',
 					fechaRep: this.fechaRep==undefined ? '':this.fechaRep
 				}
-				
+
 				Ext.apply(params,this.storeGrid.lastOptions.params)
 				Ext.apply(params,this.storeGrid.baseParams)
-				
+
 				Phx.CP.loadingShow()
-				
-				
+
+
 				Ext.Ajax.request({
 					url: '../../sis_proyectos/control/ProyectoActivo/listarProyectoActivoTablaDatos',
-					params:params,			
+					params:params,
 					success:this.successExport,
 					failure: this.conexionFailure,
 					timeout:this.timeout,
 					scope:this
 				});
-        
-        
+
+
     } //Fin #11 Proyectos, funciones para exportacion
 
 });

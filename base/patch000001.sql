@@ -780,3 +780,172 @@ ALTER TABLE pro.tfase_concepto_ingas_pago
   ADD COLUMN descripcion VARCHAR;
   
 /***********************************F-SCP-EGS-PRO-7-09/04/2019****************************************/
+/***********************************I-SCP-EGS-PRO-8-31/07/2019****************************************/
+
+ALTER TABLE pro.tinvitacion
+  ADD COLUMN id_invitacion_fk INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion.id_invitacion_fk
+IS 'ID del primer lanzamiento (original)';
+
+ALTER TABLE pro.tinvitacion_det
+  ADD COLUMN estado_lanz VARCHAR DEFAULT 'activo'::character varying NOT NULL;
+
+COMMENT ON COLUMN pro.tinvitacion_det.estado_lanz
+IS 'Si el detalle esta activo para el lanzamiento(1,2,3,etc)';
+
+ALTER TABLE pro.tinvitacion_det
+  ADD COLUMN id_invitacion_det_fk INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion_det.id_invitacion_det_fk
+IS 'id del detalle original del primer lanzamiento';
+
+
+CREATE TABLE pro.tunidad_constructiva (
+  id_unidad_constructiva SERIAL,
+  codigo VARCHAR,
+  nombre VARCHAR,
+  id_proyecto INTEGER,
+  descripcion VARCHAR,
+  id_unidad_constructiva_fk INTEGER,
+  activo VARCHAR(2) DEFAULT 'no'::character varying NOT NULL,
+  CONSTRAINT tunidad_cons_pkey PRIMARY KEY(id_unidad_constructiva),
+  CONSTRAINT tunidad_constructiva_codigo_key UNIQUE(codigo),
+  CONSTRAINT tunidad_constructiva__id_unidad_constructiva_fk FOREIGN KEY (id_unidad_constructiva_fk)
+    REFERENCES pro.tunidad_constructiva(id_unidad_constructiva)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT tunidad_constructiva_fk FOREIGN KEY (id_proyecto)
+    REFERENCES pro.tproyecto(id_proyecto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+CREATE TABLE pro.tunidad_constructiva_plantilla (
+  id_unidad_constructiva_plantilla SERIAL,
+  codigo VARCHAR,
+  nombre VARCHAR,
+  descripcion VARCHAR,
+  id_unidad_constructiva_plantilla_fk INTEGER,
+  activo VARCHAR(2) DEFAULT 'no'::character varying NOT NULL,
+  CONSTRAINT tunidad_constructiva_plantilla_codigo_key UNIQUE(codigo),
+  CONSTRAINT tunidad_constructiva_plantilla_tunidad_cons_pkey PRIMARY KEY(id_unidad_constructiva_plantilla),
+  CONSTRAINT tunidad_constructiva_plantilla__id_unidad_constructiva_plant_fk FOREIGN KEY (id_unidad_constructiva_plantilla_fk)
+    REFERENCES pro.tunidad_constructiva_plantilla(id_unidad_constructiva_plantilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE pro.tinvitacion_det
+  ADD COLUMN id_unidad_constructiva INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion_det.id_unidad_constructiva
+IS 'Id de la unidad Constructiva a detalle puede ser la UC del concepto_ingas o una ramificacion del arbol de esta';
+
+/***********************************F-SCP-EGS-PRO-8-31/07/2019****************************************/
+/***********************************I-SCP-EGS-PRO-0-01/08/2019****************************************/
+CREATE TABLE pro.tcomponente_macro (
+  id_componente_macro SERIAL,
+  nombre VARCHAR,
+  descripcion VARCHAR,
+  id_proyecto INTEGER,
+  CONSTRAINT tcomponente_macro_pkey PRIMARY KEY(id_componente_macro),
+  CONSTRAINT tcomponente_macro_fk_id_proyecto FOREIGN KEY (id_proyecto)
+    REFERENCES pro.tproyecto(id_proyecto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+CREATE TABLE pro.tcomponente_concepto_ingas (
+  id_componente_concepto_ingas SERIAL,
+  id_concepto_ingas INTEGER,
+  id_componente_macro INTEGER,
+  CONSTRAINT tcomp_concepto_ingas_pkey PRIMARY KEY(id_componente_concepto_ingas),
+  CONSTRAINT tcomp_concepto_ingas_fk_id_componente_macro FOREIGN KEY (id_componente_macro)
+    REFERENCES pro.tcomponente_macro(id_componente_macro)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+CREATE TABLE pro.tcomponente_concepto_ingas_det (
+  id_componente_concepto_ingas_det SERIAL,
+  id_concepto_ingas_det INTEGER,
+  id_componente_concepto_ingas INTEGER,
+  cantidad_est NUMERIC(18,0),
+  precio NUMERIC(18,2),
+  id_unidad_constructiva INTEGER,
+  CONSTRAINT tcomp_concepto_ingas_det_pkey PRIMARY KEY(id_componente_concepto_ingas_det),
+  CONSTRAINT tcomponente_concepto_ingas_det_fk_id_componente_concepto_ingas FOREIGN KEY (id_componente_concepto_ingas)
+    REFERENCES pro.tcomponente_concepto_ingas(id_componente_concepto_ingas)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT tcomponente_concepto_ingas_det_fk_id_concepto_ingas FOREIGN KEY (id_concepto_ingas_det)
+    REFERENCES param.tconcepto_ingas_det(id_concepto_ingas_det)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+/***********************************F-SCP-EGS-PRO-8-01/08/2019****************************************/
+/***********************************I-SCP-EGS-PRO-9-14/08/2019****************************************/
+   ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN aislacion VARCHAR;
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN tension VARCHAR;
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN peso NUMERIC(18,2);
+/***********************************F-SCP-EGS-PRO-9-14/08/2019****************************************/
+/***********************************I-SCP-EGS-PRO-10-14/08/2019****************************************/
+CREATE TABLE pro.tunidad_comingdet (
+  id_unidad_comingdet SERIAL,
+  id_unidad_constructiva INTEGER,
+  id_componente_concepto_ingas_det INTEGER,
+  cantidad_asignada NUMERIC(18,2),
+  CONSTRAINT tunidad_coingdet_pkey PRIMARY KEY(id_unidad_comingdet),
+  CONSTRAINT tunidad_comingdet_fk FOREIGN KEY (id_componente_concepto_ingas_det)
+    REFERENCES pro.tcomponente_concepto_ingas_det(id_componente_concepto_ingas_det)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+/***********************************F-SCP-EGS-PRO-10-14/08/2019****************************************/
+
+/***********************************I-SCP-EGS-PRO-11-30/08/2019****************************************/
+
+ALTER TABLE pro.tinvitacion_det
+  ADD COLUMN id_componente_concepto_ingas_det INTEGER;
+
+COMMENT ON COLUMN pro.tinvitacion_det.id_componente_concepto_ingas_det
+IS 'id de la lista de detalles aprobados n la planificacion';
+
+/***********************************F-SCP-EGS-PRO-11-30/08/2019****************************************/
+/***********************************I-SCP-EGS-PRO-12-05/09/2019****************************************/
+ ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN codigo VARCHAR UNIQUE;
+
+ ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN componente_macro_tipo VARCHAR;
+/***********************************F-SCP-EGS-PRO-12-05/09/2019****************************************/
+/***********************************I-SCP-EGS-PRO-13-09/09/2019****************************************/
+ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN id_unidad_constructiva INTEGER;
+/***********************************F-SCP-EGS-PRO-13-09/09/2019****************************************/
+/***********************************I-SCP-EGS-PRO-14-10/09/2019****************************************/
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN precio_montaje NUMERIC(19,2);
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN precio_obra_civil NUMERIC(19,2);
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN precio_prueba NUMERIC(19,2);
+/***********************************F-SCP-EGS-PRO-14-10/09/2019****************************************/
