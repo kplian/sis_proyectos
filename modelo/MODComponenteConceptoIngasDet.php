@@ -8,6 +8,7 @@
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #21 EndeEtr         30/08/2019          EGS                 Se adiciona el id del proyecto
 #25 EndeEtr         10/09/2019          EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
+#26 EndeEtr         12/09/2019          EGS                 se muuestra la ucm
  */
 
 class MODComponenteConceptoIngasDet extends MODbase{
@@ -38,7 +39,7 @@ class MODComponenteConceptoIngasDet extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('desc_ingas_det','varchar');
-        $this->captura('id_unidad_constructiva','int4');
+        $this->captura('id_unidad_constructiva_macro','int4');//26
         $this->captura('codigo_uc','varchar');
         $this->captura('desc_agrupador','varchar');
         $this->captura('aislacion','varchar');

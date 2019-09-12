@@ -349,7 +349,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
 		{name:'desc_ingas_det', type: 'string'},
-        {name:'id_unidad_constructiva', type: 'numeric'},
+        {name:'id_unidad_constructiva_macro', type: 'numeric'},
         {name:'codigo_uc', type: 'string'},
         {name:'desc_agrupador', type: 'string'},
         {name:'aislacion', type: 'string'},

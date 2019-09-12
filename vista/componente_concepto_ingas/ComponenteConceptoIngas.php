@@ -80,6 +80,13 @@ header("content-type: text/javascript; charset=UTF-8");
                         minChars: 2,
                         renderer : function(value, p, record) {
                             return String.format('{0}', record.data['nombre']);
+                        },
+                        listeners: {
+                            'afterrender': function(combo){
+                            },
+                            'expand':function (combo) {
+                                this.store.reload();
+                            }
                         }
                     },
                     type: 'ComboBox',

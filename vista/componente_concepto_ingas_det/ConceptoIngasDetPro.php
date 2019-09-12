@@ -86,7 +86,8 @@ header("content-type: text/javascript; charset=UTF-8");
         onReloadPage: function (m) {
             this.maestro = m;
             this.Atributos[this.getIndAtributo('id_concepto_ingas')].valorInicial = this.maestro.id_concepto_ingas;
-            this.load({params: {start: 0, limit: 50, nombreVista:this.nombreVista, id_concepto_ingas: this.maestro.id_concepto_ingas, agrupador:'no'}})
+            this.store.baseParams = {nombreVista:this.nombreVista, id_concepto_ingas: this.maestro.id_concepto_ingas, agrupador:'no'};
+            this.load({params: {start: 0, limit: 50, }})
         },
 
     unirAtributos: function (){
@@ -96,6 +97,48 @@ header("content-type: text/javascript; charset=UTF-8");
     },
 
     extraAtributos:[
+        {
+            config: {
+                name: 'id_unidad_medida',
+                fieldLabel: 'Unidad Medida',
+                allowBlank: false,
+                emptyText: 'Elija una opción',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_parametros/control/UnidadMedida/listarUnidadMedida',
+                    id: 'id_unidad_medida',
+                    root: 'datos',
+                    fields: ['id_unidad_medida','codigo','descripcion'],
+                    totalProperty: 'total',
+                    sortInfo: {
+                        field: 'codigo',
+                        direction: 'ASC'
+                    },
+                    baseParams:{
+                        start: 0,
+                        limit: 10,
+                        sort: 'descripcion',
+                        dir: 'ASC',
+                        par_filtro:'ume.codigo#ume.descripcion'
+                    }
+                }),
+                valueField: 'id_unidad_medida',
+                hiddenValue: 'id_unidad_medida',
+                displayField: 'descripcion',
+                gdisplayField: 'desc_unidad_medida',
+                mode: 'remote',
+                triggerAction: 'all',
+                lazyRender: true,
+                pageSize: 15,
+                tpl: '<tpl for="."><div class="x-combo-list-item"><p>{codigo} - {descripcion}</p></div></tpl>',
+                minChars: 2,
+                gwidth: 120
+            },
+            type: 'ComboBox',
+            id_grupo: 0,
+            filters: {pfiltro: 'ume.codigo',type: 'string'},
+            grid: true,
+            form: true
+        },
         {
             config:{
                 name: 'aislacion',
@@ -141,6 +184,7 @@ header("content-type: text/javascript; charset=UTF-8");
     ],
 
         extraFields:[
+        {name:'id_unidad_medida', type: 'numeric'},
         {name:'aislacion', type: 'string'},
         {name:'tension', type: 'string'},
         {name:'peso', type: 'string'}

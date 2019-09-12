@@ -35,6 +35,8 @@ DECLARE
     v_codigo_trans              varchar;
     v_tabla                     varchar;
     v_id_unidad_constructiva    varchar;
+    v_des_uc                    VARCHAR;
+    v_record_uc                 record;
 
 BEGIN
 
@@ -99,8 +101,8 @@ BEGIN
             v_resp = pro.ft_unidad_constructiva_ime(p_administrador,p_id_usuario,v_tabla,v_codigo_trans);
 
             v_id_unidad_constructiva  = pxp.f_recupera_clave(v_resp,'id_unidad_constructiva');
-            v_id_unidad_constructiva	=  split_part(v_id_unidad_constructiva, '{', 2);
-            v_id_unidad_constructiva	=  split_part(v_id_unidad_constructiva, '}', 1);
+            v_id_unidad_constructiva    =  split_part(v_id_unidad_constructiva, '{', 2);
+            v_id_unidad_constructiva    =  split_part(v_id_unidad_constructiva, '}', 1);
 
             UPDATE pro.tcomponente_macro SET
             id_unidad_constructiva = v_id_unidad_constructiva::INTEGER
@@ -139,6 +141,11 @@ BEGIN
     elsif(p_transaccion='PRO_COMPM_MOD')then
 
         begin
+            IF v_parametros.id_unidad_constructiva is not null THEN
+                UPDATE pro.tunidad_constructiva SET
+                    nombre = v_parametros.nombre
+                WHERE id_unidad_constructiva = v_parametros.id_unidad_constructiva;
+            END IF;
             --Sentencia de la modificacion
             update pro.tcomponente_macro set
             nombre = v_parametros.nombre,
@@ -149,28 +156,48 @@ BEGIN
             id_usuario_ai = v_parametros._id_usuario_ai,
             usuario_ai = v_parametros._nombre_usuario_ai,
             codigo = v_parametros.codigo,--#22
-            componente_macro_tipo = v_parametros.componente_macro_tipo--#22
+            componente_macro_tipo = v_parametros.componente_macro_tipo,--#22
+            id_unidad_constructiva = v_parametros.id_unidad_constructiva
             where id_componente_macro=v_parametros.id_componente_macro;
-               
+
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Componente Macro modificado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Componente Macro modificado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_componente_macro',v_parametros.id_componente_macro::varchar);
-               
+
             --Devuelve la respuesta
             return v_resp;
-            
+
         end;
 
-    /*********************************    
+    /*********************************
      #TRANSACCION:  'PRO_COMPM_ELI'
      #DESCRIPCION:    Eliminacion de registros
-     #AUTOR:        admin    
+     #AUTOR:        admin
      #FECHA:        22-07-2019 14:47:14
     ***********************************/
 
     elsif(p_transaccion='PRO_COMPM_ELI')then
 
         begin
+            --no se eliminan si esta relacionado a una unidad constructiva #26
+            SELECT
+                cm.id_unidad_constructiva
+            INTO
+               v_id_unidad_constructiva::integer
+            FROM pro.tcomponente_macro cm
+            WHERE id_componente_macro = v_parametros.id_componente_macro  ;
+
+            SELECT
+               cu.id_unidad_constructiva,
+               COALESCE(cu.codigo,'')||'-'||COALESCE(cu.nombre,'') as desc_uc
+            INTO
+                v_record_uc
+            FROM pro.tunidad_constructiva cu
+            WHERE cu.id_unidad_constructiva = v_id_unidad_constructiva::INTEGER;
+
+            IF v_record_uc.id_unidad_constructiva is not null THEN
+                RAISE EXCEPTION 'Existe una Unidad Constructiva Asociada (%)',v_des_uc;
+            END IF;
             --Sentencia de la eliminacion
             delete from pro.tcomponente_macro
             where id_componente_macro=v_parametros.id_componente_macro;

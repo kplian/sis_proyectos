@@ -5,6 +5,8 @@
 *@author  (admin)
 *@date 22-07-2019 14:47:14
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
+ ISSUE       FECHA       AUTHOR          DESCRIPCION
+ #26        12/09/2019      EGS          se agrega uc al componente macro
 */
 
 class MODComponenteMacro extends MODbase{
@@ -36,7 +38,7 @@ class MODComponenteMacro extends MODbase{
         $this->captura('codigo','varchar');//#22
         $this->captura('componente_macro_tipo','varchar');//#22
         $this->captura('desc_componente_macro_tipo','varchar');//#22
-        $this->captura('id_unidad_constructiva','int4');
+        $this->captura('id_unidad_constructiva','int4');//26
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -59,6 +61,7 @@ class MODComponenteMacro extends MODbase{
 		$this->setParametro('id_proyecto','id_proyecto','int4');
         $this->setParametro('codigo','codigo','varchar');//#22
         $this->setParametro('componente_macro_tipo','componente_macro_tipo','varchar');//#22
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -81,6 +84,7 @@ class MODComponenteMacro extends MODbase{
 		$this->setParametro('id_proyecto','id_proyecto','int4');
         $this->setParametro('codigo','codigo','varchar');//#22
         $this->setParametro('componente_macro_tipo','componente_macro_tipo','varchar');//#22
+        $this->setParametro('id_unidad_constructiva','id_unidad_constructiva','int4');
 
 
 		//Ejecuta la instruccion
