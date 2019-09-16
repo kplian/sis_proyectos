@@ -5,6 +5,8 @@
 *@author  (admin)
 *@date 22-07-2019 14:47:14
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ * ISSUE       FECHA        AUTHOR          DESCRIPCION
+    #27        16/09/2019   EGS             Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -14,6 +16,7 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config;
+        this.construirGrupos();//#27
     	//llama al constructor de la clase padre
 		Phx.vista.ComponenteMacro.superclass.constructor.call(this,config);
 		this.init();
@@ -71,7 +74,7 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
             },
             type:'TextField',
             filters:{pfiltro:'compm.codigo',type:'string'},
-            id_grupo:1,
+            id_grupo:0,
             grid:true,
             form:true
         },
@@ -87,7 +90,7 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextField',
 				filters:{pfiltro:'compm.nombre',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:true
 		},
@@ -102,10 +105,81 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'TextField',
 				filters:{pfiltro:'compm.descripcion',type:'string'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:true
 		},
+
+        {//#27
+            config:{
+                name: 'f_desadeanizacion',
+                fieldLabel: 'F. Desadeanizacion ',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'NumberField',
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
+        {//#27
+            config:{
+                name: 'f_seguridad',
+                fieldLabel: 'F. S. ',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'NumberField',
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
+        {//#27
+            config:{
+                name: 'f_escala_xfd_montaje',
+                fieldLabel: 'F. EscalaXFdistancia',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'NumberField',
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {//#27
+            config:{
+                name: 'f_escala_xfd_obra_civil',
+                fieldLabel: 'F. EscalaXFdistancia',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'NumberField',
+            id_grupo:2,
+            grid:true,
+            form:true
+        },
+        {//#27
+            config:{
+                name: 'porc_prueba',
+                fieldLabel: 'Porcentaje Pruebas',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'NumberField',
+            id_grupo:3,
+            grid:true,
+            form:true
+        },
         {
             //configuracion del componente
             config:{
@@ -257,7 +331,12 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
         {name:'codigo', type: 'string'},//#22
         {name:'componente_macro_tipo', type: 'string'},//#22
         {name:'desc_componente_macro_tipo', type: 'string'},//#22
-        {name:'id_unidad_constructiva', type: 'numeric'},
+        {name:'id_unidad_constructiva', type: 'numeric'},//#26
+        {name:'f_desadeanizacion', type: 'numeric'},//#27
+        {name:'f_seguridad', type: 'numeric'},//#27
+        {name:'f_escala_xfd_montaje', type: 'numeric'},//#27
+        {name:'f_escala_xfd_obra_civil', type: 'numeric'},//#27
+        {name:'porc_prueba', type: 'numeric'},//#27
 	],
 	sortInfo:{
 		field: 'id_componente_macro',
@@ -276,8 +355,67 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
             width:'80%',
             height:'90%',
             cls:'ComponenteConceptoIngas'
-        }]
-	}
+        }],
+        construirGrupos: function () {//#27
+            var me = this;
+            this.panelResumen = new Ext.Panel({
+                padding: '0 0 0 20',
+                html: '',
+                split: true,
+                layout: 'fit'
+            });
+
+            me.Grupos = [
+                {
+                    layout: 'form',
+                    border: false,
+                    defaults: {
+                        border: false
+                    },
+                    items: [{
+                        bodyStyle: 'padding-right:5px;',
+                        items: [{
+                            xtype: 'fieldset',
+                            title: 'Datos',
+                            autoHeight: true,
+                            items: [],
+                            id_grupo: 0
+                        }]
+                    }, {
+                        bodyStyle: 'padding-left:5px;',
+                        items: [{
+                            xtype: 'fieldset',
+                            title: 'Datos Montaje',
+                            autoHeight: true,
+                            items: [],
+                            id_grupo: 1
+                        }]
+                    }, {
+                        bodyStyle: 'padding-left:5px;',
+                        items: [{
+                            xtype: 'fieldset',
+                            title: 'Datos Fundacion',
+                            autoHeight: true,
+                            items: [],
+                            id_grupo: 2
+                        }]
+                    }, {
+                            bodyStyle: 'padding-left:5px;',
+                            items: [{
+                                xtype: 'fieldset',
+                                title: 'Datos Prueba',
+                                autoHeight: true,
+                                items: [],
+                                id_grupo:3
+                            }]
+                        }
+                    ]
+                }
+            ];
+
+        },
+
+}
 )
 </script>
 		

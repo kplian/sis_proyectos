@@ -18,8 +18,10 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
- #17                22-07-2019 14:47:14 EGS                 Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomponente_macro'
+ #17                22-07-2019 14:47:14     EGS                 Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomponente_macro'
  #22 EndeEtr          05/09/2019            EGS                 Se agrga cmp codigo y se inserta unidades construcivas por componente macro
+ #27                 16/09/2019            EGS                  Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
+
  ***************************************************************************/
 
 DECLARE
@@ -66,7 +68,12 @@ BEGIN
             id_usuario_mod,
             fecha_mod,
             codigo,--#22
-            componente_macro_tipo--#22
+            componente_macro_tipo,--#22
+            f_desadeanizacion,--#27
+            f_seguridad,--#27
+            f_escala_xfd_montaje,--#27
+            f_escala_xfd_obra_civil,--#27
+            porc_prueba--#27
               ) values(
             'activo',
             v_parametros.nombre,
@@ -79,8 +86,12 @@ BEGIN
             null,
             null,
             v_parametros.codigo,--#22
-            v_parametros.componente_macro_tipo --#22
-
+            v_parametros.componente_macro_tipo, --#22
+            v_parametros.f_desadeanizacion,--#27
+            v_parametros.f_seguridad,--#27
+            v_parametros.f_escala_xfd_montaje,--#27
+            v_parametros.f_escala_xfd_obra_civil,--#27
+            v_parametros.porc_prueba--#27
 
             )RETURNING id_componente_macro into v_id_componente_macro;
             --#22 Crea la Unidad Constructiva base del proyecto
@@ -94,9 +105,9 @@ BEGIN
 
             v_codigo_trans='PRO_UNCON_INS';
             v_tabla = pxp.f_crear_parametro(
-            ARRAY['id_usuario_reg','nombre','id_proyecto','id_unidad_constructiva_fk','codigo','activo','descripcion','_nombre_usuario_ai','_id_usuario_ai'],
-            ARRAY[p_id_usuario::varchar,v_parametros.nombre::varchar,v_parametros.id_proyecto::varchar,v_id_unidad_constructiva_fk::varchar,v_parametros.codigo::varchar,''::varchar,''::varchar,'NULL'::varchar,''::varchar],
-            ARRAY['int4','varchar','int4','varchar','varchar','varchar','varchar','varchar','integer']
+            ARRAY['id_usuario_reg','nombre','id_proyecto','id_unidad_constructiva_fk','codigo','activo','descripcion','_nombre_usuario_ai','_id_usuario_ai','macro'],
+            ARRAY[p_id_usuario::varchar,v_parametros.nombre::varchar,v_parametros.id_proyecto::varchar,v_id_unidad_constructiva_fk::varchar,v_parametros.codigo::varchar,''::varchar,''::varchar,'NULL'::varchar,''::varchar,'si'::varchar],
+            ARRAY['int4','varchar','int4','varchar','varchar','varchar','varchar','varchar','integer','varchar']
                             );
             v_resp = pro.ft_unidad_constructiva_ime(p_administrador,p_id_usuario,v_tabla,v_codigo_trans);
 
@@ -157,7 +168,12 @@ BEGIN
             usuario_ai = v_parametros._nombre_usuario_ai,
             codigo = v_parametros.codigo,--#22
             componente_macro_tipo = v_parametros.componente_macro_tipo,--#22
-            id_unidad_constructiva = v_parametros.id_unidad_constructiva
+            id_unidad_constructiva = v_parametros.id_unidad_constructiva,
+            f_desadeanizacion = v_parametros.f_desadeanizacion,--#27
+            f_seguridad = v_parametros.f_seguridad,--#27
+            f_escala_xfd_montaje = v_parametros.f_escala_xfd_montaje,--#27
+            f_escala_xfd_obra_civil = v_parametros.f_escala_xfd_obra_civil,--#27
+            porc_prueba = v_parametros.porc_prueba--#27
             where id_componente_macro=v_parametros.id_componente_macro;
 
             --Definicion de la respuesta

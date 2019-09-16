@@ -14,13 +14,13 @@ $body$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomponente_macro'
  AUTOR:          (admin)
  FECHA:            22-07-2019 14:47:14
- COMENTARIOS:    
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
- #17                22-07-2019 14:47:14    EGS                  Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomponente_macro'    
- #22 EndeEtr          05/09/2019            EGS                 Se agrega cmp codigo   
-
+ #17                22-07-2019 14:47:14    EGS                  Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomponente_macro'
+ #22 EndeEtr          05/09/2019            EGS                 Se agrega cmp codigo
+#27                   16/09/2019            EGS                 Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
  ***************************************************************************/
 
 DECLARE
@@ -29,21 +29,21 @@ DECLARE
     v_parametros          record;
     v_nombre_funcion       text;
     v_resp                varchar;
-                
+
 BEGIN
 
     v_nombre_funcion = 'pro.ft_componente_macro_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-    /*********************************    
+    /*********************************
      #TRANSACCION:  'PRO_COMPM_SEL'
      #DESCRIPCION:    Consulta de datos
-     #AUTOR:        admin    
+     #AUTOR:        admin
      #FECHA:        22-07-2019 14:47:14
     ***********************************/
 
     if(p_transaccion='PRO_COMPM_SEL')then
-                     
+
         begin
             --Sentencia de la consulta
             v_consulta:='select
@@ -63,26 +63,31 @@ BEGIN
                         compm.codigo,--#22
                         compm.componente_macro_tipo,--#22
                         ct.descripcion as desc_componente_macro_tipo,
-                        compm.id_unidad_constructiva
+                        compm.id_unidad_constructiva,
+                        compm.f_desadeanizacion,--#27
+                        compm.f_seguridad,--#27
+                        compm.f_escala_xfd_montaje,--#27
+                        compm.f_escala_xfd_obra_civil,--#27
+                        compm.porc_prueba--#27
                         from pro.tcomponente_macro compm
                         inner join segu.tusuario usu1 on usu1.id_usuario = compm.id_usuario_reg
                         left join segu.tusuario usu2 on usu2.id_usuario = compm.id_usuario_mod
                         left join param.tcatalogo ct on ct.codigo = compm.componente_macro_tipo
                         where  ';
-            
+
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
             v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
             --Devuelve la respuesta
             return v_consulta;
-                        
+
         end;
 
-    /*********************************    
+    /*********************************
      #TRANSACCION:  'PRO_COMPM_CONT'
      #DESCRIPCION:    Conteo de registros
-     #AUTOR:        admin    
+     #AUTOR:        admin
      #FECHA:        22-07-2019 14:47:14
     ***********************************/
 
@@ -95,23 +100,23 @@ BEGIN
                         inner join segu.tusuario usu1 on usu1.id_usuario = compm.id_usuario_reg
                         left join segu.tusuario usu2 on usu2.id_usuario = compm.id_usuario_mod
                         where ';
-            
-            --Definicion de la respuesta            
+
+            --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
 
             --Devuelve la respuesta
             return v_consulta;
 
         end;
-                    
+
     else
-                         
+
         raise exception 'Transaccion inexistente';
-                             
+
     end if;
-                    
+
 EXCEPTION
-                    
+
     WHEN OTHERS THEN
             v_resp='';
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

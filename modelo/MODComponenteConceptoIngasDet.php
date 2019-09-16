@@ -9,6 +9,8 @@
 #21 EndeEtr         30/08/2019          EGS                 Se adiciona el id del proyecto
 #25 EndeEtr         10/09/2019          EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
 #26 EndeEtr         12/09/2019          EGS                 se muuestra la ucm
+#27 EndeEtr         16/09/2019          EGS                 Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
+
  */
 
 class MODComponenteConceptoIngasDet extends MODbase{
@@ -50,6 +52,10 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->captura('precio_montaje','numeric');//#25
         $this->captura('precio_obra_civil','numeric');//#25
         $this->captura('precio_prueba','numeric');//#25
+        $this->captura('f_desadeanizacion','numeric');//#27
+        $this->captura('f_seguridad','numeric');//#27
+        $this->captura('f_escala_xfd_montaje','numeric');//#27
+        $this->captura('f_escala_xfd_obra_civil','numeric');//#27
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -77,6 +83,10 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->setParametro('precio_montaje','precio_montaje','numeric');//#25
         $this->setParametro('precio_obra_civil','precio_obra_civil','numeric');//#25
         $this->setParametro('precio_prueba','precio_prueba','numeric');//#25
+        $this->setParametro('f_desadeanizacion','f_desadeanizacion','numeric');//#27
+        $this->setParametro('f_seguridad','f_seguridad','numeric');//#27
+        $this->setParametro('f_escala_xfd_montaje','f_escala_xfd_montaje','numeric');//#27
+        $this->setParametro('f_escala_xfd_obra_civil','f_escala_xfd_obra_civil','numeric');//#27
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -106,6 +116,10 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->setParametro('precio_montaje','precio_montaje','numeric');//#25
         $this->setParametro('precio_obra_civil','precio_obra_civil','numeric');//#25
         $this->setParametro('precio_prueba','precio_prueba','numeric');//#25
+        $this->setParametro('f_desadeanizacion','f_desadeanizacion','numeric');//#27
+        $this->setParametro('f_seguridad','f_seguridad','numeric');//#27
+        $this->setParametro('f_escala_xfd_montaje','f_escala_xfd_montaje','numeric');//#27
+        $this->setParametro('f_escala_xfd_obra_civil','f_escala_xfd_obra_civil','numeric');//#27
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

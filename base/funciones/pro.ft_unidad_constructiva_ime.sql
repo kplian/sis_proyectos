@@ -43,21 +43,22 @@ DECLARE
     v_string                                varchar;
     v_string_new                            varchar;
     v_record                                record;
-                
+    v_unidad_constructiva_proyecto          integer;
+
 BEGIN
 
     v_nombre_funcion = 'pro.ft_unidad_constructiva_ime';
     v_parametros = pxp.f_get_record(p_tabla);
 
-    /*********************************    
+    /*********************************
      #TRANSACCION:  'PRO_UNCON_INS'
      #DESCRIPCION:    Insercion de registros
-     #AUTOR:        egutierrez    
+     #AUTOR:        egutierrez
      #FECHA:        06-05-2019 14:16:09
     ***********************************/
 
     if(p_transaccion='PRO_UNCON_INS')then
-                    
+
         begin
             --Verificación del ID de la fase padre
             if v_parametros.id_unidad_constructiva_fk = 'id' then
@@ -65,11 +66,11 @@ BEGIN
             else
                 v_id_unidad_constructiva_fk = v_parametros.id_unidad_constructiva_fk::integer;
             end if;
-                       
+
             v_codigo = '';
             --- Si el nodo no es padre adjuntamos el codigo del padre al codigo del nuevo nodo
             IF v_id_unidad_constructiva_fk::integer is not null THEN
-            --Recuperamos el codigo del padre del arbol 
+            --Recuperamos el codigo del padre del arbol
                   WITH RECURSIVE arbol  AS(   SELECT
                                                     unconpl.id_unidad_constructiva,
                                                     unconpl.nombre,
@@ -78,12 +79,12 @@ BEGIN
                                                    FROM pro.tunidad_constructiva unconpl
                                                    WHERE unconpl.id_unidad_constructiva = v_parametros.id_unidad_constructiva_fk::integer
                                               UNION ALL
-                                                    SELECT      
+                                                    SELECT
                                                           uncopl.id_unidad_constructiva,
                                                           uncopl.nombre,
                                                           uncopl.codigo,
                                                           uncopl.id_unidad_constructiva_fk
-            
+
                                                     FROM pro.tunidad_constructiva uncopl
                                                     JOIN arbol al ON al.id_unidad_constructiva_fk =uncopl.id_unidad_constructiva
                                                         )
@@ -99,11 +100,29 @@ BEGIN
 
             END IF;
             v_parametros.codigo =upper(REPLACE(v_parametros.codigo,' ', ''));
-            
+
             -- antes de insertar verificamos en la rama de la uc no tenga un activo
             IF v_parametros.activo = 'si' THEN
                 v_resp = pro.f_verificar_activo_unidad_constructiva_pl(p_administrador,p_id_usuario,p_tabla,'no');
             END IF;
+
+            --Solo el nodo Principal Puede ser creado al Crear El proyecto
+            IF v_id_unidad_constructiva_fk::integer is null THEN
+                RAISE EXCEPTION 'El Nodo Raiz es el nodo del Proyecto no puede insertar un Nodo Raiz';
+            END IF;
+            --Los nodos de segundo nivel solo pueden ser creados desde la intefaz de componentes Macros
+            SELECT
+                uc.id_unidad_constructiva
+            INTO
+                v_unidad_constructiva_proyecto
+            FROM pro.tunidad_constructiva uc
+            WHERE uc.id_proyecto = v_parametros.id_proyecto and uc.id_unidad_constructiva_fk is null;
+            IF  pxp.f_existe_parametro(p_tabla,'macro')= false THEN
+                  IF v_id_unidad_constructiva_fk::integer = v_unidad_constructiva_proyecto THEN
+                     RAISE EXCEPTION 'Los Nodos de segundo Nivel solo pueden ser insertados desde la ventana de Subestaciones y Lineas';
+                  END IF;
+            END IF;
+
             
             --Sentencia de la insercion
             insert into pro.tunidad_constructiva(
