@@ -8,7 +8,7 @@
  * ISSUE                FECHA               AUTHOR          DESCRIPCION
     #25 EndeEtr         10/09/2019          EGS             Adicion de cmp precio montaje, precio obci y precio pruebas
  *  #27 EndeEtr         16/09/2019          EGS             Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
-
+    #28                 16/09/2019          EGS             Carga de recio de pruebas con el factor d pruebas
 
  */
 
@@ -179,6 +179,16 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
+        {//#28
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'porc_prueba'
+            },
+            type:'Field',
+            form:true
+        },
         {//#27
             config:{
                 name: 'f_desadeanizacion',
@@ -225,7 +235,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {//#27
             config:{
                 name: 'f_escala_xfd_montaje',
-                fieldLabel: 'F. EscalaXFdistancia',
+                fieldLabel: 'F. EscalaXFdistancia M.',
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
@@ -255,7 +265,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {//#27
             config:{
                 name: 'f_escala_xfd_obra_civil',
-                fieldLabel: 'F. EscalaXFdistancia',
+                fieldLabel: 'F. EscalaXFdistancia O.',
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
@@ -439,6 +449,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {name:'f_seguridad', type: 'numeric'},//#27
         {name:'f_escala_xfd_montaje', type: 'numeric'},//#27
         {name:'f_escala_xfd_obra_civil', type: 'numeric'},//#27
+        {name:'porc_prueba', type: 'numeric'},//#28
 	],
 	sortInfo:{
 		field: 'id_componente_concepto_ingas_det',
@@ -452,7 +463,8 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.Atributos[this.getIndAtributo('id_componente_concepto_ingas')].valorInicial = this.maestro.id_componente_concepto_ingas;
         this.store.baseParams = {id_componente_concepto_ingas: this.maestro.id_componente_concepto_ingas};
         this.Cmp.id_concepto_ingas_det.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
-        this.load({params: {start: 0, limit: 50}})
+        this.load({params: {start: 0, limit: 50}});
+
 
     },
     onButtonNew:function(){
@@ -460,6 +472,10 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         //this.ocultarComponente(this.Cmp.fecha_ini);
         Phx.vista.ComponenteConceptoIngasDet.superclass.onButtonNew.call(this);
         this.mostrarComponente(this.Cmp.id_concepto_ingas_det);
+        this.Cmp.precio.on('valid',function(field){//#28
+            var pTot = this.Cmp.precio.getValue() * this.maestro.porc_prueba;
+            this.Cmp.precio_prueba.setValue(pTot);
+        } ,this);
     },
     onButtonEdit:function(){
         var data = this.getSelectedData();
@@ -476,7 +492,10 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 
                 }, scope : this
          });
-
+        this.Cmp.precio.on('valid',function(field){//#28
+            var pTot = this.Cmp.precio.getValue() *this.Cmp.porc_prueba.getValue();
+            this.Cmp.precio_prueba.setValue(pTot);
+        } ,this);
 
     },
 

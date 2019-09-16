@@ -366,6 +366,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name:'usr_mod', type: 'string'},
                 {name:'desc_ingas', type: 'string'},
                 {name:'id_proyecto', type: 'string'},
+                {name:'porc_prueba', type: 'numeric'},//#28
             ],
             sortInfo:{
                 field: 'id_componente_concepto_ingas',

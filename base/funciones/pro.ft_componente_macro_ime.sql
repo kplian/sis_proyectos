@@ -39,7 +39,9 @@ DECLARE
     v_id_unidad_constructiva    varchar;
     v_des_uc                    VARCHAR;
     v_record_uc                 record;
-
+    v_recor_comcig              record;
+    v_recor_comcig_det          record;
+    v_record_cm                 record;
 BEGIN
 
     v_nombre_funcion = 'pro.ft_componente_macro_ime';
@@ -157,6 +159,18 @@ BEGIN
                     nombre = v_parametros.nombre
                 WHERE id_unidad_constructiva = v_parametros.id_unidad_constructiva;
             END IF;
+
+             --#28recuperamos los valores antiguos del componente macro
+            SELECT
+                mc.f_desadeanizacion,
+                mc.f_seguridad,
+                mc.f_escala_xfd_montaje,
+                mc.f_escala_xfd_obra_civil
+            INTO
+                v_record_cm
+            FROM pro.tcomponente_macro mc
+            WHERE mc.id_componente_macro=v_parametros.id_componente_macro ;
+
             --Sentencia de la modificacion
             update pro.tcomponente_macro set
             nombre = v_parametros.nombre,
@@ -175,6 +189,51 @@ BEGIN
             f_escala_xfd_obra_civil = v_parametros.f_escala_xfd_obra_civil,--#27
             porc_prueba = v_parametros.porc_prueba--#27
             where id_componente_macro=v_parametros.id_componente_macro;
+            --#28 Modificamos los factores en los detalles deacuerdo a las actualizaciones
+
+            --recuperamos las listas de concepto de gasto
+            FOR v_recor_comcig IN(
+                SELECT
+                    comcig.id_componente_concepto_ingas
+                FROM pro.tcomponente_concepto_ingas comcig
+                WHERE comcig.id_componente_macro = v_parametros.id_componente_macro
+            )LOOP
+                    --Recuperamos la lisata de concepto de gasto detalle
+                    FOR v_recor_comcig_det IN(
+                        SELECT
+                            comcigd.id_componente_concepto_ingas_det,
+                            comcigd.f_desadeanizacion,
+                            comcigd.f_seguridad,
+                            comcigd.f_escala_xfd_montaje,
+                            comcigd.f_escala_xfd_obra_civil
+                        FROM pro.tcomponente_concepto_ingas_det comcigd
+                        WHERE comcigd.id_componente_concepto_ingas = v_recor_comcig.id_componente_concepto_ingas
+
+                    )LOOP
+                        --solo actualizamos los datos iguales o nulos a los campos del componentes macro
+                        IF v_recor_comcig_det.f_desadeanizacion IS null or v_recor_comcig_det.f_desadeanizacion = v_record_cm.f_desadeanizacion   THEN
+                            UPDATE pro.tcomponente_concepto_ingas_det  SET
+                                 f_desadeanizacion = v_parametros.f_desadeanizacion
+                            WHERE  id_componente_concepto_ingas_det = v_recor_comcig_det.id_componente_concepto_ingas_det;
+                        END IF;
+                        IF v_recor_comcig_det.f_seguridad IS null or v_recor_comcig_det.f_seguridad = v_record_cm.f_seguridad THEN
+                            UPDATE pro.tcomponente_concepto_ingas_det  SET
+                                  f_seguridad  = v_parametros.f_seguridad
+                            WHERE  id_componente_concepto_ingas_det = v_recor_comcig_det.id_componente_concepto_ingas_det;
+                        END IF;
+                        IF v_recor_comcig_det.f_escala_xfd_montaje IS null or v_recor_comcig_det.f_escala_xfd_montaje = v_record_cm.f_escala_xfd_montaje THEN
+                            UPDATE pro.tcomponente_concepto_ingas_det  SET
+                                  f_escala_xfd_montaje  = v_parametros.f_escala_xfd_montaje
+                            WHERE  id_componente_concepto_ingas_det = v_recor_comcig_det.id_componente_concepto_ingas_det;
+                        END IF;
+                        IF v_recor_comcig_det.f_escala_xfd_obra_civil IS null or v_recor_comcig_det.f_escala_xfd_obra_civil = v_record_cm.f_escala_xfd_obra_civil THEN
+                            UPDATE pro.tcomponente_concepto_ingas_det  SET
+                                  f_escala_xfd_obra_civil = v_parametros.f_escala_xfd_obra_civil
+                            WHERE  id_componente_concepto_ingas_det = v_recor_comcig_det.id_componente_concepto_ingas_det;
+                        END IF;
+                    END LOOP;
+
+            END LOOP;
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Componente Macro modificado(a)');

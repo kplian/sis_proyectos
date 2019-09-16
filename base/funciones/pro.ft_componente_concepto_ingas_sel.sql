@@ -19,7 +19,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #17                22-07-2019 14:49:24    EGS                    Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomp_concepto_ingas'
- #
+ #28                  16/09/2019           EGS                   Se agrega campo de pocentaje de prueba
  ***************************************************************************/
 
 DECLARE
@@ -60,7 +60,8 @@ BEGIN
                         usu2.cuenta as usr_mod,
                         cig.desc_ingas,
                         cm.id_proyecto,
-                        cig.tipo
+                        cig.tipo,
+                        cm.porc_prueba--#28
                         from pro.tcomponente_concepto_ingas comingas
                         inner join segu.tusuario usu1 on usu1.id_usuario = comingas.id_usuario_reg
                         left join segu.tusuario usu2 on usu2.id_usuario = comingas.id_usuario_mod

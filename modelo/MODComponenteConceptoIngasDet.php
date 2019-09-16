@@ -10,7 +10,7 @@
 #25 EndeEtr         10/09/2019          EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
 #26 EndeEtr         12/09/2019          EGS                 se muuestra la ucm
 #27 EndeEtr         16/09/2019          EGS                 Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
-
+#28 EndeEtr         16/09/2019          EGS                 se carga porc_prueba
  */
 
 class MODComponenteConceptoIngasDet extends MODbase{
@@ -56,6 +56,7 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->captura('f_seguridad','numeric');//#27
         $this->captura('f_escala_xfd_montaje','numeric');//#27
         $this->captura('f_escala_xfd_obra_civil','numeric');//#27
+        $this->captura('porc_prueba','numeric');//#28
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
