@@ -139,3 +139,6 @@ select param.f_import_tcatalogo_tipo ('insert','tcomponente_macro_tipo','PRO','t
 select param.f_import_tcatalogo ('insert','PRO','Subestacion','tsubestacion','tcomponente_macro_tipo');
 select param.f_import_tcatalogo ('insert','PRO','Linea','tlinea','tcomponente_macro_tipo');
 /***********************************F-DAT-EGS-PRO-6-05/09/2019****************************************/
+/***********************************I-DAT-EGS-PRO-7-18/09/2019****************************************/
+select pxp.f_insert_tgui ('Parametros (Catalogos)', 'Parametros (Catalogos)', 'CATAPRO', 'si', 2, 'sis_proyectos/vista/catalogo/CatalogoTipoPro.php', 3, '', 'CatalogoTipoPro', 'PRO');
+/***********************************F-DAT-EGS-PRO-7-18/09/2019****************************************/
