@@ -19,6 +19,7 @@ $body$
  	#3				31/12/2018		EGS					Aumentar Importe Stea
     #9              26/03/2019      EGS                 Se modifico que el codigo este antes del nombre del proyecto
     #22             02/09/2019      EGS                 Se crea unidad constructiva principal
+    #30             23/09/2019      RCM                 Se excluye caso de depreciaciones anuladas en la validación para aprobación Cierre de Proyectos
 ***************************************************************************/
 
 DECLARE
@@ -626,7 +627,7 @@ BEGIN
 					inner join param.tcatalogo cat
 					on cat.id_catalogo = mov.id_cat_movimiento
 					where cat.codigo = 'deprec'
-					and mov.estado <> 'finalizado') then
+					and mov.estado NOT IN ('finalizado', 'anulado')) then --#30
 				raise exception 'Existen depreciaciones no finalizadas. Debe finalizarlas antes de proceder con el cierre';
 			end if;
 
