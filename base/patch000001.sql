@@ -971,3 +971,9 @@ ALTER TABLE pro.tcomponente_concepto_ingas_det
   ADD COLUMN f_escala_xfd_obra_civil NUMERIC(19,2);
 
 /***********************************F-SCP-EGS-PRO-15-16/09/2019****************************************/
+/***********************************I-SCP-EGS-PRO-16-19/09/2019****************************************/
+ALTER TABLE pro.tunidad_constructiva
+  ADD COLUMN id_unidad_constructiva_tipo INTEGER;
+  ALTER TABLE pro.tunidad_constructiva
+  ADD COLUMN tipo_configuracion VARCHAR;
+/***********************************F-SCP-EGS-PRO-16-19/09/2019****************************************/

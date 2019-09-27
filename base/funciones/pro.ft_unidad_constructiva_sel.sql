@@ -14,11 +14,11 @@ $body$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tunidad_constructiva'
  AUTOR:          (egutierrez)
  FECHA:            06-05-2019 14:16:09
- COMENTARIOS:    
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
- #16                06-05-2019 14:16:09 EGS                 Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tunidad_constructiva'    
+ #16                06-05-2019 14:16:09 EGS                 Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tunidad_constructiva'
  #26                12/09/2019              EGS             Se agrgo combo que muestra sus hijos segun un a unidad construtiva
  ***************************************************************************/
 
@@ -152,10 +152,30 @@ BEGIN
                           when coalesce(uncon.id_unidad_constructiva_fk,0) = 0 then ''raiz''::varchar
                               else ''hijo''::varchar
                           end as tipo_nodo,
-                        uncon.activo
+                        uncon.activo,
+                        uncon.id_unidad_constructiva_tipo,
+                        uct.nombre as desc_unidad_constructiva_tipo,
+                        uncon.tipo_configuracion,
+                        cat.descripcion as desc_tipo_configuracion,
+                        CASE
+                          WHEN cm.id_unidad_constructiva is not null THEN
+                             cm.tension
+                          ELSE
+                             uct.tension
+                          END as tension,
+                        CASE
+                          WHEN cm.id_unidad_constructiva is not null THEN
+                             ct.descripcion::VARCHAR
+                          ELSE
+                             ''''::VARCHAR
+                          END as desc_componente_macro_tipo
                       from pro.tunidad_constructiva uncon
                         inner join segu.tusuario usu1 on usu1.id_usuario = uncon.id_usuario_reg
                         left join segu.tusuario usu2 on usu2.id_usuario = uncon.id_usuario_mod
+                        left join pro.tunidad_constructiva_tipo uct on uct.id_unidad_constructiva_tipo = uncon.id_unidad_constructiva_tipo
+                        left join param.tcatalogo cat on cat.codigo = uncon.tipo_configuracion
+                        left join pro.tcomponente_macro cm on cm.id_unidad_constructiva = uncon.id_unidad_constructiva
+                        left join param.tcatalogo ct on ct.codigo = cm.componente_macro_tipo
                        where  '||v_where|| ' and ' || v_parametros.filtro || ' and '||v_filtro;
 
               raise notice '%',v_consulta;
@@ -180,7 +200,9 @@ BEGIN
                                      cig.desc_ingas,
                                      cig.tipo
                              from pro.tunidad_constructiva uncon
-                                   left join param.tconcepto_ingas cig on cig.id_concepto_ingas = uncon.id_concepto_ingas
+                             left join param.tconcepto_ingas cig on cig.id_concepto_ingas = uncon.id_concepto_ingas
+                             left join pro.tunidad_constructiva_tipo uct on uct.id_unidad_constructiva_tipo = uncon.id_unidad_constructiva_tipo
+                             left join param.tcatalogo cat on cat.codigo = ucon.tipo_configuracion
                              where uncon.id_concepto_ingas is not null and ';
 
                 --Definicion de la respuesta
@@ -497,16 +519,58 @@ BEGIN
             --Devuelve la respuesta
             return v_consulta;
 
+
         end;
-                    
+
+
+     /*********************************
+     #TRANSACCION:  'PRO_UNCONMA_SEL'
+     #DESCRIPCION:   Recuperamos la unidad constructiva macro el cual siempre es el de segundo nivel
+     #AUTOR:        egutierrez
+     #FECHA:        06-05-2019 14:16:09
+     #ISSUE:        #26
+    ***********************************/
+
+    elseif(p_transaccion='PRO_UNCONMA_SEL')then
+
+        begin
+            --Sentencia de la consulta
+            v_consulta:='WITH RECURSIVE arbol  AS(   SELECT
+                                                            unconpl.id_unidad_constructiva,
+                                                            unconpl.nombre,
+                                                            unconpl.codigo,
+                                                            unconpl.id_unidad_constructiva_fk
+                                                           FROM pro.tunidad_constructiva unconpl
+                                                           WHERE unconpl.id_unidad_constructiva = '||v_parametros.id_unidad_constructiva_hijo||'
+                                                      UNION ALL
+                                                            SELECT
+                                                                  uncopl.id_unidad_constructiva,
+                                                                  uncopl.nombre,
+                                                                  uncopl.codigo,
+                                                                  uncopl.id_unidad_constructiva_fk
+
+                                                            FROM pro.tunidad_constructiva uncopl
+                                                            JOIN arbol al ON al.id_unidad_constructiva_fk =uncopl.id_unidad_constructiva
+                                                                )
+                            SELECT
+                                MIN(id_unidad_constructiva)
+                            FROM arbol
+                            WHERE  id_unidad_constructiva_fk is not null';
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+
     else
-                         
+
         raise exception 'Transaccion inexistente';
-                             
+
     end if;
-                    
+
 EXCEPTION
-                    
+
     WHEN OTHERS THEN
             v_resp='';
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

@@ -42,6 +42,7 @@ DECLARE
     v_recor_comcig              record;
     v_recor_comcig_det          record;
     v_record_cm                 record;
+    v_count                     integer;
 BEGIN
 
     v_nombre_funcion = 'pro.ft_componente_macro_ime';
@@ -75,7 +76,8 @@ BEGIN
             f_seguridad,--#27
             f_escala_xfd_montaje,--#27
             f_escala_xfd_obra_civil,--#27
-            porc_prueba--#27
+            porc_prueba,--#27
+            tension
               ) values(
             'activo',
             v_parametros.nombre,
@@ -93,8 +95,8 @@ BEGIN
             v_parametros.f_seguridad,--#27
             v_parametros.f_escala_xfd_montaje,--#27
             v_parametros.f_escala_xfd_obra_civil,--#27
-            v_parametros.porc_prueba--#27
-
+            v_parametros.porc_prueba,--#27
+            v_parametros.tension
             )RETURNING id_componente_macro into v_id_componente_macro;
             --#22 Crea la Unidad Constructiva base del proyecto
             SELECT
@@ -107,10 +109,39 @@ BEGIN
 
             v_codigo_trans='PRO_UNCON_INS';
             v_tabla = pxp.f_crear_parametro(
-            ARRAY['id_usuario_reg','nombre','id_proyecto','id_unidad_constructiva_fk','codigo','activo','descripcion','_nombre_usuario_ai','_id_usuario_ai','macro'],
-            ARRAY[p_id_usuario::varchar,v_parametros.nombre::varchar,v_parametros.id_proyecto::varchar,v_id_unidad_constructiva_fk::varchar,v_parametros.codigo::varchar,''::varchar,''::varchar,'NULL'::varchar,''::varchar,'si'::varchar],
-            ARRAY['int4','varchar','int4','varchar','varchar','varchar','varchar','varchar','integer','varchar']
-                            );
+            ARRAY['id_usuario_reg',
+                  'nombre',
+                  'id_proyecto',
+                  'id_unidad_constructiva_fk',
+                  'codigo',
+                  'activo',
+                  'descripcion',
+                  '_nombre_usuario_ai',
+                  '_id_usuario_ai',
+                  'macro'
+                  ],
+            ARRAY[p_id_usuario::varchar,--id_usuario_reg
+                  v_parametros.nombre::varchar,--nombre
+                  v_parametros.id_proyecto::varchar,--id_proyecto
+                  v_id_unidad_constructiva_fk::varchar,--id_unidad_constructiva_fk
+                  v_parametros.codigo::varchar,--codigo
+                  'no'::varchar,--activo
+                  ''::varchar,--descripcion
+                  'NULL'::varchar,--_nombre_usuario_ai
+                  ''::varchar,--_id_usuario_ai
+                  'si'::varchar--macro
+                  ],
+            ARRAY['int4',--id_usuario_reg
+                  'varchar',--nombre
+                  'int4',--id_proyecto
+                  'varchar',--id_unidad_constructiva_fk
+                  'varchar',--codigo
+                  'varchar',--activo
+                  'varchar',--descripcion
+                  'varchar',--_nombre_usuario_ai
+                  'integer',--_id_usuario_ai
+                  'varchar'--macro
+                  ]);
             v_resp = pro.ft_unidad_constructiva_ime(p_administrador,p_id_usuario,v_tabla,v_codigo_trans);
 
             v_id_unidad_constructiva  = pxp.f_recupera_clave(v_resp,'id_unidad_constructiva');
@@ -165,12 +196,39 @@ BEGIN
                 mc.f_desadeanizacion,
                 mc.f_seguridad,
                 mc.f_escala_xfd_montaje,
-                mc.f_escala_xfd_obra_civil
+                mc.f_escala_xfd_obra_civil,
+                mc.tension
             INTO
                 v_record_cm
             FROM pro.tcomponente_macro mc
             WHERE mc.id_componente_macro=v_parametros.id_componente_macro ;
+            --verificamos qu no se crearon hijos en la unidad construtiva para q no puedan cambiar la tension
 
+            WITH RECURSIVE arbol  AS(
+                 SELECT
+                    uc.id_unidad_constructiva,
+                    uc.codigo
+                 FROM pro.tunidad_constructiva uc
+                  WHERE uc.id_unidad_constructiva = v_parametros.id_unidad_constructiva
+                  UNION ALL
+
+                 SELECT
+                    uc.id_unidad_constructiva,
+                    uc.codigo
+                 FROM pro.tunidad_constructiva uc
+                  JOIN arbol al ON al.id_unidad_constructiva = uc.id_unidad_constructiva_fk
+                  )
+                  SELECT
+                   count(id_unidad_constructiva)
+                  INTO v_count
+                  FROM arbol
+                  WHERE id_unidad_constructiva <> v_parametros.id_unidad_constructiva;
+
+             IF v_record_cm.tension <> v_parametros.tension THEN
+                IF v_count <> 0 THEN
+                   RAISE EXCEPTION 'No puede modificar la Tension. La UC relacionada ya tiene UC hijos';
+                END IF;
+             END IF;
             --Sentencia de la modificacion
             update pro.tcomponente_macro set
             nombre = v_parametros.nombre,
@@ -187,7 +245,8 @@ BEGIN
             f_seguridad = v_parametros.f_seguridad,--#27
             f_escala_xfd_montaje = v_parametros.f_escala_xfd_montaje,--#27
             f_escala_xfd_obra_civil = v_parametros.f_escala_xfd_obra_civil,--#27
-            porc_prueba = v_parametros.porc_prueba--#27
+            porc_prueba = v_parametros.porc_prueba,--#27
+            tension = v_parametros.tension
             where id_componente_macro=v_parametros.id_componente_macro;
             --#28 Modificamos los factores en los detalles deacuerdo a las actualizaciones
 
@@ -264,14 +323,14 @@ BEGIN
 
             SELECT
                cu.id_unidad_constructiva,
-               COALESCE(cu.codigo,'')||'-'||COALESCE(cu.nombre,'') as desc_uc
+               COALESCE(cu.codigo,'') as desc_uc
             INTO
                 v_record_uc
             FROM pro.tunidad_constructiva cu
             WHERE cu.id_unidad_constructiva = v_id_unidad_constructiva::INTEGER;
 
             IF v_record_uc.id_unidad_constructiva is not null THEN
-                RAISE EXCEPTION 'Existe una Unidad Constructiva Asociada (%)',v_des_uc;
+                RAISE EXCEPTION 'Existe una Unidad Constructiva Asociada (%)',v_record_uc.desc_uc;
             END IF;
             --Sentencia de la eliminacion
             delete from pro.tcomponente_macro

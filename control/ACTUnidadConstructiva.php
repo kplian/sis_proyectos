@@ -192,6 +192,14 @@ class ACTUnidadConstructiva extends ACTbase{
         $this->res=$this->objFunc->listarUnidadConstructivaMacroHijos($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+
+    function ListarUnidadConstructivaMacro(){
+        $this->objParam->defecto('ordenacion','id_unidad_constructiva');
+
+        $this->objFunc=$this->create('MODUnidadConstructiva');
+        $this->res=$this->objFunc->ListarUnidadConstructivaMacro($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 

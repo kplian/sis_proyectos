@@ -46,6 +46,7 @@ class MODComponenteMacro extends MODbase{
         $this->captura('f_escala_xfd_montaje','numeric');//#27
         $this->captura('f_escala_xfd_obra_civil','numeric');//#27
         $this->captura('porc_prueba','numeric');//#27
+        $this->captura('tension','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -73,7 +74,7 @@ class MODComponenteMacro extends MODbase{
         $this->setParametro('f_escala_xfd_montaje','f_escala_xfd_montaje','numeric');//#27
         $this->setParametro('f_escala_xfd_obra_civil','f_escala_xfd_obra_civil','numeric');//#27
         $this->setParametro('porc_prueba','porc_prueba','numeric');//#27
-
+        $this->setParametro('tension','tension','varchar');
 
 
         //Ejecuta la instruccion
@@ -104,7 +105,7 @@ class MODComponenteMacro extends MODbase{
         $this->setParametro('f_escala_xfd_montaje','f_escala_xfd_montaje','numeric');//#27
         $this->setParametro('f_escala_xfd_obra_civil','f_escala_xfd_obra_civil','numeric');//#27
         $this->setParametro('porc_prueba','porc_prueba','numeric');//#27
-
+        $this->setParametro('tension','tension','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

@@ -149,7 +149,7 @@ BEGIN
             v_filtro = '0=0 and ';
             IF pxp.f_existe_parametro(p_tabla,'tension') THEN
                 IF v_parametros.tension <> '' THEN
-                     v_filtro =v_filtro||'t.tension = '''||v_parametros.tension||''' and ';
+                     v_filtro =v_filtro||'(t.tension = '''||v_parametros.tension||''' or tension = ''todas'' )and ';
                 END IF;
 
             END IF;

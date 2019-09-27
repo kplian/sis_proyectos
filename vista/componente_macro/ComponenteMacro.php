@@ -42,7 +42,7 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 fieldLabel: 'Tipo',
                 anchor: '95%',
                 tinit: false,
-                allowBlank: true,
+                allowBlank: false,
                 origen: 'CATALOGO',
                 gdisplayField: 'componente_macro_tipo',
                 hiddenName: 'componente_macro_tipo',
@@ -55,6 +55,32 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 hidden: false,
                 renderer: function(value, p, record) {
                     return String.format('{0}', record.data['desc_componente_macro_tipo']);
+                },
+            },
+            type: 'ComboRec',
+            id_grupo: 0,
+            grid: true,
+            form: true
+        },
+        {//#22
+            config: {
+                name: 'tension',
+                fieldLabel: 'Tension',
+                anchor: '95%',
+                tinit: false,
+                allowBlank: false,
+                origen: 'CATALOGO',
+                gdisplayField: 'tension',
+                hiddenName: 'tension',
+                gwidth: 55,
+                baseParams:{
+                    cod_subsistema:'PRO',
+                    catalogo_tipo:'tipo_tension'
+                },
+                valueField: 'codigo',
+                hidden: false,
+                renderer: function(value, p, record) {
+                    return String.format('{0}', record.data['tension']);
                 },
             },
             type: 'ComboRec',
@@ -337,6 +363,7 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
         {name:'f_escala_xfd_montaje', type: 'numeric'},//#27
         {name:'f_escala_xfd_obra_civil', type: 'numeric'},//#27
         {name:'porc_prueba', type: 'numeric'},//#27
+        {name:'tension', type: 'string'},
 	],
 	sortInfo:{
 		field: 'id_componente_macro',

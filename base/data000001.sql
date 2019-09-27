@@ -142,3 +142,27 @@ select param.f_import_tcatalogo ('insert','PRO','Linea','tlinea','tcomponente_ma
 /***********************************I-DAT-EGS-PRO-7-18/09/2019****************************************/
 select pxp.f_insert_tgui ('Parametros (Catalogos)', 'Parametros (Catalogos)', 'CATAPRO', 'si', 2, 'sis_proyectos/vista/catalogo/CatalogoTipoPro.php', 3, '', 'CatalogoTipoPro', 'PRO');
 /***********************************F-DAT-EGS-PRO-7-18/09/2019****************************************/
+/***********************************I-DAT-EGS-PRO-8-18/09/2019****************************************/
+select param.f_import_tcatalogo_tipo ('insert','ttipo_configuracion','PRO','tunidad_constructiva');
+select param.f_import_tcatalogo ('insert','PRO','Doble Terna','doble_terna','ttipo_configuracion');
+select param.f_import_tcatalogo ('insert','PRO','Simple Terna','simple_terna','ttipo_configuracion');
+select param.f_import_tcatalogo ('insert','PRO','Doble Terna Incompleta','doble_terna_inc','ttipo_configuracion');
+
+select param.f_import_tcatalogo_tipo ('insert','tipo_tension','PRO','tunidad_constructiva');
+select param.f_import_tcatalogo ('insert','PRO','69kV','69kV','tipo_tension');
+select param.f_import_tcatalogo ('insert','PRO','115kV','115kV','tipo_tension');
+select param.f_import_tcatalogo ('insert','PRO','132kV','132kV','tipo_tension');
+select param.f_import_tcatalogo ('insert','PRO','230kV','230kV','tipo_tension');
+select param.f_import_tcatalogo ('insert','PRO','500kV','500kV','tipo_tension');
+
+select pxp.f_insert_tgui ('Unidades Constructivas Tipo', 'Unidades Constructivas Tipo', 'UCT', 'si', 3, 'sis_proyectos/vista/unidad_constructiva_tipo/UnidadConstructivaTipo.php', 3, '', 'UnidadConstructivaTipo', 'PRO');
+
+/***********************************F-DAT-EGS-PRO-8-18/09/2019****************************************/
+/***********************************I-DAT-EGS-PRO-9-26/09/2019****************************************/
+INSERT INTO param.tcolumna ("id_usuario_reg", "estado_reg", "nombre_columna", "tipo_dato")
+VALUES
+  (1, E'activo', E'tipo_configuracion', E'varchar'),
+  (1, E'activo', E'id_unidad_medida', E'integer'),
+  (1, E'activo', E'conductor', E'varchar');
+
+/***********************************F-DAT-EGS-PRO-9-26/09/2019****************************************/
