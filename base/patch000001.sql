@@ -977,3 +977,15 @@ ALTER TABLE pro.tunidad_constructiva
   ALTER TABLE pro.tunidad_constructiva
   ADD COLUMN tipo_configuracion VARCHAR;
 /***********************************F-SCP-EGS-PRO-16-19/09/2019****************************************/
+/***********************************I-SCP-EGS-PRO-17-27/09/2019****************************************/
+CREATE TABLE pro.tunidad_constructiva_tipo (
+  id_unidad_constructiva_tipo SERIAL,
+  componente_macro_tipo VARCHAR,
+  codigo VARCHAR,
+  nombre VARCHAR,
+  descripcion VARCHAR,
+  tension VARCHAR,
+  CONSTRAINT tunidad_constructiva_tipo_pkey PRIMARY KEY(id_unidad_constructiva_tipo)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+/***********************************F-SCP-EGS-PRO-17-27/09/2019****************************************/
