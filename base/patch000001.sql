@@ -988,4 +988,7 @@ CREATE TABLE pro.tunidad_constructiva_tipo (
   CONSTRAINT tunidad_constructiva_tipo_pkey PRIMARY KEY(id_unidad_constructiva_tipo)
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
+
+ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN tension VARCHAR;
 /***********************************F-SCP-EGS-PRO-17-27/09/2019****************************************/

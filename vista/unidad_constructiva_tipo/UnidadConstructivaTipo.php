@@ -7,8 +7,8 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
- #0				18-09-2019				 (egutierrez)				CREACION	
-
+ #0				18-09-2019				 (egutierrez)	    CREACION
+ #32            30/09/2019              EGS                 Se agrego combo tension en tipo unidad constructiva
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -62,22 +62,32 @@ Phx.vista.UnidadConstructivaTipo=Ext.extend(Phx.gridInterfaz,{
             grid: true,
             form: true
         },
-		{
-			config:{
-				name: 'tension',
-				fieldLabel: 'Tension',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:100
-			},
-				type:'TextField',
-				filters:{pfiltro:'uct.tension',type:'string'},
-                bottom_filter:true,
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
+        {//#32
+            config: {
+                name: 'tension',
+                fieldLabel: 'Tension',
+                anchor: '95%',
+                tinit: false,
+                allowBlank: false,
+                origen: 'CATALOGO',
+                gdisplayField: 'tension',
+                hiddenName: 'tension',
+                gwidth: 100,
+                baseParams:{
+                    cod_subsistema:'PRO',
+                    catalogo_tipo:'tipo_tension'
+                },
+                valueField: 'codigo',
+                hidden: false,
+                renderer: function(value, p, record) {
+                    return String.format('{0}', record.data['tension']);
+                },
+            },
+            type: 'ComboRec',
+            id_grupo: 0,
+            grid: true,
+            form: true
+        },
 		{
 			config:{
 				name: 'nombre',
