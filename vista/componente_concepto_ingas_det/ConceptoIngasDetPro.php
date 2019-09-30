@@ -143,7 +143,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 gwidth: 120,
                 renderer : function(value, p, record) {
                     console.log('value',value,'p',p,'record',record);
-                    return String.format('{0}', record.data['desc_']);
+                    return String.format('{0}', record.data['desc_unidad']);
                 }
             },
             type: 'ComboBox',
@@ -230,7 +230,8 @@ header("content-type: text/javascript; charset=UTF-8");
         {name:'tension', type: 'string'},
         {name:'peso', type: 'string'},
         {name:'tipo_configuracion', type: 'string'},
-        {name:'conductor', type: 'string'}
+        {name:'conductor', type: 'string'},
+        {name:'desc_unidad', type: 'string'}
         ],
         arrayDefaultColumHidden:['fecha_mod','usr_reg','usr_mod','estado_reg','fecha_reg','id_usuario_ai','usuario_ai'],
     }
