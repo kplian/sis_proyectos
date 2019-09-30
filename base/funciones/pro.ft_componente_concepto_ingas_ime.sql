@@ -19,25 +19,26 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #17                22-07-2019 14:49:24    EGS                    Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomp_concepto_ingas'
- #
+ #28                16/09/2019             EGS                  Carga de factres en concepto detalle
  ***************************************************************************/
 
 DECLARE
 
-    v_nro_requerimiento        integer;
-    v_parametros               record;
-    v_id_requerimiento         integer;
-    v_resp                    varchar;
-    v_nombre_funcion        text;
-    v_mensaje_error         text;
-    v_id_componente_concepto_ingas    integer;
-    v_record                record;
+    v_nro_requerimiento                 integer;
+    v_parametros                        record;
+    v_id_requerimiento                  integer;
+    v_resp                              varchar;
+    v_nombre_funcion                    text;
+    v_mensaje_error                     text;
+    v_id_componente_concepto_ingas      integer;
+    v_record                            record;
     v_id_componente_concepto_ingas_det  integer;
-    v_valor                 varchar;
-    v_id_columna            integer;
-    v_columnas_extra        varchar;
-    v_consulta              varchar;
-    v_filtro                varchar;
+    v_valor                             varchar;
+    v_id_columna                        integer;
+    v_columnas_extra                    varchar;
+    v_consulta                          varchar;
+    v_filtro                            varchar;
+    v_record_mc                         record;
 BEGIN
 
     v_nombre_funcion = 'pro.ft_componente_concepto_ingas_ime';
@@ -148,7 +149,7 @@ BEGIN
             v_filtro = '0=0 and ';
             IF pxp.f_existe_parametro(p_tabla,'tension') THEN
                 IF v_parametros.tension <> '' THEN
-                     v_filtro =v_filtro||'t.tension = '''||v_parametros.tension||''' and ';
+                     v_filtro =v_filtro||'(t.tension = '''||v_parametros.tension||''' or tension = ''todas'' )and ';
                 END IF;
 
             END IF;
@@ -173,20 +174,39 @@ BEGIN
                         v_consulta
             )LOOP
 
+              --#27 insertando los datos de factores del componente_macro
+              SELECT
+                mc.f_desadeanizacion,
+                mc.f_seguridad,
+                mc.f_escala_xfd_montaje,
+                mc.f_escala_xfd_obra_civil
+              INTO
+                v_record_mc
+              FROM pro.tcomponente_macro mc
+              WHERE mc.id_componente_macro = v_parametros.id_componente_macro ;
+
               INSERT INTO pro.tcomponente_concepto_ingas_det
                     (
                         id_componente_concepto_ingas,
                         id_concepto_ingas_det,
                         id_usuario_reg,
                         tension,
-                        aislacion
+                        aislacion,
+                        f_desadeanizacion,--#28
+                        f_seguridad,--#28
+                        f_escala_xfd_montaje,--#28
+                        f_escala_xfd_obra_civil--#28
 
                     )VALUES(
                         v_record.id_componente_concepto_ingas,
                         v_record.id_concepto_ingas_det,
                         p_id_usuario,
                         v_record.tension,
-                        v_record.aislacion
+                        v_record.aislacion,
+                        v_record_mc.f_desadeanizacion,--#28
+                        v_record_mc.f_seguridad,--#28
+                        v_record_mc.f_escala_xfd_montaje,--#28
+                        v_record_mc.f_escala_xfd_obra_civil--#28
                     )RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
             END LOOP;
 

@@ -21,6 +21,7 @@ $body$
  #17				22-07-2019 14:50:29	EGS					Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomp_concepto_ingas_det'
 #21 EndeEtr         30/08/2019          EGS                 Se adiciona el id del proyecto al PRO_COMINDET_SEL a la consulta
 #25 EndeEtr         10/09/2019          EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
+#26 EndeEtr         12/09/2019          EGS                 Lista la unidad Constructiva del componente macro
 ***************************************************************************/
 
 DECLARE
@@ -62,7 +63,7 @@ BEGIN
                         usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
                         cigd.nombre as desc_ingas_det,
-                        comindet.id_unidad_constructiva,
+                        cm.id_unidad_constructiva as id_unidad_constructiva_macro,--26
                         uc.codigo as codigo_uc,
                         cigdfk.nombre as desc_agrupador,
                         comindet.aislacion,
@@ -72,7 +73,12 @@ BEGIN
                         cci.id_concepto_ingas, --#21
                         comindet.precio_montaje,  --#25
                         comindet.precio_obra_civil,--#25
-                        comindet.precio_prueba --#25
+                        comindet.precio_prueba, --#25
+                        comindet.f_desadeanizacion,--#27
+                        comindet.f_seguridad,--#27
+                        comindet.f_escala_xfd_montaje,--#27
+                        comindet.f_escala_xfd_obra_civil,--#27
+                        cm.porc_prueba
 						from pro.tcomponente_concepto_ingas_det comindet
 						inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
@@ -103,7 +109,7 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_componente_concepto_ingas_det)
+			v_consulta:='select count(comindet.id_componente_concepto_ingas_det)
 					    from pro.tcomponente_concepto_ingas_det comindet
 					    inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod

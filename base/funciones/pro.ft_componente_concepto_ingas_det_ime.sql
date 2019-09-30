@@ -19,7 +19,9 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #17				22-07-2019 14:50:29	EGS					Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomp_concepto_ingas_det'
- #25 EndeEtr         10/09/2019          EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
+ #25 EndeEtr         10/09/2019         EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
+ #27                16/09/2019          EGS                 Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
+
  ***************************************************************************/
 
 DECLARE
@@ -65,7 +67,11 @@ BEGIN
             peso,
             precio_montaje,--#25
             precio_obra_civil,--#25
-            precio_prueba--#25
+            precio_prueba,--#25
+            f_desadeanizacion,--#27
+            f_seguridad,--#27
+            f_escala_xfd_montaje,--#27
+            f_escala_xfd_obra_civil
           	) values(
 			'activo',
 			v_parametros.id_concepto_ingas_det,
@@ -81,7 +87,11 @@ BEGIN
             v_parametros.peso,
             v_parametros.precio_montaje,--#25
             v_parametros.precio_obra_civil,--#25
-            v_parametros.precio_prueba--#25
+            v_parametros.precio_prueba,--#25
+            v_parametros.f_desadeanizacion,--#27
+            v_parametros.f_seguridad,--#27
+            v_parametros.f_escala_xfd_montaje,--#27
+            v_parametros.f_escala_xfd_obra_civil--#27
 			)RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
             --#
             SELECT
@@ -155,7 +165,11 @@ BEGIN
             peso = v_parametros.peso,
             precio_montaje = v_parametros.precio_montaje,--#25
             precio_obra_civil = v_parametros.precio_obra_civil,--#25
-            precio_prueba = v_parametros.precio_prueba--#25
+            precio_prueba = v_parametros.precio_prueba,--#25
+            f_desadeanizacion = v_parametros.f_desadeanizacion,--#27
+            f_seguridad = v_parametros.f_seguridad,--#27
+            f_escala_xfd_montaje = v_parametros.f_escala_xfd_montaje,--#27
+            f_escala_xfd_obra_civil = v_parametros.f_escala_xfd_obra_civil--#27
             where id_componente_concepto_ingas_det=v_parametros.id_componente_concepto_ingas_det;
 
             --Definicion de la respuesta

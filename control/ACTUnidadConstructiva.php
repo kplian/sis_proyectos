@@ -7,7 +7,7 @@
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 	ISSUE		FORK		FECHA			AUTHOR				DESCRIPCION
  	 #16		ETR			01/08/2019		EGS					CREACION
-  
+*    #26        etr         12/09/2019      EGS                 se añade combo para solo mande uc hijos segun ucm
  */
 
 class ACTUnidadConstructiva extends ACTbase{    
@@ -177,7 +177,29 @@ class ACTUnidadConstructiva extends ACTbase{
 		$this->res=$this->objFunc->listarConceptoingasDetUcCombo($this->objParam);
 		
 		$this->res->imprimirRespuesta($this->res->generarJson());
-	}	
+	}
+    function listarUnidadConstructivaMacroHijos(){//#26
+        $this->objParam->defecto('ordenacion','id_unidad_constructiva');
+
+        if($this->objParam->getParametro('id_proyecto')!=''){
+            $this->objParam->addFiltro("uncon.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
+        }
+
+        if($this->objParam->getParametro('activo')!=''){
+            $this->objParam->addFiltro("uncon.activo = ''".$this->objParam->getParametro('activo')."''");
+        }
+        $this->objFunc=$this->create('MODUnidadConstructiva');
+        $this->res=$this->objFunc->listarUnidadConstructivaMacroHijos($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    function ListarUnidadConstructivaMacro(){
+        $this->objParam->defecto('ordenacion','id_unidad_constructiva');
+
+        $this->objFunc=$this->create('MODUnidadConstructiva');
+        $this->res=$this->objFunc->ListarUnidadConstructivaMacro($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 

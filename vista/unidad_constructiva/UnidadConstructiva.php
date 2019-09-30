@@ -16,7 +16,8 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config;
-		//this.Atributos[this.getIndAtributo('concepto_ingas')].valorInicial = 'no';
+        let data;
+;
         this.Atributos[this.getIndAtributo('id_proyecto')].valorInicial = this.maestro.id_proyecto;
     	//llama al constructor de la clase padre
 		Phx.vista.UnidadConstructiva.superclass.constructor.call(this,config);
@@ -109,6 +110,83 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
 				grid:true,
 				form:true
 		},
+        {
+            config:{
+                name: 'desc_componente_macro_tipo',
+                fieldLabel: 'SUB. Y LIN.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type:'TextField',
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'tension',
+                fieldLabel: 'Tension',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:100
+            },
+            type:'TextField',
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config: {
+                name: 'id_unidad_constructiva_tipo',
+                fieldLabel: 'UC Tipo',
+                allowBlank: false,
+                emptyText: 'Elija una opción...',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_proyectos/control/UnidadConstructivaTipo/listarUnidadConstructivaTipo',
+                    id: 'id_unidad_constructiva_tipo',
+                    root: 'datos',
+                    sortInfo: {
+                        field: 'nombre',
+                        direction: 'ASC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_unidad_constructiva_tipo', 'nombre','tension','componente_macro_tipo','desc_componente_macro_tipo'],
+                    remoteSort: true,
+                    baseParams: {par_filtro: 'uct.id_unidad_constructiva_tipo#uct.nombre',start:0, limit:50}
+                }),
+                tpl:'<tpl for=".">\<div class="x-combo-list-item"><p><b>Nombre:</b>{nombre}</p><p><b>Tipo:</b>{desc_componente_macro_tipo}</p>\<p><b>Tension: </b>{tension}</p>\</div></tpl>',
+                valueField: 'id_unidad_constructiva_tipo',
+                displayField: 'nombre',
+                gdisplayField: 'nombre',
+                hiddenName: 'id_unidad_constructiva_tipo',
+                forceSelection: true,
+                typeAhead: false,
+                triggerAction: 'all',
+                lazyRender: true,
+                mode: 'remote',
+                pageSize: 15,
+                queryDelay: 1000,
+                anchor: '100%',
+                gwidth: 300,
+                minChars: 2,
+                gtpl: function (p){//Es como el Renderer de grilla pero para arboles
+                        return  this.desc_unidad_constructiva_tipo;
+                },
+                listeners: {
+                    'expand':function (combo) {
+                        this.store.reload();
+                    }
+                }
+            },
+            type: 'ComboBox',
+            id_grupo: 0,
+            filters: {pfiltro: 'uncon.id_unidad_constructiva_tipo',type: 'string'},
+            grid: true,
+            form: true
+        },
 		{
 			config:{
 				name: 'nombre',
@@ -167,6 +245,30 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
                    grid:true,
                    form:true
            },
+
+        {
+            config: {
+                name: 'tipo_configuracion',
+                fieldLabel: 'Tipo Configuracion',
+                anchor: '100%',
+                tinit: false,
+                allowBlank: true,
+                origen: 'CATALOGO',
+                gdisplayField: 'desc_tipo_configuracion',
+                hiddenName: 'tipo',
+                gwidth: 150,
+                baseParams:{
+                    cod_subsistema:'PRO',
+                    catalogo_tipo:'ttipo_configuracion'
+                },
+                valueField: 'codigo',
+                hidden: false
+            },
+            type: 'ComboRec',
+            id_grupo: 0,
+            grid: true,
+            form: true
+        },
 
 		{
 			config:{
@@ -286,7 +388,15 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
 		{name:'usr_mod', type: 'string'},
 		{name:'id_unidad_constructiva_fk', type: 'numeric'},
 		{name:'activo', type: 'string'},
-	],
+        {name:'id_unidad_constructiva_tipo', type: 'numeric'},
+        {name:'desc_unidad_constructiva_tipo', type: 'string'},
+        {name:'tipo_configuracion', type: 'string'},
+        {name:'desc_tipo_configuracion', type: 'string'},
+        {name:'tension', type: 'string'},
+        {name:'desc_componente_macro_tipo', type: 'string'},
+
+
+    ],
 	sortInfo:{
 		field: 'id_unidad_constructiva',
 		direction: 'ASC'
@@ -314,16 +424,7 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
 	iniciarEventos: function(){
 
 	},
-	onButtonNew: function(){
-    	Phx.vista.UnidadConstructiva.superclass.onButtonNew.call(this);
-    },
 
-	
-	onButtonEdit: function(){
-		var selectedNode = this.sm.getSelectedNode();
-
-    	Phx.vista.UnidadConstructiva.superclass.onButtonEdit.call(this);
-    },
     
      agregarPlantilla:function(){
     	var nodo = this.sm.getSelectedNode();
@@ -364,7 +465,98 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
         Phx.CP.loadingHide();
         this.onButtonAct();
     },
-   
+    onButtonNew: function(){
+        var selectedNode = this.sm.getSelectedNode();
+        Phx.vista.UnidadConstructiva.superclass.onButtonNew.call(this);
+        //Obtenemos la unidad constructiva que esta relacionada a un componente macro en la rama el de segundo nivel
+        this.obtenerUcMacro(selectedNode.id);
+    },
+    onButtonEdit: function(){
+        var selectedNode = this.sm.getSelectedNode();
+        //seteamos a una variable los datos del registro seleccionados para poder usar los filtros
+        this.data = selectedNode.attributes;
+        Phx.vista.UnidadConstructiva.superclass.onButtonEdit.call(this);
+        //Obtenemos la unidad constructiva que esta relacionada a un componente macro en la rama el de segundo nivel
+        this.obtenerUcMacro(selectedNode.attributes.id_unidad_constructiva_fk);
+
+
+
+    },
+    obtenerUcMacro: function(id){
+        Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url:'../../sis_proyectos/control/UnidadConstructiva/ListarUnidadConstructivaMacro',
+            params:{
+                id_unidad_constructiva_hijo:id,
+                start:0,
+                limit:1,
+            },
+            success: function(resp){
+                Phx.CP.loadingHide();
+                var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                //recuperamos los datos del componente macro relacionados
+                this.obtenerCompMacro(reg.datos[0]['id_unidad_constructiva']);
+                //si la unidad constructiva seleccionada es la relacionada al component macro inactivamos algunos campos
+                if (reg.datos[0]['id_unidad_constructiva'] == null ) {
+                    this.Cmp.codigo.disable(true);
+                    this.Cmp.activo.disable(true);
+                    this.Cmp.id_unidad_constructiva_tipo.reset();
+                    this.Cmp.id_unidad_constructiva_tipo.allowBlank=true;
+                    this.Cmp.id_unidad_constructiva_tipo.disable(true);
+                }else{
+                    this.Cmp.codigo.enable(true);
+                    this.Cmp.activo.enable(true);
+                    this.Cmp.id_unidad_constructiva_tipo.allowBlank=false;
+                    this.Cmp.id_unidad_constructiva_tipo.enable(true);
+                }
+
+            },
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope:this
+        });
+    },
+    obtenerCompMacro: function(id){
+        Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url:'../../sis_proyectos/control/ComponenteMacro/ListarComponenteMacro',
+            params:{
+                id_unidad_constructiva:id,
+                start:0,
+                limit:1,
+            },
+            success: function(resp){
+                Phx.CP.loadingHide();
+                var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                ///Añadimos los filtros por tipo y tension
+                this.Cmp.id_unidad_constructiva_tipo.store.baseParams.componente_macro_tipo = reg.datos[0]['componente_macro_tipo'];
+                this.Cmp.id_unidad_constructiva_tipo.store.baseParams.tension = reg.datos[0]['tension'];
+                //si la peticion viene del edit recargamos el combo de tipo de unidad constructiva
+                if (this.data != null){
+                    this.Cmp.id_unidad_constructiva_tipo.store.baseParams.query = this.data.id_unidad_constructiva_tipo;
+                    this.Cmp.id_unidad_constructiva_tipo.store.load({params:{start:0,limit:this.tam_pag},
+                        callback : function (r) {
+                            if (r.length > 0 ) {
+                                this.Cmp.id_unidad_constructiva_tipo.setValue(this.data.id_unidad_constructiva_tipo);
+                            }else{
+                                this.Cmp.id_unidad_constructiva_tipo.reset();
+                            }
+                        }, scope : this
+                    });
+
+                }
+                //volvemos a setear la query por que se traba al volver abrir el edit o new por segunda vez
+                this.Cmp.id_unidad_constructiva_tipo.store.baseParams.query ='';
+                //Recarga combo
+                this.Cmp.id_unidad_constructiva_tipo.store.reload(true);
+            },
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope:this
+        });
+    },
+
+
 })
 </script>
 		

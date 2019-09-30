@@ -7,6 +7,7 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 	ISSUE		FORK		FECHA			AUTHOR				DESCRIPCION
  	 #16		ETR			01/08/2019		EGS					CREACION
+ *  #26         ETR          12/09/2019     EGS                 se agrego combo de ucm
  */
 
 class MODUnidadConstructiva extends MODbase{
@@ -61,6 +62,8 @@ class MODUnidadConstructiva extends MODbase{
 		$this->setParametro('descripcion','descripcion','varchar');
 		$this->setParametro('id_unidad_constructiva_fk','id_unidad_constructiva_fk','varchar');
 		$this->setParametro('activo','activo','varchar');
+        $this->setParametro('id_unidad_constructiva_tipo','id_unidad_constructiva_tipo','int4');
+        $this->setParametro('tipo_configuracion','tipo_configuracion','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -85,6 +88,8 @@ class MODUnidadConstructiva extends MODbase{
 		$this->setParametro('descripcion','descripcion','varchar');
 		$this->setParametro('id_unidad_constructiva_fk','id_unidad_constructiva_fk','int4');
 		$this->setParametro('activo','activo','varchar');
+        $this->setParametro('id_unidad_constructiva_tipo','id_unidad_constructiva_tipo','int4');
+        $this->setParametro('tipo_configuracion','tipo_configuracion','varchar');
 
 
 		//Ejecuta la instruccion
@@ -139,6 +144,12 @@ class MODUnidadConstructiva extends MODbase{
 		$this->captura('id_unidad_constructiva_fk','int4');
 		$this->captura('tipo_nodo','varchar');
 		$this->captura('activo','varchar');
+        $this->captura('id_unidad_constructiva_tipo','int4');
+        $this->captura('desc_unidad_constructiva_tipo','varchar');
+        $this->captura('tipo_configuracion','varchar');
+        $this->captura('desc_tipo_configuracion','varchar');
+        $this->captura('tension','varchar');
+        $this->captura('desc_componente_macro_tipo','varchar');
 
 		
 		//Ejecuta la instruccion
@@ -232,6 +243,46 @@ class MODUnidadConstructiva extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+    function listarUnidadConstructivaMacroHijos(){//#26
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.ft_unidad_constructiva_sel';
+        $this->transaccion='PRO_UNCONMH_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setParametro('id_unidad_constructiva_macro','id_unidad_constructiva_macro','int4');
+        //Definicion de la lista del resultado del query
+        $this->captura('id_unidad_constructiva','int4');
+        $this->captura('id_proyecto','int4');
+        $this->captura('estado_reg','varchar');
+        $this->captura('nombre','varchar');
+        $this->captura('codigo','varchar');
+        $this->captura('descripcion','varchar');
+        $this->captura('id_unidad_constructiva_fk','int4');
+        $this->captura('activo','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function ListarUnidadConstructivaMacro(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.ft_unidad_constructiva_sel';
+        $this->transaccion='PRO_UNCONMA_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+
+        $this->setParametro('id_unidad_constructiva_hijo','id_unidad_constructiva_hijo','int4');
+        //Definicion de la lista del resultado del query
+        $this->captura('id_unidad_constructiva','int4');
+            //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 			
 			
 }

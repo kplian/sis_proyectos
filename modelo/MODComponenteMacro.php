@@ -5,7 +5,11 @@
 *@author  (admin)
 *@date 22-07-2019 14:47:14
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+ ISSUE       FECHA       AUTHOR          DESCRIPCION
+ #26        12/09/2019      EGS          se agrega uc al componente macro
+ #27        16/09/2019   EGS             Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
+
+ */
 
 class MODComponenteMacro extends MODbase{
 	
@@ -36,8 +40,14 @@ class MODComponenteMacro extends MODbase{
         $this->captura('codigo','varchar');//#22
         $this->captura('componente_macro_tipo','varchar');//#22
         $this->captura('desc_componente_macro_tipo','varchar');//#22
-        $this->captura('id_unidad_constructiva','int4');
-		
+        $this->captura('id_unidad_constructiva','int4');//26
+        $this->captura('f_desadeanizacion','numeric');//#27
+        $this->captura('f_seguridad','numeric');//#27
+        $this->captura('f_escala_xfd_montaje','numeric');//#27
+        $this->captura('f_escala_xfd_obra_civil','numeric');//#27
+        $this->captura('porc_prueba','numeric');//#27
+        $this->captura('tension','varchar');
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -59,7 +69,15 @@ class MODComponenteMacro extends MODbase{
 		$this->setParametro('id_proyecto','id_proyecto','int4');
         $this->setParametro('codigo','codigo','varchar');//#22
         $this->setParametro('componente_macro_tipo','componente_macro_tipo','varchar');//#22
-		//Ejecuta la instruccion
+        $this->setParametro('f_desadeanizacion','f_desadeanizacion','numeric');//#27
+        $this->setParametro('f_seguridad','f_seguridad','numeric');//#27
+        $this->setParametro('f_escala_xfd_montaje','f_escala_xfd_montaje','numeric');//#27
+        $this->setParametro('f_escala_xfd_obra_civil','f_escala_xfd_obra_civil','numeric');//#27
+        $this->setParametro('porc_prueba','porc_prueba','numeric');//#27
+        $this->setParametro('tension','tension','varchar');
+
+
+        //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 
@@ -81,7 +99,13 @@ class MODComponenteMacro extends MODbase{
 		$this->setParametro('id_proyecto','id_proyecto','int4');
         $this->setParametro('codigo','codigo','varchar');//#22
         $this->setParametro('componente_macro_tipo','componente_macro_tipo','varchar');//#22
-
+        $this->setParametro('id_unidad_constructiva','id_unidad_constructiva','int4');
+        $this->setParametro('f_desadeanizacion','f_desadeanizacion','numeric');//#27
+        $this->setParametro('f_seguridad','f_seguridad','numeric');//#27
+        $this->setParametro('f_escala_xfd_montaje','f_escala_xfd_montaje','numeric');//#27
+        $this->setParametro('f_escala_xfd_obra_civil','f_escala_xfd_obra_civil','numeric');//#27
+        $this->setParametro('porc_prueba','porc_prueba','numeric');//#27
+        $this->setParametro('tension','tension','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

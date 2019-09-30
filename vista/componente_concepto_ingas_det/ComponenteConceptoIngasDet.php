@@ -7,6 +7,8 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  * ISSUE                FECHA               AUTHOR          DESCRIPCION
     #25 EndeEtr         10/09/2019          EGS             Adicion de cmp precio montaje, precio obci y precio pruebas
+ *  #27 EndeEtr         16/09/2019          EGS             Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
+    #28                 16/09/2019          EGS             Carga de recio de pruebas con el factor d pruebas
 
  */
 
@@ -17,6 +19,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config.maestro;
+        this.construirGrupos();//#27
     	//llama al constructor de la clase padre
 		Phx.vista.ComponenteConceptoIngasDet.superclass.constructor.call(this,config);
 		this.init();
@@ -77,7 +80,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 mode: 'remote',
                 pageSize: 15,
                 queryDelay: 1000,
-                anchor: '100%',
+                anchor: '80%',
                 gwidth: 350,
                 minChars: 2,
                 renderer : function(value, p, record) {
@@ -90,6 +93,20 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             grid: true,
             form: true
         },
+        {//#27
+            config:{
+                name: 'id_unidad_medida',
+                fieldLabel: 'Unidad Medida',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'TextField',
+            id_grupo:0,
+            grid:true,
+            form:false
+        },
         {
             config:{
                 name: 'aislacion',
@@ -100,10 +117,11 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 maxLength:10
             },
             type:'TextField',
-            id_grupo:1,
+            id_grupo:0,
             grid:true,
             form:false
-        },        {
+        },
+        {
             config:{
                 name: 'tension',
                 fieldLabel: 'Tension',
@@ -113,10 +131,11 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 maxLength:10
             },
             type:'TextField',
-            id_grupo:1,
+            id_grupo:0,
             grid:true,
             form:false
-        },        {
+        },
+        {
             config:{
                 name: 'peso',
                 fieldLabel: 'Peso',
@@ -126,14 +145,14 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 maxLength:10
             },
             type:'NumberField',
-            id_grupo:1,
+            id_grupo:0,
             grid:true,
             form:true
         },
 		{
 			config:{
 				name: 'cantidad_est',
-				fieldLabel: 'cantidad',
+				fieldLabel: 'Cantidad',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -141,14 +160,14 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'NumberField',
 				filters:{pfiltro:'comindet.cantidad_est',type:'numeric'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:true
 		},
 		{
 			config:{
 				name: 'precio',
-				fieldLabel: 'precio Unitario',
+				fieldLabel: 'Precio Unitario',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -156,10 +175,48 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 			},
 				type:'NumberField',
 				filters:{pfiltro:'comindet.precio',type:'numeric'},
-				id_grupo:1,
+				id_grupo:0,
 				grid:true,
 				form:true
 		},
+        {//#28
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'porc_prueba'
+            },
+            type:'Field',
+            form:true
+        },
+        {//#27
+            config:{
+                name: 'f_desadeanizacion',
+                fieldLabel: 'F. Desadeanizacion ',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'NumberField',
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
+        {//#27
+            config:{
+                name: 'f_seguridad',
+                fieldLabel: 'F. S. ',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'NumberField',
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
         {//#25
             config:{
                 name: 'precio_montaje',
@@ -175,6 +232,21 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
+        {//#27
+            config:{
+                name: 'f_escala_xfd_montaje',
+                fieldLabel: 'F. EscalaXFdistancia M.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'NumberField',
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+
         {//#25
             config:{
                 name: 'precio_obra_civil',
@@ -186,7 +258,21 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             },
             type:'NumberField',
             filters:{pfiltro:'comindet.precio_obra_civil',type:'numeric'},
-            id_grupo:1,
+            id_grupo:2,
+            grid:true,
+            form:true
+        },
+        {//#27
+            config:{
+                name: 'f_escala_xfd_obra_civil',
+                fieldLabel: 'F. EscalaXFdistancia O.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'NumberField',
+            id_grupo:2,
             grid:true,
             form:true
         },
@@ -201,7 +287,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             },
             type:'NumberField',
             filters:{pfiltro:'comindet.precio_prueba',type:'numeric'},
-            id_grupo:1,
+            id_grupo:3,
             grid:true,
             form:true
         },
@@ -349,7 +435,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
 		{name:'desc_ingas_det', type: 'string'},
-        {name:'id_unidad_constructiva', type: 'numeric'},
+        {name:'id_unidad_constructiva_macro', type: 'numeric'},
         {name:'codigo_uc', type: 'string'},
         {name:'desc_agrupador', type: 'string'},
         {name:'aislacion', type: 'string'},
@@ -359,6 +445,11 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {name:'precio_montaje', type: 'numeric'},//#25
         {name:'precio_obra_civil', type: 'numeric'},//#25
         {name:'precio_prueba', type: 'numeric'},//#25
+        {name:'f_desadeanizacion', type: 'numeric'},//#27
+        {name:'f_seguridad', type: 'numeric'},//#27
+        {name:'f_escala_xfd_montaje', type: 'numeric'},//#27
+        {name:'f_escala_xfd_obra_civil', type: 'numeric'},//#27
+        {name:'porc_prueba', type: 'numeric'},//#28
 	],
 	sortInfo:{
 		field: 'id_componente_concepto_ingas_det',
@@ -372,13 +463,19 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.Atributos[this.getIndAtributo('id_componente_concepto_ingas')].valorInicial = this.maestro.id_componente_concepto_ingas;
         this.store.baseParams = {id_componente_concepto_ingas: this.maestro.id_componente_concepto_ingas};
         this.Cmp.id_concepto_ingas_det.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
-        this.load({params: {start: 0, limit: 50}})
+        this.load({params: {start: 0, limit: 50}});
+
+
     },
     onButtonNew:function(){
         //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentes
         //this.ocultarComponente(this.Cmp.fecha_ini);
         Phx.vista.ComponenteConceptoIngasDet.superclass.onButtonNew.call(this);
         this.mostrarComponente(this.Cmp.id_concepto_ingas_det);
+        this.Cmp.precio.on('valid',function(field){//#28
+            var pTot = this.Cmp.precio.getValue() * this.maestro.porc_prueba;
+            this.Cmp.precio_prueba.setValue(pTot);
+        } ,this);
     },
     onButtonEdit:function(){
         var data = this.getSelectedData();
@@ -395,7 +492,10 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 
                 }, scope : this
          });
-
+        this.Cmp.precio.on('valid',function(field){//#28
+            var pTot = this.Cmp.precio.getValue() *this.Cmp.porc_prueba.getValue();
+            this.Cmp.precio_prueba.setValue(pTot);
+        } ,this);
 
     },
 
@@ -417,6 +517,66 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             height:'40%',
             cls:'UnidadComingdet'
         }],
+
+    construirGrupos: function () {//#27
+        var me = this;
+        this.panelResumen = new Ext.Panel({
+            padding: '0 0 0 20',
+            html: '',
+            split: true,
+            layout: 'fit'
+        });
+
+        me.Grupos = [
+            {
+                layout: 'form',
+                border: false,
+                defaults: {
+                    border: false
+                },
+                items: [{
+                    bodyStyle: 'padding-right:5px;',
+                    items: [{
+                        xtype: 'fieldset',
+                        title: 'Datos Suministro',
+                        autoHeight: true,
+                        items: [],
+                        id_grupo: 0
+                    }]
+                }, {
+                    bodyStyle: 'padding-left:5px;',
+                    items: [{
+                        xtype: 'fieldset',
+                        title: 'Datos Montaje',
+                        autoHeight: true,
+                        items: [],
+                        id_grupo: 1
+                    }]
+                }, {
+                    bodyStyle: 'padding-left:5px;',
+                    items: [{
+                        xtype: 'fieldset',
+                        title: 'Datos Fundacion',
+                        autoHeight: true,
+                        items: [],
+                        id_grupo: 2
+                    }]
+                },
+                    {
+                        bodyStyle: 'padding-left:5px;',
+                        items: [{
+                            xtype: 'fieldset',
+                            title: 'Datos Prueba',
+                            autoHeight: true,
+                            items: [],
+                            id_grupo: 3
+                        }]
+                    }
+                ]
+            }
+        ];
+
+    },
 
 
     }

@@ -949,3 +949,46 @@ ALTER TABLE pro.tcomponente_concepto_ingas_det
   ALTER TABLE pro.tcomponente_concepto_ingas_det
   ADD COLUMN precio_prueba NUMERIC(19,2);
 /***********************************F-SCP-EGS-PRO-14-10/09/2019****************************************/
+/***********************************I-SCP-EGS-PRO-15-16/09/2019****************************************/
+  ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN f_desadeanizacion NUMERIC(19,2);
+  ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN f_seguridad NUMERIC(19,2);
+  ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN f_escala_xfd_montaje NUMERIC(19,2);
+  ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN f_escala_xfd_obra_civil NUMERIC(19,2);
+  ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN porc_prueba NUMERIC(19,2);
+
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN f_desadeanizacion NUMERIC(19,2);
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN f_seguridad NUMERIC(19,2);
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN f_escala_xfd_montaje NUMERIC(19,2);
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN f_escala_xfd_obra_civil NUMERIC(19,2);
+
+/***********************************F-SCP-EGS-PRO-15-16/09/2019****************************************/
+/***********************************I-SCP-EGS-PRO-16-19/09/2019****************************************/
+ALTER TABLE pro.tunidad_constructiva
+  ADD COLUMN id_unidad_constructiva_tipo INTEGER;
+  ALTER TABLE pro.tunidad_constructiva
+  ADD COLUMN tipo_configuracion VARCHAR;
+/***********************************F-SCP-EGS-PRO-16-19/09/2019****************************************/
+/***********************************I-SCP-EGS-PRO-17-27/09/2019****************************************/
+CREATE TABLE pro.tunidad_constructiva_tipo (
+  id_unidad_constructiva_tipo SERIAL,
+  componente_macro_tipo VARCHAR,
+  codigo VARCHAR,
+  nombre VARCHAR,
+  descripcion VARCHAR,
+  tension VARCHAR,
+  CONSTRAINT tunidad_constructiva_tipo_pkey PRIMARY KEY(id_unidad_constructiva_tipo)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE pro.tcomponente_macro
+  ADD COLUMN tension VARCHAR;
+/***********************************F-SCP-EGS-PRO-17-27/09/2019****************************************/

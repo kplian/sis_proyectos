@@ -50,7 +50,7 @@ Phx.vista.UnidadComingdet=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 emptyText: 'Elija una opción...',
                 store: new Ext.data.JsonStore({
-                    url: '../../sis_proyectos/control/UnidadConstructiva/listarUnidadConstructiva',
+                    url: '../../sis_proyectos/control/UnidadConstructiva/listarUnidadConstructivaMacroHijos',
                     id: 'id_unidad_constructiva',
                     root: 'datos',
                     sortInfo: {
@@ -243,6 +243,7 @@ Phx.vista.UnidadComingdet=Ext.extend(Phx.gridInterfaz,{
         this.Atributos[this.getIndAtributo('id_componente_concepto_ingas_det')].valorInicial = this.maestro.id_componente_concepto_ingas_det;
         this.store.baseParams = {id_componente_concepto_ingas_det: this.maestro.id_componente_concepto_ingas_det};
         this.Cmp.id_unidad_constructiva.store.baseParams.id_proyecto=this.maestro.id_proyecto;
+        this.Cmp.id_unidad_constructiva.store.baseParams.id_unidad_constructiva_macro =this.maestro.id_unidad_constructiva_macro;
         this.load({params: {start: 0, limit: 50}})
     },
 	}

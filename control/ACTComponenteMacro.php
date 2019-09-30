@@ -14,6 +14,9 @@ class ACTComponenteMacro extends ACTbase{
         if($this->objParam->getParametro('id_proyecto')!=''){
             $this->objParam->addFiltro("compm.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
         }
+        if($this->objParam->getParametro('id_unidad_constructiva')!=''){
+            $this->objParam->addFiltro("compm.id_unidad_constructiva = ".$this->objParam->getParametro('id_unidad_constructiva'));
+        }
         $this->objParam->defecto('dir_ordenacion','asc');
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
