@@ -109,7 +109,7 @@ BEGIN
 
             v_codigo_trans='PRO_UNCON_INS';
             v_tabla = pxp.f_crear_parametro(
-            ARRAY['id_usuario_reg',
+              ARRAY['id_usuario_reg',
                   'nombre',
                   'id_proyecto',
                   'id_unidad_constructiva_fk',
@@ -118,7 +118,9 @@ BEGIN
                   'descripcion',
                   '_nombre_usuario_ai',
                   '_id_usuario_ai',
-                  'macro'
+                  'macro',
+                  'id_unidad_constructiva_tipo',
+                  'tipo_configuracion'
                   ],
             ARRAY[p_id_usuario::varchar,--id_usuario_reg
                   v_parametros.nombre::varchar,--nombre
@@ -129,7 +131,9 @@ BEGIN
                   ''::varchar,--descripcion
                   'NULL'::varchar,--_nombre_usuario_ai
                   ''::varchar,--_id_usuario_ai
-                  'si'::varchar--macro
+                  'si'::varchar,--macro
+                  'NULL'::varchar,--id_unidad_constructiva_tipo
+                  'NULL'::varchar--tipo_configuracion
                   ],
             ARRAY['int4',--id_usuario_reg
                   'varchar',--nombre
@@ -140,7 +144,9 @@ BEGIN
                   'varchar',--descripcion
                   'varchar',--_nombre_usuario_ai
                   'integer',--_id_usuario_ai
-                  'varchar'--macro
+                  'varchar',--macro
+                  'integer',--id_unidad_constructiva_tipo
+                  'varchar'--tipo_configuracion
                   ]);
             v_resp = pro.ft_unidad_constructiva_ime(p_administrador,p_id_usuario,v_tabla,v_codigo_trans);
 
@@ -335,31 +341,31 @@ BEGIN
             --Sentencia de la eliminacion
             delete from pro.tcomponente_macro
             where id_componente_macro=v_parametros.id_componente_macro;
-               
+
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Componente Macro eliminado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Componente Macro eliminado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_componente_macro',v_parametros.id_componente_macro::varchar);
-              
+
             --Devuelve la respuesta
             return v_resp;
 
         end;
-         
+
     else
-     
+
         raise exception 'Transaccion inexistente: %',p_transaccion;
 
     end if;
 
 EXCEPTION
-                
+
     WHEN OTHERS THEN
         v_resp='';
         v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
         v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
         v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
         raise exception '%',v_resp;
-                        
+
 END;
 $body$
 LANGUAGE 'plpgsql'

@@ -308,6 +308,21 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
+        {
+            config:{
+                name: 'precio_total_mon',
+                fieldLabel: 'Total Precio Mon.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10,
+                galign: 'right ',
+            },
+            type:'NumberField',
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
         {//#27
             config:{
                 name: 'f_escala_xfd_montaje',
@@ -338,6 +353,21 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
+        {
+            config:{
+                name: 'precio_total_oc',
+                fieldLabel: 'Total Precio Oc.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10,
+                galign: 'right ',
+            },
+            type:'NumberField',
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
         {//#27
             config:{
                 name: 'f_escala_xfd_obra_civil',
@@ -366,6 +396,21 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             id_grupo:3,
             grid:true,
             form:true
+        },
+        {
+            config:{
+                name: 'precio_total_pru',
+                fieldLabel: 'Total Precio Pru.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10,
+                galign: 'right ',
+            },
+            type:'NumberField',
+            id_grupo:1,
+            grid:true,
+            form:false
         },
         {
             config:{
@@ -531,6 +576,9 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {name:'id_unidad_medida', type: 'numeric'},
         {name:'desc_unidad', type: 'string'},
         {name:'precio_total_det', type: 'numeric'},
+        {name:'precio_total_mon', type: 'numeric'},
+        {name:'precio_total_oc', type: 'numeric'},
+        {name:'precio_total_pru', type: 'numeric'},
 	],
 	sortInfo:{
 		field: 'id_componente_concepto_ingas_det',

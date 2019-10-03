@@ -220,7 +220,14 @@ header("content-type: text/javascript; charset=UTF-8");
                             totalProperty: 'total',
                             fields: ['id', 'valor'],
                             remoteSort: true,
-                            baseParams: {par_filtro: '#v.valor',columna:'tension'}
+                            baseParams: {par_filtro: '#v.valor',columna:'tension'},
+                            listeners: {
+                                'afterrender': function(combo){
+                                },
+                                'expand':function (combo) {
+                                    this.store.reload();
+                                }
+                            }
                         }),
                         valueField: 'valor',
                         displayField: 'valor',
@@ -414,7 +421,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         }, scope : this
                     });
                 } ,this);
-
+                this.Cmp.tension.store.baseParams.columna = 'tension';
+                this.Cmp.tension.store.baseParams.tension_m = this.maestro.tension;
+                this.Cmp.tension.store.reload(true);
             },
             tabeast: [
                 {

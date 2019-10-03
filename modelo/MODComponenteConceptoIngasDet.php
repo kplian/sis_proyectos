@@ -26,6 +26,9 @@ class MODComponenteConceptoIngasDet extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 
         $this->capturaCount('total_precio_det','numeric');
+        $this->capturaCount('total_precio_mon','numeric');
+        $this->capturaCount('total_precio_oc','numeric');
+        $this->capturaCount('total_precio_pru','numeric');
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_componente_concepto_ingas_det','int4');
@@ -64,6 +67,9 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->captura('id_unidad_medida','integer');
         $this->captura('desc_unidad','varchar');
         $this->captura('precio_total_det','numeric');
+        $this->captura('precio_total_mon','numeric');
+        $this->captura('precio_total_oc','numeric');
+        $this->captura('precio_total_pru','numeric');
 
         //Ejecuta la instruccion
 		$this->armarConsulta();

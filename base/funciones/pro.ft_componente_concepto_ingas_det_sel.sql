@@ -84,7 +84,10 @@ BEGIN
                         comindet.conductor,
                         comindet.id_unidad_medida,
                         um.codigo as desc_unidad,
-                        (COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_det --#34
+                        (COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_det, --#34
+                        (COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_mon,
+                        (COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_oc,
+                        (COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_pru
 						from pro.tcomponente_concepto_ingas_det comindet
 						inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
@@ -118,7 +121,10 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select
                                 count(comindet.id_componente_concepto_ingas_det),
-                                sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_det	 --#34
+                                sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_det,	 --#34
+                                sum(COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_mon,
+                                sum(COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_oc,
+                                sum(COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_pru
                         from pro.tcomponente_concepto_ingas_det comindet
 					    inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod

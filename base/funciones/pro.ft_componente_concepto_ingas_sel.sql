@@ -52,7 +52,11 @@ BEGIN
                           precio_total_det
                     )AS( SELECT
                               comindet.id_componente_concepto_ingas,
-                              sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_det
+                               sum((COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))+
+                                   (COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0))+
+                                   --(COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0))+
+                                   (COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))
+                              )::numeric as precio_total_det
                          FROM pro.tcomponente_concepto_ingas_det comindet
                          GROUP BY comindet.id_componente_concepto_ingas
                             )
@@ -108,7 +112,11 @@ BEGIN
                           precio_total_det
                     )AS( SELECT
                               comindet.id_componente_concepto_ingas,
-                              sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_det
+                                sum((COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))+
+                                   (COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0))+
+                                   --(COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0))+
+                                   (COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))
+                              )::numeric as precio_total_det
                          FROM pro.tcomponente_concepto_ingas_det comindet
                          GROUP BY comindet.id_componente_concepto_ingas
                             )
