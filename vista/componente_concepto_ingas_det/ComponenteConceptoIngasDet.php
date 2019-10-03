@@ -93,19 +93,51 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             grid: true,
             form: true
         },
-        {//#27
-            config:{
+        {
+            config: {
                 name: 'id_unidad_medida',
                 fieldLabel: 'Unidad Medida',
                 allowBlank: true,
-                anchor: '80%',
-                gwidth: 100,
-                maxLength:10
+                emptyText: 'Elija una opción',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_parametros/control/UnidadMedida/listarUnidadMedida',
+                    id: 'id_unidad_medida',
+                    root: 'datos',
+                    fields: ['id_unidad_medida','codigo','descripcion'],
+                    totalProperty: 'total',
+                    sortInfo: {
+                        field: 'codigo',
+                        direction: 'ASC'
+                    },
+                    baseParams:{
+                        start: 0,
+                        limit: 10,
+                        sort: 'descripcion',
+                        dir: 'ASC',
+                        par_filtro:'ume.id_unidad_medida#ume.codigo#ume.descripcion'
+                    }
+                }),
+                valueField: 'id_unidad_medida',
+                hiddenValue: 'id_unidad_medida',
+                displayField: 'descripcion',
+                gdisplayField: 'codigo',
+                mode: 'remote',
+                triggerAction: 'all',
+                lazyRender: true,
+                pageSize: 15,
+                tpl: '<tpl for="."><div class="x-combo-list-item"><p>{codigo} - {descripcion}</p></div></tpl>',
+                minChars: 2,
+                gwidth: 120,
+                renderer : function(value, p, record) {
+                    console.log('value',value,'p',p,'record',record);
+                    return String.format('{0}', record.data['desc_unidad']);
+                }
             },
-            type:'TextField',
-            id_grupo:0,
-            grid:true,
-            form:false
+            type: 'ComboBox',
+            id_grupo: 0,
+            filters: {pfiltro: 'ume.codigo',type: 'string'},
+            grid: true,
+            form: false
         },
         {
             config:{
@@ -125,6 +157,35 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             config:{
                 name: 'tension',
                 fieldLabel: 'Tension',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'TextField',
+            id_grupo:0,
+            grid:true,
+            form:false
+        },
+
+        {
+            config:{
+                name: 'tipo_configuracion',
+                fieldLabel: 'Tipo Configuracion',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'TextField',
+            id_grupo:0,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'conductor',
+                fieldLabel: 'Conductor',
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
@@ -179,6 +240,21 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
+        {
+            config:{
+                name: 'precio_total_det',
+                fieldLabel: 'Total Precio Sum.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10,
+                galign: 'right ',
+            },
+            type:'NumberField',
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
         {//#28
             //configuracion del componente
             config:{
@@ -450,6 +526,11 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {name:'f_escala_xfd_montaje', type: 'numeric'},//#27
         {name:'f_escala_xfd_obra_civil', type: 'numeric'},//#27
         {name:'porc_prueba', type: 'numeric'},//#28
+        {name:'tipo_configuracion', type: 'string'},
+        {name:'conductor', type: 'string'},
+        {name:'id_unidad_medida', type: 'numeric'},
+        {name:'desc_unidad', type: 'string'},
+        {name:'precio_total_det', type: 'numeric'},
 	],
 	sortInfo:{
 		field: 'id_componente_concepto_ingas_det',
@@ -577,6 +658,15 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         ];
 
     },
+    successSave:function(resp)
+        {
+
+            Phx.CP.loadingHide();
+            Phx.CP.getPagina(this.idContenedorPadre).reload();
+            this.window.hide();
+            this.reload();
+            this.panel.close();
+        },
 
 
     }

@@ -992,3 +992,11 @@ WITH (oids = false);
 ALTER TABLE pro.tcomponente_macro
   ADD COLUMN tension VARCHAR;
 /***********************************F-SCP-EGS-PRO-17-27/09/2019****************************************/
+/***********************************I-SCP-EGS-PRO-18-01/10/2019****************************************/
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN tipo_configuracion VARCHAR;
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN conductor VARCHAR;
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN id_unidad_medida INTEGER;
+/***********************************F-SCP-EGS-PRO-18-01/10/2019****************************************/

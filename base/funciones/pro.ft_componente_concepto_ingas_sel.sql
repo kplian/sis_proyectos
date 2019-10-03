@@ -20,6 +20,8 @@ $body$
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #17                22-07-2019 14:49:24    EGS                    Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomp_concepto_ingas'
  #28                  16/09/2019           EGS                   Se agrega campo de pocentaje de prueba
+ #34  EndeEtr          03/10/2019            EGS                 Se aumentaron los With para los totalizadores
+
  ***************************************************************************/
 
 DECLARE
@@ -45,7 +47,16 @@ BEGIN
 
         begin
             --Sentencia de la consulta
-            v_consulta:='select
+            v_consulta:='with total(
+                          id_componente_concepto_ingas,
+                          precio_total_det
+                    )AS( SELECT
+                              comindet.id_componente_concepto_ingas,
+                              sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_det
+                         FROM pro.tcomponente_concepto_ingas_det comindet
+                         GROUP BY comindet.id_componente_concepto_ingas
+                            )
+                  select
                         comingas.id_componente_concepto_ingas,
                         comingas.estado_reg,
                         comingas.id_concepto_ingas,
@@ -61,12 +72,14 @@ BEGIN
                         cig.desc_ingas,
                         cm.id_proyecto,
                         cig.tipo,
-                        cm.porc_prueba--#28
+                        cm.porc_prueba,--#28
+                        tot.precio_total_det::numeric
                         from pro.tcomponente_concepto_ingas comingas
                         inner join segu.tusuario usu1 on usu1.id_usuario = comingas.id_usuario_reg
                         left join segu.tusuario usu2 on usu2.id_usuario = comingas.id_usuario_mod
                         left join param.tconcepto_ingas cig on cig.id_concepto_ingas = comingas.id_concepto_ingas
                         left join pro.tcomponente_macro cm on cm.id_componente_macro=comingas.id_componente_macro
+                        left join total tot on tot.id_componente_concepto_ingas = comingas.id_componente_concepto_ingas
                         where  ';
 
             --Definicion de la respuesta
@@ -90,12 +103,24 @@ BEGIN
 
         begin
             --Sentencia de la consulta de conteo de registros
-            v_consulta:='select count(id_componente_concepto_ingas)
+            v_consulta:='with total(
+                          id_componente_concepto_ingas,
+                          precio_total_det
+                    )AS( SELECT
+                              comindet.id_componente_concepto_ingas,
+                              sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_det
+                         FROM pro.tcomponente_concepto_ingas_det comindet
+                         GROUP BY comindet.id_componente_concepto_ingas
+                            )
+                         select count(comingas.id_componente_concepto_ingas),
+                         sum(COALESCE(tot.precio_total_det, 0)) as total_precio_det
                         from pro.tcomponente_concepto_ingas comingas
                         inner join segu.tusuario usu1 on usu1.id_usuario = comingas.id_usuario_reg
                         left join segu.tusuario usu2 on usu2.id_usuario = comingas.id_usuario_mod
                         left join param.tconcepto_ingas cig on cig.id_concepto_ingas = comingas.id_concepto_ingas
                         left join pro.tcomponente_macro cm on cm.id_componente_macro=comingas.id_componente_macro
+                        left join total tot on tot.id_componente_concepto_ingas = comingas.id_componente_concepto_ingas
+
                         where ';
 
             --Definicion de la respuesta

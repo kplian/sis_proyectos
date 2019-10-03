@@ -22,7 +22,8 @@ class MODComponenteMacro extends MODbase{
 		$this->procedimiento='pro.ft_componente_macro_sel';
 		$this->transaccion='PRO_COMPM_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+        $this->capturaCount('total_precio_cig','numeric');
+
 		//Definicion de la lista del resultado del query
 		$this->captura('id_componente_macro','int4');
 		$this->captura('estado_reg','varchar');
@@ -47,7 +48,7 @@ class MODComponenteMacro extends MODbase{
         $this->captura('f_escala_xfd_obra_civil','numeric');//#27
         $this->captura('porc_prueba','numeric');//#27
         $this->captura('tension','varchar');
-
+        $this->captura('precio_total_cig','numeric');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

@@ -7,7 +7,9 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  * ISSUE       FECHA        AUTHOR          DESCRIPCION
     #27        16/09/2019   EGS             Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
-*/
+    #34EndeEtr 03/10/2019   EGS             Se agregaron totalizdores
+
+ */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -120,6 +122,22 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
+        { //#34
+            config:{
+                name: 'precio_total_cig',
+                fieldLabel: 'Precio Total',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10,
+                galign: 'right ',
+            },
+            type:'NumberField',
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+
 		{
 			config:{
 				name: 'descripcion',
@@ -364,6 +382,8 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
         {name:'f_escala_xfd_obra_civil', type: 'numeric'},//#27
         {name:'porc_prueba', type: 'numeric'},//#27
         {name:'tension', type: 'string'},
+        {name:'precio_total_cig', type: 'numeric'},//#34
+
 	],
 	sortInfo:{
 		field: 'id_componente_macro',

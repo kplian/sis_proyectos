@@ -26,6 +26,14 @@ class ACTComponenteMacro extends ACTbase{
 			
 			$this->res=$this->objFunc->listarComponenteMacro($this->objParam);
 		}
+        $temp = Array();
+        $temp['precio_total_cig'] = $this->res->extraData['total_precio_cig'];
+        $temp['tipo_reg'] = 'summary';
+
+        $this->res->total++;
+
+        $this->res->addLastRecDatos($temp);
+
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 				

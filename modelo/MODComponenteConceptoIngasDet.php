@@ -24,6 +24,8 @@ class MODComponenteConceptoIngasDet extends MODbase{
 		$this->procedimiento='pro.ft_componente_concepto_ingas_det_sel';
 		$this->transaccion='PRO_COMINDET_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        $this->capturaCount('total_precio_det','numeric');
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_componente_concepto_ingas_det','int4');
@@ -57,7 +59,13 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->captura('f_escala_xfd_montaje','numeric');//#27
         $this->captura('f_escala_xfd_obra_civil','numeric');//#27
         $this->captura('porc_prueba','numeric');//#28
-		//Ejecuta la instruccion
+        $this->captura('tipo_configuracion','varchar');
+        $this->captura('conductor','varchar');
+        $this->captura('id_unidad_medida','integer');
+        $this->captura('desc_unidad','varchar');
+        $this->captura('precio_total_det','numeric');
+
+        //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		
