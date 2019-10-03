@@ -31,6 +31,19 @@ class ACTComponenteConceptoIngasDet extends ACTbase{
 			
 			$this->res=$this->objFunc->listarComponenteConceptoIngasDet($this->objParam);
 		}
+
+        $temp = Array();
+        $temp['precio_total_det'] = $this->res->extraData['total_precio_det'];
+        $temp['precio_total_mon'] = $this->res->extraData['total_precio_mon'];
+        $temp['precio_total_oc'] = $this->res->extraData['total_precio_oc'];
+        $temp['precio_total_pru'] = $this->res->extraData['total_precio_pru'];
+
+        $temp['tipo_reg'] = 'summary';
+
+        $this->res->total++;
+
+        $this->res->addLastRecDatos($temp);
+
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 				

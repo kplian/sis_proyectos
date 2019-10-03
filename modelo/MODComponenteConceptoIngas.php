@@ -20,7 +20,7 @@ class MODComponenteConceptoIngas extends MODbase{
         $this->procedimiento='pro.ft_componente_concepto_ingas_sel';
         $this->transaccion='PRO_COMINGAS_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
-
+        $this->capturaCount('total_precio_det','numeric');
         //Definicion de la lista del resultado del query
         $this->captura('id_componente_concepto_ingas','int4');
         $this->captura('estado_reg','varchar');
@@ -38,6 +38,7 @@ class MODComponenteConceptoIngas extends MODbase{
         $this->captura('id_proyecto','int4');
         $this->captura('tipo','varchar');
         $this->captura('porc_prueba','numeric');
+        $this->captura('precio_total_det','numeric');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

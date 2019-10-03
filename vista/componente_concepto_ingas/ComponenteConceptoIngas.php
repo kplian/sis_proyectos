@@ -148,6 +148,21 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid:true,
                     form:true
                 },
+                {
+                    config:{
+                        name: 'precio_total_det',
+                        fieldLabel: 'Precio Total',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength:10,
+                        galign: 'right ',
+                    },
+                    type:'NumberField',
+                    id_grupo:1,
+                    grid:true,
+                    form:false
+                },
 
                 {
                     config: {
@@ -185,7 +200,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     type: 'ComboBox',
                     id_grupo: 0,
-                    grid: true,
+                    grid: false,
                     form: true
                 },
                 {
@@ -205,7 +220,14 @@ header("content-type: text/javascript; charset=UTF-8");
                             totalProperty: 'total',
                             fields: ['id', 'valor'],
                             remoteSort: true,
-                            baseParams: {par_filtro: '#v.valor',columna:'tension'}
+                            baseParams: {par_filtro: '#v.valor',columna:'tension'},
+                            listeners: {
+                                'afterrender': function(combo){
+                                },
+                                'expand':function (combo) {
+                                    this.store.reload();
+                                }
+                            }
                         }),
                         valueField: 'valor',
                         displayField: 'valor',
@@ -224,7 +246,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     type: 'ComboBox',
                     id_grupo: 0,
-                    grid: true,
+                    grid: false,
                     form: true
                 },
                 {
@@ -367,6 +389,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name:'desc_ingas', type: 'string'},
                 {name:'id_proyecto', type: 'string'},
                 {name:'porc_prueba', type: 'numeric'},//#28
+                {name:'precio_total_det', type: 'numeric'},
             ],
             sortInfo:{
                 field: 'id_componente_concepto_ingas',
@@ -398,7 +421,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         }, scope : this
                     });
                 } ,this);
-
+                this.Cmp.tension.store.baseParams.columna = 'tension';
+                this.Cmp.tension.store.baseParams.tension_m = this.maestro.tension;
+                this.Cmp.tension.store.reload(true);
             },
             tabeast: [
                 {
@@ -407,7 +432,12 @@ header("content-type: text/javascript; charset=UTF-8");
                     width:'70%',
                     height:'50%',
                     cls:'ComponenteConceptoIngasDet'
-                }]
+                }],
+            reload:function (){
+                this.store.reload();
+                //Phx.CP.getPagina(this.idContenedorPadre).reload();
+
+            }
 
 
         }

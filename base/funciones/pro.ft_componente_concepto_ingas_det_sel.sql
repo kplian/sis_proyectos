@@ -22,6 +22,7 @@ $body$
 #21 EndeEtr         30/08/2019          EGS                 Se adiciona el id del proyecto al PRO_COMINDET_SEL a la consulta
 #25 EndeEtr         10/09/2019          EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
 #26 EndeEtr         12/09/2019          EGS                 Lista la unidad Constructiva del componente macro
+#34  EndeEtr          03/10/2019        EGS                 Se aumentaron  totalizdores
 ***************************************************************************/
 
 DECLARE
@@ -78,7 +79,15 @@ BEGIN
                         comindet.f_seguridad,--#27
                         comindet.f_escala_xfd_montaje,--#27
                         comindet.f_escala_xfd_obra_civil,--#27
-                        cm.porc_prueba
+                        cm.porc_prueba,
+                        comindet.tipo_configuracion,
+                        comindet.conductor,
+                        comindet.id_unidad_medida,
+                        um.codigo as desc_unidad,
+                        (COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_det, --#34
+                        (COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_mon,
+                        (COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_oc,
+                        (COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_pru
 						from pro.tcomponente_concepto_ingas_det comindet
 						inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
@@ -87,6 +96,7 @@ BEGIN
 				        left join pro.tunidad_constructiva uc on uc.id_unidad_constructiva = comindet.id_unidad_constructiva
                         left join pro.tcomponente_concepto_ingas cci on cci.id_componente_concepto_ingas = comindet.id_componente_concepto_ingas  --#21
                         left join pro.tcomponente_macro cm on cm.id_componente_macro = cci.id_componente_macro  --#21
+                        left join param.tunidad_medida um on um.id_unidad_medida = comindet.id_unidad_medida
                         where  ';
 
 			--Definicion de la respuesta
@@ -109,8 +119,13 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(comindet.id_componente_concepto_ingas_det)
-					    from pro.tcomponente_concepto_ingas_det comindet
+			v_consulta:='select
+                                count(comindet.id_componente_concepto_ingas_det),
+                                sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_det,	 --#34
+                                sum(COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_mon,
+                                sum(COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_oc,
+                                sum(COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_pru
+                        from pro.tcomponente_concepto_ingas_det comindet
 					    inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
                         left join param.tconcepto_ingas_det cigd on cigd.id_concepto_ingas_det = comindet.id_concepto_ingas_det
@@ -121,7 +136,6 @@ BEGIN
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-
 			--Devuelve la respuesta
 			return v_consulta;
 

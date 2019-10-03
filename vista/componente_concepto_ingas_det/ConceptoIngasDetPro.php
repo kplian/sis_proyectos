@@ -5,6 +5,9 @@
  *@author  (admin)
  *@date 07-03-2019 13:53:18
  *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+    ISSUE       FECHA       AUTHOR          DESCRIPCION  
+    #34EndeEtr 03/10/2019   EGS             Se agregaron CATALOGOS
+
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -166,19 +169,31 @@ header("content-type: text/javascript; charset=UTF-8");
             grid:true,
             form:true
         },
-        {
-            config:{
+        {//#34
+            config: {
                 name: 'tension',
                 fieldLabel: 'Tension',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 150,
-                maxLength:30
+                anchor: '95%',
+                tinit: false,
+                allowBlank: false,
+                origen: 'CATALOGO',
+                gdisplayField: 'tension',
+                hiddenName: 'tension',
+                gwidth: 55,
+                baseParams:{
+                    cod_subsistema:'PRO',
+                    catalogo_tipo:'tipo_tension'
+                },
+                valueField: 'codigo',
+                hidden: false,
+                renderer: function(value, p, record) {
+                    return String.format('{0}', record.data['tension']);
+                },
             },
-            type:'TextField',
-            id_grupo:1,
-            grid:true,
-            form:true
+            type: 'ComboRec',
+            id_grupo: 0,
+            grid: true,
+            form: true
         },
         {
             config:{
@@ -194,19 +209,28 @@ header("content-type: text/javascript; charset=UTF-8");
             grid:true,
             form:true
         },
-        {
-            config:{
+        {//#34
+            config: {
                 name: 'tipo_configuracion',
-                fieldLabel: 'T. Configuracion',
+                fieldLabel: 'Tipo Configuracion',
+                anchor: '100%',
+                tinit: false,
                 allowBlank: true,
-                anchor: '80%',
+                origen: 'CATALOGO',
+                gdisplayField: 'tipo_configuracion',
+                hiddenName: 'tipo_configuracion',
                 gwidth: 150,
-                maxLength:30
+                baseParams:{
+                    cod_subsistema:'PRO',
+                    catalogo_tipo:'ttipo_configuracion'
+                },
+                valueField: 'codigo',
+                hidden: false
             },
-            type:'TextField',
-            id_grupo:1,
-            grid:true,
-            form:true
+            type: 'ComboRec',
+            id_grupo: 0,
+            grid: true,
+            form: true
         },
         {
             config:{

@@ -21,7 +21,7 @@ $body$
  #17				22-07-2019 14:50:29	EGS					Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomp_concepto_ingas_det'
  #25 EndeEtr         10/09/2019         EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
  #27                16/09/2019          EGS                 Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
-
+ #34 EndeEtr        03/10/2019          EGS                 Se mejro la logica
  ***************************************************************************/
 
 DECLARE
@@ -35,6 +35,7 @@ DECLARE
 	v_id_componente_concepto_ingas_det	integer;
     v_valor                 varchar;
     v_id_columna            integer;
+    v_columna               record;
 
 BEGIN
 
@@ -94,41 +95,37 @@ BEGIN
             v_parametros.f_escala_xfd_obra_civil--#27
 			)RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
             --#
-            SELECT
-                c.id_columna
-            INTO
-                    v_id_columna
-            FROM param.tcolumna c
-            WHERE c.nombre_columna = 'tension';
 
-            SELECT
-            cd.valor
-            into
-            v_valor
-            FROM param.tcolumna_concepto_ingas_det cd
-            WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_parametros.id_concepto_ingas_det;
+            FOR v_columna IN(
+                 SELECT
+                    cl.nombre_columna,
+                    cl.tipo_dato
+               FROM param.tcolumna cl
+               order by cl.nombre_columna asc
 
-            UPDATE pro.tcomponente_concepto_ingas_det SET
-            tension = v_valor
-            WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
+            )LOOP
+                SELECT
+                    c.id_columna
+                INTO
+                        v_id_columna
+                FROM param.tcolumna c
+                WHERE c.nombre_columna = v_columna.nombre_columna;
 
-            SELECT
-                c.id_columna
-            INTO
-                    v_id_columna
-            FROM param.tcolumna c
-            WHERE c.nombre_columna = 'aislacion';
+                SELECT
+                cd.valor
+                into
+                v_valor
+                FROM param.tcolumna_concepto_ingas_det cd
+                WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_parametros.id_concepto_ingas_det;
 
-           SELECT
-              cd.valor
-              into
-              v_valor
-            FROM param.tcolumna_concepto_ingas_det cd
-            WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_parametros.id_concepto_ingas_det;
+                UPDATE pro.tcomponente_concepto_ingas_det SET
+                tension = v_valor
+                WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
 
-            UPDATE pro.tcomponente_concepto_ingas_det SET
-            aislacion = v_valor
-            WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
+            END LOOP;
+
+
+
 
 
 

@@ -20,6 +20,7 @@ $body$
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #17                22-07-2019 14:49:24    EGS                    Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomp_concepto_ingas'
  #28                16/09/2019             EGS                  Carga de factres en concepto detalle
+ #34  EndeEtr       03/10/2019             EGS                  Se agrgaron campos tipo_configuracion,id_unidad_medida,conductor
  ***************************************************************************/
 
 DECLARE
@@ -85,6 +86,9 @@ BEGIN
                                       id_componente_concepto_ingas INTEGER,
                                       tension   varchar,
                                       aislacion varchar,
+                                      tipo_configuracion VARCHAR,
+                                      conductor VARCHAR,
+                                      id_unidad_medida integer,
                                       id_concepto_ingas_det INTEGER
                                      ) ON COMMIT DROP;
 
@@ -140,7 +144,59 @@ BEGIN
                       aislacion = v_valor
                       WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
 
+                      SELECT
+                          c.id_columna
+                      INTO
+                              v_id_columna
+                      FROM param.tcolumna c
+                      WHERE c.nombre_columna = 'tipo_configuracion';
 
+                     SELECT
+                        cd.valor
+                        into
+                        v_valor
+                      FROM param.tcolumna_concepto_ingas_det cd
+                      WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_record.id_concepto_ingas_det;
+
+                      UPDATE temp_comp_t_concepto_ingas_det SET
+                      tipo_configuracion = v_valor
+                      WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
+
+                      SELECT
+                          c.id_columna
+                      INTO
+                              v_id_columna
+                      FROM param.tcolumna c
+                      WHERE c.nombre_columna = 'conductor';
+
+                     SELECT
+                        cd.valor
+                        into
+                        v_valor
+                      FROM param.tcolumna_concepto_ingas_det cd
+                      WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_record.id_concepto_ingas_det;
+
+                      UPDATE temp_comp_t_concepto_ingas_det SET
+                      conductor = v_valor
+                      WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
+
+                      SELECT
+                          c.id_columna
+                      INTO
+                              v_id_columna
+                      FROM param.tcolumna c
+                      WHERE c.nombre_columna = 'id_unidad_medida';
+
+                     SELECT
+                        cd.valor
+                        into
+                        v_valor
+                      FROM param.tcolumna_concepto_ingas_det cd
+                      WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_record.id_concepto_ingas_det;
+
+                      UPDATE temp_comp_t_concepto_ingas_det SET
+                      id_unidad_medida = v_valor::integer
+                      WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
 
 
             END LOOP;
@@ -149,7 +205,7 @@ BEGIN
             v_filtro = '0=0 and ';
             IF pxp.f_existe_parametro(p_tabla,'tension') THEN
                 IF v_parametros.tension <> '' THEN
-                     v_filtro =v_filtro||'(t.tension = '''||v_parametros.tension||''' or tension = ''todas'' )and ';
+                     v_filtro =v_filtro||'(t.tension = '''||v_parametros.tension||''' )and ';
                 END IF;
 
             END IF;
@@ -165,7 +221,10 @@ BEGIN
                             t.id_componente_concepto_ingas,
                             t.id_concepto_ingas_det,
                             t.tension,
-                            t.aislacion
+                            t.aislacion,
+                            t.tipo_configuracion,
+                            t.conductor,
+                            t.id_unidad_medida
                         FROM temp_comp_t_concepto_ingas_det t
                         where '||v_filtro;
 
@@ -195,8 +254,10 @@ BEGIN
                         f_desadeanizacion,--#28
                         f_seguridad,--#28
                         f_escala_xfd_montaje,--#28
-                        f_escala_xfd_obra_civil--#28
-
+                        f_escala_xfd_obra_civil,--#28
+                        tipo_configuracion,
+                        conductor,
+                        id_unidad_medida
                     )VALUES(
                         v_record.id_componente_concepto_ingas,
                         v_record.id_concepto_ingas_det,
@@ -206,7 +267,10 @@ BEGIN
                         v_record_mc.f_desadeanizacion,--#28
                         v_record_mc.f_seguridad,--#28
                         v_record_mc.f_escala_xfd_montaje,--#28
-                        v_record_mc.f_escala_xfd_obra_civil--#28
+                        v_record_mc.f_escala_xfd_obra_civil,--#28
+                        v_record.tipo_configuracion,
+                        v_record.conductor,
+                        v_record.id_unidad_medida
                     )RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
             END LOOP;
 
