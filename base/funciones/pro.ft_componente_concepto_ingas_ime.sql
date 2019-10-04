@@ -40,6 +40,7 @@ DECLARE
     v_consulta                          varchar;
     v_filtro                            varchar;
     v_record_mc                         record;
+    v_tension                           varchar;
 BEGIN
 
     v_nombre_funcion = 'pro.ft_componente_concepto_ingas_ime';
@@ -207,13 +208,28 @@ BEGIN
                 IF v_parametros.tension <> '' THEN
                      v_filtro =v_filtro||'(t.tension = '''||v_parametros.tension||''' )and ';
                 END IF;
+                IF v_parametros.tension = '' THEN
+                    SELECT
+                        cm.tension
+                    INTO
+                        v_tension
+                    FROM pro.tcomponente_macro cm
+                    WHERE cm.id_componente_macro = v_parametros.id_componente_macro ;
 
+                     v_filtro =v_filtro||'(t.tension = '''||v_tension||''' or t.tension = ''todas'' or t.tension is null or t.tension = '''' ) and ';
+                     --raise exception 'entra';
+                END IF;
             END IF;
+
+
+
             IF pxp.f_existe_parametro(p_tabla,'aislacion') THEN
                 IF v_parametros.aislacion <> '' THEN
                     v_filtro =v_filtro||'t.aislacion = '''||v_parametros.aislacion||''' and ';
                 END IF;
             END IF;
+
+            --raise exception 'v_parametros.tension %',v_parametros.tension;
              v_filtro = v_filtro ||'0=0';
              --RAISE EXCEPTION 'v_filtro %',v_filtro;
             v_consulta ='

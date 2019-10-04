@@ -13,6 +13,8 @@ class ACTComponenteConceptoIngas extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_componente_concepto_ingas');
         if($this->objParam->getParametro('id_componente_macro')!='' ){
             $this->objParam->addFiltro("comingas.id_componente_macro = ".$this->objParam->getParametro('id_componente_macro'));
+        }else {
+            $this->objParam->addFiltro("comingas.id_componente_macro = 0");
         }
         if($this->objParam->getParametro('id_proyecto')!='' ){
             $this->objParam->addFiltro("cm.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));

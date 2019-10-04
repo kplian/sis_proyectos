@@ -15,6 +15,8 @@ class ACTComponenteConceptoIngasDet extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_componente_concepto_ingas_det');
         if($this->objParam->getParametro('id_componente_concepto_ingas')!='' ){
             $this->objParam->addFiltro("comindet.id_componente_concepto_ingas = ".$this->objParam->getParametro('id_componente_concepto_ingas'));
+        }else{
+            $this->objParam->addFiltro("comindet.id_componente_concepto_ingas = 0 ");
         }
         if($this->objParam->getParametro('id_concepto_ingas')!='' ){//#21
             $this->objParam->addFiltro("cci.id_concepto_ingas = ".$this->objParam->getParametro('id_concepto_ingas'));
