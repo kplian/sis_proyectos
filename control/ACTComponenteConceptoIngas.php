@@ -14,7 +14,9 @@ class ACTComponenteConceptoIngas extends ACTbase{
         if($this->objParam->getParametro('id_componente_macro')!='' ){
             $this->objParam->addFiltro("comingas.id_componente_macro = ".$this->objParam->getParametro('id_componente_macro'));
         }else {
-            $this->objParam->addFiltro("comingas.id_componente_macro = 0");
+            if ($this->objParam->getParametro('nombreVista') == 'ComponenteConceptoIngas'){
+                $this->objParam->addFiltro("comingas.id_componente_macro = 0");
+            }
         }
         if($this->objParam->getParametro('id_proyecto')!='' ){
             $this->objParam->addFiltro("cm.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
@@ -31,14 +33,16 @@ class ACTComponenteConceptoIngas extends ACTbase{
 			
 			$this->res=$this->objFunc->listarComponenteConceptoIngas($this->objParam);
 		}
+        if ($this->objParam->getParametro('nombreVista') == 'ComponenteConceptoIngas') {
+            $temp = Array();
+            $temp['precio_total_det'] = $this->res->extraData['total_precio_det'];
+            $temp['tipo_reg'] = 'summary';
 
-        $temp = Array();
-        $temp['precio_total_det'] = $this->res->extraData['total_precio_det'];
-        $temp['tipo_reg'] = 'summary';
+            $this->res->total++;
+            $this->res->addLastRecDatos($temp);
+        }
 
-        $this->res->total++;
 
-        $this->res->addLastRecDatos($temp);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 				

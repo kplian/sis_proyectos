@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION pro.ft_proyecto_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -20,6 +22,7 @@ $body$
     #9              26/03/2019      EGS                 Se modifico que el codigo este antes del nombre del proyecto
     #22             02/09/2019      EGS                 Se crea unidad constructiva principal
     #30             23/09/2019      RCM                 Se excluye caso de depreciaciones anuladas en la validación para aprobación Cierre de Proyectos
+    #35             07/10/2019      egs                 Solo inserta fechas reales si es necesario
 ***************************************************************************/
 
 DECLARE
@@ -73,6 +76,8 @@ DECLARE
     v_id_depto_conta		integer;
     v_fecha_ult_dep			date;
     v_fecha_cierre 			date;
+    v_fecha_ini_real         date;
+    v_fecha_fin_real        date;
 
 BEGIN
 
@@ -101,12 +106,18 @@ BEGIN
                 RAISE EXCEPTION 'Este Codigo ya Existe';
             END IF;
 
-            IF(v_parametros.fecha_ini_real is not null )THEN
-                raise exception 'No Debe Ingresar una fecha real en este estado ';
-            ELSIF(v_parametros.fecha_fin_real is not null)THEN
-                raise exception 'No Debe Ingresar una fecha real en este estado ';
+
+            IF	pxp.f_existe_parametro(p_tabla,'fecha_ini_real') = true THEN --#35
+                IF(v_parametros.fecha_ini_real is not null )THEN
+                    raise exception 'No Debe Ingresar una fecha real en este estado ';
+                END IF;
             END IF;
 
+            IF	pxp.f_existe_parametro(p_tabla,'fecha_fin_real') = true THEN--#35
+                IF(v_parametros.fecha_fin_real is not null)THEN
+                    raise exception 'No Debe Ingresar una fecha real en este estado ';
+                END IF;
+            END IF;
             ----------Recoleccion de datos para el proceso WF
             v_codigo_tipo_proceso = split_part(pxp.f_get_variable_global('tipo_proceso_macro_proyectos'), ',', 2);
             --raise exception 'codigo proceso %',v_codigo_tipo_proceso;
@@ -193,6 +204,18 @@ BEGIN
 				v_id_depto_conta = v_parametros.id_depto_conta;
 			end if;
 
+
+            IF	pxp.f_existe_parametro(p_tabla,'fecha_ini_real') = true THEN--#35
+               v_fecha_ini_real = v_parametros.fecha_ini_real;
+            ELSE
+                v_fecha_ini_real = null;
+            END IF;
+            IF	pxp.f_existe_parametro(p_tabla,'fecha_fin_real') = true THEN--#35
+                v_fecha_fin_real = v_parametros.fecha_fin_real;
+            ELSE
+                v_fecha_fin_real = null;
+            END IF;
+
         	--Sentencia de la insercion
         	insert into pro.tproyecto(
 			codigo,
@@ -233,8 +256,8 @@ BEGIN
 			null,
 			null,
 			v_parametros.id_moneda,
-            v_parametros.fecha_ini_real,
-			v_parametros.fecha_fin_real,
+            v_fecha_ini_real,
+			v_fecha_fin_real,
             v_parametros.id_tipo_cc,
             v_codigo_estado,
             v_id_proceso_wf,
@@ -492,8 +515,8 @@ BEGIN
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai,
 			id_moneda = v_parametros.id_moneda,
-            fecha_ini_real = v_parametros.fecha_ini_real,
-			fecha_fin_real = v_parametros.fecha_fin_real,
+            --fecha_ini_real = v_parametros.fecha_ini_real,
+			--fecha_fin_real = v_parametros.fecha_fin_real,
             id_tipo_cc = v_parametros.id_tipo_cc,
 			id_depto_conta = v_id_depto_conta,
             importe_max = v_parametros.importe_max  --#3 31/12/2018	EGS

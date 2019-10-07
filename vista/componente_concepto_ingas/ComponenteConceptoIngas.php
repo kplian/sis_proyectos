@@ -11,7 +11,7 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
     Phx.vista.ComponenteConceptoIngas=Ext.extend(Phx.gridInterfaz,{
-
+            nombreVista:'ComponenteConceptoIngas',
             constructor:function(config){
                 this.maestro=config.maestro;
                 //llama al constructor de la clase padre
@@ -157,6 +157,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         gwidth: 100,
                         maxLength:10,
                         galign: 'right ',
+                        renderer:function (value,p,record){
+                                Ext.util.Format.usMoney
+                                return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                        }
                     },
                     type:'NumberField',
                     id_grupo:1,
@@ -403,7 +408,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.maestro = m;
                 console.log('maestro',this.maestro);
                 this.Atributos[this.getIndAtributo('id_componente_macro')].valorInicial = this.maestro.id_componente_macro;
-                this.store.baseParams = {id_componente_macro: this.maestro.id_componente_macro};
+                this.store.baseParams = {id_componente_macro: this.maestro.id_componente_macro ,nombreVista:this.nombreVista};
                 this.load({params: {start: 0, limit: 50}});
 
                 this.Cmp.id_concepto_ingas_agrupador.store.baseParams.tipo_agrupador = this.maestro.componente_macro_tipo;

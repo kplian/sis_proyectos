@@ -131,6 +131,11 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 gwidth: 100,
                 maxLength:10,
                 galign: 'right ',
+                renderer:function (value,p,record){
+                    Ext.util.Format.usMoney
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
             type:'NumberField',
             id_grupo:1,
