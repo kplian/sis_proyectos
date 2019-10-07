@@ -16,7 +16,9 @@ class ACTComponenteConceptoIngasDet extends ACTbase{
         if($this->objParam->getParametro('id_componente_concepto_ingas')!='' ){
             $this->objParam->addFiltro("comindet.id_componente_concepto_ingas = ".$this->objParam->getParametro('id_componente_concepto_ingas'));
         }else{
-            $this->objParam->addFiltro("comindet.id_componente_concepto_ingas = 0 ");
+            if ($this->objParam->getParametro('nombreVista') == 'ComponenteConceptoIngasDet') {
+                $this->objParam->addFiltro("comindet.id_componente_concepto_ingas = 0 ");
+            }
         }
         if($this->objParam->getParametro('id_concepto_ingas')!='' ){//#21
             $this->objParam->addFiltro("cci.id_concepto_ingas = ".$this->objParam->getParametro('id_concepto_ingas'));
@@ -33,18 +35,20 @@ class ACTComponenteConceptoIngasDet extends ACTbase{
 			
 			$this->res=$this->objFunc->listarComponenteConceptoIngasDet($this->objParam);
 		}
+        if ($this->objParam->getParametro('nombreVista') == 'ComponenteConceptoIngasDet') {
 
-        $temp = Array();
-        $temp['precio_total_det'] = $this->res->extraData['total_precio_det'];
-        $temp['precio_total_mon'] = $this->res->extraData['total_precio_mon'];
-        $temp['precio_total_oc'] = $this->res->extraData['total_precio_oc'];
-        $temp['precio_total_pru'] = $this->res->extraData['total_precio_pru'];
+            $temp = Array();
+            $temp['precio_total_det'] = $this->res->extraData['total_precio_det'];
+            $temp['precio_total_mon'] = $this->res->extraData['total_precio_mon'];
+            $temp['precio_total_oc'] = $this->res->extraData['total_precio_oc'];
+            $temp['precio_total_pru'] = $this->res->extraData['total_precio_pru'];
 
-        $temp['tipo_reg'] = 'summary';
+            $temp['tipo_reg'] = 'summary';
 
-        $this->res->total++;
+            $this->res->total++;
 
-        $this->res->addLastRecDatos($temp);
+            $this->res->addLastRecDatos($temp);
+        }
 
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}

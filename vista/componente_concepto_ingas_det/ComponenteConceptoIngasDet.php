@@ -16,7 +16,7 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
-
+    nombreVista:'ComponenteConceptoIngasDet',
 	constructor:function(config){
 		this.maestro=config.maestro;
         this.construirGrupos();//#27
@@ -630,7 +630,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.maestro = m;
         console.log('maestro',this.maestro);
         this.Atributos[this.getIndAtributo('id_componente_concepto_ingas')].valorInicial = this.maestro.id_componente_concepto_ingas;
-        this.store.baseParams = {id_componente_concepto_ingas: this.maestro.id_componente_concepto_ingas};
+        this.store.baseParams = {id_componente_concepto_ingas: this.maestro.id_componente_concepto_ingas ,nombreVista:this.nombreVista };
         this.Cmp.id_concepto_ingas_det.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
         this.load({params: {start: 0, limit: 50}});
 
