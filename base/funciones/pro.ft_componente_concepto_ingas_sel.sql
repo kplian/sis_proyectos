@@ -21,7 +21,7 @@ $body$
  #17                22-07-2019 14:49:24    EGS                    Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'pro.tcomp_concepto_ingas'
  #28                  16/09/2019           EGS                   Se agrega campo de pocentaje de prueba
  #34  EndeEtr          03/10/2019            EGS                 Se aumentaron los With para los totalizadores
-
+ #35                    07/10/2019          EGS                  Se agrega lista de conceptos en combos
  ***************************************************************************/
 
 DECLARE
@@ -133,6 +133,74 @@ BEGIN
 
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
+
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+        /*********************************
+     #TRANSACCION:  'PRO_COMINGASLIS_SEL'
+     #DESCRIPCION:    Consulta de datos
+     #AUTOR:        EGS
+     #FECHA:        22-07-2019 14:49:24
+     #ISSUE:        #35
+    ***********************************/
+
+    elsif(p_transaccion='PRO_COMINGASLIS_SEL')then
+
+        begin
+            --Sentencia de la consulta
+            v_consulta:='with concepto_ingas(
+                          id_concepto_ingas
+                    )AS( SELECT
+                              comcig.id_concepto_ingas
+                         FROM pro.tcomponente_concepto_ingas comcig
+                         left join pro.tcomponente_macro cm on cm.id_componente_macro=comcig.id_componente_macro
+                         WHERE '||v_parametros.filtro||'
+                         GROUP BY comcig.id_concepto_ingas
+                            )
+                  select
+                        cig.id_concepto_ingas,
+                        cig.desc_ingas,
+                        cig.tipo
+                        from param.tconcepto_ingas cig
+                        inner join concepto_ingas comcig on comcig.id_concepto_ingas = cig.id_concepto_ingas
+                        WHERE cig.tipo = '''||v_parametros.tipo||'''';
+            --Devuelve la respuesta
+            raise notice 'v_consulta %',v_consulta;
+            return v_consulta;
+
+        end;
+
+    /*********************************
+     #TRANSACCION:  'PRO_COMINGASLIS_CONT'
+     #DESCRIPCION:    Conteo de registros
+     #AUTOR:        EGS
+     #FECHA:        22-07-2019 14:49:24
+     #ISSUE:        #35
+    ***********************************/
+
+    elsif(p_transaccion='PRO_COMINGASLIS_CONT')then
+
+        begin
+            --Sentencia de la consulta de conteo de registros
+            v_consulta:='with concepto_ingas(
+                          id_concepto_ingas
+                    )AS( SELECT
+                              comcig.id_concepto_ingas
+                         FROM pro.tcomponente_concepto_ingas comcig
+                         left join pro.tcomponente_macro cm on cm.id_componente_macro=comcig.id_componente_macro
+                         WHERE '||v_parametros.filtro||'
+                         GROUP BY comcig.id_concepto_ingas
+                            )
+                  select
+                        count(cig.id_concepto_ingas)
+                        from param.tconcepto_ingas cig
+                        inner join concepto_ingas comcig on comcig.id_concepto_ingas = cig.id_concepto_ingas
+                        WHERE cig.tipo = '''||v_parametros.tipo||'''';
+
+            --Definicion de la respuesta
+            raise notice 'v_consulta %',v_consulta;
 
             --Devuelve la respuesta
             return v_consulta;

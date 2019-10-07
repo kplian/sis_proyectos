@@ -21,6 +21,7 @@ $body$
  #17                22-07-2019 14:49:24    EGS                    Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomp_concepto_ingas'
  #28                16/09/2019             EGS                  Carga de factres en concepto detalle
  #34  EndeEtr       03/10/2019             EGS                  Se agrgaron campos tipo_configuracion,id_unidad_medida,conductor
+ #35                07/10/2019             EGS                  se agrega validacion q no agrega conceptos repetidos por componente macro
  ***************************************************************************/
 
 DECLARE
@@ -41,6 +42,8 @@ DECLARE
     v_filtro                            varchar;
     v_record_mc                         record;
     v_tension                           varchar;
+    v_id_concepto_ingas                 integer;
+    v_desc_ingas                        varchar;
 BEGIN
 
     v_nombre_funcion = 'pro.ft_componente_concepto_ingas_ime';
@@ -56,6 +59,22 @@ BEGIN
     if(p_transaccion='PRO_COMINGAS_INS')then
 
         begin
+
+            SELECT
+            comcig.id_concepto_ingas,
+            cig.desc_ingas
+            INTO
+            v_id_concepto_ingas,
+            v_desc_ingas
+            FROM pro.tcomponente_concepto_ingas comcig
+            LEFT JOIN param.tconcepto_ingas cig on cig.id_concepto_ingas = comcig.id_concepto_ingas
+            WHERE comcig.id_componente_macro = v_parametros.id_componente_macro and comcig.id_concepto_ingas = v_parametros.id_concepto_ingas ;
+
+            IF v_id_concepto_ingas is not null THEN --#35
+                RAISE EXCEPTION 'Ya existe el Concepto Ingreso/gasto % ',v_desc_ingas;
+            END IF;
+
+
             --Sentencia de la insercion
             insert into pro.tcomponente_concepto_ingas(
             estado_reg,

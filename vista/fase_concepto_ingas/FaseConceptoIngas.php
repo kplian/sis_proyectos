@@ -10,8 +10,9 @@
   	#7	  endeETR		29/01/2019	EGS				Se agego los botones y validaciones para que se relaciones una solicitud con el fase_concepto_ingas
  * 	#10	  endeEtr		02/04/2019	EGS				Se agrega funcion que actualiza panel de informacion al crear ,editar y eliminar un fase concepto de gasto
  *  #17	  endeETR		01/08/2019	EGS				se agrega listado desde ccomponente_concepto_ingas
- * 
-*/
+ *  #35                 07/10/2019  EGS            Se agrega combo de lidata de conceptos
+
+ */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -208,7 +209,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },*/
-        {//#17
+        {//#35
 
             config: {
                 name: 'id_concepto_ingas',
@@ -216,7 +217,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 emptyText: 'Elija una opción...',
                 store: new Ext.data.JsonStore({
-                    url: '../../sis_proyectos/control/ComponenteConceptoIngas/listarComponenteConceptoIngas',
+                    url: '../../sis_proyectos/control/ComponenteConceptoIngas/listarComponenteConceptoIngasCombo',
                     id: 'id_concepto_ingas',
                     root: 'datos',
                     sortInfo: {

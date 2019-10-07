@@ -5,7 +5,10 @@
 *@author  (admin)
 *@date 22-07-2019 14:49:24
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
-*/
+ISSUE       FECHA       AUTHOR          DESCRIPCION
+#35         07/10/2019  EGS            Se agrega combo de lidata de conceptos
+
+ */
 
 class ACTComponenteConceptoIngas extends ACTbase{    
 			
@@ -61,6 +64,16 @@ class ACTComponenteConceptoIngas extends ACTbase{
 		$this->res=$this->objFunc->eliminarComponenteConceptoIngas($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+    function listarComponenteConceptoIngasCombo(){//#35
+        $this->objParam->defecto('ordenacion','id_concepto_ingas');
+        $this->objParam->defecto('dir_ordenacion','asc');
+        if($this->objParam->getParametro('id_proyecto')!='' ){
+            $this->objParam->addFiltro("cm.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
+        }
+        $this->objFunc=$this->create('MODComponenteConceptoIngas');
+        $this->res=$this->objFunc->listarComponenteConceptoIngasCombo($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 
