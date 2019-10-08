@@ -179,7 +179,13 @@ Phx.vista.ProyectoPr = {
 	},
 
 	tabsouth: [
-	{
+        {
+            url:'../../../sis_proyectos/vista/componente_macro/ComponenteMacroMp.php',
+            title:'Subestaciones y Lineas',
+            height:'50%',
+            cls:'ComponenteMacroMp'
+        },
+    {
 		url:'../../../sis_proyectos/vista/fase_avance_obs/FaseAvanceObsProy.php',
 		title:'Avance Visual',
 		height:'50%',
