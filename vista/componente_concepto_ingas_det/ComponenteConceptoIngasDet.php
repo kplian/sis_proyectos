@@ -16,7 +16,7 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
-
+    nombreVista:'ComponenteConceptoIngasDet',
 	constructor:function(config){
 		this.maestro=config.maestro;
         this.construirGrupos();//#27
@@ -232,9 +232,14 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				maxLength:1179650
+				maxLength:1179650,
+                renderer:function (value,p,record){
+                    Ext.util.Format.usMoney
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
 			},
-				type:'NumberField',
+				type:'MoneyField',
 				filters:{pfiltro:'comindet.precio',type:'numeric'},
 				id_grupo:0,
 				grid:true,
@@ -249,8 +254,13 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 gwidth: 100,
                 maxLength:10,
                 galign: 'right ',
+                renderer:function (value,p,record){
+                    Ext.util.Format.usMoney
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
-            type:'NumberField',
+            type:'MoneyField',
             id_grupo:1,
             grid:true,
             form:false
@@ -300,9 +310,14 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:1179650
+                maxLength:1179650,
+                renderer:function (value,p,record){
+                    Ext.util.Format.usMoney
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
-            type:'NumberField',
+            type:'MoneyField',
             filters:{pfiltro:'comindet.precio_montaje',type:'numeric'},
             id_grupo:1,
             grid:true,
@@ -317,8 +332,13 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 gwidth: 100,
                 maxLength:10,
                 galign: 'right ',
+                renderer:function (value,p,record){
+                    Ext.util.Format.usMoney
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
-            type:'NumberField',
+            type:'MoneyField',
             id_grupo:1,
             grid:true,
             form:false
@@ -345,9 +365,14 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:1179650
+                maxLength:1179650,
+                renderer:function (value,p,record){
+                    Ext.util.Format.usMoney
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
-            type:'NumberField',
+            type:'MoneyField',
             filters:{pfiltro:'comindet.precio_obra_civil',type:'numeric'},
             id_grupo:2,
             grid:true,
@@ -362,8 +387,13 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 gwidth: 100,
                 maxLength:10,
                 galign: 'right ',
+                renderer:function (value,p,record){
+                    Ext.util.Format.usMoney
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
-            type:'NumberField',
+            type:'MoneyField',
             id_grupo:1,
             grid:true,
             form:false
@@ -389,9 +419,14 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:1179650
+                maxLength:1179650,
+                renderer:function (value,p,record){
+                    Ext.util.Format.usMoney
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
-            type:'NumberField',
+            type:'MoneyField',
             filters:{pfiltro:'comindet.precio_prueba',type:'numeric'},
             id_grupo:3,
             grid:true,
@@ -406,8 +441,13 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 gwidth: 100,
                 maxLength:10,
                 galign: 'right ',
+                renderer:function (value,p,record){
+                    Ext.util.Format.usMoney
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
-            type:'NumberField',
+            type:'MoneyField',
             id_grupo:1,
             grid:true,
             form:false
@@ -590,7 +630,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.maestro = m;
         console.log('maestro',this.maestro);
         this.Atributos[this.getIndAtributo('id_componente_concepto_ingas')].valorInicial = this.maestro.id_componente_concepto_ingas;
-        this.store.baseParams = {id_componente_concepto_ingas: this.maestro.id_componente_concepto_ingas};
+        this.store.baseParams = {id_componente_concepto_ingas: this.maestro.id_componente_concepto_ingas ,nombreVista:this.nombreVista };
         this.Cmp.id_concepto_ingas_det.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
         this.load({params: {start: 0, limit: 50}});
 

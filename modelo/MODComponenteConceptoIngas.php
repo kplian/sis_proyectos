@@ -7,6 +7,7 @@
  *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
  * ISSUE       FECHA       AUTHOR          DESCRIPCION
     #28        16/09/2019   EGS            se agrega campo porc_prueba
+ *  #35         07/10/2019  EGS            Se agrega combo de lidata de conceptos
  */
 
 class MODComponenteConceptoIngas extends MODbase{
@@ -96,6 +97,25 @@ class MODComponenteConceptoIngas extends MODbase{
 
         //Define los parametros para la funcion
         $this->setParametro('id_componente_concepto_ingas','id_componente_concepto_ingas','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function listarComponenteConceptoIngasCombo(){//#35
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.ft_componente_concepto_ingas_sel';
+        $this->transaccion='PRO_COMINGASLIS_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        //Definicion de la lista del resultado del query
+
+        $this->setParametro('tipo','tipo','varchar');
+        $this->captura('id_concepto_ingas','int4');
+        $this->captura('desc_ingas','varchar');
+        $this->captura('tipo','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

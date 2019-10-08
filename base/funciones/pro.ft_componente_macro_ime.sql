@@ -21,7 +21,7 @@ $body$
  #17                22-07-2019 14:47:14     EGS                 Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomponente_macro'
  #22 EndeEtr          05/09/2019            EGS                 Se agrga cmp codigo y se inserta unidades construcivas por componente macro
  #27                 16/09/2019            EGS                  Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
-
+ #35                    07/10/2019          EGS                 Codigo en mayusculas
  ***************************************************************************/
 
 DECLARE
@@ -89,7 +89,7 @@ BEGIN
             v_parametros._nombre_usuario_ai,
             null,
             null,
-            v_parametros.codigo,--#22
+            UPPER(v_parametros.codigo),--#22 --#35
             v_parametros.componente_macro_tipo, --#22
             v_parametros.f_desadeanizacion,--#27
             v_parametros.f_seguridad,--#27
@@ -244,7 +244,7 @@ BEGIN
             fecha_mod = now(),
             id_usuario_ai = v_parametros._id_usuario_ai,
             usuario_ai = v_parametros._nombre_usuario_ai,
-            codigo = v_parametros.codigo,--#22
+            codigo = UPPER(v_parametros.codigo),--#22 --#35
             componente_macro_tipo = v_parametros.componente_macro_tipo,--#22
             id_unidad_constructiva = v_parametros.id_unidad_constructiva,
             f_desadeanizacion = v_parametros.f_desadeanizacion,--#27

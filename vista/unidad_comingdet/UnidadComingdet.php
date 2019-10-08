@@ -78,6 +78,13 @@ Phx.vista.UnidadComingdet=Ext.extend(Phx.gridInterfaz,{
                 minChars: 2,
                 renderer : function(value, p, record) {
                     return String.format('{0}', record.data['desc_uc']);
+                },
+                listeners: {
+                    'afterrender': function(combo){
+                    },
+                    'expand':function (combo) {
+                        this.store.reload();
+                    }
                 }
             },
             type: 'ComboBox',

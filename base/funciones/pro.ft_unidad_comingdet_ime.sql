@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION pro.ft_unidad_comingdet_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -17,7 +19,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #0				08-08-2019 15:05:44								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tunidad_comingdet'
- #
+ #35                07/10/2019          EGS                 Bug en suma en validacion de cantidades
  ***************************************************************************/
 
 DECLARE
@@ -65,9 +67,11 @@ BEGIN
             FROM pro.tunidad_comingdet t
             WHERE t.id_componente_concepto_ingas_det = v_parametros.id_componente_concepto_ingas_det;
 
-            IF (v_cantidad_asignada + COALESCE(v_parametros.cantidad_asignada,0)) > v_cantidad_est THEN
-                RAISE EXCEPTION 'La suma de las cantidades asignadas ( % + % )  a Unidades Constructivas Sobrepasan a la cantidad del detalle (%)',v_cantidad_asignada, COALESCE(v_parametros.cantidad_asignada,0),v_cantidad_est;
+            IF (COALESCE(v_cantidad_asignada,0) + COALESCE(v_parametros.cantidad_asignada,0)) > v_cantidad_est THEN --#35
+                RAISE EXCEPTION 'La suma de las cantidades asignadas ( % ). Sobrepasan a la cantidad del detalle (%)', COALESCE(v_cantidad_asignada,0) + COALESCE(v_parametros.cantidad_asignada,0),v_cantidad_est;
             END IF;
+
+
 
             --Sentencia de la insercion
             insert into pro.tunidad_comingdet(
@@ -133,8 +137,8 @@ BEGIN
             FROM pro.tunidad_comingdet t
             WHERE t.id_componente_concepto_ingas_det = v_parametros.id_componente_concepto_ingas_det and id_unidad_comingdet<>v_parametros.id_unidad_comingdet ;
 
-            IF (v_cantidad_asignada + COALESCE(v_parametros.cantidad_asignada,0)) > v_cantidad_est THEN
-                RAISE EXCEPTION 'La suma de las cantidades asignadas ( % + % )  a Unidades Constructivas Sobrepasan a la cantidad del detalle (%)',v_cantidad_asignada, COALESCE(v_parametros.cantidad_asignada,0),v_cantidad_est;
+            IF (COALESCE(v_cantidad_asignada,0) + COALESCE(v_parametros.cantidad_asignada,0)) > COALESCE(v_cantidad_est,0) THEN --#35
+                RAISE EXCEPTION 'La suma de las cantidades asignadas (%). Sobrepasan a la cantidad del detalle (%)', COALESCE(v_cantidad_asignada,0) + COALESCE(v_parametros.cantidad_asignada,0),v_cantidad_est;
             END IF;
             --Sentencia de la modificacion
             update pro.tunidad_comingdet set

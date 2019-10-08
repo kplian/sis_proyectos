@@ -5,7 +5,10 @@
 *@author  (admin)
 *@date 22-07-2019 14:49:24
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
-*/
+ISSUE       FECHA       AUTHOR          DESCRIPCION
+#35         07/10/2019  EGS            Se agrega combo de lidata de conceptos
+
+ */
 
 class ACTComponenteConceptoIngas extends ACTbase{    
 			
@@ -13,6 +16,10 @@ class ACTComponenteConceptoIngas extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_componente_concepto_ingas');
         if($this->objParam->getParametro('id_componente_macro')!='' ){
             $this->objParam->addFiltro("comingas.id_componente_macro = ".$this->objParam->getParametro('id_componente_macro'));
+        }else {
+            if ($this->objParam->getParametro('nombreVista') == 'ComponenteConceptoIngas'){
+                $this->objParam->addFiltro("comingas.id_componente_macro = 0");
+            }
         }
         if($this->objParam->getParametro('id_proyecto')!='' ){
             $this->objParam->addFiltro("cm.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
@@ -29,14 +36,16 @@ class ACTComponenteConceptoIngas extends ACTbase{
 			
 			$this->res=$this->objFunc->listarComponenteConceptoIngas($this->objParam);
 		}
+        if ($this->objParam->getParametro('nombreVista') == 'ComponenteConceptoIngas') {
+            $temp = Array();
+            $temp['precio_total_det'] = $this->res->extraData['total_precio_det'];
+            $temp['tipo_reg'] = 'summary';
 
-        $temp = Array();
-        $temp['precio_total_det'] = $this->res->extraData['total_precio_det'];
-        $temp['tipo_reg'] = 'summary';
+            $this->res->total++;
+            $this->res->addLastRecDatos($temp);
+        }
 
-        $this->res->total++;
 
-        $this->res->addLastRecDatos($temp);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 				
@@ -55,6 +64,16 @@ class ACTComponenteConceptoIngas extends ACTbase{
 		$this->res=$this->objFunc->eliminarComponenteConceptoIngas($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+    function listarComponenteConceptoIngasCombo(){//#35
+        $this->objParam->defecto('ordenacion','id_concepto_ingas');
+        $this->objParam->defecto('dir_ordenacion','asc');
+        if($this->objParam->getParametro('id_proyecto')!='' ){
+            $this->objParam->addFiltro("cm.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
+        }
+        $this->objFunc=$this->create('MODComponenteConceptoIngas');
+        $this->res=$this->objFunc->listarComponenteConceptoIngasCombo($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 

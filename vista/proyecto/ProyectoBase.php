@@ -150,7 +150,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'proy.fecha_ini_real',type:'date'},
 				id_grupo:1,
 				grid:true,
-				form:true
+				form:false//#
 		},
 		{
 			config:{
@@ -166,7 +166,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'proy.fecha_fin_real',type:'date'},
 				id_grupo:1,
 				grid:true,
-				form:true
+				form:false//#
 		},
 
 		{

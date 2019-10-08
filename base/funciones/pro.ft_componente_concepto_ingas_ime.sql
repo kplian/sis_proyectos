@@ -21,6 +21,7 @@ $body$
  #17                22-07-2019 14:49:24    EGS                    Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tcomp_concepto_ingas'
  #28                16/09/2019             EGS                  Carga de factres en concepto detalle
  #34  EndeEtr       03/10/2019             EGS                  Se agrgaron campos tipo_configuracion,id_unidad_medida,conductor
+ #35                07/10/2019             EGS                  se agrega validacion q no agrega conceptos repetidos por componente macro
  ***************************************************************************/
 
 DECLARE
@@ -40,6 +41,9 @@ DECLARE
     v_consulta                          varchar;
     v_filtro                            varchar;
     v_record_mc                         record;
+    v_tension                           varchar;
+    v_id_concepto_ingas                 integer;
+    v_desc_ingas                        varchar;
 BEGIN
 
     v_nombre_funcion = 'pro.ft_componente_concepto_ingas_ime';
@@ -55,6 +59,22 @@ BEGIN
     if(p_transaccion='PRO_COMINGAS_INS')then
 
         begin
+
+            SELECT
+            comcig.id_concepto_ingas,
+            cig.desc_ingas
+            INTO
+            v_id_concepto_ingas,
+            v_desc_ingas
+            FROM pro.tcomponente_concepto_ingas comcig
+            LEFT JOIN param.tconcepto_ingas cig on cig.id_concepto_ingas = comcig.id_concepto_ingas
+            WHERE comcig.id_componente_macro = v_parametros.id_componente_macro and comcig.id_concepto_ingas = v_parametros.id_concepto_ingas ;
+
+            IF v_id_concepto_ingas is not null THEN --#35
+                RAISE EXCEPTION 'Ya existe el Concepto Ingreso/gasto % ',v_desc_ingas;
+            END IF;
+
+
             --Sentencia de la insercion
             insert into pro.tcomponente_concepto_ingas(
             estado_reg,
@@ -207,13 +227,28 @@ BEGIN
                 IF v_parametros.tension <> '' THEN
                      v_filtro =v_filtro||'(t.tension = '''||v_parametros.tension||''' )and ';
                 END IF;
+                IF v_parametros.tension = '' THEN
+                    SELECT
+                        cm.tension
+                    INTO
+                        v_tension
+                    FROM pro.tcomponente_macro cm
+                    WHERE cm.id_componente_macro = v_parametros.id_componente_macro ;
 
+                     v_filtro =v_filtro||'(t.tension = '''||v_tension||''' or t.tension = ''todas'' or t.tension is null or t.tension = '''' ) and ';
+                     --raise exception 'entra';
+                END IF;
             END IF;
+
+
+
             IF pxp.f_existe_parametro(p_tabla,'aislacion') THEN
                 IF v_parametros.aislacion <> '' THEN
                     v_filtro =v_filtro||'t.aislacion = '''||v_parametros.aislacion||''' and ';
                 END IF;
             END IF;
+
+            --raise exception 'v_parametros.tension %',v_parametros.tension;
              v_filtro = v_filtro ||'0=0';
              --RAISE EXCEPTION 'v_filtro %',v_filtro;
             v_consulta ='
