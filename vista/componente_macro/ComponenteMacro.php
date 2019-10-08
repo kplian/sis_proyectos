@@ -15,7 +15,7 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
-
+    nombreVista:'ComponenteMacro',
 	constructor:function(config){
 		this.maestro=config;
         this.construirGrupos();//#27
@@ -23,7 +23,10 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
 		Phx.vista.ComponenteMacro.superclass.constructor.call(this,config);
 		this.init();
 		this.inciarEventos();
-		this.load({params:{start:0, limit:this.tam_pag ,id_proyecto:this.maestro.id_proyecto}})
+		if(this.nombreVista === 'ComponenteMacro' ){
+            this.load({params:{start:0, limit:this.tam_pag ,id_proyecto:this.maestro.id_proyecto , nombreVista:this.nombreVista }});
+        }
+
 	},
     inciarEventos: function(){
     },

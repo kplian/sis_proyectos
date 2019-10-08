@@ -26,7 +26,12 @@ Phx.vista.ComponenteMacroMp = {
 		Phx.vista.ComponenteMacroMp.superclass.constructor.call(this,config);
 		this.init();
 		this.inciarEventos();
-		this.bloquearMenus();
+        var dataPadre = Phx.CP.getPagina(this.idContenedorPadre).getSelectedData()
+        if(dataPadre){
+            this.onEnablePanel(this, dataPadre);
+        } else {
+            this.bloquearMenus();
+        }
 		//this.load({params:{start:0, limit:this.tam_pag ,id_proyecto:this.maestro.id_proyecto}});
 	},
     inciarEventos: function(){
@@ -41,9 +46,7 @@ Phx.vista.ComponenteMacroMp = {
         this.maestro = m;
         this.Atributos[this.getIndAtributo('id_proyecto')].valorInicial = this.maestro.id_proyecto;
         //Filtro para los datos
-        this.store.baseParams = {
-            id_proyecto: this.maestro.id_proyecto
-        };
+        this.store.baseParams = {id_proyecto: this.maestro.id_proyecto  ,nombreVista: this.nombreVista};
 
         this.load({
             params: {
