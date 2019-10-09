@@ -24,8 +24,9 @@ header("content-type: text/javascript; charset=UTF-8");
             this.init();
             this.load({params:{start:0, limit:this.tam_pag , nombreVista:this.nombreVista }});
             this.iniciaEventos();
+            //this.grid.addListener('cellclick', this.oncellclick,this);
         },
-         iniciaEventos : function(){
+        iniciaEventos : function(){
         },
         preparaMenu:function(n){
             var data = this.getSelectedData();
@@ -55,6 +56,50 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 
         extraAtributos:[
+            /*  {
+        config:{
+            name: 'es_obra_civil',
+            fieldLabel: 'Obra Civil',
+            allowBlank: true,
+            anchor: '40%',
+            gwidth: 100,
+            typeAhead: true,
+            triggerAction: 'all',
+            lazyRender:true,
+            mode: 'local',
+            store:['si','no'],
+            renderer:function (value,p,record){
+                console.log('record grid',record);
+                var checked = '';
+                if(value === 'si'){
+                    checked = 'checked';
+                }
+                return  String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:30px;width:30px;" type="checkbox"{0}></div>',checked);
+
+            }
+        },
+        type:'ComboBox',
+        id_grupo:0,
+        valorInicial: 'no',
+        grid: true,
+        form: true
+    },*/
+            {
+                config:{
+                    name : 'es_obra_civil',
+                    fieldLabel : 'Obra Civil',
+                    allowBlank: false,
+                    items: [
+                        {boxLabel: 'No', name: 'es_obra_civil', inputValue: 'no', checked: true},
+                        {boxLabel: 'Si', name: 'es_obra_civil', inputValue: 'si'}
+
+                    ],
+                },
+                type : 'RadioGroupField',
+                id_grupo : 1,
+                form : true,
+                grid:true
+            },
             {//#22
                 config: {
                     name: 'tipo_agrupador',
@@ -87,7 +132,47 @@ header("content-type: text/javascript; charset=UTF-8");
 
         extraFields:[
             {name:'tipo_agrupador', type: 'string'},
+            {name:'es_obra_civil', type: 'string'},
         ],
         arrayDefaultColumHidden:['fecha_mod','usr_reg','usr_mod','estado_reg','fecha_reg','id_usuario_ai','usuario_ai'],
+        oncellclick : function(grid, rowIndex, columnIndex, e) {
+            const record = this.store.getAt(rowIndex);
+            console.log('record',this.store.getAt(rowIndex));
+            console.log('grid',grid);
+            console.log('rowIndex',rowIndex);
+            console.log('columnIndex',columnIndex);
+            console.log('e',e);
+            console.log('cmp',this.Cmp.es_obra_civil);
+            record.set('es_obra_civil',record.originalValue);
+            //fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
+            //if (fieldName === 'es_obra_civil')
+            //this.insertObraCivil(record,fieldName);
+
+
+        },
+        insertObraCivil: function(record,name){
+            Phx.CP.loadingShow();
+            console.log('record',record);
+            var data = record.data;
+            var es_oc = this.Cmp.es_obra_civil.getValue();
+            Ext.Ajax.request({
+                url:'../../sis_parametros/control/ConceptoIngasAgrupador/insertObraCivil',
+                params:{
+                    id_concepto_ingas_agrupador: data.id_concepto_ingas_agrupador,
+                    es_obra_civil: es_oc,
+                    field_name: name
+                },
+                success: this.successRevision,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
+            this.reload();
+        },
+        successRevision: function(resp){
+            Phx.CP.loadingHide();
+            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+        },
     }
 </script>
+
