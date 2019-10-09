@@ -57,7 +57,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: false,
                 emptyText: 'Elija una opción...',
                 store: new Ext.data.JsonStore({
-                    url: '../../sis_parametros/control/ConceptoIngasDet/listarConceptoIngasDetCombo',
+                    url: '../../sis_parametros/control/ConceptoIngasDet/listarConceptoIngasDet',
                     id: 'id_concepto_ingas_det',
                     root: 'datos',
                     sortInfo: {
@@ -65,10 +65,18 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                         direction: 'ASC'
                     },
                     totalProperty: 'total',
-                    fields: ['id_concepto_ingas_det', 'nombre','descripcion'],
+                    fields: ['id_concepto_ingas_det', 'nombre','descripcion','tension'],
                     remoteSort: true,
-                    baseParams: {par_filtro: 'coind.id_concepto_ingas_det#coind.nombre#coind.descripcion',start: 0, limit: 50,agrupador:'no'}
+                    baseParams: {par_filtro: 'coind.id_concepto_ingas_det#coind.nombre#coind.descripcion',start: 0, limit: 50,agrupador:'no'},
+                    listeners: {
+                        'afterrender': function(combo){
+                        },
+                        'expand':function (combo) {
+                            this.store.reload();
+                        }
+                    }
                 }),
+                tpl: '<tpl for="."><div class="x-combo-list-item"><p>Nombre :{nombre}</p><p>Tension :{tension}</p></div></tpl>',
                 valueField: 'id_concepto_ingas_det',
                 displayField: 'nombre',
                 gdisplayField: 'nombre',
@@ -632,7 +640,9 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.Atributos[this.getIndAtributo('id_componente_concepto_ingas')].valorInicial = this.maestro.id_componente_concepto_ingas;
         this.store.baseParams = {id_componente_concepto_ingas: this.maestro.id_componente_concepto_ingas ,nombreVista:this.nombreVista };
         this.Cmp.id_concepto_ingas_det.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
+        this.Cmp.id_concepto_ingas_det.store.reload(true);
         this.load({params: {start: 0, limit: 50}});
+        this.Cmp.id_concepto_ingas_det.store.baseParams.tension_macro = this.maestro.tension_macro;
 
 
     },

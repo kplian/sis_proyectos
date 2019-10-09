@@ -395,6 +395,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name:'id_proyecto', type: 'string'},
                 {name:'porc_prueba', type: 'numeric'},//#28
                 {name:'precio_total_det', type: 'numeric'},
+                {name:'tension_macro', type: 'string'},
             ],
             sortInfo:{
                 field: 'id_componente_concepto_ingas',
