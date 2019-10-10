@@ -309,7 +309,7 @@ Phx.vista.ProyectoPr = {
 		var data = this.getSelectedData();
 		var win = Phx.CP.loadWindows(
 			'../../../sis_proyectos/vista/reporte/ReporteResumenN.php',
-			'Filtro Cobro', {
+			'Reportes', {
 			    width: '25%',
 			    height: '40%'
 			},
