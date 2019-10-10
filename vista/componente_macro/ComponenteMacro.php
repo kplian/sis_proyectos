@@ -169,7 +169,11 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:10
+                maxLength:10,
+                renderer:function (value,p,record){
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
             type:'NumberField',
             id_grupo:0,
@@ -183,7 +187,11 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:10
+                maxLength:10,
+                renderer:function (value,p,record){
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
             type:'NumberField',
             id_grupo:0,
@@ -197,7 +205,11 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:10
+                maxLength:10,
+                renderer:function (value,p,record){
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
             type:'NumberField',
             id_grupo:1,
@@ -211,7 +223,11 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:10
+                maxLength:10,
+                renderer:function (value,p,record){
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
             type:'NumberField',
             id_grupo:2,
@@ -225,7 +241,11 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:10
+                maxLength:10,
+                renderer:function (value,p,record){
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
             type:'NumberField',
             id_grupo:3,
