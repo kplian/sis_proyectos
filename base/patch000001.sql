@@ -1000,3 +1000,10 @@ ALTER TABLE pro.tcomponente_concepto_ingas_det
 ALTER TABLE pro.tcomponente_concepto_ingas_det
   ADD COLUMN id_unidad_medida INTEGER;
 /***********************************F-SCP-EGS-PRO-18-01/10/2019****************************************/
+/***********************************I-SCP-EGS-PRO-19-09/10/2019****************************************/
+ALTER TABLE pro.tcomponente_macro
+ ALTER COLUMN f_desadeanizacion TYPE NUMERIC(19,3);
+ ALTER TABLE pro.tcomponente_concepto_ingas_det
+ ALTER COLUMN f_desadeanizacion TYPE NUMERIC(19,3);
+
+/***********************************F-SCP-EGS-PRO-19-09/10/2019****************************************/

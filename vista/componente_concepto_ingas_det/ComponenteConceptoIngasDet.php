@@ -218,6 +218,24 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
+        {//#27
+            config:{
+                name: 'f_desadeanizacion',
+                fieldLabel: 'F. Desadeanizacion ',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10,
+                renderer:function (value,p,record){
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
+            },
+            type:'NumberField',
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
 		{
 			config:{
 				name: 'cantidad_est',
@@ -283,20 +301,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             type:'Field',
             form:true
         },
-        {//#27
-            config:{
-                name: 'f_desadeanizacion',
-                fieldLabel: 'F. Desadeanizacion ',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 100,
-                maxLength:10
-            },
-            type:'NumberField',
-            id_grupo:0,
-            grid:true,
-            form:true
-        },
+
         {//#27
             config:{
                 name: 'f_seguridad',
@@ -304,7 +309,11 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:10
+                maxLength:10,
+                renderer:function (value,p,record){
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
             type:'NumberField',
             id_grupo:0,
@@ -358,7 +367,11 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:10
+                maxLength:10,
+                renderer:function (value,p,record){
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
             type:'NumberField',
             id_grupo:1,
@@ -413,7 +426,11 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:10
+                maxLength:10,
+                renderer:function (value,p,record){
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
             type:'NumberField',
             id_grupo:2,

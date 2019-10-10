@@ -22,6 +22,7 @@ $body$
  #22 EndeEtr          05/09/2019            EGS                 Se agrega cmp codigo
 #27                   16/09/2019            EGS                 Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
 #34  EndeEtr          03/10/2019            EGS                 Se aumentaron los With para los totalizdores
+#35 EndeEtr           10/10/2019            EGS                 Se agrega los factores la suma producto
  ***************************************************************************/
 
 DECLARE
@@ -53,9 +54,9 @@ BEGIN
                           precio_total_det
                     )AS( SELECT
                               comindet.id_componente_concepto_ingas,
-                               sum((COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))+
-                                   (COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0))+
-                                   (COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0))+
+                               sum((COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0)* COALESCE(comindet.f_desadeanizacion,0))+
+                                   (COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_escala_xfd_montaje,0))+
+                                   (COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_escala_xfd_obra_civil,0))+
                                    (COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))
                               )::numeric as precio_total_det
                          FROM pro.tcomponente_concepto_ingas_det comindet
@@ -130,9 +131,9 @@ BEGIN
                           precio_total_det
                     )AS( SELECT
                               comindet.id_componente_concepto_ingas,
-                                sum((COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0))+
-                                   (COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0))+
-                                   (COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0))+
+                                sum((COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0)* COALESCE(comindet.f_desadeanizacion,0))+
+                                   (COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_escala_xfd_montaje,0))+
+                                   (COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_escala_xfd_obra_civil,0))+
                                    (COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))
                               )::numeric as precio_total_det                         FROM pro.tcomponente_concepto_ingas_det comindet
                          GROUP BY comindet.id_componente_concepto_ingas
