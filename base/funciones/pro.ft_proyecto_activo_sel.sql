@@ -14,11 +14,11 @@ $body$
  FECHA:	        31-08-2017 16:52:19
  COMENTARIOS:
 ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- ISSUE      FECHA		      AUTOR             DESCRIPCION
- #1			19-12-2018        RCM 				Cambio de criterio para obtención de las cuentas contables a excluir
- #18 		08/08/2019		  RCM 				Adición de fecha tope inferior al obtener el mayor de contabilidad
+ ISSUE	SIS 	EMPRESA     FECHA 		AUTOR 		DESCRIPCION
+ 		PRO 	ETR 		31/08/2019	RCM 		Creación del archivo
+ #1		PRO 	ETR			19/12/2018  RCM 		Cambio de criterio para obtención de las cuentas contables a excluir
+ #18 	PRO		ETR			08/08/2019	RCM 		Adición de fecha tope inferior al obtener el mayor de contabilidad
+ #36    PRO     ETR         16/10/2019  RCM         Adición de campo Funcionario
 ***************************************************************************/
 
 DECLARE
@@ -189,12 +189,15 @@ BEGIN
 
     					costo numeric,
     					codigo varchar,
-    					id_activo_fijo integer
+    					id_activo_fijo integer,
+    					id_funcionario integer, --#36
+    					desc_person varchar --#36
     			';
 
     		--Nombres de las columnas
     		v_nombres_col = 'id_proyecto, id_proyecto_activo, id_clasificacion, denominacion, descripcion, observaciones, desc_clasificacion, cantidad_det, id_depto, estado, id_lugar, ubicacion, id_centro_costo, id_ubicacion, id_grupo, id_grupo_clasif, nro_serie, marca, fecha_ini_dep, vida_util_anios, id_unidad_medida, codigo_af_rel,
-desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, desc_unmed, costo, codigo, id_activo_fijo ';
+desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, desc_unmed, costo, codigo, id_activo_fijo,
+id_funcionario, desc_person '; --#36
 
     		--Obtención del id_tipo_cc
     		select id_tipo_cc
@@ -269,7 +272,9 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 				desc_grupo_clasif,
 				desc_unmed,
 				codigo,
-				id_activo_fijo
+				id_activo_fijo,
+				id_funcionario, --#36
+				desc_person --#36
     		)
     		select
     		pa.id_proyecto, pa.id_proyecto_activo, pa.id_clasificacion, pa.denominacion, pa.descripcion, pa.observaciones,
@@ -298,7 +303,9 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
 			(gruc.codigo || ' - ' || gruc.nombre)::varchar as desc_grupo_clasif,
 			um.codigo as desc_unmed,
 			af.codigo,
-			af.id_activo_fijo
+			af.id_activo_fijo,
+			pa.id_funcionario,
+			fun.desc_funcionario1
     		from pro.tproyecto_activo pa
     		left join kaf.tclasificacion cla
     		on cla.id_clasificacion = pa.id_clasificacion
@@ -315,6 +322,8 @@ desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, de
     		left join param.tunidad_medida um
     		on um.id_unidad_medida = pa.id_unidad_medida
     		left join kaf.tactivo_fijo af on af.id_activo_fijo = pa.id_activo_fijo
+    		LEFT JOIN orga.vfuncionario fun
+    		ON fun.id_funcionario = pa.id_funcionario
     		where pa.id_proyecto = v_parametros.id_proyecto;
 
     		--Update para el costo total del activo

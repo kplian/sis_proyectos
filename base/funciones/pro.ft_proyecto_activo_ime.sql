@@ -17,6 +17,7 @@ $body$
  ISSUE  SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
         PRO     ETR      31/08/2017   RCM         Creación del archivo
  #19    PRO     ETR      21/08/2019   RCM         Adición del id_activo_fijo para el caso de activos fijos existentes relacionados
+ #36    PRO     ETR      16/10/2019  RCM         Adición de campo Funcionario
 ***************************************************************************/
 
 DECLARE
@@ -63,62 +64,63 @@ BEGIN
  	#FECHA:		31-08-2017 16:52:19
 	***********************************/
 
-	if(p_transaccion='PRO_PRAF_INS')then
+	IF(p_transaccion = 'PRO_PRAF_INS') THEN
 
-        begin
+        BEGIN
 
         	--Verifica si se inició el WF del cierre
         	PERFORM pro.f_iniciar_wf_proyecto_cierre(p_id_usuario, v_parametros._id_usuario_ai, v_parametros._nombre_usuario_ai, v_parametros.id_proyecto);
 
         	--Preparación de variables
-			select
-	        coalesce(v_parametros.id_proyecto,null) as id_proyecto,
-			coalesce(v_parametros.observaciones,null) as observaciones,
-			coalesce(v_parametros.denominacion,null) as denominacion,
-			coalesce(v_parametros.descripcion,null) as descripcion,
-			coalesce(v_parametros.id_clasificacion,null) as id_clasificacion,
-			coalesce(v_parametros._nombre_usuario_ai,null) as _nombre_usuario_ai,
-			coalesce(v_parametros._id_usuario_ai,null) as _id_usuario_ai,
-			coalesce(v_parametros.cantidad_det,null) as cantidad_det,
-			coalesce(v_parametros.id_depto,null) as id_depto,
-			coalesce(v_parametros.estado,null) as estado,
-			coalesce(v_parametros.ubicacion,null) as ubicacion,
-			coalesce(v_parametros.id_centro_costo,null) as id_centro_costo,
-			coalesce(v_parametros.id_ubicacion,null) as id_ubicacion,
-			coalesce(v_parametros.id_grupo,null) as id_grupo,
-			coalesce(v_parametros.id_grupo_clasif,null) as id_grupo_clasif,
-			coalesce(v_parametros.nro_serie,null) as nro_serie,
-			coalesce(v_parametros.marca,null) as marca,
-			coalesce(v_parametros.fecha_ini_dep,null) as fecha_ini_dep,
-			coalesce(v_parametros.vida_util_anios,null) as vida_util_anios,
-			coalesce(v_parametros.id_unidad_medida,null) as id_unidad_medida,
-			coalesce(v_parametros.codigo_af_rel,null) as codigo_af_rel
-	        into v_rec;
+			SELECT
+	        COALESCE(v_parametros.id_proyecto ,NULL) AS id_proyecto,
+			COALESCE(v_parametros.observaciones ,NULL) AS observaciones,
+			COALESCE(v_parametros.denominacion ,NULL) AS denominacion,
+			COALESCE(v_parametros.descripcion ,NULL) AS descripcion,
+			COALESCE(v_parametros.id_clasificacion ,NULL) AS id_clasificacion,
+			COALESCE(v_parametros._nombre_usuario_ai ,NULL) AS _nombre_usuario_ai,
+			COALESCE(v_parametros._id_usuario_ai ,NULL) AS _id_usuario_ai,
+			COALESCE(v_parametros.cantidad_det ,NULL) AS cantidad_det,
+			COALESCE(v_parametros.id_depto ,NULL) AS id_depto,
+			COALESCE(v_parametros.estado ,NULL) AS estado,
+			COALESCE(v_parametros.ubicacion ,NULL) AS ubicacion,
+			COALESCE(v_parametros.id_centro_costo ,NULL) AS id_centro_costo,
+			COALESCE(v_parametros.id_ubicacion ,NULL) AS id_ubicacion,
+			COALESCE(v_parametros.id_grupo ,NULL) AS id_grupo,
+			COALESCE(v_parametros.id_grupo_clasif ,NULL) AS id_grupo_clasif,
+			COALESCE(v_parametros.nro_serie ,NULL) AS nro_serie,
+			COALESCE(v_parametros.marca ,NULL) AS marca,
+			COALESCE(v_parametros.fecha_ini_dep ,NULL) AS fecha_ini_dep,
+			COALESCE(v_parametros.vida_util_anios ,NULL) AS vida_util_anios,
+			COALESCE(v_parametros.id_unidad_medida ,NULL) AS id_unidad_medida,
+			COALESCE(v_parametros.codigo_af_rel ,NULL) AS codigo_af_rel,
+			COALESCE(v_parametros.id_funcionario, NULL) AS id_funcionario --#36
+	        INTO v_rec;
 
 	        --Inserción del movimiento
 	        v_id_proyecto_activo = pro.f_insercion_proyecto_activo(p_id_usuario, hstore(v_rec));
 
 			--Definicion de la respuesta
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Definición de Activos Fijos almacenado(a) con exito (id_proyecto_activo'||v_id_proyecto_activo||')');
-            v_resp = pxp.f_agrega_clave(v_resp,'id_proyecto_activo',v_id_proyecto_activo::varchar);
+			v_resp = pxp.f_agrega_clave(v_resp, 'mensaje','Definición de Activos Fijos almacenado(a) con exito (id_proyecto_activo' || v_id_proyecto_activo || ')');
+            v_resp = pxp.f_agrega_clave(v_resp, 'id_proyecto_activo', v_id_proyecto_activo::varchar);
 
             --Devuelve la respuesta
-            return v_resp;
+            RETURN v_resp;
 
-		end;
+		END;
 
 	/*********************************
  	#TRANSACCION:  'PRO_PRAF_MOD'
  	#DESCRIPCION:	Modificacion de registros
- 	#AUTOR:		admin
- 	#FECHA:		31-08-2017 16:52:19
+ 	#AUTOR:			admin
+ 	#FECHA:			31-08-2017 16:52:19
 	***********************************/
 
-	elsif(p_transaccion='PRO_PRAF_MOD')then
+	ELSIF(p_transaccion='PRO_PRAF_MOD')THEN
 
-		begin
+		BEGIN
 			--Sentencia de la modificacion
-			update pro.tproyecto_activo set
+			UPDATE pro.tproyecto_activo SET
 			id_proyecto = v_parametros.id_proyecto,
 			observaciones = v_parametros.observaciones,
 			denominacion = v_parametros.denominacion,
@@ -142,15 +144,16 @@ BEGIN
 			fecha_ini_dep = v_parametros.fecha_ini_dep,
 			vida_util_anios = v_parametros.vida_util_anios,
 			id_unidad_medida = v_parametros.id_unidad_medida,
-			codigo_af_rel = v_parametros.codigo_af_rel
-			where id_proyecto_activo=v_parametros.id_proyecto_activo;
+			codigo_af_rel = v_parametros.codigo_af_rel,
+			id_funcionario = v_parametros.id_funcionario
+			WHERE id_proyecto_activo = v_parametros.id_proyecto_activo;
 
 			--Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Definición de Activos Fijos modificado(a)');
-            v_resp = pxp.f_agrega_clave(v_resp,'id_proyecto_activo',v_parametros.id_proyecto_activo::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'Definición de Activos Fijos modificado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp, 'id_proyecto_activo', v_parametros.id_proyecto_activo::varchar);
 
             --Devuelve la respuesta
-            return v_resp;
+            RETURN v_resp;
 
 		end;
 

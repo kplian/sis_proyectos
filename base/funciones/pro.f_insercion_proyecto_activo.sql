@@ -15,6 +15,7 @@ $body$
  ISSUE  SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
         PRO     ETR      14/09/2018   RCM         Creación del archivo
  #19    PRO     ETR      21/08/2019   RCM         Adición del id_activo_fijo para el caso de activos fijos existentes relacionados
+ #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
 ***************************************************************************/
 DECLARE
 
@@ -28,7 +29,7 @@ BEGIN
     v_nombre_funcion = 'pro.f_insercion_proyecto_activo';
 
     --Sentencia de la insercion
-    insert into pro.tproyecto_activo(
+    INSERT INTO pro.tproyecto_activo(
     id_proyecto,
     observaciones,
     estado_reg,
@@ -58,7 +59,7 @@ BEGIN
     codigo_af_rel,
     id_funcionario,
     id_activo_fijo --#19
-    ) values(
+    ) VALUES(
     (p_parametros->'id_proyecto')::integer,
     (p_parametros->'observaciones')::varchar,
     'activo',
@@ -87,7 +88,8 @@ BEGIN
     (p_parametros->'id_unidad_medida')::integer,
     (p_parametros->'codigo_af_rel')::varchar,
     (p_parametros->'id_funcionario')::integer,
-    (p_parametros->'id_activo_fijo')::integer --#19
+    (p_parametros->'id_activo_fijo')::integer, --#19
+    (p_parametros->'id_funcionario')::integer --#36
     ) RETURNING id_proyecto_activo INTO v_id_proyecto_activo;
 
     --Respuesta
