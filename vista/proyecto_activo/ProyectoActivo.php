@@ -10,6 +10,7 @@
 * #11  		  ETR        09/05/2019     MZM         Se incrementa opcion (boton) para exportar datos en CSV
 * #23         ETR        03/09/2019     RCM         Colorear celda para activos fijos existentes
 * #36         ETR        16/10/2019     RCM         Adición de campo Funcionario
+* #38         ETR        17/10/2019     RCM         Adición de campo Fecha Compra
 * ****************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -123,6 +124,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this.id_funcionario.setValue(rec.id_funcionario);
         //Fin #36
 
+
         ///Fields
         this.id_proyecto_activo = rec.id_proyecto_activo;
         this.txtDenominacion.setValue(rec.denominacion);
@@ -137,6 +139,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this.fecha_ini_dep.setValue(rec.fecha_ini_dep);
         this.vida_util_anios.setValue(rec.vida_util_anios);
         this.codigo_af_rel.setValue(rec.codigo_af_rel);
+        this.fecha_compra.setValue(rec.fecha_compra);//#38
 
         this.winDatos.show();
     },
@@ -251,6 +254,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this._colsData.push({name:'id_funcionario', type: 'numeric'});
         this._colsData.push({name:'desc_person', type: 'string'});
         //Fin #36
+        this._colsData.push({name:'fecha_compra', type:'date', dateFormat:'Y-m-d'});//#38
 
         //Inicializa los valores del array para mapeo de Ids
         for (var i=0; i<=5; i++) {
@@ -783,6 +787,16 @@ Ext.define('Phx.vista.ProyectoActivo', {
         });
         //Fin #36
 
+        //Inicio #38
+        this.fecha_compra = new Ext.form.DateField({
+          fieldLabel: 'Fecha Compra',
+          name: 'fecha_compra',
+          allowBlank: true,
+          maxLength: 100,
+          anchor: '97%'
+        });
+        //Fin #38
+
         //Formulario
         this.frmDatos = new Ext.form.FormPanel({
             items: [{
@@ -799,7 +813,8 @@ Ext.define('Phx.vista.ProyectoActivo', {
                             this.cantidad_det, this.id_unidad_medida, this.id_depto, this.estado, this.ubicacion, this.id_centro_costo,
                             this.id_ubicacion, this.id_grupo, this.id_grupo_clasif, this.nro_serie, this.marca, this.fecha_ini_dep,
                             this.vida_util_anios, this.codigo_af_rel,
-                            this.id_funcionario //#36
+                            this.id_funcionario, //#36
+                            this.fecha_compra //#38
                             ],
                     id_grupo: 0
                 }
@@ -862,7 +877,8 @@ Ext.define('Phx.vista.ProyectoActivo', {
                 vida_util_anios: this.vida_util_anios.getValue(),
                 id_unidad_medida: this.id_unidad_medida.getValue(),
                 codigo_af_rel: this.codigo_af_rel.getValue(),
-                id_funcionario: this.id_funcionario.getValue()//#36
+                id_funcionario: this.id_funcionario.getValue(),//#36
+                fecha_compra: this.fecha_compra.getValue() //#38
             };
 
             Ext.Ajax.request({

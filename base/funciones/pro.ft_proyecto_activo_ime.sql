@@ -18,6 +18,7 @@ $body$
         PRO     ETR      31/08/2017   RCM         Creación del archivo
  #19    PRO     ETR      21/08/2019   RCM         Adición del id_activo_fijo para el caso de activos fijos existentes relacionados
  #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
+ #38    PRO     ETR      17/10/2019   RCM         Adición de campo Fecha de compra
 ***************************************************************************/
 
 DECLARE
@@ -94,7 +95,8 @@ BEGIN
 			COALESCE(v_parametros.vida_util_anios ,NULL) AS vida_util_anios,
 			COALESCE(v_parametros.id_unidad_medida ,NULL) AS id_unidad_medida,
 			COALESCE(v_parametros.codigo_af_rel ,NULL) AS codigo_af_rel,
-			COALESCE(v_parametros.id_funcionario, NULL) AS id_funcionario --#36
+			COALESCE(v_parametros.id_funcionario, NULL) AS id_funcionario, --#36
+			COALESCE(v_parametros.fecha_compra, NULL) AS fecha_compra --#38
 	        INTO v_rec;
 
 	        --Inserción del movimiento
@@ -145,7 +147,8 @@ BEGIN
 			vida_util_anios = v_parametros.vida_util_anios,
 			id_unidad_medida = v_parametros.id_unidad_medida,
 			codigo_af_rel = v_parametros.codigo_af_rel,
-			id_funcionario = v_parametros.id_funcionario
+			id_funcionario = v_parametros.id_funcionario, --#36
+			fecha_compra = v_parametros.fecha_compra --#38
 			WHERE id_proyecto_activo = v_parametros.id_proyecto_activo;
 
 			--Definicion de la respuesta
@@ -480,7 +483,8 @@ BEGIN
 			COALESCE(v_id_unidad_medida, NULL) AS id_unidad_medida,
 			COALESCE(v_codigo_af_rel, NULL) AS codigo_af_rel,
 			v_id_funcionario AS id_funcionario,
-			(SELECT id_activo_fijo FROM kaf.tactivo_fijo WHERE codigo = v_codigo_af_rel OR codigo_ant = v_codigo_af_rel) AS id_activo_fijo
+			(SELECT id_activo_fijo FROM kaf.tactivo_fijo WHERE codigo = v_codigo_af_rel OR codigo_ant = v_codigo_af_rel) AS id_activo_fijo,
+			COALESCE(v_parametros.fecha_compra, NULL) AS fecha_compra --#38
 	        INTO v_rec;
 
 	        --Inserción del movimiento

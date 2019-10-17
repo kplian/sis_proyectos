@@ -17,6 +17,7 @@ $body$
  #19    PRO     ETR      19/08/2019   RCM         Corrección importes de alta considerando la actualización
  #33    PRO     ETR      30/09/2019   RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
  #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
+ #38    PRO     ETR      17/10/2019   RCM         Adición de campo Fecha de compra
 ***************************************************************************
 */
 DECLARE
@@ -243,7 +244,8 @@ BEGIN
         cb.importe_mb * ac.importe_activo / ac.importe_total AS monto_bs,
         cb.importe_mt * ac.importe_activo / ac.importe_total AS monto_usd,
         cb.importe_ma * ac.importe_activo / ac.importe_total AS monto_ufv,
-        pa.id_funcionario
+        pa.id_funcionario, --#36
+        pa.fecha_compra --#38
         FROM pro.tproyecto_activo pa
         INNER JOIN tactivos ac
         ON ac.id_proyecto_activo = pa.id_proyecto_activo
@@ -260,7 +262,7 @@ BEGIN
         NULL                                                AS id_persona,
         0                                                   AS cantidad_revaloriz,
         NULL                                                AS id_proveedor,
-        v_rec.fecha_fin                                     AS fecha_compra,
+        v_rec.fecha_compra                                  AS fecha_compra, --#38
         v_id_cat_estado_fun                                 AS id_cat_estado_fun,
         v_rec.ubicacion                                     AS ubicacion,
         NULL                                                AS documento,
