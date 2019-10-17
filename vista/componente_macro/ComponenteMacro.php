@@ -24,7 +24,8 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
 		this.init();
 		this.inciarEventos();
 		if(this.nombreVista === 'ComponenteMacro' ){
-            this.load({params:{start:0, limit:this.tam_pag ,id_proyecto:this.maestro.id_proyecto , nombreVista:this.nombreVista }});
+		    this.store.baseParams = {id_proyecto:this.maestro.id_proyecto , nombreVista:this.nombreVista};
+            this.load({params:{start:0, limit:this.tam_pag }});
         }
 
 	},
@@ -170,8 +171,10 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 anchor: '80%',
                 gwidth: 100,
                 maxLength:10,
+                allowDecimals:true,
+                decimalPrecision:3,
                 renderer:function (value,p,record){
-                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+                    return  String.format('<b><font size= >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
 
                 }
             },

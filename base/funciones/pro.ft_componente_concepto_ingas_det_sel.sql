@@ -88,7 +88,11 @@ BEGIN
                         (COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0)* COALESCE(comindet.f_desadeanizacion,0))::numeric as precio_total_det, --#34
                         (COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0)* COALESCE(comindet.f_escala_xfd_montaje,0) )::numeric as precio_total_mon,
                         (COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0)* COALESCE(comindet.f_escala_xfd_obra_civil,0) )::numeric as precio_total_oc,
-                        (COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_pru
+                        (COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_pru,
+                        comindet.nro_tramite,--#39
+                        comindet.id_proceso_wf,--#39
+                        comindet.id_estado_wf,--#39
+                        comindet.estado  --#39
 						from pro.tcomponente_concepto_ingas_det comindet
 						inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod

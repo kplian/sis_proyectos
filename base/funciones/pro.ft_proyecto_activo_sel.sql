@@ -19,6 +19,7 @@ $body$
  #1		PRO 	ETR			19/12/2018  RCM 		Cambio de criterio para obtención de las cuentas contables a excluir
  #18 	PRO		ETR			08/08/2019	RCM 		Adición de fecha tope inferior al obtener el mayor de contabilidad
  #36    PRO     ETR         16/10/2019  RCM         Adición de campo Funcionario
+ #38    PRO     ETR      	17/10/2019  RCM         Adición de campo Fecha de compra
 ***************************************************************************/
 
 DECLARE
@@ -86,7 +87,8 @@ BEGIN
 						praf.vida_util_anios,
 						praf.id_unidad_medida,
 						praf.codigo_af_rel,
-						um.codigo as desc_unmed
+						um.codigo as desc_unmed,
+						praf.fecha_compra --#38
 						from pro.tproyecto_activo praf
 						inner join segu.tusuario usu1 on usu1.id_usuario = praf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = praf.id_usuario_mod
@@ -189,15 +191,15 @@ BEGIN
 
     					costo numeric,
     					codigo varchar,
-    					id_activo_fijo integer,
-    					id_funcionario integer, --#36
-    					desc_person varchar --#36
-    			';
+    					id_activo_fijo integer';
+    		v_columnas = v_columnas || ', id_funcionario integer, desc_person varchar'; --#36
+    		v_columnas = v_columnas || ', fecha_compra date'; --#38
 
     		--Nombres de las columnas
     		v_nombres_col = 'id_proyecto, id_proyecto_activo, id_clasificacion, denominacion, descripcion, observaciones, desc_clasificacion, cantidad_det, id_depto, estado, id_lugar, ubicacion, id_centro_costo, id_ubicacion, id_grupo, id_grupo_clasif, nro_serie, marca, fecha_ini_dep, vida_util_anios, id_unidad_medida, codigo_af_rel,
-desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, desc_unmed, costo, codigo, id_activo_fijo,
-id_funcionario, desc_person '; --#36
+							desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, desc_unmed, costo, codigo, id_activo_fijo';
+			v_nombres_col = v_nombres_col || ',id_funcionario, desc_person'; --#36
+			v_nombres_col = v_nombres_col || ',fecha_compra'; --#38
 
     		--Obtención del id_tipo_cc
     		select id_tipo_cc
@@ -274,7 +276,8 @@ id_funcionario, desc_person '; --#36
 				codigo,
 				id_activo_fijo,
 				id_funcionario, --#36
-				desc_person --#36
+				desc_person, --#36
+				fecha_compra --#38
     		)
     		select
     		pa.id_proyecto, pa.id_proyecto_activo, pa.id_clasificacion, pa.denominacion, pa.descripcion, pa.observaciones,
@@ -304,8 +307,9 @@ id_funcionario, desc_person '; --#36
 			um.codigo as desc_unmed,
 			af.codigo,
 			af.id_activo_fijo,
-			pa.id_funcionario,
-			fun.desc_funcionario1
+			pa.id_funcionario, --#36
+			fun.desc_funcionario1, --#36
+			pa.fecha_compra --#38
     		from pro.tproyecto_activo pa
     		left join kaf.tclasificacion cla
     		on cla.id_clasificacion = pa.id_clasificacion

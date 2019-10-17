@@ -772,13 +772,13 @@ IS 'relaciona el detalle de una presolicitud a la invitacion';
 
 ALTER TABLE pro.tfase_concepto_ingas
   ADD COLUMN codigo VARCHAR;
-  
+
 /***********************************F-SCP-EGS-PRO-6-26/03/2019****************************************/
 /***********************************I-SCP-EGS-PRO-7-09/04/2019****************************************/
 
 ALTER TABLE pro.tfase_concepto_ingas_pago
   ADD COLUMN descripcion VARCHAR;
-  
+
 /***********************************F-SCP-EGS-PRO-7-09/04/2019****************************************/
 /***********************************I-SCP-EGS-PRO-8-31/07/2019****************************************/
 
@@ -1007,3 +1007,18 @@ ALTER TABLE pro.tcomponente_macro
  ALTER COLUMN f_desadeanizacion TYPE NUMERIC(19,3);
 
 /***********************************F-SCP-EGS-PRO-19-09/10/2019****************************************/
+/***********************************I-SCP-EGS-PRO-20-14/10/2019****************************************/
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN id_estado_wf INTEGER;
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN id_proceso_wf INTEGER;
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN nro_tramite VARCHAR;
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN estado VARCHAR;
+/***********************************F-SCP-EGS-PRO-20-14/10/2019****************************************/
+
+/***********************************I-SCP-RCM-PRO-38-17/10/2019****************************************/
+ALTER TABLE pro.tproyecto_activo
+  ADD COLUMN fecha_compra DATE;
+/***********************************F-SCP-RCM-PRO-38-17/10/2019****************************************/

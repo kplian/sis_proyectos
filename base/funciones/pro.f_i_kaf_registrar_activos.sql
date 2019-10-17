@@ -16,7 +16,10 @@ $body$
         PRO     ETR      28/09/2019   RCM         Creación del archivo
  #19    PRO     ETR      19/08/2019   RCM         Corrección importes de alta considerando la actualización
  #33    PRO     ETR      30/09/2019   RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
-***************************************************************************/
+ #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
+ #38    PRO     ETR      17/10/2019   RCM         Adición de campo Fecha de compra
+***************************************************************************
+*/
 DECLARE
 
     v_resp                  varchar;
@@ -240,7 +243,9 @@ BEGIN
         py.fecha_fin,
         cb.importe_mb * ac.importe_activo / ac.importe_total AS monto_bs,
         cb.importe_mt * ac.importe_activo / ac.importe_total AS monto_usd,
-        cb.importe_ma * ac.importe_activo / ac.importe_total AS monto_ufv
+        cb.importe_ma * ac.importe_activo / ac.importe_total AS monto_ufv,
+        pa.id_funcionario, --#36
+        pa.fecha_compra --#38
         FROM pro.tproyecto_activo pa
         INNER JOIN tactivos ac
         ON ac.id_proyecto_activo = pa.id_proyecto_activo
@@ -254,50 +259,50 @@ BEGIN
 
         --Parámetros
         SELECT
-        NULL                        AS id_persona,
-        0                           AS cantidad_revaloriz,
-        NULL                        AS id_proveedor,
-        v_rec.fecha_fin             AS fecha_compra,
-        v_id_cat_estado_fun         AS id_cat_estado_fun,
-        v_rec.ubicacion             AS ubicacion,
-        NULL                        AS documento,
-        v_rec.observaciones         AS observaciones,
-        1::integer                  AS monto_rescate,
-        v_rec.denominacion          AS denominacion,
-        v_id_funcionario            AS id_funcionario,
-        v_id_deposito               AS id_deposito,
-        v_rec.monto_usd             AS monto_compra_orig,
-        v_rec.monto_bs              AS monto_compra,
-        v_id_moneda_bs              AS id_moneda,
-        v_rec.descripcion           AS descripcion,
-        v_rec.id_moneda             AS id_moneda_orig,
-        v_rec.fecha_ini_dep         AS fecha_ini_dep,
-        v_id_cat_estado_compra      AS id_cat_estado_compra,
-        v_rec.vida_util             AS vida_util_original,
-        'registrado'                AS estado,
-        v_rec.id_clasificacion      AS id_clasificacion,
-        v_id_oficina                AS id_oficina,
-        v_rec.id_depto              AS id_depto,
-        p_id_usuario                AS id_usuario_reg,
-        NULL                        AS usuario_ai,
-        NULL                        AS id_usuario_ai,
-        NULL                        AS id_usuario_mod,
-        'si'                        AS en_deposito,
-        NULL                        AS codigo_ant,
-        v_rec.marca                 AS marca,
-        v_rec.nro_serie             AS nro_serie,
-        v_rec.id_unidad_medida      AS id_unidad_medida,
-        v_rec.cantidad_det::integer AS cantidad_af,
-        v_rec.monto_usd             AS monto_compra_orig_100,
-        NULL                        AS nro_cbte_asociado,
-        NULL                        AS fecha_cbte_asociado,
-        NULL                        AS id_cotizacion_det,
-        NULL                        AS id_preingreso_det,
-        v_rec.id_ubicacion          AS id_ubicacion,
-        v_rec.id_grupo              AS id_grupo,
-        v_rec.id_grupo_clASif       AS id_grupo_clasif,
-        v_rec.id_centro_costo       AS id_centro_costo,
-        v_rec.monto_bs              AS monto_compra_sin_actualiz
+        NULL                                                AS id_persona,
+        0                                                   AS cantidad_revaloriz,
+        NULL                                                AS id_proveedor,
+        v_rec.fecha_compra                                  AS fecha_compra, --#38
+        v_id_cat_estado_fun                                 AS id_cat_estado_fun,
+        v_rec.ubicacion                                     AS ubicacion,
+        NULL                                                AS documento,
+        v_rec.observaciones                                 AS observaciones,
+        1::integer                                          AS monto_rescate,
+        v_rec.denominacion                                  AS denominacion,
+        COALESCE(v_rec.id_funcionario, v_id_funcionario)    AS id_funcionario, --#36
+        v_id_deposito                                       AS id_deposito,
+        v_rec.monto_usd                                     AS monto_compra_orig,
+        v_rec.monto_bs                                      AS monto_compra,
+        v_id_moneda_bs                                      AS id_moneda,
+        v_rec.descripcion                                   AS descripcion,
+        v_rec.id_moneda                                     AS id_moneda_orig,
+        v_rec.fecha_ini_dep                                 AS fecha_ini_dep,
+        v_id_cat_estado_compra                              AS id_cat_estado_compra,
+        v_rec.vida_util                                     AS vida_util_original,
+        'registrado'                                        AS estado,
+        v_rec.id_clasificacion                              AS id_clasificacion,
+        v_id_oficina                                        AS id_oficina,
+        v_rec.id_depto                                      AS id_depto,
+        p_id_usuario                                        AS id_usuario_reg,
+        NULL                                                AS usuario_ai,
+        NULL                                                AS id_usuario_ai,
+        NULL                                                AS id_usuario_mod,
+        'si'                                                AS en_deposito,
+        NULL                                                AS codigo_ant,
+        v_rec.marca                                         AS marca,
+        v_rec.nro_serie                                     AS nro_serie,
+        v_rec.id_unidad_medida                              AS id_unidad_medida,
+        v_rec.cantidad_det::integer                         AS cantidad_af,
+        v_rec.monto_usd                                     AS monto_compra_orig_100,
+        NULL                                                AS nro_cbte_asociado,
+        NULL                                                AS fecha_cbte_asociado,
+        NULL                                                AS id_cotizacion_det,
+        NULL                                                AS id_preingreso_det,
+        v_rec.id_ubicacion                                  AS id_ubicacion,
+        v_rec.id_grupo                                      AS id_grupo,
+        v_rec.id_grupo_clASif                               AS id_grupo_clasif,
+        v_rec.id_centro_costo                               AS id_centro_costo,
+        v_rec.monto_bs                                      AS monto_compra_sin_actualiz
         INTO v_rec_af;
 
         --Inserción de activo fijo

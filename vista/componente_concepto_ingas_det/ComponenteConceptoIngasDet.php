@@ -9,7 +9,7 @@
     #25 EndeEtr         10/09/2019          EGS             Adicion de cmp precio montaje, precio obci y precio pruebas
  *  #27 EndeEtr         16/09/2019          EGS             Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
     #28                 16/09/2019          EGS             Carga de recio de pruebas con el factor d pruebas
-
+    #39 EndeEtr         17/10/2019          EGS              Se agrega WF
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -100,6 +100,20 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             filters: {pfiltro: 'coind.nombre',type: 'string'},
             grid: true,
             form: true
+        },
+        {//#39
+            config:{
+                name: 'estado',
+                fieldLabel: 'Estado',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'TextField',
+            id_grupo:0,
+            grid:true,
+            form:false
         },
         {
             config: {
@@ -226,8 +240,10 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 anchor: '80%',
                 gwidth: 100,
                 maxLength:10,
+                allowDecimals:true,
+                decimalPrecision:3,
                 renderer:function (value,p,record){
-                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
 
                 }
             },
@@ -644,6 +660,10 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {name:'precio_total_mon', type: 'numeric'},
         {name:'precio_total_oc', type: 'numeric'},
         {name:'precio_total_pru', type: 'numeric'},
+        {name:'nro_tramite', type: 'string'},//#39
+        {name:'id_proceso_wf', type: 'numeric'},//#39
+        {name:'id_estado_wf', type: 'numeric'},//#39
+        {name:'estado', type: 'string'},//#39
 	],
 	sortInfo:{
 		field: 'id_componente_concepto_ingas_det',
@@ -657,9 +677,9 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.Atributos[this.getIndAtributo('id_componente_concepto_ingas')].valorInicial = this.maestro.id_componente_concepto_ingas;
         this.store.baseParams = {id_componente_concepto_ingas: this.maestro.id_componente_concepto_ingas ,nombreVista:this.nombreVista };
         this.Cmp.id_concepto_ingas_det.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
-        this.Cmp.id_concepto_ingas_det.store.reload(true);
+
         this.load({params: {start: 0, limit: 50}});
-        this.Cmp.id_concepto_ingas_det.store.baseParams.tension_macro = this.maestro.tension_macro;
+
 
 
     },
@@ -667,9 +687,12 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentes
         //this.ocultarComponente(this.Cmp.fecha_ini);
         Phx.vista.ComponenteConceptoIngasDet.superclass.onButtonNew.call(this);
+        this.Cmp.id_concepto_ingas_det.store.baseParams.tension_macro = this.maestro.tension_macro;//#39
+        this.Cmp.id_concepto_ingas_det.store.reload(true);//#39
+
         this.mostrarComponente(this.Cmp.id_concepto_ingas_det);
         this.Cmp.precio.on('valid',function(field){//#28
-            var pTot = this.Cmp.precio.getValue() * this.maestro.porc_prueba;
+            var pTot = this.Cmp.precio_montaje.getValue() * this.maestro.porc_prueba;
             this.Cmp.precio_prueba.setValue(pTot);
         } ,this);
     },
@@ -689,7 +712,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 }, scope : this
          });
         this.Cmp.precio.on('valid',function(field){//#28
-            var pTot = this.Cmp.precio.getValue() *this.Cmp.porc_prueba.getValue();
+            var pTot = this.Cmp.precio_montaje.getValue() *this.Cmp.porc_prueba.getValue();
             this.Cmp.precio_prueba.setValue(pTot);
         } ,this);
 

@@ -22,6 +22,7 @@ $body$
  #28                16/09/2019             EGS                  Carga de factres en concepto detalle
  #34  EndeEtr       03/10/2019             EGS                  Se agrgaron campos tipo_configuracion,id_unidad_medida,conductor
  #35                07/10/2019             EGS                  se agrega validacion q no agrega conceptos repetidos por componente macro
+ #39  Endeetr       17/10/2019             EGS                  se agrega conceptos detalle utilizando la transaccion PRO_COMINDET_INS
  ***************************************************************************/
 
 DECLARE
@@ -44,6 +45,9 @@ DECLARE
     v_tension                           varchar;
     v_id_concepto_ingas                 integer;
     v_desc_ingas                        varchar;
+    v_codigo_trans                      varchar;
+    v_tabla                             varchar;
+    v_id_componente_concepto_ingas_det_v varchar;
 BEGIN
 
     v_nombre_funcion = 'pro.ft_componente_concepto_ingas_ime';
@@ -248,9 +252,7 @@ BEGIN
                 END IF;
             END IF;
 
-            --raise exception 'v_parametros.tension %',v_parametros.tension;
              v_filtro = v_filtro ||'0=0';
-             --RAISE EXCEPTION 'v_filtro %',v_filtro;
             v_consulta ='
                         SELECT
                             t.id_componente_concepto_ingas,
@@ -278,35 +280,96 @@ BEGIN
                 v_record_mc
               FROM pro.tcomponente_macro mc
               WHERE mc.id_componente_macro = v_parametros.id_componente_macro ;
+            --#39
+            v_codigo_trans='PRO_COMINDET_INS';
+            --#39
+            v_tabla = pxp.f_crear_parametro(
+              ARRAY['estado_reg',
+                    'id_concepto_ingas_det',
+                    'id_componente_concepto_ingas',
+                    'cantidad_est',
+                    'precio',
+                    'id_usuario_reg',
+                    'fecha_reg',
+                    '_id_usuario_ai',
+                    '_nombre_usuario_ai',
+                    'id_usuario_mod',
+                    'fecha_mod',
+                    'peso',
+                    'precio_montaje',
+                    'precio_obra_civil',
+                    'precio_prueba',
+                    'f_desadeanizacion',
+                    'f_seguridad',
+                    'f_escala_xfd_montaje',
+                    'f_escala_xfd_obra_civil',
+                    'tension',
+                    'aislacion',
+                    'conductor',
+                    'id_unidad_medida',
+                    'tipo_configuracion',
+                    'automatico'
+                  ],
+            ARRAY['activo'::varchar,--estado_reg
+                  v_record.id_concepto_ingas_det::varchar,--id_concepto_ingas_det
+                  v_record.id_componente_concepto_ingas::varchar,--id_componente_concepto_ingas
+                  ''::varchar,--cantidad_est
+                  ''::varchar,--precio
+                  p_id_usuario::varchar,--id_usuario_reg
+                  now()::varchar,--fecha_reg
+                  ''::varchar,--id_usuario_ai
+                  'NULL'::varchar,--usuario_ai
+                  ''::varchar,--id_usuario_mod
+                  ''::varchar,--fecha_mod
+                  ''::varchar,--peso
+                  ''::varchar,--precio_montaje
+                  ''::varchar,--precio_obra_civil
+                  ''::varchar,--precio_prueba
+                  COALESCE(v_record_mc.f_desadeanizacion::varchar,''),--f_desadeanizacion
+                  COALESCE(v_record_mc.f_seguridad::varchar,''),--f_seguridad
+                  COALESCE(v_record_mc.f_escala_xfd_montaje::varchar,''),--f_escala_xfd_montaje
+                  COALESCE(v_record_mc.f_escala_xfd_obra_civil::varchar,''),--f_escala_xfd_obra_civil
+                  COALESCE(v_record.tension::varchar,''),--tension
+                  COALESCE(v_record.aislacion::varchar,''),--aislacion
+                  COALESCE(v_record.conductor::varchar,''),--conductor
+                  COALESCE(v_record.id_unidad_medida::varchar,''),--id_unidad_medida
+                  COALESCE(v_record.tipo_configuracion::varchar,''),--tipo_configuracion
+                  'si'::varchar--automatico
+                  ],
+            ARRAY['varchar',--'estado_reg'
+                  'int4',--'id_concepto_ingas_det'
+                  'int4',--'id_componente_concepto_ingas'
+                  'numeric',--'cantidad_est'
+                  'numeric',--'precio'
+                  'int4',--'id_usuario_reg'
+                  'timestamp',--'fecha_reg'
+                  'int4',--'id_usuario_ai'
+                  'varchar',--'usuario_ai'
+                  'int4',--id_usuario_mod
+                  'timestamp',--fecha_mod
+                  'numeric',--peso
+                  'numeric',--'precio_montaje'
+                  'numeric',--'precio_obra_civil'
+                  'numeric',--'precio_prueba'
+                  'numeric',--'f_desadeanizacion'
+                  'numeric',--'f_seguridad'
+                  'numeric',--'f_escala_xfd_montaje'
+                  'numeric',--'f_escala_xfd_obra_civil'
+                  'varchar',--tension
+                  'varchar',--aislacion
+                  'varchar',--conductor
+                  'int4',--id_unidad_medida
+                  'varchar',--tipo_configuracion
+                  'varchar'--automatico
+                  ]);
+            --#39
+            v_resp = pro.ft_componente_concepto_ingas_det_ime(p_administrador,p_id_usuario,v_tabla,v_codigo_trans);
+            --#39
+            v_id_componente_concepto_ingas_det_v  = pxp.f_recupera_clave(v_resp,'id_componente_concepto_ingas_det');
+            v_id_componente_concepto_ingas_det_v    =  split_part(v_id_componente_concepto_ingas_det_v, '{', 2);
+            v_id_componente_concepto_ingas_det_v    =  split_part(v_id_componente_concepto_ingas_det_v, '}', 1);
 
-              INSERT INTO pro.tcomponente_concepto_ingas_det
-                    (
-                        id_componente_concepto_ingas,
-                        id_concepto_ingas_det,
-                        id_usuario_reg,
-                        tension,
-                        aislacion,
-                        f_desadeanizacion,--#28
-                        f_seguridad,--#28
-                        f_escala_xfd_montaje,--#28
-                        f_escala_xfd_obra_civil,--#28
-                        tipo_configuracion,
-                        conductor,
-                        id_unidad_medida
-                    )VALUES(
-                        v_record.id_componente_concepto_ingas,
-                        v_record.id_concepto_ingas_det,
-                        p_id_usuario,
-                        v_record.tension,
-                        v_record.aislacion,
-                        v_record_mc.f_desadeanizacion,--#28
-                        v_record_mc.f_seguridad,--#28
-                        v_record_mc.f_escala_xfd_montaje,--#28
-                        v_record_mc.f_escala_xfd_obra_civil,--#28
-                        v_record.tipo_configuracion,
-                        v_record.conductor,
-                        v_record.id_unidad_medida
-                    )RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
+
             END LOOP;
 
 
@@ -359,6 +422,10 @@ BEGIN
 
         begin
             --Sentencia de la eliminacion
+            --Eliminamos todos los conceptos detalle relacionados
+            Delete from pro.tcomponente_concepto_ingas_det
+            where id_componente_concepto_ingas=v_parametros.id_componente_concepto_ingas;
+
             delete from pro.tcomponente_concepto_ingas
             where id_componente_concepto_ingas=v_parametros.id_componente_concepto_ingas;
 

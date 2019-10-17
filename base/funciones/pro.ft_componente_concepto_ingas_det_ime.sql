@@ -22,6 +22,7 @@ $body$
  #25 EndeEtr         10/09/2019         EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
  #27                16/09/2019          EGS                 Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
  #34 EndeEtr        03/10/2019          EGS                 Se mejro la logica
+ #39 EndeEtr        17/10/2019          EGS                 Se actualizan los datos si son automaticos y se agrega proceso wf
  ***************************************************************************/
 
 DECLARE
@@ -36,6 +37,17 @@ DECLARE
     v_valor                 varchar;
     v_id_columna            integer;
     v_columna               record;
+    --variable wf
+    v_codigo_tipo_proceso   varchar;
+    v_id_proceso_macro		integer;
+    v_id_gestion			integer;
+    v_num_tramite			varchar;
+    v_id_proceso_wf			integer;
+    v_id_estado_wf			integer;
+    v_codigo_estado			varchar;
+    v_id_funcionario        integer;
+    v_id_periodo            integer;
+    v_fecha                 date;
 
 BEGIN
 
@@ -52,6 +64,75 @@ BEGIN
 	if(p_transaccion='PRO_COMINDET_INS')then
 
         begin
+            --#39
+             v_codigo_tipo_proceso = split_part(pxp.f_get_variable_global('tipo_proceso_macro_proyectos'), ',', 4);
+
+             ----#39obtener id del proceso macro
+             select
+             pm.id_proceso_macro
+             into
+             v_id_proceso_macro
+             from wf.tproceso_macro pm
+             left join wf.ttipo_proceso tp on tp.id_proceso_macro  = pm.id_proceso_macro
+             where tp.codigo = v_codigo_tipo_proceso;
+
+             If v_id_proceso_macro is NULL THEN
+               raise exception 'El proceso macro  de codigo % no esta configurado en el sistema WF',v_codigo_tipo_proceso;
+             END IF;
+
+              ----#39Obtencion de la gestion
+                select
+                per.id_gestion
+                into
+                v_id_gestion
+                from param.tperiodo per
+                where per.fecha_ini <= now()::date and per.fecha_fin >= now()::date
+                limit 1 offset 0;
+
+             ----#39recuperando funcionario
+             SELECT
+              fun.id_funcionario
+              INTO
+              v_id_funcionario
+              FROM orga.tfuncionario fun
+              LEFT JOIN segu.tusuario usu on usu.id_persona = fun.id_persona
+              WHERE usu.id_usuario = p_id_usuario ;
+             v_fecha = now()::date;
+             select
+             	id_periodo
+             into
+             	v_id_periodo
+             from param.tperiodo per
+             where per.fecha_ini <= v_fecha and per.fecha_fin >=  v_fecha
+             limit 1 offset 0;
+
+
+             ----#39 inciar el tramite en el sistema de WF
+
+
+            SELECT
+                   ps_num_tramite ,
+                   ps_id_proceso_wf ,
+                   ps_id_estado_wf ,
+                   ps_codigo_estado
+                into
+                   v_num_tramite,
+                   v_id_proceso_wf,
+                   v_id_estado_wf,
+                   v_codigo_estado
+
+            FROM wf.f_inicia_tramite(
+                   p_id_usuario,
+                   v_parametros._id_usuario_ai,
+                   v_parametros._nombre_usuario_ai,
+                   v_id_gestion,
+                   v_codigo_tipo_proceso,
+                   v_id_funcionario,
+                   null,
+                   'Planificacion Detalle',
+                   '' );
+
+
         	--Sentencia de la insercion
         	insert into pro.tcomponente_concepto_ingas_det(
 			estado_reg,
@@ -72,7 +153,11 @@ BEGIN
             f_desadeanizacion,--#27
             f_seguridad,--#27
             f_escala_xfd_montaje,--#27
-            f_escala_xfd_obra_civil
+            f_escala_xfd_obra_civil,
+            nro_tramite,
+            id_proceso_wf,
+            id_estado_wf,
+            estado
           	) values(
 			'activo',
 			v_parametros.id_concepto_ingas_det,
@@ -92,42 +177,124 @@ BEGIN
             v_parametros.f_desadeanizacion,--#27
             v_parametros.f_seguridad,--#27
             v_parametros.f_escala_xfd_montaje,--#27
-            v_parametros.f_escala_xfd_obra_civil--#27
+            v_parametros.f_escala_xfd_obra_civil,--#27
+            v_num_tramite,--#39
+            v_id_proceso_wf,--#39
+            v_id_estado_wf,--#39
+            v_codigo_estado--#39
 			)RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
-            --#
+            ---si se agrega desde el componente concepto los parametros ya estan definido
+            IF pxp.f_existe_parametro(p_tabla,'automatico') THEN
 
-            FOR v_columna IN(
-                 SELECT
-                    cl.nombre_columna,
-                    cl.tipo_dato
-               FROM param.tcolumna cl
-               order by cl.nombre_columna asc
+                 IF v_parametros.automatico = 'si' THEN
+                     UPDATE  pro.tcomponente_concepto_ingas_det SET
+                        tension= v_parametros.tension,
+                        aislacion=v_parametros.aislacion,
+                        conductor=v_parametros.conductor,
+                        id_unidad_medida=v_parametros.id_unidad_medida,
+                        tipo_configuracion = v_parametros.tipo_configuracion
+                     WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
+                 END IF;
 
-            )LOOP
-                SELECT
-                    c.id_columna
-                INTO
-                        v_id_columna
-                FROM param.tcolumna c
-                WHERE c.nombre_columna = v_columna.nombre_columna;
+            ELSE
+            --si se agregan desde el concepto detalle se buscan los parametros
+                    ---Actualizamos El campo de Tension
+                      SELECT
+                          c.id_columna
+                      INTO
+                              v_id_columna
+                      FROM param.tcolumna c
+                      WHERE c.nombre_columna = 'tension';
 
-                SELECT
-                cd.valor
-                into
-                v_valor
-                FROM param.tcolumna_concepto_ingas_det cd
-                WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_parametros.id_concepto_ingas_det;
+                      SELECT
+                      cd.valor
+                      into
+                      v_valor
+                      FROM param.tcolumna_concepto_ingas_det cd
+                      WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_parametros.id_concepto_ingas_det;
 
-                UPDATE pro.tcomponente_concepto_ingas_det SET
-                tension = v_valor
-                WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
+                      UPDATE pro.tcomponente_concepto_ingas_det SET
+                      tension = v_valor
+                      WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
 
-            END LOOP;
+                      ---Actualizamos El campo de Aislacion
+
+                      SELECT
+                          c.id_columna
+                      INTO
+                              v_id_columna
+                      FROM param.tcolumna c
+                      WHERE c.nombre_columna = 'aislacion';
+
+                     SELECT
+                        cd.valor
+                        into
+                        v_valor
+                      FROM param.tcolumna_concepto_ingas_det cd
+                      WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_parametros.id_concepto_ingas_det;
+
+                      UPDATE pro.tcomponente_concepto_ingas_det SET
+                      aislacion = v_valor
+                      WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
+                      ---Actualizamos El campo de tipo_configuracion
+                      SELECT
+                          c.id_columna
+                      INTO
+                              v_id_columna
+                      FROM param.tcolumna c
+                      WHERE c.nombre_columna = 'tipo_configuracion';
+
+                     SELECT
+                        cd.valor
+                        into
+                        v_valor
+                      FROM param.tcolumna_concepto_ingas_det cd
+                      WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_parametros.id_concepto_ingas_det;
+
+                      UPDATE pro.tcomponente_concepto_ingas_det SET
+                      tipo_configuracion = v_valor
+                      WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
+
+                      ---Actualizamos El campo de conductor
+                      SELECT
+                          c.id_columna
+                      INTO
+                              v_id_columna
+                      FROM param.tcolumna c
+                      WHERE c.nombre_columna = 'conductor';
+
+                     SELECT
+                        cd.valor
+                        into
+                        v_valor
+                      FROM param.tcolumna_concepto_ingas_det cd
+                      WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_parametros.id_concepto_ingas_det;
+
+                      UPDATE pro.tcomponente_concepto_ingas_det SET
+                      conductor = v_valor
+                      WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
+
+                      ---Actualizamos El campo de id_unidad_medida
+                      SELECT
+                          c.id_columna
+                      INTO
+                              v_id_columna
+                      FROM param.tcolumna c
+                      WHERE c.nombre_columna = 'id_unidad_medida';
+
+                     SELECT
+                        cd.valor
+                        into
+                        v_valor
+                      FROM param.tcolumna_concepto_ingas_det cd
+                      WHERE cd.id_columna = v_id_columna and cd.id_concepto_ingas_det = v_parametros.id_concepto_ingas_det;
+
+                      UPDATE pro.tcomponente_concepto_ingas_det SET
+                      id_unidad_medida = v_valor::integer
+                      WHERE id_componente_concepto_ingas_det = v_id_componente_concepto_ingas_det;
 
 
-
-
-
+            END IF;
 
 
 			--Definicion de la respuesta
