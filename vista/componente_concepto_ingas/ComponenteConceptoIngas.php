@@ -439,11 +439,12 @@ header("content-type: text/javascript; charset=UTF-8");
                     height:'50%',
                     cls:'ComponenteConceptoIngasDet'
                 }],
+            /*
             reload:function (){
                 this.store.reload();
                 //Phx.CP.getPagina(this.idContenedorPadre).reload();
 
-            }
+            }*/
 
 
         }
