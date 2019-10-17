@@ -15,6 +15,7 @@ $body$
  ISSUE  SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
         PRO     ETR      28/09/2019   RCM         Creación del archivo
  #19    PRO     ETR      19/08/2019   RCM         Corrección importes de alta considerando la actualización
+ #33    PRO     ETR      30/09/2019   RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
 ***************************************************************************/
 DECLARE
 
@@ -623,7 +624,7 @@ BEGIN
                     (
                         date_trunc('year', py.fecha_fin)::date,
                         (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
-                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
                         COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0),
                         afv.id_moneda
                     )) + mdep.depreciacion_acum
@@ -632,7 +633,7 @@ BEGIN
                     (
                         date_trunc('year', py.fecha_fin)::date,
                         (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
-                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
                         COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0),
                         afv.id_moneda
                     )) + mdep.depreciacion_acum
@@ -641,7 +642,7 @@ BEGIN
                     (
                         date_trunc('year', py.fecha_fin)::date,
                         (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
-                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
                         COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0),
                         afv.id_moneda
                     )) + mdep.depreciacion_acum
@@ -670,7 +671,7 @@ BEGIN
                     (
                         date_trunc('year', py.fecha_fin)::date,
                         (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
-                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
                         COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0),
                         afv.id_moneda
                     )) + mdep.depreciacion_per
@@ -679,7 +680,7 @@ BEGIN
                     (
                         date_trunc('year', py.fecha_fin)::date,
                         (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
-                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
                         COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0),
                         afv.id_moneda
                     )) + mdep.depreciacion_per
@@ -688,7 +689,7 @@ BEGIN
                     (
                         date_trunc('year', py.fecha_fin)::date,
                         (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
-                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
                         COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0),
                         afv.id_moneda
                     )) + mdep.depreciacion_per
@@ -696,15 +697,16 @@ BEGIN
             CASE afv.id_moneda
                 WHEN 1 THEN
                     --Actualización del importe a incrementar
+                    COALESCE(mdep.monto_actualiz, 0)  /*+
                     (
                         param.f_get_tipo_cambio(3, (date_trunc('month', py.fecha_fin) - interval '1 day')::date, 'O') /
                         param.f_get_tipo_cambio(3, date_trunc('year', py.fecha_fin)::date, 'O') *
                         COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0)
-                    ) + COALESCE(mdep.monto_actualiz, 0)
+                    ) */ --#33
                 WHEN 2 THEN
-                    COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0) + COALESCE(mdep.monto_actualiz, 0)
+                    COALESCE(mdep.monto_actualiz, 0) --+ COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0) --#33
                 WHEN 3 THEN
-                    COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0) + COALESCE(mdep.monto_actualiz, 0)
+                    COALESCE(mdep.monto_actualiz, 0) --+ COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0) --#33
             END AS monto_vigente_actualiz,
             mdep.fecha + INTERVAL '1 MONTH' AS fecha_ini_dep,
             CASE afv.id_moneda
@@ -715,6 +717,7 @@ BEGIN
                         param.f_get_tipo_cambio(3, date_trunc('year', py.fecha_fin)::date, 'O') *
                         COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0)
                     )
+                    --COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0)
 
                 WHEN 2 THEN
                     COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0)
@@ -724,7 +727,98 @@ BEGIN
             mdep.id_activo_fijo_valor,
             af.codigo,
             afv.id_moneda_dep,
-            pa.id_proyecto_activo
+            pa.id_proyecto_activo,
+
+            --Inicio #33: adición de columnas
+            CASE afv.id_moneda
+                WHEN 1 THEN
+                    (SELECT po_dep_mes_total FROM kaf.f_calculo_aux_deprec
+                    (
+                        date_trunc('year', py.fecha_fin)::date,
+                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
+                        COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0),
+                        afv.id_moneda
+                    ))
+                WHEN 2 THEN
+                    (SELECT po_dep_mes_total FROM kaf.f_calculo_aux_deprec
+                    (
+                        date_trunc('year', py.fecha_fin)::date,
+                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
+                        COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0),
+                        afv.id_moneda
+                    ))
+                WHEN 3 THEN
+                    (SELECT po_dep_mes_total FROM kaf.f_calculo_aux_deprec
+                    (
+                        date_trunc('year', py.fecha_fin)::date,
+                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
+                        COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0),
+                        afv.id_moneda
+                    ))
+            END as total_depreciacion_mes,
+
+            CASE afv.id_moneda
+                WHEN 1 THEN
+                    (SELECT po_inc_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (
+                        date_trunc('year', py.fecha_fin)::date,
+                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
+                        COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0),
+                        afv.id_moneda
+                    ))
+                WHEN 2 THEN
+                    (SELECT po_inc_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (
+                        date_trunc('year', py.fecha_fin)::date,
+                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
+                        COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0),
+                        afv.id_moneda
+                    ))
+                WHEN 3 THEN
+                    (SELECT po_inc_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (
+                        date_trunc('year', py.fecha_fin)::date,
+                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) * 12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
+                        COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0),
+                        afv.id_moneda
+                    ))
+            END as total_inc_dep_acum,
+            CASE afv.id_moneda
+                WHEN 1 THEN
+                    (SELECT po_valor_actualiz - po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (
+                        date_trunc('year', py.fecha_fin)::date,
+                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
+                        COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0),
+                        afv.id_moneda
+                    )) + mdep.monto_vigente
+                WHEN 2 THEN
+                    (SELECT po_valor_actualiz - po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (
+                        date_trunc('year', py.fecha_fin)::date,
+                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
+                        COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0),
+                        afv.id_moneda
+                    )) + mdep.monto_vigente
+                WHEN 3 THEN
+                    (SELECT po_valor_actualiz - po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (
+                        date_trunc('year', py.fecha_fin)::date,
+                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) * 12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('year', py.fecha_fin)::date)) + 1)::integer, --#33
+                        COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0),
+                        afv.id_moneda
+                    )) + mdep.monto_vigente
+            END as valor_neto
+            --Fin #33
             FROM pro.tproyecto_activo pa
             INNER JOIN pro.tproyecto py
             ON py.id_proyecto = pa.id_proyecto
@@ -813,7 +907,11 @@ BEGIN
                 monto_vigente_actualiz_inicial,
                 depreciacion_per_inicial,
                 depreciacion_acum_inicial,
-                importe_modif
+                importe_modif,
+                --Inicio #33
+                aux_depmes_tot_del_inc,
+                aux_inc_dep_acum_del_inc
+                --Fin #33
             ) VALUES (
                 p_id_usuario,
                 NOW(),
@@ -846,13 +944,17 @@ BEGIN
                         )
                 END,
 
-                v_rec.importe,
-                v_rec.importe,
-                v_rec.importe,
+                v_rec.importe,--v_rec.importe, --#33
+                v_rec.valor_neto,--v_rec.importe, --#33
+                v_rec.importe,--v_rec.importe, --#33
                 v_rec.monto_vigente_actualiz,
                 v_rec.depreciacion_per,
                 v_rec.depreciacion_acum,
-                v_rec.importe_modif
+                v_rec.importe_modif,
+                --Inicio #33
+                v_rec.total_depreciacion_mes,
+                v_rec.total_inc_dep_acum
+                --Fin #33
             );
 
         END LOOP;

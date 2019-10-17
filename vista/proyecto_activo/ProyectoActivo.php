@@ -5,10 +5,11 @@
 *@author  RCM
 *@date 31-08-2017 16:52:19
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-****************************************************************************
-* ISSUE       EMPRESA     FECHA:		      AUTOR       DESCRIPCION
-* #11  			ETR      09/05/2019          MZM         se incrementa opcion (boton) para exportar datos en CSV
-* #23           ETR      03/09/2019          RCM         colorear celda para activos fijos existentes
+******************************************************************************
+* ISSUE       EMPRESA    FECHA          AUTOR       DESCRIPCION
+* #11  		  ETR        09/05/2019     MZM         Se incrementa opcion (boton) para exportar datos en CSV
+* #23         ETR        03/09/2019     RCM         Colorear celda para activos fijos existentes
+* #36         ETR        16/10/2019     RCM         Adición de campo Funcionario
 * ****************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -114,6 +115,13 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this.id_unidad_medida.store.commitChanges();
         this.id_unidad_medida.modificado = true;
         this.id_unidad_medida.setValue(rec.id_unidad_medida);
+        //Inicio #36: Responsable activo fijo
+        recClas = new Ext.data.Record({id_funcionario: rec.id_funcionario, desc_person: rec.desc_person },'id_funcionario');
+        this.id_funcionario.store.add(recClas);
+        this.id_funcionario.store.commitChanges();
+        this.id_funcionario.modificado = true;
+        this.id_funcionario.setValue(rec.id_funcionario);
+        //Fin #36
 
         ///Fields
         this.id_proyecto_activo = rec.id_proyecto_activo;
@@ -239,6 +247,10 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this._colsData.push({name:'desc_unmed', type: 'string'});
         this._colsData.push({name:'codigo', type: 'string'});
         this._colsData.push({name:'id_activo_fijo', type: 'numeric'});
+        //Inicio #36
+        this._colsData.push({name:'id_funcionario', type: 'numeric'});
+        this._colsData.push({name:'desc_person', type: 'string'});
+        //Fin #36
 
         //Inicializa los valores del array para mapeo de Ids
         for (var i=0; i<=5; i++) {
@@ -731,6 +743,46 @@ Ext.define('Phx.vista.ProyectoActivo', {
           anchor: '97%'
         });
 
+        //Inicio #36
+        this.id_funcionario = new Ext.form.ComboBox({
+            name: 'id_funcionario',
+            fieldLabel: 'Responsable del Activo Fijo',
+            allowBlank: true,
+            emptyText:'Seleccione un registro...',
+            store: new Ext.data.JsonStore({
+                url: '../../sis_organigrama/control/Funcionario/listarFuncionario',
+                id: 'id_funcionario',
+                root: 'datos',
+                sortInfo:{
+                    field: 'desc_person',
+                    direction: 'ASC'
+                },
+                totalProperty: 'total',
+                fields: ['id_funcionario','codigo','desc_person', 'ci'],
+                // turn on remote sorting
+                remoteSort: true,
+                baseParams: {
+                    par_filtro:'funcio.codigo#nombre_completo1'
+                }
+            }),
+            valueField: 'id_funcionario',
+            displayField: 'desc_person',
+            gdisplayField: 'desc_person',
+            hiddenName: 'id_funcionario',
+            mode: 'remote',
+            triggerAction: 'all',
+            typeAhead: false,
+            lazyRender: true,
+            pageSize: 15,
+            queryDelay: 1000,
+            minChars: 2,
+            renderer: function(value, p, record) {
+                return String.format('{0}', record.data['desc_person']);
+            },
+            anchor: '97%'
+        });
+        //Fin #36
+
         //Formulario
         this.frmDatos = new Ext.form.FormPanel({
             items: [{
@@ -743,10 +795,12 @@ Ext.define('Phx.vista.ProyectoActivo', {
                     border: false,
                     autoScroll: true,
                     layout: 'form',
-                    items: [this.cmbClasificacion,this.txtDenominacion,this.txtDescripcion,this.txtObservaciones,
-                            this.cantidad_det,this.id_unidad_medida, this.id_depto, this.estado, this.ubicacion, this.id_centro_costo,
+                    items: [this.cmbClasificacion, this.txtDenominacion, this.txtDescripcion, this.txtObservaciones,
+                            this.cantidad_det, this.id_unidad_medida, this.id_depto, this.estado, this.ubicacion, this.id_centro_costo,
                             this.id_ubicacion, this.id_grupo, this.id_grupo_clasif, this.nro_serie, this.marca, this.fecha_ini_dep,
-                            this.vida_util_anios,this.codigo_af_rel],
+                            this.vida_util_anios, this.codigo_af_rel,
+                            this.id_funcionario //#36
+                            ],
                     id_grupo: 0
                 }
             }],
@@ -807,7 +861,8 @@ Ext.define('Phx.vista.ProyectoActivo', {
                 fecha_ini_dep: this.fecha_ini_dep.getValue(),
                 vida_util_anios: this.vida_util_anios.getValue(),
                 id_unidad_medida: this.id_unidad_medida.getValue(),
-                codigo_af_rel: this.codigo_af_rel.getValue()
+                codigo_af_rel: this.codigo_af_rel.getValue(),
+                id_funcionario: this.id_funcionario.getValue()//#36
             };
 
             Ext.Ajax.request({

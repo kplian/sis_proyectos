@@ -5,6 +5,12 @@
 *@author  (admin)
 *@date 31-08-2017 16:52:19
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
+
+***************************************************************************
+ ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+        KAF                     31/08/2017  RCM         Creación del archivo
+ #36    KAF       ETR           16/10/2019  RCM         Adición de campo Funcionario
+***************************************************************************
 */
 
 class MODProyectoActivo extends MODbase{
@@ -96,6 +102,7 @@ class MODProyectoActivo extends MODbase{
 		$this->setParametro('vida_util_anios','vida_util_anios','integer');
 		$this->setParametro('id_unidad_medida','id_unidad_medida','integer');
 		$this->setParametro('codigo_af_rel','codigo_af_rel','varchar');
+		$this->setParametro('id_funcionario','id_funcionario','integer');//#36
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -134,6 +141,7 @@ class MODProyectoActivo extends MODbase{
 		$this->setParametro('vida_util_anios','vida_util_anios','integer');
 		$this->setParametro('id_unidad_medida','id_unidad_medida','integer');
 		$this->setParametro('codigo_af_rel','codigo_af_rel','varchar');
+		$this->setParametro('id_funcionario','id_funcionario','integer');//#36
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -203,6 +211,8 @@ class MODProyectoActivo extends MODbase{
 		$this->captura('costo','numeric');
 		$this->captura('codigo', 'varchar');
 		$this->captura('id_activo_fijo', 'integer');
+		$this->captura('id_funcionario', 'integer');//#36
+		$this->captura('desc_person', 'varchar');//#36
 
 		//Definicion de la lista dinámica de columnas
 		$col_arrays = $this->objParam->getParametro('columnas_dinamicas');
