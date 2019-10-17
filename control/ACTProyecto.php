@@ -1,12 +1,16 @@
 <?php
 /**
 *@package pXP
-*@file gen-ACTProyecto.php
+*@file ACTProyecto.php
 *@author  (admin)
 *@date 28-09-2017 20:12:15
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
- * ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
- 	#8	  endeETR		18/03/2019	EGS				se filtra por estado nuevo y ejecucion en la vista de planificaion
+******************************************************************************
+* ISSUE       EMPRESA    FECHA          AUTOR       DESCRIPCION
+* 			  ETR 		 28/09/2017 	RCM 		Creación de archivo
+* #8	  	  endeETR	 18/03/2019		EGS			Se filtra por estado nuevo y ejecucion en la vista de planificaion
+* #37         ETR        17/10/2019     RCM         Corrección de importación de datos
+* ****************************************************************************
 */
 include_once(dirname(__FILE__).'/../../lib/lib_general/ExcelInput.php');
 class ACTProyecto extends ACTbase{
@@ -17,19 +21,17 @@ class ACTProyecto extends ACTbase{
 		$this->objParam->defecto('cantidad',1000000);
 		$this->objParam->defecto('puntero', 0);
 
-
-
 		if($this->objParam->getParametro('id_proyecto')!=''){
 			$this->objParam->addFiltro("proy.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
 		}
 
 		if($this->objParam->getParametro('estado')!=''){
 
-				$this->objParam->addFiltro("proy.estado = ''".$this->objParam->getParametro('estado')."''");				
+				$this->objParam->addFiltro("proy.estado = ''".$this->objParam->getParametro('estado')."''");
 		}
 		//#8
 		if($this->objParam->getParametro('planificacion') =='si'){
-				$this->objParam->addFiltro("proy.estado in (''nuevo'',''ejecucion'')");								
+				$this->objParam->addFiltro("proy.estado in (''nuevo'',''ejecucion'')");
 		}
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
@@ -65,7 +67,7 @@ class ACTProyecto extends ACTbase{
         $extension = $ext['extension'];
         $error = 'no';
         $mensaje_completo = '';
-        $cc=array();
+        $cc = array();
 
         if(isset($arregloFiles['archivo']) && is_uploaded_file($arregloFiles['archivo']['tmp_name'])) {
             if (!in_array($extension, array('xls', 'xlsx', 'XLS', 'XLSX'))) {
@@ -86,37 +88,38 @@ class ACTProyecto extends ACTbase{
                 }
 
                 //Recorre todo el archivo fila a fila
-                $cont=0;
+                $cont = 0;
                 foreach ($arrayArchivo as $fila) {
 
-                	if($cont>0){
+                	if($cont > 0){
 	                	//Guarda el registro del activo
-						$this->objParam->addParametro('clasificacion',$fila['clasificacion']);
-						$this->objParam->addParametro('vida_util_anios',$fila['vida_util_anios']);
-						$this->objParam->addParametro('nro_serie',$fila['nro_serie']);
-						$this->objParam->addParametro('marca',$fila['marca']);
-						$this->objParam->addParametro('denominacion',$fila['denominacion']);
-						$this->objParam->addParametro('descripcion',$fila['descripcion']);
-						$this->objParam->addParametro('cantidad_det',$fila['cantidad']);
-						$this->objParam->addParametro('unidad',$fila['unidad']);
-						$this->objParam->addParametro('ubicacion',$fila['ubicacion']);
-						$this->objParam->addParametro('local',$fila['local']);
-						$this->objParam->addParametro('fecha_compra',$fila['fecha_compra']);
-						$this->objParam->addParametro('costo',$fila['costo']);
-						$this->objParam->addParametro('valor_compra',$fila['valor_compra']);
-						$this->objParam->addParametro('moneda',$fila['moneda']);
-						$this->objParam->addParametro('fecha_ini_dep',$fila['fecha_ini_dep']);
-						$this->objParam->addParametro('grupo_ae',$fila['grupo_ae']);
-						$this->objParam->addParametro('clasificacion_ae',$fila['clasificacion_ae']);
-						$this->objParam->addParametro('centro_costo',$fila['centro_costo']);
-						$this->objParam->addParametro('codigo_activo',$fila['codigo_activo']);
-						$this->objParam->addParametro('observaciones',$fila['pedido']);
-						$this->objParam->addParametro('codigo_activo_rel',$fila['codigo_activo_rel']);
+						$this->objParam->addParametro('clasificacion', $fila['clasificacion']);
+						$this->objParam->addParametro('vida_util_anios', $fila['vida_util_anios']);
+						$this->objParam->addParametro('nro_serie', $fila['nro_serie']);
+						$this->objParam->addParametro('marca', $fila['marca']);
+						$this->objParam->addParametro('denominacion', $fila['denominacion']);
+						$this->objParam->addParametro('descripcion', $fila['descripcion']);
+						$this->objParam->addParametro('cantidad_det', $fila['cantidad']);
+						$this->objParam->addParametro('unidad', $fila['unidad']);
+						$this->objParam->addParametro('ubicacion', $fila['ubicacion']);
+						$this->objParam->addParametro('local', $fila['local']);
+						$this->objParam->addParametro('fecha_compra', $fila['fecha_compra']);
+						$this->objParam->addParametro('costo', $fila['costo']);
+						$this->objParam->addParametro('valor_compra', $fila['valor_compra']);
+						$this->objParam->addParametro('moneda', $fila['moneda']);
+						$this->objParam->addParametro('fecha_ini_dep', $fila['fecha_ini_dep']);
+						$this->objParam->addParametro('grupo_ae', $fila['grupo_ae']);
+						$this->objParam->addParametro('clasificacion_ae', $fila['clasificacion_ae']);
+						$this->objParam->addParametro('centro_costo', $fila['centro_costo']);
+						$this->objParam->addParametro('codigo_activo', $fila['codigo_activo']);
+						$this->objParam->addParametro('observaciones', $fila['pedido']);
+						$this->objParam->addParametro('codigo_activo_rel', $fila['codigo_activo_rel']);
+						$this->objParam->addParametro('responsable', $fila['responsable']); //#37
 
 						//Guarda el Activo Fijo en la tabla Proyecto Activo
 						$this->objFunc = $this->create('MODProyectoActivo');
 	                    $this->res = $this->objFunc->ImportarCierreValorado($this->objParam);
-	                    //var_dump($this->res);exit;
+
 	                    if ($this->res->getTipo() == 'ERROR') {
 	                    	$this->res->imprimirRespuesta($this->res->generarJson());
 				            exit;
