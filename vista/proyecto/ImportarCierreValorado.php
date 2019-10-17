@@ -24,7 +24,6 @@ Phx.vista.ImportarCierreValorado=Ext.extend(Phx.frmInterfaz,{
     },
 
     successSave:function(resp){
-        console.log('sssssssss');
         Phx.CP.loadingHide();
         Phx.CP.getPagina(this.idContenedorPadre).reload();
         this.panel.close();

@@ -17,7 +17,7 @@ $body$
  ISSUE  SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
         PRO     ETR      31/08/2017   RCM         Creación del archivo
  #19    PRO     ETR      21/08/2019   RCM         Adición del id_activo_fijo para el caso de activos fijos existentes relacionados
- #36    PRO     ETR      16/10/2019  RCM         Adición de campo Funcionario
+ #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
 ***************************************************************************/
 
 DECLARE

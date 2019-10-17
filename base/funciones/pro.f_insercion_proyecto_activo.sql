@@ -88,8 +88,7 @@ BEGIN
     (p_parametros->'id_unidad_medida')::integer,
     (p_parametros->'codigo_af_rel')::varchar,
     (p_parametros->'id_funcionario')::integer,
-    (p_parametros->'id_activo_fijo')::integer, --#19
-    (p_parametros->'id_funcionario')::integer --#36
+    (p_parametros->'id_activo_fijo')::integer --#19
     ) RETURNING id_proyecto_activo INTO v_id_proyecto_activo;
 
     --Respuesta

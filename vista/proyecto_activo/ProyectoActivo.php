@@ -116,9 +116,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this.id_unidad_medida.modificado = true;
         this.id_unidad_medida.setValue(rec.id_unidad_medida);
         //Inicio #36: Responsable activo fijo
-        console.log('aa',rec.id_funcionario, rec.desc_person);
         recClas = new Ext.data.Record({id_funcionario: rec.id_funcionario, desc_person: rec.desc_person },'id_funcionario');
-        console.log('rec',recClas);
         this.id_funcionario.store.add(recClas);
         this.id_funcionario.store.commitChanges();
         this.id_funcionario.modificado = true;
