@@ -16,17 +16,33 @@ $body$
         PRO     ETR      14/09/2018   RCM         Creación del archivo
  #19    PRO     ETR      21/08/2019   RCM         Adición del id_activo_fijo para el caso de activos fijos existentes relacionados
  #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
+ #40    PRO     ETR      22/10/2019   RCM         Validación para no permitir se repita más de una vez un activo fijo relacionado
 ***************************************************************************/
 DECLARE
 
 	v_id_proyecto_activo    integer;
     v_nombre_funcion        varchar;
     v_resp					varchar;
+    v_codigo                varchar;
 
 BEGIN
 
     --Nombre de la función
     v_nombre_funcion = 'pro.f_insercion_proyecto_activo';
+
+    --Inicio #40
+    SELECT af.codigo
+    INTO v_codigo
+    FROM pro.tproyecto_activo pa
+    INNER JOIN kaf.tactivo_fijo af
+    ON af.id_activo_fijo = pa.id_activo_fijo
+    WHERE pa.id_proyecto = (p_parametros->'id_proyecto')::integer
+    AND pa.id_activo_fijo = (p_parametros->'id_activo_fijo')::integer;
+
+    IF COALESCE(v_codigo, '') <> '' THEN
+        RAISE EXCEPTION 'Activo Fijo relacionado ya existente. No es posible repetir el Activo Fijo: %', v_codigo;
+    END IF;
+    --Fin #40
 
     --Sentencia de la insercion
     INSERT INTO pro.tproyecto_activo(
