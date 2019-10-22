@@ -18,6 +18,7 @@ $body$
  #33    PRO     ETR      30/09/2019   RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
  #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
  #38    PRO     ETR      17/10/2019   RCM         Adición de campo Fecha de compra
+ #41    PRO     ETR      22/10/2019   RCM         Adición de condición fecha is null en la consulta de AF existentes
 ***************************************************************************
 */
 DECLARE
@@ -845,6 +846,7 @@ BEGIN
             WHERE pa.id_proyecto = p_id_proyecto
             AND COALESCE(pa.codigo_af_rel, '') <> ''
             AND COALESCE(pa.codigo_af_rel, '') <> 'GASTO'
+            AND afv.fecha_fin IS NULL --#41
             ORDER BY af.id_activo_fijo, mdep.id_moneda
         ) LOOP
 
