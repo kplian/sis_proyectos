@@ -426,14 +426,15 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
         Phx.vista.ComponenteMacro.superclass.onButtonNew.call(this);
         this.Cmp.id_proyecto.setValue(this.maestro.id_proyecto);
     },
-    tabeast: [
+    east:
         {
             url:'../../../sis_proyectos/vista/componente_concepto_ingas/ComponenteConceptoIngas.php',
             title:'Lista de Conceptos Ingreso/Gasto',
             width:'80%',
             height:'90%',
+            collapsed:true,
             cls:'ComponenteConceptoIngas'
-        }],
+        },
         construirGrupos: function () {//#27
             var me = this;
             this.panelResumen = new Ext.Panel({

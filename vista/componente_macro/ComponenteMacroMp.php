@@ -33,6 +33,12 @@ Phx.vista.ComponenteMacroMp = {
             this.bloquearMenus();
         }
 		//this.load({params:{start:0, limit:this.tam_pag ,id_proyecto:this.maestro.id_proyecto}});
+        this.addButton('btnReportPlani',{
+            text: 'Reporte Planificacion',
+            iconCls: 'blist',
+            disabled: false,
+            handler: this.reportesPlanificacion,
+            tooltip: 'Reportes del Proyecto'})
 	},
     inciarEventos: function(){
     },
@@ -41,7 +47,7 @@ Phx.vista.ComponenteMacroMp = {
 	bsave:false,
     bnew:false,
     bedit:false,
-    tabeast:undefined,
+    east:undefined,
     onReloadPage: function(m) {
         this.maestro = m;
         this.Atributos[this.getIndAtributo('id_proyecto')].valorInicial = this.maestro.id_proyecto;
@@ -54,6 +60,33 @@ Phx.vista.ComponenteMacroMp = {
                 limit: 50
             }
         });
+    },
+    reportesPlanificacion: function(){
+        var data = this.getSelectedData();
+        var win = Phx.CP.loadWindows(
+            '../../../sis_proyectos/vista/reporte/ReportePlanificacion.php',
+            'Reportes', {
+                width: '30%',
+                height: '30%'
+            },
+            data,
+            this.idContenedor,
+            'ReportePlanificacion'//clase de la vista
+        );
+    },
+    preparaMenu: function(n){
+
+        var tb = Phx.vista.ComponenteMacroMp.superclass.preparaMenu.call(this);
+        var data = this.getSelectedData();
+        this.getBoton('btnReportPlani').enable();
+        return tb;
+    },
+    liberaMenu: function(){
+        var tb = Phx.vista.ComponenteMacroMp.superclass.liberaMenu.call(this);
+        if (tb) {
+            this.getBoton('btnReportPlani').disable();
+        }
+        return tb;
     },
 
 }

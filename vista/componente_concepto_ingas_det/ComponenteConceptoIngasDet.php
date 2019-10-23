@@ -728,14 +728,15 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         }),
     fwidth: 500,
     fheight: 480,
-    tabsouth: [
+    south:
         {
             url:'../../../sis_proyectos/vista/unidad_comingdet/UnidadComingdet.php',
             title:'Unidad Constructiva',
             width:'100%',
             height:'40%',
+            collapsed:true,
             cls:'UnidadComingdet'
-        }],
+        },
 
     construirGrupos: function () {//#27
         var me = this;
