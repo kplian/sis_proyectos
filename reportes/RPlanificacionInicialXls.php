@@ -535,7 +535,7 @@ class RPlanificacionInicialXls
 		$formula1='=SUMPRODUCT(D'.$filaInicio.':D'.$fila.',G'.$filaInicio.':G'.$fila.',H'.$filaInicio.':H'.$fila.')';
 		$formula2='=SUMPRODUCT(D'.$filaInicio.':D'.$fila.',I'.$filaInicio.':I'.$fila.',J'.$filaInicio.':J'.$fila.')';
 		$formula3='=SUMPRODUCT(D'.$filaInicio.':D'.$fila.',K'.$filaInicio.':K'.$fila.')';
-		$formula4='=SUM(L'.$filaInicio.':L'.($fila-1).')';
+		$formula4='=SUM(L'.$filaInicio.':L'.($fila).')';
 
 		$fila=$fila+1;
 
