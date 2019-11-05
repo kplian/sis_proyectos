@@ -276,26 +276,49 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		{
-			config:{
-				name: 'precio',
-				fieldLabel: 'Precio Unitario',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:1179650,
-                renderer:function (value,p,record){
-                    Ext.util.Format.usMoney
-                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
-
+        {
+            config: {
+                name: 'precio',
+                fieldLabel: 'Precio Unitario',
+                allowBlank: true,
+                emptyText: 'Elija una opción...',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_proyectos/control/ComponenteConceptoIngasDet/listarPrecioHistorico',
+                    id: 'id',
+                    root: 'datos',
+                    sortInfo: {
+                        field: 'id',
+                        direction: 'ASC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id', 'precio_unitario_mb'],
+                    remoteSort: true,
+                    // baseParams: {par_filtro: 'cotd.precio_unitario_mb#'}
+                }),
+                valueField: 'precio_unitario_mb',
+                displayField: 'precio_unitario_mb',
+                gdisplayField: 'precio_unitario_mb',
+                hiddenName: 'precio_unitario_mb',
+                forceSelection: false,
+                typeAhead: false,
+                triggerAction: 'all',
+                lazyRender: true,
+                mode: 'remote',
+                pageSize: 15,
+                queryDelay: 1000,
+                anchor: '80%',
+                gwidth: 100,
+                minChars: 2,
+                renderer : function(value, p, record) {
+                    return String.format('{0}', record.data['precio']);
                 }
-			},
-				type:'MoneyField',
-				filters:{pfiltro:'comindet.precio',type:'numeric'},
-				id_grupo:0,
-				grid:true,
-				form:true
-		},
+            },
+            type: 'ComboBox',
+            id_grupo: 0,
+            grid: true,
+            form: true
+        },
+
         {
             config:{
                 name: 'precio_total_det',
@@ -688,7 +711,11 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.Cmp.id_concepto_ingas_det.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
 
         this.load({params: {start: 0, limit: this.tam_pag}});
-
+        this.Cmp.precio_montaje.on('valid',function(field){//#28
+            console.log('precio',this.maestro.porc_prueba);
+            var pTot = this.Cmp.precio_montaje.getValue() *this.Cmp.porc_prueba.getValue();
+            this.Cmp.precio_prueba.setValue(pTot);
+        } ,this);
 
 
     },
@@ -700,10 +727,11 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.Cmp.id_concepto_ingas_det.store.reload(true);//#39
 
         this.mostrarComponente(this.Cmp.id_concepto_ingas_det);
+        /*
         this.Cmp.precio.on('valid',function(field){//#28
             var pTot = this.Cmp.precio_montaje.getValue() * this.maestro.porc_prueba;
             this.Cmp.precio_prueba.setValue(pTot);
-        } ,this);
+        } ,this);*/
     },
     onButtonEdit:function(){
         var data = this.getSelectedData();
@@ -720,10 +748,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 
                 }, scope : this
          });
-        this.Cmp.precio.on('valid',function(field){//#28
-            var pTot = this.Cmp.precio_montaje.getValue() *this.Cmp.porc_prueba.getValue();
-            this.Cmp.precio_prueba.setValue(pTot);
-        } ,this);
+
 
     },
 
@@ -813,7 +838,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             Phx.CP.getPagina(this.idContenedorPadre).reload();
             this.window.hide();
             this.reload();
-            this.panel.close();
+            //this.panel.close();
         },
 
     sigEstadoMultiple:function(){
