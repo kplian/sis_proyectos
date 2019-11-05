@@ -21,8 +21,8 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.UnidadConstructiva.superclass.constructor.call(this,config);
 		this.init();
-        this.getBoton('btnDelArb').hide();//ocultamos el botn por q no es necesario todavia
-        this.getBoton('btnAgrPla').hide();//ocultamos el botn por q no es necesario todavia
+        //this.getBoton('btnDelArb').hide();//ocultamos el botn por q no es necesario todavia
+        //this.getBoton('btnAgrPla').hide();//ocultamos el botn por q no es necesario todavia
 		//this.DesplegarArbol();
 		
 		this.addButton('btnDelArb',{
