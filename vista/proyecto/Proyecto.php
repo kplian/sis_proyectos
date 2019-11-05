@@ -285,7 +285,7 @@ Phx.vista.ProyectoPr = {
 		
 		reportePlanPago: function() {
 			this.reporPlan = new Ext.Toolbar.SplitButton({
-				id: 'btnReCobro' + this.idContenedor,
+				id: 'btnReportPro' + this.idContenedor,
 				text: 'Reportes',
 				disabled: false,
 				grupo:[0],
@@ -294,7 +294,7 @@ Phx.vista.ProyectoPr = {
 				scope: this,
 				menu:{
 					items: [{
-						id:'b-cobro-pdf-' + this.idContenedor,
+						id:'b-proy-pdf-' + this.idContenedor,
 						text: 'Filtrar',
 						tooltip: '<b>Filtro de parametros a visualizar</b>',
 						handler:this.formFiltroRe,
@@ -306,25 +306,31 @@ Phx.vista.ProyectoPr = {
 			},
 	
 		formFiltroRe: function(){
+
 		var data = this.getSelectedData();
-		var win = Phx.CP.loadWindows(
-			'../../../sis_proyectos/vista/reporte/ReporteResumenN.php',
-			'Reportes', {
-			    width: '25%',
-			    height: '40%'
-			},
-			data,
-			this.idContenedor,
-			'ReporteResumenN',
-			{
-				config:[{
-					event:'beforesave',
-					delegate: this.reportesProyecto,
-				}],
-				scope:this
-			}
-			
-			)
+		console.log('data',data);
+		if (data === undefined){
+		    alert('Debe escoger un Proyecto');
+        }else {
+            var win = Phx.CP.loadWindows(
+                '../../../sis_proyectos/vista/reporte/ReporteResumenN.php',
+                'Reportes', {
+                    width: '25%',
+                    height: '40%'
+                },
+                data,
+                this.idContenedor,
+                'ReporteResumenN',
+                {
+                    config:[{
+                        event:'beforesave',
+                        delegate: this.reportesProyecto,
+                    }],
+                    scope:this
+                }
+            )
+        }
+
 		},
 		reportesProyecto : function (wizard,resp){	
 						

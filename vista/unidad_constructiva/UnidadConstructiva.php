@@ -13,15 +13,16 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
-
+    msgDel:'Realmente quiere Eliminar esta Unidad contructiva.Eliminara la subestacion o linea asociada, si no tienen conceptos de gasto',
 	constructor:function(config){
 		this.maestro=config;
         let data;
-;
         this.Atributos[this.getIndAtributo('id_proyecto')].valorInicial = this.maestro.id_proyecto;
     	//llama al constructor de la clase padre
 		Phx.vista.UnidadConstructiva.superclass.constructor.call(this,config);
 		this.init();
+        //this.getBoton('btnDelArb').hide();//ocultamos el botn por q no es necesario todavia
+        //this.getBoton('btnAgrPla').hide();//ocultamos el botn por q no es necesario todavia
 		//this.DesplegarArbol();
 		
 		this.addButton('btnDelArb',{
@@ -142,10 +143,10 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
             config: {
                 name: 'id_unidad_constructiva_tipo',
                 fieldLabel: 'UC Tipo',
-                allowBlank: false,
+                allowBlank: true,
                 emptyText: 'Elija una opción...',
                 store: new Ext.data.JsonStore({
-                    url: '../../sis_proyectos/control/UnidadConstructivaTipo/listarUnidadConstructivaTipo',
+                    url: '../../sis_proyectos/control/UnidadConstructivaTipo/listarUnidadConstructivaTipoCombo',
                     id: 'id_unidad_constructiva_tipo',
                     root: 'datos',
                     sortInfo: {
@@ -153,14 +154,14 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
                         direction: 'ASC'
                     },
                     totalProperty: 'total',
-                    fields: ['id_unidad_constructiva_tipo', 'nombre','tension','componente_macro_tipo','desc_componente_macro_tipo'],
+                    fields: ['id_unidad_constructiva_tipo', 'desc_unidad_constructiva_tipo','tension','componente_macro_tipo','desc_componente_macro_tipo'],
                     remoteSort: true,
                     baseParams: {par_filtro: 'uct.id_unidad_constructiva_tipo#uct.nombre',start:0, limit:50}
                 }),
-                tpl:'<tpl for=".">\<div class="x-combo-list-item"><p><b>Nombre:</b>{nombre}</p><p><b>Tipo:</b>{desc_componente_macro_tipo}</p>\<p><b>Tension: </b>{tension}</p>\</div></tpl>',
+                tpl:'<tpl for=".">\<div class="x-combo-list-item"><p><b>Nombre:</b>{desc_unidad_constructiva_tipo}</p><p><b>Tipo:</b>{desc_componente_macro_tipo}</p>\<p><b>Tension: </b>{tension}</p>\</div></tpl>',
                 valueField: 'id_unidad_constructiva_tipo',
-                displayField: 'nombre',
-                gdisplayField: 'nombre',
+                displayField: 'desc_unidad_constructiva_tipo',
+                gdisplayField: 'desc_unidad_constructiva_tipo',
                 hiddenName: 'id_unidad_constructiva_tipo',
                 forceSelection: true,
                 typeAhead: false,
@@ -394,6 +395,8 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
         {name:'desc_tipo_configuracion', type: 'string'},
         {name:'tension', type: 'string'},
         {name:'desc_componente_macro_tipo', type: 'string'},
+        {name:'desc_uct', type: 'string'},
+
 
 
     ],
@@ -506,7 +509,7 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
                 }else{
                     this.Cmp.codigo.enable(true);
                     this.Cmp.activo.enable(true);
-                    this.Cmp.id_unidad_constructiva_tipo.allowBlank=false;
+                    this.Cmp.id_unidad_constructiva_tipo.allowBlank=true;
                     this.Cmp.id_unidad_constructiva_tipo.enable(true);
                 }
 

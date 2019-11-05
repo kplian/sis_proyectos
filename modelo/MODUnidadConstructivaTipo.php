@@ -107,6 +107,29 @@ class MODUnidadConstructivaTipo extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+    function listarUnidadConstructivaTipoCombo(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.ft_unidad_constructiva_tipo_sel';
+        $this->transaccion='PRO_UCTCB_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        //Definicion de la lista del resultado del query
+        $this->captura('id_unidad_constructiva_tipo','int4');
+        $this->captura('estado_reg','varchar');
+        $this->captura('componente_macro_tipo','varchar');
+        $this->captura('tension','varchar');
+        $this->captura('desc_unidad_constructiva_tipo','varchar');
+        $this->captura('descripcion','varchar');
+        $this->captura('desc_componente_macro_tipo','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 			
 }
 ?>

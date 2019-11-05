@@ -48,6 +48,22 @@ class ACTUnidadConstructivaTipo extends ACTbase{
 		$this->res=$this->objFunc->eliminarUnidadConstructivaTipo($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+
+    function listarUnidadConstructivaTipoCombo(){
+        $this->objParam->defecto('ordenacion','id_unidad_constructiva_tipo');
+        if($this->objParam->getParametro('componente_macro_tipo')!=''){
+            $this->objParam->addFiltro("uct.componente_macro_tipo = ''".$this->objParam->getParametro('componente_macro_tipo')."''");
+        }
+        if($this->objParam->getParametro('tension')!=''){
+            $this->objParam->addFiltro("(uct.tension = ''".$this->objParam->getParametro('tension')."'' or uct.tension is null )");
+        }
+        $this->objParam->defecto('dir_ordenacion','asc');
+        $this->objFunc=$this->create('MODUnidadConstructivaTipo');
+
+        $this->res=$this->objFunc->listarUnidadConstructivaTipoCombo($this->objParam);
+
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 

@@ -19,6 +19,7 @@ $body$
  #19    PRO     ETR      21/08/2019   RCM         Adición del id_activo_fijo para el caso de activos fijos existentes relacionados
  #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
  #38    PRO     ETR      17/10/2019   RCM         Adición de campo Fecha de compra
+ #40    PRO     ETR      18/10/2019   RCM         En caso de incrementar valor a un AF existente, si el padre no tiene local que agarre el de la plantilla. Lo mismo con el CC
 ***************************************************************************/
 
 DECLARE
@@ -291,6 +292,15 @@ BEGIN
         		into v_id_ubicacion
         		from kaf.tactivo_fijo
         		where codigo = v_codigo_af_rel;
+
+        		--Inicio #40
+        		IF COALESCE(v_id_ubicacion, 0) = 0 THEN
+        			SELECT id_ubicacion
+					INTO v_id_ubicacion
+					FROM kaf.tubicacion
+					WHERE codigo = v_parametros.local;
+        		END IF;
+        		--Fin #40
         	else
 				select id_ubicacion
 				into v_id_ubicacion
