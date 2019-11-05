@@ -700,7 +700,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.Cmp.id_concepto_ingas_det.store.reload(true);//#39
 
         this.mostrarComponente(this.Cmp.id_concepto_ingas_det);
-        this.Cmp.precio.on('valid',function(field){//#28
+        this.Cmp.precio_montaje.on('valid',function(field){//#28
             var pTot = this.Cmp.precio_montaje.getValue() * this.maestro.porc_prueba;
             this.Cmp.precio_prueba.setValue(pTot);
         } ,this);
@@ -720,7 +720,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 
                 }, scope : this
          });
-        this.Cmp.precio.on('valid',function(field){//#28
+        this.Cmp.precio_montaje.on('valid',function(field){//#28
             var pTot = this.Cmp.precio_montaje.getValue() *this.Cmp.porc_prueba.getValue();
             this.Cmp.precio_prueba.setValue(pTot);
         } ,this);
