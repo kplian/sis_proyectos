@@ -1022,3 +1022,7 @@ ALTER TABLE pro.tcomponente_concepto_ingas_det
 ALTER TABLE pro.tproyecto_activo
   ADD COLUMN fecha_compra DATE;
 /***********************************F-SCP-RCM-PRO-38-17/10/2019****************************************/
+/***********************************I-SCP-RCM-PRO-21-31/10/2019****************************************/
+ALTER TABLE pro.tunidad_constructiva
+  ADD COLUMN id_orden_trabajo INTEGER;
+/***********************************F-SCP-RCM-PRO-21-31/10/2019****************************************/

@@ -100,6 +100,60 @@ BEGIN
 			return v_consulta;
 
 		end;
+    /*********************************
+ 	#TRANSACCION:  'PRO_UCTCB_SEL'
+ 	#DESCRIPCION:	Consulta de datos combo
+ 	#AUTOR:		egutierrez
+ 	#FECHA:		18-09-2019 19:13:12
+	***********************************/
+
+	elsif(p_transaccion='PRO_UCTCB_SEL')then
+
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='select
+						uct.id_unidad_constructiva_tipo,
+						uct.estado_reg,
+						uct.componente_macro_tipo,
+						uct.tension,
+						uct.nombre as desc_unidad_constructiva_tipo,
+						uct.descripcion,
+						cat.descripcion as 	desc_componente_macro_tipo
+						from pro.tunidad_constructiva_tipo uct
+                        left join param.tcatalogo cat on cat.codigo = uct.componente_macro_tipo
+				        where  ';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+	/*********************************
+ 	#TRANSACCION:  'PRO_UCTCB_CONT'
+ 	#DESCRIPCION:	Conteo de registros combo
+ 	#AUTOR:		egutierrez
+ 	#FECHA:		18-09-2019 19:13:12
+	***********************************/
+
+	elsif(p_transaccion='PRO_UCTCB_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select count(uct.id_unidad_constructiva_tipo)
+					    from pro.tunidad_constructiva_tipo uct
+					    where ';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
 
 	else
 

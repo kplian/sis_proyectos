@@ -44,6 +44,10 @@ DECLARE
     v_string_new                            varchar;
     v_record                                record;
     v_unidad_constructiva_proyecto          integer;
+    v_activo                                varchar;
+    v_id_orden_trabajo                      integer;
+    v_id_componente_macro                   integer;
+    v_id_invitacion_det                     integer;
 
 BEGIN
 
@@ -159,6 +163,11 @@ BEGIN
             v_parametros.tipo_configuracion
             )RETURNING id_unidad_constructiva into v_id_unidad_constructiva;
 
+            IF v_parametros.activo = 'si' THEN
+            v_resp = pro.f_inserta_orden_trabajo(p_administrador,p_id_usuario,v_id_unidad_constructiva::integer);
+            v_resp	= 'exito';
+            END IF;
+
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Unidades Constructivas almacenado(a) con exito (id_unidad_constructiva'||v_id_unidad_constructiva||')');
             v_resp = pxp.f_agrega_clave(v_resp,'id_unidad_constructiva',v_id_unidad_constructiva::varchar);
@@ -179,11 +188,30 @@ BEGIN
 
         begin
             v_parametros.codigo =upper(REPLACE(v_parametros.codigo,' ', ''));
+            SELECT
+                uc.activo,
+                uc.id_orden_trabajo
+            INTO
+                v_activo,
+                v_id_orden_trabajo
+            FROM pro.tunidad_constructiva uc
+            WHERE id_unidad_constructiva = v_parametros.id_unidad_constructiva;
+           ---verificamos que no se pueda modificar si el activo a "NO" ya genero una ot con una solicitud de compra asociada
+            SELECT
+                invdet.id_invitacion_det
+            INTO
+                v_id_invitacion_det
+            FROM pro.tinvitacion_det invdet
+            WHERE  invdet.id_unidad_constructiva = v_parametros.id_unidad_constructiva;
+
+            IF v_id_invitacion_det is not null and v_parametros.activo = 'no' THEN
+                RAISE EXCEPTION 'La Unidad Constructiva esta Asociada a un o varias Invitaciones.No se puede cambiar El activo a (NO)';
+            END IF;
 
             IF v_parametros.id_unidad_constructiva_fk is null THEN
                    --recuperamos el codigo del nodo padre
                     SELECT
-                        codigo
+                        uc.codigo
                     INTO
                         v_codigo
                     FROM pro.tunidad_constructiva uc
@@ -271,6 +299,7 @@ BEGIN
             IF v_parametros.activo = 'si' THEN
                 v_resp = pro.f_verificar_activo_unidad_constructiva_pl(p_administrador,p_id_usuario,p_tabla,'no');
             END IF;
+
             --Sentencia de la modificacion
             update pro.tunidad_constructiva set
             nombre = v_parametros.nombre,
@@ -286,6 +315,14 @@ BEGIN
             id_unidad_constructiva_tipo = v_parametros.id_unidad_constructiva_tipo,
             tipo_configuracion = v_parametros.tipo_configuracion
             where id_unidad_constructiva=v_parametros.id_unidad_constructiva;
+
+           --Solo Actualiza si el registro no era activo antes y si tenia un valor null en ot
+            IF v_activo = 'no' and v_parametros.activo = 'si' and v_id_orden_trabajo is NULL THEN
+            v_resp = pro.f_inserta_orden_trabajo(p_administrador,p_id_usuario,v_parametros.id_unidad_constructiva::integer);
+            v_resp	= 'exito';
+
+            END IF;
+
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Unidades Constructivas modificado(a)');
@@ -307,6 +344,51 @@ BEGIN
 
         begin
             --Sentencia de la eliminacion
+
+            SELECT
+                invdet.id_invitacion_det
+            INTO
+                v_id_invitacion_det
+            FROM pro.tinvitacion_det invdet
+            WHERE  invdet.id_unidad_constructiva = v_parametros.id_unidad_constructiva limit 1;
+
+            IF v_id_invitacion_det is not null THEN
+                RAISE EXCEPTION 'La Unidad Constructiva esta Asociada a un o varias Invitaciones.No se puede Eliminar';
+            END IF;
+
+            --verificamos si se tiene una ot relacionada a una solicitud vigente
+            SELECT
+                soldet.id_orden_trabajo
+            INTO
+                v_id_orden_trabajo
+            FROM adq.tsolicitud_det soldet
+            INNER join adq.tsolicitud sol on soldet.id_solicitud =sol.id_solicitud
+            INNER join pro.tunidad_constructiva uc on soldet.id_orden_trabajo = uc.id_orden_trabajo
+            WHERE sol.estado <> 'anulado' and uc.id_unidad_constructiva = v_parametros.id_unidad_constructiva;
+            IF v_id_orden_trabajo is not null THEN
+                RAISE EXCEPTION 'La OT de la Unidad Constructiva esta Asociada a un o varios registros de compra';
+            END IF;
+            --Eliminanos el componente macro relacionada si esta no tiene conceptos de gasto
+
+            SELECT
+                mc.id_componente_macro
+            INTO
+                v_id_componente_macro
+            FROM pro.tcomponente_macro mc
+            where mc.id_unidad_constructiva = v_parametros.id_unidad_constructiva;
+            --verificamos si tiene conceptos de gasto
+            IF EXISTS (SELECT 1
+                        FROM pro.tcomponente_concepto_ingas coi
+                        LEFT JOIN pro.tcomponente_macro mc on coi.id_componente_macro = mc.id_componente_macro
+                        where mc.id_unidad_constructiva = v_parametros.id_unidad_constructiva) THEN
+                    RAISE EXCEPTION 'Existen Conceptos de gasto Asociados';
+            ELSE
+                --eliminamos el componente macro
+                 DELETE FROM pro.tcomponente_macro mc
+                 WHERE mc.id_componente_macro = v_id_componente_macro;
+            END IF;
+
+
             delete from pro.tunidad_constructiva
             where id_unidad_constructiva=v_parametros.id_unidad_constructiva;
 

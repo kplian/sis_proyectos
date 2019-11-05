@@ -43,6 +43,7 @@ DECLARE
     v_recor_comcig_det          record;
     v_record_cm                 record;
     v_count                     integer;
+    v_codigo                    varchar;
 BEGIN
 
     v_nombre_funcion = 'pro.ft_componente_macro_ime';
@@ -192,8 +193,23 @@ BEGIN
 
         begin
             IF v_parametros.id_unidad_constructiva is not null THEN
+
+                SELECT
+                    pro.codigo
+                INTO
+                    v_codigo
+                FROM pro.tunidad_constructiva uc
+                LEFT JOIN pro.tproyecto pro on pro.id_proyecto = uc.id_proyecto
+                WHERE uc.id_unidad_constructiva = v_parametros.id_unidad_constructiva;
+
+                IF v_codigo is not null THEN
+                   v_parametros.codigo ='['||v_codigo||']-'||v_parametros.codigo;
+                END IF;
+
+
                 UPDATE pro.tunidad_constructiva SET
-                    nombre = v_parametros.nombre
+                    nombre = v_parametros.nombre,
+                    codigo = v_parametros.codigo
                 WHERE id_unidad_constructiva = v_parametros.id_unidad_constructiva;
             END IF;
 
@@ -336,7 +352,7 @@ BEGIN
             WHERE cu.id_unidad_constructiva = v_id_unidad_constructiva::INTEGER;
 
             IF v_record_uc.id_unidad_constructiva is not null THEN
-                RAISE EXCEPTION 'Existe una Unidad Constructiva Asociada (%)',v_record_uc.desc_uc;
+                RAISE EXCEPTION 'Existe una Unidad Constructiva Asociada (%) Eliminela para Poder Continuar',v_record_uc.desc_uc;
             END IF;
             --Sentencia de la eliminacion
             delete from pro.tcomponente_macro

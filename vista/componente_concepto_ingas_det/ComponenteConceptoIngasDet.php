@@ -26,6 +26,15 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 		//this.load({params:{start:0, limit:this.tam_pag}})
         this.bloquearMenus();
         this.iniciarEventos();
+        this.addButton('sig_estado_multiple',{
+            grupo:[0],
+            text:'Siguiente Multiple',
+            iconCls: 'badelante',
+            disabled:true,
+            handler:this.sigEstadoMultiple,
+            tooltip: '<b>Pasar varios regitros al Siguiente Estado</b>'
+        });
+
     },
 			
 	Atributos:[
@@ -615,7 +624,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		}
 	],
-	tam_pag:50,	
+	tam_pag:100,
 	title:'Concepto ingas detalle del componente',
 	ActSave:'../../sis_proyectos/control/ComponenteConceptoIngasDet/insertarComponenteConceptoIngasDet',
 	ActDel:'../../sis_proyectos/control/ComponenteConceptoIngasDet/eliminarComponenteConceptoIngasDet',
@@ -678,7 +687,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.store.baseParams = {id_componente_concepto_ingas: this.maestro.id_componente_concepto_ingas ,nombreVista:this.nombreVista };
         this.Cmp.id_concepto_ingas_det.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
 
-        this.load({params: {start: 0, limit: 50}});
+        this.load({params: {start: 0, limit: this.tam_pag}});
 
 
 
@@ -806,6 +815,66 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             this.reload();
             this.panel.close();
         },
+
+    sigEstadoMultiple:function(){
+        // var rec=this.sm.getSelected();
+
+        let filas = this.sm.getSelections();
+        let data = [], aux = {};
+        //arma una matriz de los identificadores de registros
+        let rr = {};
+        for (let i = 0; i < this.sm.getCount(); i++) {
+            aux = {};
+            aux[this.id_store] = filas[i].data[this.id_store];
+            aux.id_estado_wf = filas[i].data.id_estado_wf;
+            aux.id_proceso_wf = filas[i].data.id_proceso_wf;
+            aux.estado = filas[i].data.estado;
+            data.push(aux);
+        }
+        var rec = {maestro: this.sm.getSelected().data, data_wf: Ext.util.JSON.encode(data)};
+        console.log('ooo',rec.data_wf);
+        Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url:'../../sis_proyectos/control/ComponenteConceptoIngasDet/validacionMultiple',
+            params:{
+                data_json:rec.data_wf,
+                data_maestro:rec.maestro
+            },
+            success:function(resp){
+                Phx.CP.loadingHide();
+                var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                if (reg.ROOT.error) {
+                    Ext.Msg.alert('Error','Error a recuperar la variable global')
+                } else {
+                    this.formEstadoWfMultiple(rec,reg.ROOT.datos.id_tipo_estado,reg.ROOT.datos.id_estado_wf);
+                }
+            },
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        });
+
+
+    },
+    formEstadoWfMultiple : function (rec,id_tipo_estado,id_estado_wf) {
+        Phx.CP.loadingHide();
+        var win = Phx.CP.loadWindows(
+            '../../../sis_proyectos/vista/componente_concepto_ingas_det/FormEstadoWfMultiple.php',
+            'Estado de Wf Multiple', {
+                //modal:true,
+                width:700,
+                height:450
+            },
+            {data:{
+                    data_json:rec.data_wf,
+                    data_maestro:rec.maestro,
+                    id_tipo_estado:id_tipo_estado,
+                    id_estado_wf:id_estado_wf
+                }},
+            this.idContenedor,
+            'FormEstadoWfMultiple'//clase de la vista
+        );
+    }
 
 
     }

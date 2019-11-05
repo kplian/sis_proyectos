@@ -813,8 +813,8 @@ header("content-type: text/javascript; charset=UTF-8");
             'desc_fase',
             'cantidad_est',
             {name:'precio_est', type: 'numeric'},
-            {name:'id_unidad_constructiva', type: 'numeric'},'codigo_uc','desc_ingas_det','estado_lanz'//#20
-
+            {name:'id_unidad_constructiva', type: 'numeric'},'codigo_uc','desc_ingas_det','estado_lanz',//#20
+            {name:'id_componente_concepto_ingas_det', type: 'numeric'},
 
         ],
         sortInfo:{

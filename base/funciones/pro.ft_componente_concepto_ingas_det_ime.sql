@@ -49,6 +49,23 @@ DECLARE
     v_id_periodo            integer;
     v_fecha                 date;
 
+    j_data_json             json;
+    v_estado                varchar;
+    v_record_venta          record;
+
+    va_id_tipo_estado 		integer[];
+    va_codigo_estado 		varchar[];
+    va_disparador    		varchar[];
+    va_regla         		varchar[];
+    va_prioridad     		integer[];
+    v_id_funcionario_wf     integer;
+    p_id_usuario_ai         integer;
+    p_usuario_ai            varchar;
+    v_id_estado_actual        integer;
+    v_id_tipo_estado        integer;
+
+
+
 BEGIN
 
     v_nombre_funcion = 'pro.ft_componente_concepto_ingas_det_ime';
@@ -367,6 +384,145 @@ BEGIN
             return v_resp;
 
         end;
+             /*********************************
+ 	#TRANSACCION:  'PRO_VALIMUL_IME'
+ 	#DESCRIPCION:	funcion que controla el cambio al Siguiente estado de varios Registros
+ 	#AUTOR:	EGS
+ 	#FECHA:		31/10/2019
+    #ISSUE:     #
+	***********************************/
+
+    elseif(p_transaccion='PRO_VALIMUL_IME')then
+      begin
+          j_data_json = v_parametros.data_json;
+          v_estado = null;
+                --RAISE EXCEPTION 'v_parametros %',v_parametros;
+          FOR v_parametros IN(
+                --convertimos el dato json en record
+                select * from json_to_recordset(j_data_json::json) as x(id_proceso_wf int,id_estado_wf int,id_componente_concepto_ingas_det int,estado varchar)
+          )LOOP
+
+               SELECT
+                  es.id_tipo_estado
+              INTO
+                   v_id_tipo_estado
+              FROM wf.testado_wf es
+              LEFT JOIN wf.ttipo_estado ties on es.id_tipo_estado = ties.id_tipo_estado
+              WHERE es.id_estado_wf = v_parametros.id_estado_wf;
+
+              IF v_estado is null THEN
+                   v_estado = v_parametros.estado;
+              END IF;
+
+              IF v_parametros.estado <> v_estado  THEN
+                    RAISE EXCEPTION 'Los Registros Seleccionados no tienen el mismo estado';
+              END IF;
+
+              SELECT
+                   *
+                into
+                  va_id_tipo_estado,
+                  va_codigo_estado,
+                  va_disparador,
+                  va_regla,
+                  va_prioridad
+
+              FROM wf.f_obtener_estado_wf(v_parametros.id_proceso_wf, v_parametros.id_estado_wf,NULL,'siguiente');
+
+              IF va_codigo_estado[2] is not null THEN
+
+               raise exception 'El proceso de WF esta mal parametrizado,  solo admite un estado siguiente para el estado: %', v_parametros.estado;
+
+              END IF;
+
+               IF va_codigo_estado[1] is  null THEN
+               raise exception 'El proceso de WF esta mal parametrizado, no se encuentra el estado siguiente,  para el estado: %', v_parametros.estado;
+              END IF;
+
+                v_resp = pxp.f_agrega_clave(v_resp,'mensaje','almacenado(a) con exito');
+                v_resp = pxp.f_agrega_clave(v_resp,'id_tipo_estado',va_id_tipo_estado[1]::varchar);
+                v_resp = pxp.f_agrega_clave(v_resp,'id_estado_wf',v_parametros.id_estado_wf::varchar);
+
+           END LOOP;
+
+
+        v_resp = pxp.f_agrega_clave(v_resp,'mensaje','almacenado(a) con exito');
+        v_resp = pxp.f_agrega_clave(v_resp,'id_tipo_estado',va_id_tipo_estado[1]::varchar);
+        v_resp = pxp.f_agrega_clave(v_resp,'id_estado_wf',v_parametros.id_estado_wf::varchar);
+
+        return v_resp;
+
+       end;
+     /*********************************
+ 	#TRANSACCION:  'PRO_SIGESTMUL_IME'
+ 	#DESCRIPCION:	cambio de estado de varios registros de borrador a pendiente
+ 	#AUTOR:	EGS
+ 	#FECHA:		29/10/2019
+    #ISSUE:     #7
+	***********************************/
+
+    elseif(p_transaccion='PRO_SIGESTMUL_IME')then
+      begin
+          j_data_json = v_parametros.data_json;
+          v_id_funcionario_wf =v_parametros.id_funcionario_wf;
+          FOR v_parametros IN(
+                --convertimos el dato json en record
+                select * from json_to_recordset(j_data_json::json) as x(id_proceso_wf int,id_estado_wf int,id_componente_concepto_ingas_det int,estado varchar)
+          )LOOP
+
+              SELECT
+                   *
+                into
+                  va_id_tipo_estado,
+                  va_codigo_estado,
+                  va_disparador,
+                  va_regla,
+                  va_prioridad
+
+              FROM wf.f_obtener_estado_wf(v_parametros.id_proceso_wf, v_parametros.id_estado_wf,NULL,'siguiente');
+
+              IF va_codigo_estado[2] is not null THEN
+
+               raise exception 'El proceso de WF esta mal parametrizado,  solo admite un estado siguiente para el estado: %', v_parametros.estado;
+
+              END IF;
+
+               IF va_codigo_estado[1] is  null THEN
+
+               raise exception 'El proceso de WF esta mal parametrizado, no se encuentra el estado siguiente,  para el estado: %', v_parametros.estado;
+              END IF;
+
+
+            p_id_usuario_ai = null;
+            p_usuario_ai = null;
+
+              -- estado siguiente
+           v_id_estado_actual =  wf.f_registra_estado_wf(va_id_tipo_estado[1],
+                                                             v_id_funcionario_wf,
+                                                             v_parametros.id_estado_wf,
+                                                             v_parametros.id_proceso_wf,
+                                                             p_id_usuario,
+                                                             p_id_usuario_ai, -- id_usuario_ai
+                                                             p_usuario_ai, -- usuario_ai
+                                                             NULL,
+                                                             'Pendiente de Emision');
+
+              -- actualiza estado de la venta
+               update pro.tcomponente_concepto_ingas_det pp  set
+                           id_estado_wf = v_id_estado_actual,
+                           estado = va_codigo_estado[1],
+                           id_usuario_mod=p_id_usuario,
+                           fecha_mod=now(),
+                           id_usuario_ai = p_id_usuario_ai,
+                           usuario_ai = p_usuario_ai
+                         where id_componente_concepto_ingas_det  = v_parametros.id_componente_concepto_ingas_det;
+
+
+           END LOOP;
+
+          return v_resp;
+
+       end;
 
     else
 

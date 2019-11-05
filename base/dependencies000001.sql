@@ -3725,3 +3725,7 @@ WITH tsaldo AS(
                JOIN tprorrateo pr ON pr.id_proyecto = sa.id_proyecto;
 
 /***********************************F-DEP-RCM-PRO-31-24/09/2019****************************************/
+/***********************************I-DEP-EGS-PRO-22-01/11/2019****************************************/
+ALTER TABLE pro.tcomponente_macro
+  DROP CONSTRAINT tcomponente_macro_fk_id_unidad_construtiva RESTRICT;
+/***********************************F-DEP-EGS-PRO-22-01/11/2019****************************************/

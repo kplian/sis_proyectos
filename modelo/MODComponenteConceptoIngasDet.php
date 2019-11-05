@@ -165,6 +165,64 @@ class MODComponenteConceptoIngasDet extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+    function validacionMultiple(){//#
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='pro.ft_componente_concepto_ingas_det_ime';
+        $this->transaccion='PRO_VALIMUL_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('data_json','data_json','json_text');
+        //$this->captura('id_tipo_estado','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        //var_dump('$this->respuesta',$this->respuesta);exit;
+        return $this->respuesta;
+
+    }
+
+    function siguienteEstadoMultiple(){//#
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='pro.ft_componente_concepto_ingas_det_ime';
+        $this->transaccion='PRO_SIGESTMUL_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('data_json','data_json','json_text');
+        $this->setParametro('id_funcionario_wf','id_funcionario_wf','integer');
+        $this->setParametro('id_tipo_estado','id_tipo_estado','integer');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        //var_dump('$this->respuesta',$this->respuesta);exit;
+        return $this->respuesta;
+
+    }
+    function listarPrecioHistorico(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.f_precio_historico';
+        $this->transaccion='PRO_PREHI_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        //Definicion de la lista del resultado del query
+        $this->captura('id','int4');
+        $this->captura('id_invitacion_det','int4');
+        $this->captura('id_solicitud_det','int4');
+        $this->captura('precio_unitario_mb','numeric');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 			
 }
 ?>
