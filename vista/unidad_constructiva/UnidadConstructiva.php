@@ -21,9 +21,7 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.UnidadConstructiva.superclass.constructor.call(this,config);
 		this.init();
-        //this.getBoton('btnDelArb').hide();//ocultamos el botn por q no es necesario todavia
-        //this.getBoton('btnAgrPla').hide();//ocultamos el botn por q no es necesario todavia
-		//this.DesplegarArbol();
+  		//this.DesplegarArbol();
 		
 		this.addButton('btnDelArb',{
               text: 'Eliminacion de Arbol',
@@ -419,8 +417,8 @@ Phx.vista.UnidadConstructiva=Ext.extend(Phx.arbGridInterfaz,{
 		var data = this.getSelectedData();
 		var tb = this.tbar;
 		Phx.vista.UnidadConstructiva.superclass.preparaMenu.call(this, n);
-	    this.getBoton('btnAgrPla').enable();
-  	    this.getBoton('btnDelArb').enable();
+	    this.getBoton('btnAgrPla').disable();
+  	    this.getBoton('btnDelArb').disable();
 
   		return tb
 	},
