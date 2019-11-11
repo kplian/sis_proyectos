@@ -80,7 +80,7 @@ BEGIN
                         comindet.f_seguridad,--#27
                         comindet.f_escala_xfd_montaje,--#27
                         comindet.f_escala_xfd_obra_civil,--#27
-                        cm.porc_prueba,
+                        comindet.porc_prueba,
                         comindet.tipo_configuracion,
                         comindet.conductor,
                         comindet.id_unidad_medida,

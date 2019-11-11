@@ -476,11 +476,16 @@ BEGIN
   			WHERE pro.id_proyecto = v_parametros.id_proyecto;
 
             IF(v_rec_proyecto.estado <> 'ejecucion')THEN
+                IF pxp.f_existe_parametro(p_tabla,'fecha_ini_real')=true THEN
             		IF(v_parametros.fecha_ini_real is not null )THEN
                     	raise exception 'No Debe Ingresar una fecha real en este estado %',v_rec_proyecto.estado;
-                    ELSIF(v_parametros.fecha_fin_real is not null)THEN
+                    END IF;
+                 END IF;
+                 IF pxp.f_existe_parametro(p_tabla,'fecha_fin_real')=true THEN
+                    IF(v_parametros.fecha_fin_real is not null)THEN
                     	raise exception 'No Debe Ingresar una fecha real en este estado %',v_rec_proyecto.estado;
                     END IF;
+                 END IF;
             END IF;
 
              IF(v_rec_proyecto.estado = 'cierre' or v_rec_proyecto.estado = 'finalizado' )THEN

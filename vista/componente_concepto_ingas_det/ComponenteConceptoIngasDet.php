@@ -10,14 +10,19 @@
  *  #27 EndeEtr         16/09/2019          EGS             Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
     #28                 16/09/2019          EGS             Carga de recio de pruebas con el factor d pruebas
     #39 EndeEtr         17/10/2019          EGS              Se agrega WF
+ *  #44 EndeEtr         11/11/2019          EGS             Se agrega Porcentaje de pruebas en concepto detalle
  */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
+    v_promedio = 0;
+    v_divisor = 0;
+    v_manual = false;
 Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
     nombreVista:'ComponenteConceptoIngasDet',
 	constructor:function(config){
+        var self = this;
 		this.maestro=config.maestro;
         this.construirGrupos();//#27
     	//llama al constructor de la clase padre
@@ -276,26 +281,26 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		{
-			config:{
-				name: 'precio',
-				fieldLabel: 'Precio Unitario',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:1179650,
+        {
+            config:{
+                name: 'precio',
+                fieldLabel: 'Precio Unitario',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:1179650,
                 renderer:function (value,p,record){
                     Ext.util.Format.usMoney
                     return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
 
                 }
-			},
-				type:'MoneyField',
-				filters:{pfiltro:'comindet.precio',type:'numeric'},
-				id_grupo:0,
-				grid:true,
-				form:true
-		},
+            },
+            type:'MoneyField',
+            filters:{pfiltro:'comindet.precio',type:'numeric'},
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
         {
             config:{
                 name: 'precio_total_det',
@@ -315,16 +320,6 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             id_grupo:1,
             grid:true,
             form:false
-        },
-        {//#28
-            //configuracion del componente
-            config:{
-                labelSeparator:'',
-                inputType:'hidden',
-                name: 'porc_prueba'
-            },
-            type:'Field',
-            form:true
         },
 
         {//#27
@@ -462,6 +457,24 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
+        {//#44
+            config:{
+                name: 'porc_prueba',
+                fieldLabel: 'Porcentaje Prueba',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10,
+                renderer:function (value,p,record){
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
+            },
+            type:'NumberField',
+            id_grupo:3,
+            grid:true,
+            form:true
+        },
         {//#25
             config:{
                 name: 'precio_prueba',
@@ -482,6 +495,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
+
         {
             config:{
                 name: 'precio_total_pru',
@@ -673,6 +687,8 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {name:'id_proceso_wf', type: 'numeric'},//#39
         {name:'id_estado_wf', type: 'numeric'},//#39
         {name:'estado', type: 'string'},//#39
+        {name:'id_invitacion_det', type: 'numeric'},
+        {name:'porc_prueba', type: 'numeric'},
 	],
 	sortInfo:{
 		field: 'id_componente_concepto_ingas_det',
@@ -680,6 +696,32 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true,
+    oncellclick : function(grid, rowIndex, columnIndex, e) {
+        const record = this.store.getAt(rowIndex),
+            fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
+        if (fieldName === 'lunes' || fieldName === 'martes'|| fieldName === 'miercoles' ||
+            fieldName === 'jueves' || fieldName === 'viernes'|| fieldName === 'sabado')
+            this.cambiarAsignacion(record,fieldName);
+    },
+    cambiarAsignacion: function(record,name){
+        Phx.CP.loadingShow();
+        var d = record.data;
+        Ext.Ajax.request({
+            url:'../../sis_asistencia/control/RangoHorario/asignarDia',
+            params:{ id_rango_horario: d.id_rango_horario,
+                field_name: name
+            },
+            success: this.successRevision,
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope: this
+        });
+        this.reload();
+    },
+    successRevision: function(resp){
+        Phx.CP.loadingHide();
+        var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+    },
     onReloadPage: function (m) {
         this.maestro = m;
         console.log('maestro',this.maestro);
@@ -688,8 +730,35 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         this.Cmp.id_concepto_ingas_det.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
 
         this.load({params: {start: 0, limit: this.tam_pag}});
+        this.Cmp.precio_montaje.on('valid',function(field){//#28
+            var pTot = this.Cmp.precio_montaje.getValue() * this.Cmp.porc_prueba.getValue();
+            this.Cmp.precio_prueba.setValue(pTot);
+        } ,this);
+
+        this.Cmp.porc_prueba.on('valid',function(field){//#28
+            var pTot = this.Cmp.precio_montaje.getValue() * this.Cmp.porc_prueba.getValue();
+            this.Cmp.precio_prueba.setValue(pTot);
+        } ,this);
 
 
+
+
+        /*
+        this.Cmp.precio.on('select', function (Combo, dato) {
+            this.Cmp.precio.store.load({params:{start:0,limit:this.tam_pag},
+                callback : function (y) {
+                    v_divisor = 0;
+                    v_promedio = 0;
+                    for(c=0;c<y.length;c++){
+                        if(y[c].data.checked.trim()=='checked'){
+                            v_promedio = (parseFloat(v_promedio) + parseFloat(y[c].data.precio_unitario_mb));
+                            v_divisor++;
+                        }
+                    }
+                    v_promedio = (parseFloat(v_promedio) / parseFloat(v_divisor));
+                    //this.Cmp.precio.setValue(v_promedio);
+                }, scope : this });
+         }, this);*/
 
     },
     onButtonNew:function(){
@@ -698,12 +767,8 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         Phx.vista.ComponenteConceptoIngasDet.superclass.onButtonNew.call(this);
         this.Cmp.id_concepto_ingas_det.store.baseParams.tension_macro = this.maestro.tension_macro;//#39
         this.Cmp.id_concepto_ingas_det.store.reload(true);//#39
-
         this.mostrarComponente(this.Cmp.id_concepto_ingas_det);
-        this.Cmp.precio_montaje.on('valid',function(field){//#28
-            var pTot = this.Cmp.precio_montaje.getValue() * this.maestro.porc_prueba;
-            this.Cmp.precio_prueba.setValue(pTot);
-        } ,this);
+
     },
     onButtonEdit:function(){
         var data = this.getSelectedData();
@@ -720,164 +785,157 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 
                 }, scope : this
          });
-        this.Cmp.precio_montaje.on('valid',function(field){//#28
-            var pTot = this.Cmp.precio_montaje.getValue() *this.Cmp.porc_prueba.getValue();
-            this.Cmp.precio_prueba.setValue(pTot);
-        } ,this);
-
     },
 
-    tipoStore: 'GroupingStore',//GroupingStore o JsonStore #
-    remoteGroup: true,
-    groupField: 'desc_agrupador',
-    viewGrid: new Ext.grid.GroupingView({
-            forceFit: false,
-            // custom grouping text template to display the number of items per group
-            //groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Items" : "Item"]})'
-        }),
-    fwidth: 500,
-    fheight: 480,
-    south:
-        {
-            url:'../../../sis_proyectos/vista/unidad_comingdet/UnidadComingdet.php',
-            title:'Unidad Constructiva',
-            width:'100%',
-            height:'40%',
-            collapsed:true,
-            cls:'UnidadComingdet'
-        },
+ tipoStore: 'GroupingStore',//GroupingStore o JsonStore #
+ remoteGroup: true,
+ groupField: 'desc_agrupador',
+ viewGrid: new Ext.grid.GroupingView({
+         forceFit: false,
+         // custom grouping text template to display the number of items per group
+         //groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Items" : "Item"]})'
+     }),
+ fwidth: 500,
+ fheight: 480,
+ south:
+     {
+         url:'../../../sis_proyectos/vista/unidad_comingdet/UnidadComingdet.php',
+         title:'Unidad Constructiva',
+         width:'100%',
+         height:'40%',
+         collapsed:true,
+         cls:'UnidadComingdet'
+     },
 
-    construirGrupos: function () {//#27
-        var me = this;
-        this.panelResumen = new Ext.Panel({
-            padding: '0 0 0 20',
-            html: '',
-            split: true,
-            layout: 'fit'
-        });
+ construirGrupos: function () {//#27
+     var me = this;
+     this.panelResumen = new Ext.Panel({
+         padding: '0 0 0 20',
+         html: '',
+         split: true,
+         layout: 'fit'
+     });
 
-        me.Grupos = [
-            {
-                layout: 'form',
-                border: false,
-                defaults: {
-                    border: false
-                },
-                items: [{
-                    bodyStyle: 'padding-right:5px;',
-                    items: [{
-                        xtype: 'fieldset',
-                        title: 'Datos Suministro',
-                        autoHeight: true,
-                        items: [],
-                        id_grupo: 0
-                    }]
-                }, {
-                    bodyStyle: 'padding-left:5px;',
-                    items: [{
-                        xtype: 'fieldset',
-                        title: 'Datos Montaje',
-                        autoHeight: true,
-                        items: [],
-                        id_grupo: 1
-                    }]
-                }, {
-                    bodyStyle: 'padding-left:5px;',
-                    items: [{
-                        xtype: 'fieldset',
-                        title: 'Datos Fundacion',
-                        autoHeight: true,
-                        items: [],
-                        id_grupo: 2
-                    }]
-                },
-                    {
-                        bodyStyle: 'padding-left:5px;',
-                        items: [{
-                            xtype: 'fieldset',
-                            title: 'Datos Prueba',
-                            autoHeight: true,
-                            items: [],
-                            id_grupo: 3
-                        }]
-                    }
-                ]
-            }
-        ];
+     me.Grupos = [
+         {
+             layout: 'form',
+             border: false,
+             defaults: {
+                 border: false
+             },
+             items: [{
+                 bodyStyle: 'padding-right:5px;',
+                 items: [{
+                     xtype: 'fieldset',
+                     title: 'Datos Suministro',
+                     autoHeight: true,
+                     items: [],
+                     id_grupo: 0
+                 }]
+             }, {
+                 bodyStyle: 'padding-left:5px;',
+                 items: [{
+                     xtype: 'fieldset',
+                     title: 'Datos Montaje',
+                     autoHeight: true,
+                     items: [],
+                     id_grupo: 1
+                 }]
+             }, {
+                 bodyStyle: 'padding-left:5px;',
+                 items: [{
+                     xtype: 'fieldset',
+                     title: 'Datos Fundacion',
+                     autoHeight: true,
+                     items: [],
+                     id_grupo: 2
+                 }]
+             },
+                 {
+                     bodyStyle: 'padding-left:5px;',
+                     items: [{
+                         xtype: 'fieldset',
+                         title: 'Datos Prueba',
+                         autoHeight: true,
+                         items: [],
+                         id_grupo: 3
+                     }]
+                 }
+             ]
+         }
+     ];
 
-    },
-    successSave:function(resp)
-        {
+ },
+ successSave:function(resp)
+     {
 
-            Phx.CP.loadingHide();
-            Phx.CP.getPagina(this.idContenedorPadre).reload();
-            this.window.hide();
-            this.reload();
-            this.panel.close();
-        },
+         Phx.CP.loadingHide();
+         Phx.CP.getPagina(this.idContenedorPadre).reload();
+         this.window.hide();
+         this.reload();
+         //this.panel.close();
+     },
 
-    sigEstadoMultiple:function(){
-        // var rec=this.sm.getSelected();
+ sigEstadoMultiple:function(){
+     // var rec=this.sm.getSelected();
 
-        let filas = this.sm.getSelections();
-        let data = [], aux = {};
-        //arma una matriz de los identificadores de registros
-        let rr = {};
-        for (let i = 0; i < this.sm.getCount(); i++) {
-            aux = {};
-            aux[this.id_store] = filas[i].data[this.id_store];
-            aux.id_estado_wf = filas[i].data.id_estado_wf;
-            aux.id_proceso_wf = filas[i].data.id_proceso_wf;
-            aux.estado = filas[i].data.estado;
-            data.push(aux);
-        }
-        var rec = {maestro: this.sm.getSelected().data, data_wf: Ext.util.JSON.encode(data)};
-        console.log('ooo',rec.data_wf);
-        Phx.CP.loadingShow();
-        Ext.Ajax.request({
-            url:'../../sis_proyectos/control/ComponenteConceptoIngasDet/validacionMultiple',
-            params:{
-                data_json:rec.data_wf,
-                data_maestro:rec.maestro
-            },
-            success:function(resp){
-                Phx.CP.loadingHide();
-                var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                if (reg.ROOT.error) {
-                    Ext.Msg.alert('Error','Error a recuperar la variable global')
-                } else {
-                    this.formEstadoWfMultiple(rec,reg.ROOT.datos.id_tipo_estado,reg.ROOT.datos.id_estado_wf);
-                }
-            },
-            failure: this.conexionFailure,
-            timeout:this.timeout,
-            scope:this
-        });
-
-
-    },
-    formEstadoWfMultiple : function (rec,id_tipo_estado,id_estado_wf) {
-        Phx.CP.loadingHide();
-        var win = Phx.CP.loadWindows(
-            '../../../sis_proyectos/vista/componente_concepto_ingas_det/FormEstadoWfMultiple.php',
-            'Estado de Wf Multiple', {
-                //modal:true,
-                width:700,
-                height:450
-            },
-            {data:{
-                    data_json:rec.data_wf,
-                    data_maestro:rec.maestro,
-                    id_tipo_estado:id_tipo_estado,
-                    id_estado_wf:id_estado_wf
-                }},
-            this.idContenedor,
-            'FormEstadoWfMultiple'//clase de la vista
-        );
-    }
+     let filas = this.sm.getSelections();
+     let data = [], aux = {};
+     //arma una matriz de los identificadores de registros
+     let rr = {};
+     for (let i = 0; i < this.sm.getCount(); i++) {
+         aux = {};
+         aux[this.id_store] = filas[i].data[this.id_store];
+         aux.id_estado_wf = filas[i].data.id_estado_wf;
+         aux.id_proceso_wf = filas[i].data.id_proceso_wf;
+         aux.estado = filas[i].data.estado;
+         data.push(aux);
+     }
+     var rec = {maestro: this.sm.getSelected().data, data_wf: Ext.util.JSON.encode(data)};
+     console.log('ooo',rec.data_wf);
+     Phx.CP.loadingShow();
+     Ext.Ajax.request({
+         url:'../../sis_proyectos/control/ComponenteConceptoIngasDet/validacionMultiple',
+         params:{
+             data_json:rec.data_wf,
+             data_maestro:rec.maestro
+         },
+         success:function(resp){
+             Phx.CP.loadingHide();
+             var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+             if (reg.ROOT.error) {
+                 Ext.Msg.alert('Error','Error a recuperar la variable global')
+             } else {
+                 this.formEstadoWfMultiple(rec,reg.ROOT.datos.id_tipo_estado,reg.ROOT.datos.id_estado_wf);
+             }
+         },
+         failure: this.conexionFailure,
+         timeout:this.timeout,
+         scope:this
+     });
 
 
-    }
+ },
+ formEstadoWfMultiple : function (rec,id_tipo_estado,id_estado_wf) {
+     Phx.CP.loadingHide();
+     var win = Phx.CP.loadWindows(
+         '../../../sis_proyectos/vista/componente_concepto_ingas_det/FormEstadoWfMultiple.php',
+         'Estado de Wf Multiple', {
+             //modal:true,
+             width:700,
+             height:450
+         },
+         {data:{
+                 data_json:rec.data_wf,
+                 data_maestro:rec.maestro,
+                 id_tipo_estado:id_tipo_estado,
+                 id_estado_wf:id_estado_wf
+             }},
+         this.idContenedor,
+         'FormEstadoWfMultiple'//clase de la vista
+     );
+ },
+ }
 )
 </script>
 		

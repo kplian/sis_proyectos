@@ -107,7 +107,7 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->setParametro('f_seguridad','f_seguridad','numeric');//#27
         $this->setParametro('f_escala_xfd_montaje','f_escala_xfd_montaje','numeric');//#27
         $this->setParametro('f_escala_xfd_obra_civil','f_escala_xfd_obra_civil','numeric');//#27
-
+        $this->setParametro('porc_prueba','porc_prueba','numeric');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -140,6 +140,7 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->setParametro('f_seguridad','f_seguridad','numeric');//#27
         $this->setParametro('f_escala_xfd_montaje','f_escala_xfd_montaje','numeric');//#27
         $this->setParametro('f_escala_xfd_obra_civil','f_escala_xfd_obra_civil','numeric');//#27
+        $this->setParametro('porc_prueba','porc_prueba','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -204,15 +205,15 @@ class MODComponenteConceptoIngasDet extends MODbase{
         return $this->respuesta;
 
     }
-    function listarPrecioHistorico(){
+    function listarPrecioHistoricoInvitacion(){
         //Definicion de variables para ejecucion del procedimientp
-        $this->procedimiento='pro.f_precio_historico';
-        $this->transaccion='PRO_PREHI_SEL';
+        $this->procedimiento='pro.f_precio_historico_inv';
+        $this->transaccion='PRO_PREHINV_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
 
         //Definicion de la lista del resultado del query
-        $this->captura('id','int4');
         $this->captura('id_invitacion_det','int4');
+        $this->captura('codigo','varchar');
         $this->captura('id_solicitud_det','int4');
         $this->captura('precio_unitario_mb','numeric');
 

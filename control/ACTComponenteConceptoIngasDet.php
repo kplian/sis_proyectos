@@ -78,16 +78,16 @@ class ACTComponenteConceptoIngasDet extends ACTbase{
         $this->res=$this->objFunc->siguienteEstadoMultiple($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-    function listarPrecioHistorico(){
+    function listarPrecioHistoricoInvitacion(){
 
-        $this->objParam->parametros_consulta['ordenacion'] = 'id';
+        $this->objParam->parametros_consulta['ordenacion'] = 'id_invitacion_det';
         $this->objParam->parametros_consulta['dir_ordenacion'] = 'asc';
         $this->objParam->parametros_consulta['cantidad'] = '3';
         $this->objParam->parametros_consulta['puntero'] = '0';
-        $this->objParam->parametros_consulta['filtro'] = ' 0=0 ';
+        //$this->objParam->parametros_consulta['filtro'] = ' 0=0 ';
         //var_dump('$this->objParam',$this->objParam);exit;
         $this->objFunc=$this->create('MODComponenteConceptoIngasDet');
-        $this->res=$this->objFunc->listarPrecioHistorico($this->objParam);
+        $this->res=$this->objFunc->listarPrecioHistoricoInvitacion($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 			

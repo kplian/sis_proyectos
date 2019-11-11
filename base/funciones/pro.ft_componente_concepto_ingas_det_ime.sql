@@ -174,7 +174,8 @@ BEGIN
             nro_tramite,
             id_proceso_wf,
             id_estado_wf,
-            estado
+            estado,
+            porc_prueba
           	) values(
 			'activo',
 			v_parametros.id_concepto_ingas_det,
@@ -198,7 +199,8 @@ BEGIN
             v_num_tramite,--#39
             v_id_proceso_wf,--#39
             v_id_estado_wf,--#39
-            v_codigo_estado--#39
+            v_codigo_estado,--#39
+            v_parametros.porc_prueba
 			)RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
             ---si se agrega desde el componente concepto los parametros ya estan definido
             IF pxp.f_existe_parametro(p_tabla,'automatico') THEN
@@ -350,7 +352,8 @@ BEGIN
             f_desadeanizacion = v_parametros.f_desadeanizacion,--#27
             f_seguridad = v_parametros.f_seguridad,--#27
             f_escala_xfd_montaje = v_parametros.f_escala_xfd_montaje,--#27
-            f_escala_xfd_obra_civil = v_parametros.f_escala_xfd_obra_civil--#27
+            f_escala_xfd_obra_civil = v_parametros.f_escala_xfd_obra_civil,--#27
+            porc_prueba = v_parametros.porc_prueba
             where id_componente_concepto_ingas_det=v_parametros.id_componente_concepto_ingas_det;
 
             --Definicion de la respuesta
