@@ -416,8 +416,8 @@ Phx.vista.ProyectoPr = {
  		console.log('hola');
 		Phx.vista.ProyectoPr.superclass.onButtonNew.call(this);
 		
-	   this.Cmp.fecha_ini_real.disable(true);
-	   this.Cmp.fecha_fin_real.disable(true);
+	   //this.Cmp.fecha_ini_real.disable(true);
+	   //this.Cmp.fecha_fin_real.disable(true);
 	   		
 		
 		
@@ -437,12 +437,12 @@ Phx.vista.ProyectoPr = {
    
     	
     	if (rec.json.estado == 'ejecucion') {
-    		  this.Cmp.fecha_ini_real.enable(true);
-	     	  this.Cmp.fecha_fin_real.enable(true);
+    		  //this.Cmp.fecha_ini_real.enable(true);
+	     	  //this.Cmp.fecha_fin_real.enable(true);
     		
     	} else{
-    		  this.Cmp.fecha_ini_real.disable(true);
-	     	  this.Cmp.fecha_fin_real.disable(true);
+    		  //this.Cmp.fecha_ini_real.disable(true);
+	     	  //this.Cmp.fecha_fin_real.disable(true);
     		
     	};
     	   	

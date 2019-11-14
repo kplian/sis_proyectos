@@ -219,7 +219,8 @@ BEGIN
                 mc.f_seguridad,
                 mc.f_escala_xfd_montaje,
                 mc.f_escala_xfd_obra_civil,
-                mc.tension
+                mc.tension,
+                mc.porc_prueba
             INTO
                 v_record_cm
             FROM pro.tcomponente_macro mc
@@ -286,7 +287,8 @@ BEGIN
                             comcigd.f_desadeanizacion,
                             comcigd.f_seguridad,
                             comcigd.f_escala_xfd_montaje,
-                            comcigd.f_escala_xfd_obra_civil
+                            comcigd.f_escala_xfd_obra_civil,
+                            comcigd.porc_prueba
                         FROM pro.tcomponente_concepto_ingas_det comcigd
                         WHERE comcigd.id_componente_concepto_ingas = v_recor_comcig.id_componente_concepto_ingas
 
@@ -310,6 +312,11 @@ BEGIN
                         IF v_recor_comcig_det.f_escala_xfd_obra_civil IS null or v_recor_comcig_det.f_escala_xfd_obra_civil = v_record_cm.f_escala_xfd_obra_civil THEN
                             UPDATE pro.tcomponente_concepto_ingas_det  SET
                                   f_escala_xfd_obra_civil = v_parametros.f_escala_xfd_obra_civil
+                            WHERE  id_componente_concepto_ingas_det = v_recor_comcig_det.id_componente_concepto_ingas_det;
+                        END IF;
+                        IF v_recor_comcig_det.porc_prueba IS null or v_recor_comcig_det.porc_prueba = v_record_cm.porc_prueba THEN
+                            UPDATE pro.tcomponente_concepto_ingas_det  SET
+                                  porc_prueba = v_parametros.porc_prueba
                             WHERE  id_componente_concepto_ingas_det = v_recor_comcig_det.id_componente_concepto_ingas_det;
                         END IF;
                     END LOOP;

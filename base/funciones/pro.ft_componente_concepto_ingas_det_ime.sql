@@ -23,6 +23,7 @@ $body$
  #27                16/09/2019          EGS                 Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
  #34 EndeEtr        03/10/2019          EGS                 Se mejro la logica
  #39 EndeEtr        17/10/2019          EGS                 Se actualizan los datos si son automaticos y se agrega proceso wf
+ #45 EndeEtr        14/11/2019          EGS                 Codigos de invitacion Referencial de precios
  ***************************************************************************/
 
 DECLARE
@@ -174,7 +175,11 @@ BEGIN
             nro_tramite,
             id_proceso_wf,
             id_estado_wf,
-            estado
+            estado,
+            porc_prueba,
+            codigo_inv_sumi,--#45
+            codigo_inv_montaje,--#45
+            codigo_inv_oc--#45
           	) values(
 			'activo',
 			v_parametros.id_concepto_ingas_det,
@@ -198,7 +203,11 @@ BEGIN
             v_num_tramite,--#39
             v_id_proceso_wf,--#39
             v_id_estado_wf,--#39
-            v_codigo_estado--#39
+            v_codigo_estado,--#39
+            v_parametros.porc_prueba,
+            v_parametros.codigo_inv_sumi,--#45
+            v_parametros.codigo_inv_montaje,--#45
+            v_parametros.codigo_inv_oc--#45
 			)RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
             ---si se agrega desde el componente concepto los parametros ya estan definido
             IF pxp.f_existe_parametro(p_tabla,'automatico') THEN
@@ -350,7 +359,11 @@ BEGIN
             f_desadeanizacion = v_parametros.f_desadeanizacion,--#27
             f_seguridad = v_parametros.f_seguridad,--#27
             f_escala_xfd_montaje = v_parametros.f_escala_xfd_montaje,--#27
-            f_escala_xfd_obra_civil = v_parametros.f_escala_xfd_obra_civil--#27
+            f_escala_xfd_obra_civil = v_parametros.f_escala_xfd_obra_civil,--#27
+            porc_prueba = v_parametros.porc_prueba,
+            codigo_inv_sumi = v_parametros.codigo_inv_sumi,--#45
+            codigo_inv_montaje = v_parametros.codigo_inv_montaje,--#45
+            codigo_inv_oc = v_parametros.codigo_inv_oc--#45
             where id_componente_concepto_ingas_det=v_parametros.id_componente_concepto_ingas_det;
 
             --Definicion de la respuesta

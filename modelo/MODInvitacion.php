@@ -8,7 +8,7 @@
  	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
     #7	  endeETR		29/01/2019	EGS				se creo las funciones para listar combos procesos de solicitudes de compra y sus detalles e insertar una invitacion regularizada  
     #15	Etr				31/07/2019	EGS		    se agrego boton para lanzamientos y reporte invitaciones
- 
+    #44 Etr             11/11/2019  EGS             Se cambia el tipo  de cantidad a numerico
  */
 
 class MODInvitacion extends MODbase{
@@ -254,7 +254,7 @@ class MODInvitacion extends MODbase{
 		$this->captura('id_solicitud','int4');
 		$this->captura('id_concepto_ingas','int4');
 		$this->captura('desc_ingas','varchar');
-		$this->captura('cantidad','integer');
+		$this->captura('cantidad','numeric');//#44
 		$this->captura('precio_unitario','numeric');
 		$this->captura('precio_total','numeric');	
 		$this->captura('id_centro_costo','int4');

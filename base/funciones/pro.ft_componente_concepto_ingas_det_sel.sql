@@ -22,8 +22,9 @@ $body$
 #21 EndeEtr         30/08/2019          EGS                 Se adiciona el id del proyecto al PRO_COMINDET_SEL a la consulta
 #25 EndeEtr         10/09/2019          EGS                 Adicion de cmp precio montaje, precio obci y precio pruebas
 #26 EndeEtr         12/09/2019          EGS                 Lista la unidad Constructiva del componente macro
-#34  EndeEtr          03/10/2019        EGS                 Se aumentaron  totalizdores
-#35 EndeEtr           10/10/2019            EGS                 Se agrega los factores la suma producto
+#34  EndeEtr        03/10/2019          EGS                 Se aumentaron  totalizdores
+#35 EndeEtr         10/10/2019          EGS                 Se agrega los factores la suma producto
+#45 EndeEtr         14/11/2019          EGS                 Codigos de invitacion Referencial de precios
 ***************************************************************************/
 
 DECLARE
@@ -80,7 +81,7 @@ BEGIN
                         comindet.f_seguridad,--#27
                         comindet.f_escala_xfd_montaje,--#27
                         comindet.f_escala_xfd_obra_civil,--#27
-                        cm.porc_prueba,
+                        comindet.porc_prueba,
                         comindet.tipo_configuracion,
                         comindet.conductor,
                         comindet.id_unidad_medida,
@@ -92,7 +93,10 @@ BEGIN
                         comindet.nro_tramite,--#39
                         comindet.id_proceso_wf,--#39
                         comindet.id_estado_wf,--#39
-                        comindet.estado  --#39
+                        comindet.estado,  --#39
+                        comindet.codigo_inv_sumi,--#45
+                        comindet.codigo_inv_montaje,--#45
+                        comindet.codigo_inv_oc--#45
 						from pro.tcomponente_concepto_ingas_det comindet
 						inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod

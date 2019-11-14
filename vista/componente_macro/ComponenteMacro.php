@@ -172,7 +172,7 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 gwidth: 100,
                 maxLength:10,
                 allowDecimals:true,
-                decimalPrecision:3,
+                decimalPrecision:4,
                 renderer:function (value,p,record){
                     return  String.format('<b><font size= >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
 
@@ -191,6 +191,8 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 anchor: '80%',
                 gwidth: 100,
                 maxLength:10,
+                allowDecimals : true,
+                decimalPrecision : 4,
                 renderer:function (value,p,record){
                     return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
 
@@ -209,6 +211,8 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 anchor: '80%',
                 gwidth: 100,
                 maxLength:10,
+                allowDecimals : true,
+                decimalPrecision : 4,
                 renderer:function (value,p,record){
                     return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
 
@@ -227,6 +231,8 @@ Phx.vista.ComponenteMacro=Ext.extend(Phx.gridInterfaz,{
                 anchor: '80%',
                 gwidth: 100,
                 maxLength:10,
+                allowDecimals : true,
+                decimalPrecision : 4,
                 renderer:function (value,p,record){
                     return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
 

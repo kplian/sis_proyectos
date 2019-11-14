@@ -275,7 +275,8 @@ BEGIN
                 mc.f_desadeanizacion,
                 mc.f_seguridad,
                 mc.f_escala_xfd_montaje,
-                mc.f_escala_xfd_obra_civil
+                mc.f_escala_xfd_obra_civil,
+                mc.porc_prueba
               INTO
                 v_record_mc
               FROM pro.tcomponente_macro mc
@@ -308,7 +309,8 @@ BEGIN
                     'conductor',
                     'id_unidad_medida',
                     'tipo_configuracion',
-                    'automatico'
+                    'automatico',
+                    'porc_prueba'
                   ],
             ARRAY['activo'::varchar,--estado_reg
                   v_record.id_concepto_ingas_det::varchar,--id_concepto_ingas_det
@@ -334,7 +336,8 @@ BEGIN
                   COALESCE(v_record.conductor::varchar,''),--conductor
                   COALESCE(v_record.id_unidad_medida::varchar,''),--id_unidad_medida
                   COALESCE(v_record.tipo_configuracion::varchar,''),--tipo_configuracion
-                  'si'::varchar--automatico
+                  'si'::varchar,--automatico
+                   COALESCE(v_record_mc.porc_prueba::varchar,'')--porc_prueba
                   ],
             ARRAY['varchar',--'estado_reg'
                   'int4',--'id_concepto_ingas_det'
@@ -360,7 +363,8 @@ BEGIN
                   'varchar',--conductor
                   'int4',--id_unidad_medida
                   'varchar',--tipo_configuracion
-                  'varchar'--automatico
+                  'varchar',--automatico
+                  'numeric'--'porc_prueba'
                   ]);
             --#39
             v_resp = pro.ft_componente_concepto_ingas_det_ime(p_administrador,p_id_usuario,v_tabla,v_codigo_trans);

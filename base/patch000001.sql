@@ -1022,7 +1022,51 @@ ALTER TABLE pro.tcomponente_concepto_ingas_det
 ALTER TABLE pro.tproyecto_activo
   ADD COLUMN fecha_compra DATE;
 /***********************************F-SCP-RCM-PRO-38-17/10/2019****************************************/
-/***********************************I-SCP-RCM-PRO-21-31/10/2019****************************************/
+/***********************************I-SCP-EGS-PRO-21-31/10/2019****************************************/
 ALTER TABLE pro.tunidad_constructiva
   ADD COLUMN id_orden_trabajo INTEGER;
-/***********************************F-SCP-RCM-PRO-21-31/10/2019****************************************/
+/***********************************F-SCP-EGS-PRO-21-31/10/2019****************************************/
+/***********************************I-SCP-EGS-PRO-22-08/11/2019****************************************/
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN porc_prueba NUMERIC(19,2);
+
+
+  ALTER TABLE pro.tcomponente_macro
+  ALTER COLUMN f_desadeanizacion TYPE NUMERIC(19,4);
+  ALTER TABLE pro.tcomponente_macro
+  ALTER COLUMN f_seguridad TYPE NUMERIC(19,4);
+  ALTER TABLE pro.tcomponente_macro
+  ALTER COLUMN f_escala_xfd_montaje TYPE NUMERIC(19,4);
+  ALTER TABLE pro.tcomponente_macro
+  ALTER COLUMN f_escala_xfd_obra_civil TYPE NUMERIC(19,4);
+
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ALTER COLUMN f_desadeanizacion TYPE NUMERIC(19,4);
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ALTER COLUMN f_seguridad TYPE NUMERIC(19,4);
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ALTER COLUMN f_escala_xfd_montaje TYPE NUMERIC(19,4);
+  ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ALTER COLUMN f_escala_xfd_obra_civil TYPE NUMERIC(19,4);
+
+/***********************************F-SCP-EGS-PRO-22-08/11/2019****************************************/
+/***********************************I-SCP-EGS-PRO-23-11/11/2019****************************************/
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN codigo_inv_sumi VARCHAR;
+
+COMMENT ON COLUMN pro.tcomponente_concepto_ingas_det.codigo_inv_sumi
+IS 'codigo de invitaciones manuales';
+
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN codigo_inv_montaje VARCHAR;
+
+COMMENT ON COLUMN pro.tcomponente_concepto_ingas_det.codigo_inv_montaje
+IS 'codigo referencia invitacion montaje';
+
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN codigo_inv_oc VARCHAR;
+
+COMMENT ON COLUMN pro.tcomponente_concepto_ingas_det.codigo_inv_oc
+IS 'codigo referencia invitacion obra civil';
+/***********************************F-SCP-EGS-PRO-23-11/11/2019****************************************/
+
