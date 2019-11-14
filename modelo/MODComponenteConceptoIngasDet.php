@@ -12,6 +12,7 @@
 #27 EndeEtr         16/09/2019          EGS                 Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
 #28 EndeEtr         16/09/2019          EGS                 se carga porc_prueba
 #39 EndeEtr         17/10/2019          EGS                 Se agrega WF
+#44 EndeEtr         11/11/2019          EGS                 seagregan campos de invitaciones referenciales de precios
  */
 
 class MODComponenteConceptoIngasDet extends MODbase{
@@ -75,6 +76,9 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->captura('id_proceso_wf','integer');//#39
         $this->captura('id_estado_wf','integer');//#39
         $this->captura('estado','varchar');//#39
+        $this->captura('codigo_inv_sumi','varchar');//#45
+        $this->captura('codigo_inv_montaje','varchar');//#45
+        $this->captura('codigo_inv_oc','varchar');//#45
 
         //Ejecuta la instruccion
 		$this->armarConsulta();
@@ -108,6 +112,10 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->setParametro('f_escala_xfd_montaje','f_escala_xfd_montaje','numeric');//#27
         $this->setParametro('f_escala_xfd_obra_civil','f_escala_xfd_obra_civil','numeric');//#27
         $this->setParametro('porc_prueba','porc_prueba','numeric');
+        $this->setParametro('codigo_inv_sumi','codigo_inv_sumi','varchar');//#45
+        $this->setParametro('codigo_inv_montaje','codigo_inv_montaje','varchar');//#45
+        $this->setParametro('codigo_inv_oc','codigo_inv_oc','varchar');//#45
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -141,6 +149,9 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->setParametro('f_escala_xfd_montaje','f_escala_xfd_montaje','numeric');//#27
         $this->setParametro('f_escala_xfd_obra_civil','f_escala_xfd_obra_civil','numeric');//#27
         $this->setParametro('porc_prueba','porc_prueba','numeric');
+        $this->setParametro('codigo_inv_sumi','codigo_inv_sumi','varchar');//#45
+        $this->setParametro('codigo_inv_montaje','codigo_inv_montaje','varchar');//#45
+        $this->setParametro('codigo_inv_oc','codigo_inv_oc','varchar');//#45
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

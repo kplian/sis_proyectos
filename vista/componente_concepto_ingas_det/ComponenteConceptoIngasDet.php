@@ -10,7 +10,7 @@
  *  #27 EndeEtr         16/09/2019          EGS             Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
     #28                 16/09/2019          EGS             Carga de recio de pruebas con el factor d pruebas
     #39 EndeEtr         17/10/2019          EGS              Se agrega WF
- *  #44 EndeEtr         11/11/2019          EGS             Se agrega Porcentaje de pruebas en concepto detalle
+ *  #44 EndeEtr         11/11/2019          EGS             Se agrega Porcentaje de pruebas en concepto detalle y codigos de  invitaciones de precios referenciales
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -255,7 +255,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 gwidth: 100,
                 maxLength:10,
                 allowDecimals:true,
-                decimalPrecision:3,
+                decimalPrecision:4,
                 renderer:function (value,p,record){
                     return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
 
@@ -291,12 +291,27 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 maxLength:1179650,
                 renderer:function (value,p,record){
                     Ext.util.Format.usMoney
-                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,0000/i'));
 
                 }
             },
             type:'MoneyField',
             filters:{pfiltro:'comindet.precio',type:'numeric'},
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
+        {//#45
+            config:{
+                name: 'codigo_inv_sumi',
+                fieldLabel: 'Codigo (Inv. Ref.)',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:13,
+                qtip: 'Codigo de invitacion referencial del precio (Suministro)',
+            },
+            type:'TextField',
             id_grupo:0,
             grid:true,
             form:true
@@ -312,7 +327,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 galign: 'right ',
                 renderer:function (value,p,record){
                     Ext.util.Format.usMoney
-                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,0000/i'));
 
                 }
             },
@@ -330,8 +345,10 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 anchor: '80%',
                 gwidth: 100,
                 maxLength:10,
+                allowDecimals : true,
+                decimalPrecision : 4,
                 renderer:function (value,p,record){
-                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,0000/i'));
 
                 }
             },
@@ -356,6 +373,21 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             },
             type:'MoneyField',
             filters:{pfiltro:'comindet.precio_montaje',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {//#45
+            config:{
+                name: 'codigo_inv_montaje',
+                fieldLabel: 'Codigo (Inv. Ref.)',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:13,
+                qtip: 'Codigo de invitacion referencial del precio (Montaje)',
+            },
+            type:'TextField',
             id_grupo:1,
             grid:true,
             form:true
@@ -388,8 +420,10 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 anchor: '80%',
                 gwidth: 100,
                 maxLength:10,
+                allowDecimals : true,
+                decimalPrecision : 4,
                 renderer:function (value,p,record){
-                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,0000/i'));
 
                 }
             },
@@ -415,6 +449,21 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             },
             type:'MoneyField',
             filters:{pfiltro:'comindet.precio_obra_civil',type:'numeric'},
+            id_grupo:2,
+            grid:true,
+            form:true
+        },
+        {//#45
+            config:{
+                name: 'codigo_inv_oc',
+                fieldLabel: 'Codigo (Inv. Ref.)',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:13,
+                qtip: 'Codigo de invitacion referencial del precio (Obra Civil)',
+            },
+            type:'TextField',
             id_grupo:2,
             grid:true,
             form:true
@@ -447,8 +496,10 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                 anchor: '80%',
                 gwidth: 100,
                 maxLength:10,
+                allowDecimals : true,
+                decimalPrecision : 4,
                 renderer:function (value,p,record){
-                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,0000/i'));
 
                 }
             },
@@ -689,6 +740,9 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {name:'estado', type: 'string'},//#39
         {name:'id_invitacion_det', type: 'numeric'},
         {name:'porc_prueba', type: 'numeric'},
+        {name:'codigo_inv_sumi', type: 'string'},//#45
+        {name:'codigo_inv_montaje', type: 'string'},//#45
+        {name:'codigo_inv_oc', type: 'string'},//#45
 	],
 	sortInfo:{
 		field: 'id_componente_concepto_ingas_det',

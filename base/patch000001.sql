@@ -1050,4 +1050,23 @@ ALTER TABLE pro.tcomponente_concepto_ingas_det
   ALTER COLUMN f_escala_xfd_obra_civil TYPE NUMERIC(19,4);
 
 /***********************************F-SCP-EGS-PRO-22-08/11/2019****************************************/
+/***********************************I-SCP-EGS-PRO-23-11/11/2019****************************************/
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN codigo_inv_sumi VARCHAR;
+
+COMMENT ON COLUMN pro.tcomponente_concepto_ingas_det.codigo_inv_sumi
+IS 'codigo de invitaciones manuales';
+
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN codigo_inv_montaje VARCHAR;
+
+COMMENT ON COLUMN pro.tcomponente_concepto_ingas_det.codigo_inv_montaje
+IS 'codigo referencia invitacion montaje';
+
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN codigo_inv_oc VARCHAR;
+
+COMMENT ON COLUMN pro.tcomponente_concepto_ingas_det.codigo_inv_oc
+IS 'codigo referencia invitacion obra civil';
+/***********************************F-SCP-EGS-PRO-23-11/11/2019****************************************/
 
