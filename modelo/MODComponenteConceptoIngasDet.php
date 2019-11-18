@@ -79,7 +79,7 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->captura('codigo_inv_sumi','varchar');//#45
         $this->captura('codigo_inv_montaje','varchar');//#45
         $this->captura('codigo_inv_oc','varchar');//#45
-
+        $this->captura('id_invitacion_dets','varchar');
         //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -115,6 +115,7 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->setParametro('codigo_inv_sumi','codigo_inv_sumi','varchar');//#45
         $this->setParametro('codigo_inv_montaje','codigo_inv_montaje','varchar');//#45
         $this->setParametro('codigo_inv_oc','codigo_inv_oc','varchar');//#45
+        $this->setParametro('id_invitacion_dets','id_invitacion_dets','integer[]');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -152,6 +153,7 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->setParametro('codigo_inv_sumi','codigo_inv_sumi','varchar');//#45
         $this->setParametro('codigo_inv_montaje','codigo_inv_montaje','varchar');//#45
         $this->setParametro('codigo_inv_oc','codigo_inv_oc','varchar');//#45
+        $this->setParametro('id_invitacion_dets','id_invitacion_dets','integer[]');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

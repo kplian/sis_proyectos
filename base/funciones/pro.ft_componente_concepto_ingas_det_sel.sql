@@ -96,7 +96,8 @@ BEGIN
                         comindet.estado,  --#39
                         comindet.codigo_inv_sumi,--#45
                         comindet.codigo_inv_montaje,--#45
-                        comindet.codigo_inv_oc--#45
+                        comindet.codigo_inv_oc,--#45
+                        array_to_string(comindet.id_invitacion_dets, '','' )::varchar as id_invitacion_dets
 						from pro.tcomponente_concepto_ingas_det comindet
 						inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod

@@ -84,6 +84,11 @@ class ACTComponenteConceptoIngasDet extends ACTbase{
         $this->objParam->parametros_consulta['dir_ordenacion'] = 'asc';
         $this->objParam->parametros_consulta['cantidad'] = '3';
         $this->objParam->parametros_consulta['puntero'] = '0';
+
+        if($this->objParam->getParametro('id_concepto_ingas_det')!='' ){
+            $this->objParam->addFiltro("coind.id_concepto_ingas_det = ".$this->objParam->getParametro('id_concepto_ingas_det'));
+        }
+
         //$this->objParam->parametros_consulta['filtro'] = ' 0=0 ';
         //var_dump('$this->objParam',$this->objParam);exit;
         $this->objFunc=$this->create('MODComponenteConceptoIngasDet');
