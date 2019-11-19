@@ -8,6 +8,7 @@
  * ISSUE       FECHA       AUTHOR          DESCRIPCION
     #28        16/09/2019   EGS            se agrega campo porc_prueba
  *  #35         07/10/2019  EGS            Se agrega combo de lidata de conceptos
+ *  #47        19/11/2019   EGS            Se agrega precio consolidado en concepto_ingas
  */
 
 class MODComponenteConceptoIngas extends MODbase{
@@ -121,6 +122,7 @@ class MODComponenteConceptoIngas extends MODbase{
         $this->captura('id_concepto_ingas','int4');
         $this->captura('desc_ingas','varchar');
         $this->captura('tipo','varchar');
+        $this->captura('precio','numeric');//#47
 
         //Ejecuta la instruccion
         $this->armarConsulta();
