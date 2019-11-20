@@ -64,6 +64,7 @@ DECLARE
     p_usuario_ai            varchar;
     v_id_estado_actual        integer;
     v_id_tipo_estado        integer;
+    v_id_invitacion_dets    INTEGER[];
 
 
 
@@ -149,7 +150,9 @@ BEGIN
                    null,
                    'Planificacion Detalle',
                    '' );
-
+            IF pxp.f_existe_parametro(p_tabla,'id_invitacion_dets') = true THEN
+                v_id_invitacion_dets = v_parametros.id_invitacion_dets;
+            END IF ;
 
         	--Sentencia de la insercion
         	insert into pro.tcomponente_concepto_ingas_det(
@@ -179,7 +182,8 @@ BEGIN
             porc_prueba,
             codigo_inv_sumi,--#45
             codigo_inv_montaje,--#45
-            codigo_inv_oc--#45
+            codigo_inv_oc,--#45
+            id_invitacion_dets
           	) values(
 			'activo',
 			v_parametros.id_concepto_ingas_det,
@@ -205,9 +209,10 @@ BEGIN
             v_id_estado_wf,--#39
             v_codigo_estado,--#39
             v_parametros.porc_prueba,
-            v_parametros.codigo_inv_sumi,--#45
-            v_parametros.codigo_inv_montaje,--#45
-            v_parametros.codigo_inv_oc--#45
+            REPLACE(upper(v_parametros.codigo_inv_sumi),' ',''),--#45
+            REPLACE(upper(v_parametros.codigo_inv_montaje),' ',''),--#45
+            REPLACE(upper(v_parametros.codigo_inv_oc),' ',''),--#45
+            v_id_invitacion_dets
 			)RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
             ---si se agrega desde el componente concepto los parametros ya estan definido
             IF pxp.f_existe_parametro(p_tabla,'automatico') THEN
@@ -361,9 +366,10 @@ BEGIN
             f_escala_xfd_montaje = v_parametros.f_escala_xfd_montaje,--#27
             f_escala_xfd_obra_civil = v_parametros.f_escala_xfd_obra_civil,--#27
             porc_prueba = v_parametros.porc_prueba,
-            codigo_inv_sumi = v_parametros.codigo_inv_sumi,--#45
-            codigo_inv_montaje = v_parametros.codigo_inv_montaje,--#45
-            codigo_inv_oc = v_parametros.codigo_inv_oc--#45
+            codigo_inv_sumi = REPLACE(upper(v_parametros.codigo_inv_sumi),' ',''),--#45
+            codigo_inv_montaje = REPLACE(upper(v_parametros.codigo_inv_montaje),' ',''),--#45
+            codigo_inv_oc = REPLACE(upper(v_parametros.codigo_inv_oc),' ',''),--#45
+            id_invitacion_dets = v_parametros.id_invitacion_dets
             where id_componente_concepto_ingas_det=v_parametros.id_componente_concepto_ingas_det;
 
             --Definicion de la respuesta

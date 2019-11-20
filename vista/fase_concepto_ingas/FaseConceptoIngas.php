@@ -11,6 +11,7 @@
  * 	#10	  endeEtr		02/04/2019	EGS				Se agrega funcion que actualiza panel de informacion al crear ,editar y eliminar un fase concepto de gasto
  *  #17	  endeETR		01/08/2019	EGS				se agrega listado desde ccomponente_concepto_ingas
  *  #35                 07/10/2019  EGS            Se agrega combo de lidata de conceptos
+ * #47   EndeETR        19/11/2019  EGS             carga de precio estimado en fases deacuerdo a planificacion
 
  */
 
@@ -225,7 +226,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
                         direction: 'ASC'
                     },
                     totalProperty: 'total',
-                    fields: ['id_concepto_ingas', 'desc_ingas','tipo'],
+                    fields: ['id_concepto_ingas', 'desc_ingas','tipo','precio'],//#47
                     remoteSort: true,
                     baseParams: {par_filtro: 'id_concepto_ingas#desc_ingas#',start:0, limit:50}
                 }),
@@ -766,7 +767,7 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 				this.Cmp.precio_total.setValue(this.Cmp.precio.getValue()*this.Cmp.cantidad_est.getValue());
 			}
 		},this);
-
+        /*
 		this.Cmp.cantidad_est.on('blur',function(cmp){
 			this.Cmp.precio_total.setValue(0);
 			if(this.Cmp.cantidad_est.getValue()&&this.Cmp.precio.getValue()){
@@ -774,6 +775,13 @@ Phx.vista.FaseConceptoIngas=Ext.extend(Phx.gridInterfaz,{
 			}
 		},this)
 		*/
+
+        this.Cmp.id_concepto_ingas.on('select',function(combo,record,index){//#47
+            //this.Cmp.id_concepto_ingas.on('valid',function(field){
+                this.Cmp.precio_est.setValue(record.data.precio);
+            //} ,this);
+        },this)
+
 	},
 	
 	onReloadPage: function (m) {

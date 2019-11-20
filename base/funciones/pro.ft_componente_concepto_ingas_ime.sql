@@ -23,6 +23,7 @@ $body$
  #34  EndeEtr       03/10/2019             EGS                  Se agrgaron campos tipo_configuracion,id_unidad_medida,conductor
  #35                07/10/2019             EGS                  se agrega validacion q no agrega conceptos repetidos por componente macro
  #39  Endeetr       17/10/2019             EGS                  se agrega conceptos detalle utilizando la transaccion PRO_COMINDET_INS
+ #44  EndeEtr       18/11/2019             EGS                  Se agrgan los campos de codigo
  ***************************************************************************/
 
 DECLARE
@@ -310,7 +311,10 @@ BEGIN
                     'id_unidad_medida',
                     'tipo_configuracion',
                     'automatico',
-                    'porc_prueba'
+                    'porc_prueba',
+                    'codigo_inv_sumi',
+                    'codigo_inv_montaje',
+                    'codigo_inv_oc'
                   ],
             ARRAY['activo'::varchar,--estado_reg
                   v_record.id_concepto_ingas_det::varchar,--id_concepto_ingas_det
@@ -337,7 +341,10 @@ BEGIN
                   COALESCE(v_record.id_unidad_medida::varchar,''),--id_unidad_medida
                   COALESCE(v_record.tipo_configuracion::varchar,''),--tipo_configuracion
                   'si'::varchar,--automatico
-                   COALESCE(v_record_mc.porc_prueba::varchar,'')--porc_prueba
+                   COALESCE(v_record_mc.porc_prueba::varchar,''),--porc_prueba
+                  ''::varchar,--codigo_inv_sumi
+                  ''::varchar,--codigo_inv_montaje
+                  ''::varchar--codigo_inv_oc
                   ],
             ARRAY['varchar',--'estado_reg'
                   'int4',--'id_concepto_ingas_det'
@@ -364,7 +371,10 @@ BEGIN
                   'int4',--id_unidad_medida
                   'varchar',--tipo_configuracion
                   'varchar',--automatico
-                  'numeric'--'porc_prueba'
+                  'numeric',--'porc_prueba'
+                  'varchar',--codigo_inv_sumi
+                  'varchar',--codigo_inv_montaje
+                  'varchar'--codigo_inv_oc
                   ]);
             --#39
             v_resp = pro.ft_componente_concepto_ingas_det_ime(p_administrador,p_id_usuario,v_tabla,v_codigo_trans);

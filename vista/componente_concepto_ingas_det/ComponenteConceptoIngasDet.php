@@ -11,6 +11,7 @@
     #28                 16/09/2019          EGS             Carga de recio de pruebas con el factor d pruebas
     #39 EndeEtr         17/10/2019          EGS              Se agrega WF
  *  #44 EndeEtr         11/11/2019          EGS             Se agrega Porcentaje de pruebas en concepto detalle y codigos de  invitaciones de precios referenciales
+ *  #46 EndeEtr         18/11/2019          EGS             Se agrega campos para historico de precios detalle
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -281,6 +282,91 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
+        {//#46
+            config:{
+                name: 'historico',
+                fieldLabel: 'Historico',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                renderer: function (value, p, record, rowIndex, colIndex){
+                    console.log('value',value,'p', p,'record', record, 'rowIndex',rowIndex, colIndex);
+
+                    if(record.data.id_invitacion_dets != null ){
+                        console.log('hola');
+                        return  String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:37px;width:37px;" type="checkbox"  {0} {1}></div>','checked', 'disabled');
+                    }
+                    else{
+                        return  String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:37px;width:37px;" type="checkbox"  {0} {1}></div>','', 'disabled');
+                        }
+                }
+            },
+            type:'Checkbox',
+            filters:{pfiltro:'vac.medio_dia',type:'boolean'},
+            id_grupo:0,
+            grid:true,
+            form:true
+
+        },
+        {//#46
+            config:{
+                name:'id_invitacion_dets',
+                fieldLabel:'Codigo (Inv. Ref.)',
+                allowBlank:true,
+                emptyText:'Elija...',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_proyectos/control/ComponenteConceptoIngasDet/listarPrecioHistoricoInvitacion',
+                    id: 'id_invitacion_det',
+                    root: 'datos',
+                    sortInfo:{
+                        field: 'codigo',
+                        direction: 'ASC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_invitacion_det','codigo','precio_unitario_mb'],
+                    // turn on remote sorting
+                    remoteSort: true,
+                    baseParams: {par_filtro: 'invd.id_invitacion_det#inv.codigo#cotd.precio_unitario_mb'}
+
+                }),
+                tpl:'<tpl for="."><div class="x-combo-list-item" ><div class="awesomecombo-item  {checked}"><p><b>Precio: </b>{precio_unitario_mb}</p></div>\
+		                       <p style="padding-left: 20px;"><b>Codigo: </b>{codigo}</p></div></tpl>',
+                qtip: 'Codigo de invitacion referencial del precio y el Historial de precios (Suministro)',
+                valueField: 'id_invitacion_det',
+                displayField: 'codigo',
+                forceSelection:true,
+                typeAhead: true,
+                triggerAction: 'all',
+                lazyRender:true,
+                mode:'remote',
+                pageSize:10,
+                queryDelay:1000,
+                width:250,
+                minChars:2,
+                enableMultiSelect:true
+                //renderer:function(value, p, record){return String.format('{0}', record.data['descripcion']);}
+
+            },
+            type:'AwesomeCombo',
+            id_grupo:0,
+            grid:false,
+            form:true
+        },
+        {//#45
+            config:{
+                name: 'codigo_inv_sumi',
+                fieldLabel: 'Codigo (Inv. Ref.)',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:13,
+                qtip: 'Codigo de invitacion referencial del precio (Suministro)',
+            },
+            type:'TextField',
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
         {
             config:{
                 name: 'precio',
@@ -301,21 +387,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
-        {//#45
-            config:{
-                name: 'codigo_inv_sumi',
-                fieldLabel: 'Codigo (Inv. Ref.)',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 100,
-                maxLength:13,
-                qtip: 'Codigo de invitacion referencial del precio (Suministro)',
-            },
-            type:'TextField',
-            id_grupo:0,
-            grid:true,
-            form:true
-        },
+
         {
             config:{
                 name: 'precio_total_det',
@@ -738,7 +810,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {name:'id_proceso_wf', type: 'numeric'},//#39
         {name:'id_estado_wf', type: 'numeric'},//#39
         {name:'estado', type: 'string'},//#39
-        {name:'id_invitacion_det', type: 'numeric'},
+        {name:'id_invitacion_dets', type: 'numeric'},
         {name:'porc_prueba', type: 'numeric'},
         {name:'codigo_inv_sumi', type: 'string'},//#45
         {name:'codigo_inv_montaje', type: 'string'},//#45
@@ -750,40 +822,14 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true,
-    oncellclick : function(grid, rowIndex, columnIndex, e) {
-        const record = this.store.getAt(rowIndex),
-            fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
-        if (fieldName === 'lunes' || fieldName === 'martes'|| fieldName === 'miercoles' ||
-            fieldName === 'jueves' || fieldName === 'viernes'|| fieldName === 'sabado')
-            this.cambiarAsignacion(record,fieldName);
-    },
-    cambiarAsignacion: function(record,name){
-        Phx.CP.loadingShow();
-        var d = record.data;
-        Ext.Ajax.request({
-            url:'../../sis_asistencia/control/RangoHorario/asignarDia',
-            params:{ id_rango_horario: d.id_rango_horario,
-                field_name: name
-            },
-            success: this.successRevision,
-            failure: this.conexionFailure,
-            timeout: this.timeout,
-            scope: this
-        });
-        this.reload();
-    },
-    successRevision: function(resp){
-        Phx.CP.loadingHide();
-        var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-    },
     onReloadPage: function (m) {
         this.maestro = m;
         console.log('maestro',this.maestro);
         this.Atributos[this.getIndAtributo('id_componente_concepto_ingas')].valorInicial = this.maestro.id_componente_concepto_ingas;
         this.store.baseParams = {id_componente_concepto_ingas: this.maestro.id_componente_concepto_ingas ,nombreVista:this.nombreVista };
         this.Cmp.id_concepto_ingas_det.store.baseParams.id_concepto_ingas = this.maestro.id_concepto_ingas;
-
         this.load({params: {start: 0, limit: this.tam_pag}});
+
         this.Cmp.precio_montaje.on('valid',function(field){//#28
             var pTot = this.Cmp.precio_montaje.getValue() * this.Cmp.porc_prueba.getValue();
             this.Cmp.precio_prueba.setValue(pTot);
@@ -794,12 +840,8 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             this.Cmp.precio_prueba.setValue(pTot);
         } ,this);
 
-
-
-
-        /*
-        this.Cmp.precio.on('select', function (Combo, dato) {
-            this.Cmp.precio.store.load({params:{start:0,limit:this.tam_pag},
+        this.Cmp.id_invitacion_dets.on('select', function (Combo, dato) {
+            this.Cmp.id_invitacion_dets.store.load({params:{start:0,limit:this.tam_pag},
                 callback : function (y) {
                     v_divisor = 0;
                     v_promedio = 0;
@@ -809,19 +851,103 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                             v_divisor++;
                         }
                     }
+
                     v_promedio = (parseFloat(v_promedio) / parseFloat(v_divisor));
-                    //this.Cmp.precio.setValue(v_promedio);
+
+                    if (v_divisor > 0 ){
+                        this.Cmp.precio.setValue(v_promedio);
+                    }
+                    else{
+                        this.Cmp.precio.reset();
+                    }
                 }, scope : this });
-         }, this);*/
+         }, this);
+        this.Cmp.historico.on('Check', function (Seleccion, dato) {
+            console.log('dato',dato,'Seleccion',Seleccion);
+            if(dato === true){
+                this.mostrarComponente(this.Cmp.id_invitacion_dets);
+                this.ocultarComponente(this.Cmp.codigo_inv_sumi);
+                this.Cmp.id_invitacion_dets.allowBlank = false;
+                this.Cmp.codigo_inv_sumi.reset();
+            }else{
+                this.ocultarComponente(this.Cmp.id_invitacion_dets);
+                this.mostrarComponente(this.Cmp.codigo_inv_sumi);
+                this.Cmp.id_invitacion_dets.reset();
+                this.Cmp.id_invitacion_dets.allowBlank = true;
+            }
+
+        }, this);
+
 
     },
     onButtonNew:function(){
         //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentes
-        //this.ocultarComponente(this.Cmp.fecha_ini);
         Phx.vista.ComponenteConceptoIngasDet.superclass.onButtonNew.call(this);
         this.Cmp.id_concepto_ingas_det.store.baseParams.tension_macro = this.maestro.tension_macro;//#39
         this.Cmp.id_concepto_ingas_det.store.reload(true);//#39
+
         this.mostrarComponente(this.Cmp.id_concepto_ingas_det);
+        this.ocultarComponente(this.Cmp.id_invitacion_dets);
+        this.mostrarComponente(this.Cmp.codigo_inv_sumi);
+
+        this.Cmp.id_invitacion_dets.reset();
+        this.Cmp.id_invitacion_dets.allowBlank = true;
+        //recarga el combo del precio si el historico esta marcado
+        this.Cmp.id_concepto_ingas_det.on('select', function (Combo, rec) { //#46
+                if(this.Cmp.historico.getValue() === true){
+                    this.Cmp.id_invitacion_dets.store.baseParams.id_concepto_ingas_det = rec.data.id_concepto_ingas_det;
+                    this.Cmp.id_invitacion_dets.store.load({params:{start:0,limit:this.tam_pag},
+                        callback : function (r) {
+                            if (r.length > 0 ) {
+                                this.Cmp.id_invitacion_dets.setValue(r[0].data.id_invitacion_det);
+                            }else{
+                                this.Cmp.id_invitacion_dets.reset();
+                            }
+                        }, scope : this
+                    });
+                }
+                else{
+                    this.Cmp.id_invitacion_dets.reset();
+                }
+        }, this);
+
+        this.Cmp.historico.on('Check', function (Seleccion, dato) {//#46
+            if(dato === true){
+                if(this.Cmp.id_concepto_ingas_det.getValue()==null || this.Cmp.id_concepto_ingas_det.getValue()== '' ){
+                    this.Cmp.id_invitacion_dets.store.baseParams.id_concepto_ingas_det=0;
+                }
+                else {
+                    this.Cmp.id_invitacion_dets.store.baseParams.id_concepto_ingas_det = this.Cmp.id_concepto_ingas_det.getValue();//#46
+                    this.Cmp.id_invitacion_dets.store.load({
+                        params: {start: 0, limit: this.tam_pag},
+                        callback: function (r) {
+                            if (r.length > 0) {
+                                this.Cmp.id_invitacion_dets.setValue(r[0].data.id_invitacion_det);
+                            } else {
+                                this.Cmp.id_invitacion_dets.reset();
+                            }
+                        }, scope: this
+                    });
+                }
+                this.mostrarComponente(this.Cmp.id_invitacion_dets);
+                this.ocultarComponente(this.Cmp.codigo_inv_sumi);
+                this.Cmp.id_invitacion_dets.allowBlank = false;
+                this.Cmp.codigo_inv_sumi.reset();
+            }else{
+                this.ocultarComponente(this.Cmp.id_invitacion_dets);
+                this.mostrarComponente(this.Cmp.codigo_inv_sumi);
+                this.Cmp.id_invitacion_dets.reset();
+                this.Cmp.id_invitacion_dets.allowBlank = true;
+            }
+
+        }, this);
+
+        this.Cmp.id_invitacion_dets.on('expand', function (Combo) {
+            console.log('Combo',Combo);
+            this.Cmp.id_invitacion_dets.store.reload(true);//#46
+        }, this);
+
+
 
     },
     onButtonEdit:function(){
@@ -829,16 +955,26 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
         Phx.vista.ComponenteConceptoIngasDet.superclass.onButtonEdit.call(this);
         this.ocultarComponente(this.Cmp.id_concepto_ingas_det);
-        this.Cmp.id_concepto_ingas_det.store.baseParams.query = this.Cmp.id_concepto_ingas_det.getValue();
-        this.Cmp.id_concepto_ingas_det.store.load({params:{start:0,limit:this.tam_pag},
-                callback : function (r) {
-                    console.log('r',r);
-                    if (r.length > 0 ) {
-                        this.Cmp.id_concepto_ingas_det.setValue(r[0].data.id_concepto_ingas_det);
-                    }
+        ////#46 si no existe historial de invitaciones
+        if (data.id_invitacion_dets === null || data.id_invitacion_dets === ''){//#46
+            this.ocultarComponente(this.Cmp.id_invitacion_dets);
+            this.mostrarComponente(this.Cmp.codigo_inv_sumi);
+            this.Cmp.id_invitacion_dets.reset();
+            this.Cmp.id_invitacion_dets.allowBlank = true;
+        }
+        else{
+            this.Cmp.historico.setValue(true);
+            this.mostrarComponente(this.Cmp.id_invitacion_dets);
+            this.ocultarComponente(this.Cmp.codigo_inv_sumi);
+            this.Cmp.id_invitacion_dets.allowBlank = false;
+            this.Cmp.codigo_inv_sumi.reset();
 
-                }, scope : this
-         });
+
+
+        }
+        this.Cmp.id_invitacion_dets.store.baseParams.id_concepto_ingas_det = data.id_concepto_ingas_det;//#46
+        this.Cmp.id_invitacion_dets.store.reload(true);//#46
+
     },
 
  tipoStore: 'GroupingStore',//GroupingStore o JsonStore #

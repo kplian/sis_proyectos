@@ -23,6 +23,7 @@ $body$
  #34  EndeEtr          03/10/2019            EGS                 Se aumentaron los With para los totalizadores
  #35                    07/10/2019          EGS                  Se agrega lista de conceptos en combos
  #35 EndeEtr           10/10/2019            EGS                 Se agrega los factores la suma producto
+ #47 EndeEtr            19/11/2019          EGS                  SSe agrega precio al combo
  ***************************************************************************/
 
 DECLARE
@@ -289,6 +290,7 @@ BEGIN
     elsif(p_transaccion='PRO_COMINGASLIS_SEL')then
 
         begin
+        --#47 Se agrega with con los precios consolidados por concepto de gasto en planificacion
             --Sentencia de la consulta
             v_consulta:='with concepto_ingas(
                           id_concepto_ingas
@@ -298,13 +300,29 @@ BEGIN
                          left join pro.tcomponente_macro cm on cm.id_componente_macro=comcig.id_componente_macro
                          WHERE '||v_parametros.filtro||'
                          GROUP BY comcig.id_concepto_ingas
-                            )
+                            ),
+                   total_concepto_ingas(
+                           id_concepto_ingas,
+                           precio
+                        )as (
+                        SELECT
+                            coi.id_concepto_ingas,
+                            SUM( COALESCE(coid.precio,0)) as precio
+                        FROM pro.tcomponente_concepto_ingas_det coid
+                        LEFT JOIN pro.tcomponente_concepto_ingas coi on coi.id_componente_concepto_ingas = coid.id_componente_concepto_ingas
+                        left join pro.tcomponente_macro cm on cm.id_componente_macro=coi.id_componente_macro
+                         WHERE '||v_parametros.filtro||'
+                        GROUP BY coi.id_concepto_ingas
+                        )
                   select
                         cig.id_concepto_ingas,
                         cig.desc_ingas,
-                        cig.tipo
+                        cig.tipo,
+                        tot.precio
                         from param.tconcepto_ingas cig
                         inner join concepto_ingas comcig on comcig.id_concepto_ingas = cig.id_concepto_ingas
+                        inner join total_concepto_ingas tot on tot.id_concepto_ingas = cig.id_concepto_ingas
+
                         WHERE cig.tipo = '''||v_parametros.tipo||'''';
             --Devuelve la respuesta
             raise notice 'v_consulta %',v_consulta;

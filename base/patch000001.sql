@@ -1069,4 +1069,14 @@ ALTER TABLE pro.tcomponente_concepto_ingas_det
 COMMENT ON COLUMN pro.tcomponente_concepto_ingas_det.codigo_inv_oc
 IS 'codigo referencia invitacion obra civil';
 /***********************************F-SCP-EGS-PRO-23-11/11/2019****************************************/
+/***********************************I-SCP-EGS-PRO-24-15/11/2019****************************************/
+ALTER TABLE pro.tinvitacion
+  ADD COLUMN sw_regularizado BOOLEAN DEFAULT 'false' NOT NULL;
+/***********************************F-SCP-EGS-PRO-24-15/11/2019****************************************/
+/***********************************I-SCP-EGS-PRO-25-18/11/2019****************************************/
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN id_invitacion_dets INTEGER [];
 
+COMMENT ON COLUMN pro.tcomponente_concepto_ingas_det.id_invitacion_dets
+IS 'id de invitaciones detalle que dan el promedio del precio';
+/***********************************F-SCP-EGS-PRO-25-18/11/2019****************************************/
