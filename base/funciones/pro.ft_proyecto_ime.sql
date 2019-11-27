@@ -1284,7 +1284,7 @@ BEGIN
     #FECHA:     28-09-2017 20:12:15
     ***********************************/
 
-    elsif(p_transaccion='PRO_PROY_MOD')then
+    elsif(p_transaccion='PRO_PROYCIE_MOD')then
 
         begin
 
