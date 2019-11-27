@@ -12,6 +12,7 @@
     #39 EndeEtr         17/10/2019          EGS              Se agrega WF
  *  #44 EndeEtr         11/11/2019          EGS             Se agrega Porcentaje de pruebas en concepto detalle y codigos de  invitaciones de precios referenciales
  *  #46 EndeEtr         18/11/2019          EGS             Se agrega campos para historico de precios detalle
+ * //#48 EndeEtr        27/11/2019          EGS             
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -639,6 +640,27 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:false
         },
+        {//##48
+            config:{
+                name: 'total',
+                fieldLabel: 'Total',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10,
+                allowDecimals : true,
+                decimalPrecision : 4,
+                renderer:function (value,p,record){
+                    Ext.util.Format.usMoney
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
+
+                }
+            },
+            type:'NumberField',
+            id_grupo:4,
+            grid:true,
+            form:true
+        },
         {
             config:{
                 name: 'desc_agrupador',
@@ -815,6 +837,7 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         {name:'codigo_inv_sumi', type: 'string'},//#45
         {name:'codigo_inv_montaje', type: 'string'},//#45
         {name:'codigo_inv_oc', type: 'string'},//#45
+        {name:'total', type: 'numeric'},//#48
 	],
 	sortInfo:{
 		field: 'id_componente_concepto_ingas_det',
@@ -974,6 +997,35 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
         }
         this.Cmp.id_invitacion_dets.store.baseParams.id_concepto_ingas_det = data.id_concepto_ingas_det;//#46
         this.Cmp.id_invitacion_dets.store.reload(true);//#46
+        //Calculamos el total
+        this.calculoTotal();//#48
+        this.Cmp.cantidad_est.on('valid',function(field){//#48
+            this.calculoTotal();
+        } ,this);
+        this.Cmp.precio.on('valid',function(field){//#48
+            this.calculoTotal();
+        } ,this);
+        this.Cmp.f_desadeanizacion.on('valid',function(field){//#48
+            this.calculoTotal();
+        } ,this);
+        this.Cmp.precio_montaje.on('valid',function(field){//#48
+            this.calculoTotal();
+        } ,this);
+        this.Cmp.f_escala_xfd_montaje.on('valid',function(field){//#48
+            this.calculoTotal();
+        } ,this);
+        this.Cmp.precio_obra_civil.on('valid',function(field){//#48
+            this.calculoTotal();
+        } ,this);
+        this.Cmp.f_escala_xfd_obra_civil.on('valid',function(field){//#48
+            this.calculoTotal();
+        } ,this);
+        this.Cmp.porc_prueba.on('valid',function(field){//#48
+            this.calculoTotal();
+        } ,this);
+        this.Cmp.precio_prueba.on('valid',function(field){//#48
+            this.calculoTotal();
+        } ,this);
 
     },
 
@@ -1050,6 +1102,16 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
                          items: [],
                          id_grupo: 3
                      }]
+                 },
+                 {
+                     bodyStyle: 'padding-left:5px;',
+                     items: [{
+                         xtype: 'fieldset',
+                         title: 'TOTAL',
+                         autoHeight: true,
+                         items: [],
+                         id_grupo: 4
+                     }]
                  }
              ]
          }
@@ -1125,6 +1187,15 @@ Phx.vista.ComponenteConceptoIngasDet=Ext.extend(Phx.gridInterfaz,{
          'FormEstadoWfMultiple'//clase de la vista
      );
  },
+    calculoTotal :function () {//#48
+        let total = 0;
+        total = this.formula();
+        this.Cmp.total.setValue(total);
+    },
+    formula:function(){//#48
+        total = this.Cmp.cantidad_est.getValue()*((this.Cmp.precio.getValue() * this.Cmp.f_desadeanizacion.getValue()) + ( this.Cmp.precio_montaje.getValue() * this.Cmp.f_escala_xfd_montaje.getValue() ) + ( this.Cmp.precio_obra_civil.getValue() * this.Cmp.f_escala_xfd_obra_civil.getValue() ) + this.Cmp.precio_prueba.getValue() );
+        return total;
+    }
  }
 )
 </script>
