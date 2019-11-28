@@ -50,7 +50,9 @@ BEGIN
 	if(p_transaccion='PRO_COMINDET_SEL')then
 
     	begin
+            --RAISE EXCEPTION 'macro % ,det %',v_parametros.id_componente_macro,v_parametros.id_componente_concepto_ingas;
     		--Sentencia de la consulta
+            IF v_parametros.id_componente_concepto_ingas <> 0 THEN
 			v_consulta:='select
                         comindet.id_componente_concepto_ingas_det,
                         comindet.estado_reg,
@@ -115,6 +117,68 @@ BEGIN
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
             raise notice 'v_consulta %',v_consulta;
+            ELSE--#48
+                v_consulta:='select
+                        comindet.id_componente_concepto_ingas_det,
+                        comindet.estado_reg,
+                        comindet.id_concepto_ingas_det,
+                        comindet.id_componente_concepto_ingas,
+                        comindet.cantidad_est,
+                        comindet.precio,
+                        comindet.id_usuario_reg,
+                        comindet.fecha_reg,
+                        comindet.id_usuario_ai,
+                        comindet.usuario_ai,
+                        comindet.id_usuario_mod,
+                        comindet.fecha_mod,
+                        usu1.cuenta as usr_reg,
+						usu2.cuenta as usr_mod,
+                        cigd.nombre as desc_ingas_det,
+                        cm.id_unidad_constructiva as id_unidad_constructiva_macro,--26
+                        uc.codigo as codigo_uc,
+                        cigdfk.nombre as desc_agrupador,
+                        comindet.aislacion,
+                        comindet.tension,
+                        comindet.peso,
+                        cm.id_proyecto,--#21
+                        cci.id_concepto_ingas, --#21
+                        comindet.precio_montaje,  --#25
+                        comindet.precio_obra_civil,--#25
+                        comindet.precio_prueba, --#25
+                        comindet.f_desadeanizacion,--#27
+                        comindet.f_seguridad,--#27
+                        comindet.f_escala_xfd_montaje,--#27
+                        comindet.f_escala_xfd_obra_civil,--#27
+                        comindet.porc_prueba,
+                        comindet.tipo_configuracion,
+                        comindet.conductor,
+                        comindet.id_unidad_medida,
+                        um.codigo as desc_unidad,
+                        (COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0)* COALESCE(comindet.f_desadeanizacion,0))::numeric as precio_total_det, --#34
+                        (COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0)* COALESCE(comindet.f_escala_xfd_montaje,0) )::numeric as precio_total_mon,
+                        (COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0)* COALESCE(comindet.f_escala_xfd_obra_civil,0) )::numeric as precio_total_oc,
+                        (COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as precio_total_pru,
+                        comindet.nro_tramite,--#39
+                        comindet.id_proceso_wf,--#39
+                        comindet.id_estado_wf,--#39
+                        comindet.estado,  --#39
+                        comindet.codigo_inv_sumi,--#45
+                        comindet.codigo_inv_montaje,--#45
+                        comindet.codigo_inv_oc,--#45
+                        array_to_string(comindet.id_invitacion_dets, '','' )::varchar as id_invitacion_dets,
+                        (COALESCE(comindet.cantidad_est, 0)*((COALESCE(comindet.f_desadeanizacion, 0)*COALESCE(comindet.precio, 0))+(COALESCE(comindet.f_escala_xfd_montaje, 0)* COALESCE(comindet.precio_montaje, 0))+(COALESCE(comindet.f_escala_xfd_obra_civil, 0)*COALESCE(comindet.precio_obra_civil, 0))+ (COALESCE(comindet.porc_prueba, 0)*COALESCE(comindet.precio_montaje, 0))))::numeric as total   --#48
+						from pro.tcomponente_concepto_ingas_det comindet
+						inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
+                        left join param.tconcepto_ingas_det cigd on cigd.id_concepto_ingas_det = comindet.id_concepto_ingas_det
+                        left join param.tconcepto_ingas_det cigdfk on cigdfk.id_concepto_ingas_det = cigd.id_concepto_ingas_det_fk
+				        left join pro.tunidad_constructiva uc on uc.id_unidad_constructiva = comindet.id_unidad_constructiva
+                        left join pro.tcomponente_concepto_ingas cci on cci.id_componente_concepto_ingas = comindet.id_componente_concepto_ingas  --#21
+                        left join pro.tcomponente_macro cm on cm.id_componente_macro = cci.id_componente_macro  --#21
+                        left join param.tunidad_medida um on um.id_unidad_medida = comindet.id_unidad_medida
+                        where (comindet.precio_obra_civil is not null or  comindet.precio_obra_civil = 0 ) and  cm.id_componente_macro = '||v_parametros.id_componente_macro ;
+
+            END IF;
 			--Devuelve la respuesta
 			return v_consulta;
 
@@ -131,6 +195,8 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
+
+            IF v_parametros.id_componente_concepto_ingas <> 0 THEN
 			v_consulta:='select
                                 count(comindet.id_componente_concepto_ingas_det),
                                 sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_desadeanizacion,0))::numeric as total_precio_det,	 --#34
@@ -148,6 +214,24 @@ BEGIN
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
+            ELSE--#48
+            v_consulta:='select
+                                count(comindet.id_componente_concepto_ingas_det),
+                                sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_desadeanizacion,0))::numeric as total_precio_det,	 --#34
+                                sum(COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_escala_xfd_montaje,0))::numeric as total_precio_mon,
+                                sum(COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_escala_xfd_obra_civil,0) )::numeric as total_precio_oc,
+                                sum(COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_pru
+                        from pro.tcomponente_concepto_ingas_det comindet
+					    inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
+                        left join param.tconcepto_ingas_det cigd on cigd.id_concepto_ingas_det = comindet.id_concepto_ingas_det
+                        left join pro.tunidad_constructiva uc on uc.id_unidad_constructiva = comindet.id_unidad_constructiva
+					    left join pro.tcomponente_concepto_ingas cci on cci.id_componente_concepto_ingas = comindet.id_componente_concepto_ingas --#21
+                        left join pro.tcomponente_macro cm on cm.id_componente_macro = cci.id_componente_macro --#21
+                        where (comindet.precio_obra_civil is not null or  comindet.precio_obra_civil = 0 ) and  cm.id_componente_macro = '||v_parametros.id_componente_macro ;
+
+            END IF;
+
 			--Devuelve la respuesta
 			return v_consulta;
 
