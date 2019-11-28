@@ -253,7 +253,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {//#27
                     config:{
                         name: 'f_desadeanizacion',
-                        fieldLabel: 'F. Desadeanizacion ',
+                        fieldLabel: 'F. Desaduanizacion ',
                         allowBlank: true,
                         anchor: '80%',
                         gwidth: 100,
