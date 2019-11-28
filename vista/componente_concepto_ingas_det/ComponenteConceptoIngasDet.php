@@ -950,6 +950,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.precio_total_det.disable(true);//#48
                 this.Cmp.precio_total_mon.disable(true);//#48
                 this.Cmp.precio_total_oc.disable(true);//#48
+                this.Cmp.precio_total_pru.disable(true);//#48
                 this.Cmp.total.disable(true);//#48
 
 
