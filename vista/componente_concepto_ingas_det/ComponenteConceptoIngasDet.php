@@ -640,7 +640,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         }
                     },
                     type:'MoneyField',
-                    id_grupo:1,
+                    id_grupo:3,
                     grid:true,
                     form:true
                 },
@@ -908,6 +908,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.calculoTotal();//#48
                 this.Cmp.cantidad_est.on('valid',function(field){//#48
                     this.calculoTotalSuministro();
+                    this.calculoTotalMontaje();
+                    this.calculoTotalOC();
+                    this.calculoTotalPr();
                     this.calculoTotal();
                 } ,this);
                 this.Cmp.precio.on('valid',function(field){//#48
@@ -920,6 +923,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 } ,this);
                 this.Cmp.precio_montaje.on('valid',function(field){//#48
                     this.calculoTotalMontaje();
+                    this.calculoTotalPr();
                     this.calculoTotal();
                 } ,this);
                 this.Cmp.f_escala_xfd_montaje.on('valid',function(field){//#48
@@ -942,6 +946,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.calculoTotalPr();
                     this.calculoTotal();
                 } ,this);
+                this.Cmp.precio_prueba.disable(true);//#48
                 this.Cmp.precio_total_det.disable(true);//#48
                 this.Cmp.precio_total_mon.disable(true);//#48
                 this.Cmp.precio_total_oc.disable(true);//#48
@@ -1220,6 +1225,11 @@ header("content-type: text/javascript; charset=UTF-8");
                 total = this.Cmp.cantidad_est.getValue()*this.Cmp.precio_obra_civil.getValue() * this.Cmp.f_escala_xfd_obra_civil.getValue();
                 this.Cmp.precio_total_oc.setValue(total);
             },
+            calculoTotalPr :function () {//#48
+                let total = 0;
+                total = this.Cmp.cantidad_est.getValue() * this.Cmp.precio_prueba.getValue();
+                this.Cmp.precio_total_pru.setValue(total);
+            },
 
             calculoTotal :function () {//#48
                 let total = 0;
@@ -1230,7 +1240,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 total = this.Cmp.cantidad_est.getValue()*((this.Cmp.precio.getValue() * this.Cmp.f_desadeanizacion.getValue()) + ( this.Cmp.precio_montaje.getValue() * this.Cmp.f_escala_xfd_montaje.getValue() ) + ( this.Cmp.precio_obra_civil.getValue() * this.Cmp.f_escala_xfd_obra_civil.getValue() ) + this.Cmp.precio_prueba.getValue() );
                 return total;
             },
-            preparaMenu: function(n){
+            preparaMenu: function(n){//#48
 
                 var tb = Phx.vista.ComponenteConceptoIngasDet.superclass.preparaMenu.call(this);
                 var data = this.getSelectedData();
