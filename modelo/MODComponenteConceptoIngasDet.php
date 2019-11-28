@@ -28,6 +28,9 @@ class MODComponenteConceptoIngasDet extends MODbase{
 		$this->transaccion='PRO_COMINDET_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 
+        $this->setParametro('id_componente_macro','id_componente_macro','int4');//#48
+        $this->setParametro('id_componente_concepto_ingas','id_componente_concepto_ingas','int4');//#48
+
         $this->capturaCount('total_precio_det','numeric');
         $this->capturaCount('total_precio_mon','numeric');
         $this->capturaCount('total_precio_oc','numeric');
