@@ -19,7 +19,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #16                06-05-2019 14:16:09        EGS                    Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'pro.tunidad_constructiva'
- #
+ #49                29/11/2019              EGS                 Validacion de codigo
  ***************************************************************************/
 
 DECLARE
@@ -48,6 +48,8 @@ DECLARE
     v_id_orden_trabajo                      integer;
     v_id_componente_macro                   integer;
     v_id_invitacion_det                     integer;
+    v_codigo_sub                            varchar;
+    v_codigo_uc                             varchar;
 
 BEGIN
 
@@ -100,10 +102,27 @@ BEGIN
                     WHERE  id_unidad_constructiva_fk is null
                     order by arbol.id_unidad_constructiva ASC;
 
-            v_parametros.codigo = '['||v_codigo||']-'||v_parametros.codigo;
+
 
             END IF;
+
             v_parametros.codigo =upper(REPLACE(v_parametros.codigo,' ', ''));
+            v_codigo_sub = v_parametros.codigo; --guardamos solo el codigo
+            v_parametros.codigo = '['||v_codigo||']-'||v_parametros.codigo;--adjuntamos el codigo del proyecto
+
+           --#49 validamos que la unidad construtiva el codigo sea unico
+            SELECT
+                uc.id_unidad_constructiva
+            INTO
+                v_codigo_uc  --codigo de uc si exsiste
+            FROM pro.tunidad_constructiva uc
+            WHERE lower(uc.codigo) = lower(v_parametros.codigo);
+
+            IF v_codigo_uc is not null THEN
+                    RAISE EXCEPTION 'Ya existe una unidad Constructiva con el codigo %',v_codigo_sub;
+            END IF;
+
+
 
             -- antes de insertar verificamos en la rama de la uc no tenga un activo
             IF v_parametros.activo = 'si' THEN
@@ -188,6 +207,10 @@ BEGIN
 
         begin
             v_parametros.codigo =upper(REPLACE(v_parametros.codigo,' ', ''));
+
+
+
+
             SELECT
                 uc.activo,
                 uc.id_orden_trabajo
@@ -280,11 +303,27 @@ BEGIN
                     SELECT
                         codigo
                     INTO
-                    v_codigo
+                    v_codigo --codigo del proyecto
                     FROM arbol
                     WHERE  id_unidad_constructiva_fk is null
                     order by arbol.id_unidad_constructiva ASC;
 
+                    v_codigo_sub = v_parametros.codigo; --guardamos solo el codigo
+                    v_parametros.codigo = '['||v_codigo||']-'||v_parametros.codigo;--adjuntamos el codigo del proyecto
+
+                   --validamos que la unidad construtiva el codigo sea unico #49
+                    SELECT
+                        uc.id_unidad_constructiva
+                    INTO
+                        v_codigo_uc  --codigo de uc si exsiste
+                    FROM pro.tunidad_constructiva uc
+                    WHERE lower(uc.codigo) = lower(v_parametros.codigo);
+
+                    IF v_codigo_uc is not null THEN
+                            RAISE EXCEPTION 'Ya existe una unidad Constructiva con el codigo %',v_codigo_sub;
+                    END IF;
+
+                       /*
                     v_codigo = '['||v_codigo||']-';
 
                     -- comparamos que el codigo de la raiz exista en el codigo del nodo
@@ -292,7 +331,7 @@ BEGIN
 
                         RAISE EXCEPTION 'El codigo debe tener El codigo del UC raiz,al modificar';
 
-                    END IF;
+                    END IF;*/
 
             END IF;
             -- antes de insertar verificamos en la rama de la uc no tenga un activo

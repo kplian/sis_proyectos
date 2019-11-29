@@ -22,6 +22,7 @@ $body$
  #22 EndeEtr          05/09/2019            EGS                 Se agrga cmp codigo y se inserta unidades construcivas por componente macro
  #27                 16/09/2019            EGS                  Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
  #35                    07/10/2019          EGS                 Codigo en mayusculas
+ #49                29/11/2019              EGS                 Validacion de codigo
  ***************************************************************************/
 
 DECLARE
@@ -59,6 +60,19 @@ BEGIN
     if(p_transaccion='PRO_COMPM_INS')then
 
         begin
+            --#49 validacion de codigo
+            v_parametros.codigo =upper(REPLACE(v_parametros.codigo,' ', ''));
+            SELECT
+                cm.codigo
+            INTO
+                v_codigo
+            FROM pro.tcomponente_macro cm
+            WHERE upper(cm.codigo) =  upper(v_parametros.codigo) ;
+
+            IF v_codigo is not null THEN
+                    RAISE EXCEPTION 'Ya existe el codigo %',v_codigo;
+            END IF;
+
             --Sentencia de la insercion
             insert into pro.tcomponente_macro(
             estado_reg,
@@ -192,6 +206,19 @@ BEGIN
     elsif(p_transaccion='PRO_COMPM_MOD')then
 
         begin
+            --validacion de codigo #49
+            v_parametros.codigo =upper(REPLACE(v_parametros.codigo,' ', ''));
+            SELECT
+                cm.codigo
+            INTO
+                v_codigo
+            FROM pro.tcomponente_macro cm
+            WHERE upper(cm.codigo) =  upper(v_parametros.codigo) ;
+
+            IF v_codigo is not null THEN
+                    RAISE EXCEPTION 'Ya existe el codigo %',v_codigo;
+            END IF;
+
             IF v_parametros.id_unidad_constructiva is not null THEN
 
                 SELECT
