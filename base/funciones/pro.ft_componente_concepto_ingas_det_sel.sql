@@ -25,7 +25,7 @@ $body$
 #34  EndeEtr        03/10/2019          EGS                 Se aumentaron  totalizdores
 #35 EndeEtr         10/10/2019          EGS                 Se agrega los factores la suma producto
 #45 EndeEtr         14/11/2019          EGS                 Codigos de invitacion Referencial de precios
-#48 EndeEtr         27/11/2019          EGS                 se agrega total
+#48 EndeEtr         27/11/2019          EGS                 se agrega total y no puedes escoger el total
 ***************************************************************************/
 
 DECLARE
@@ -34,7 +34,9 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
-
+    v_conceptos         varchar;
+    v_record            record;
+	v_record_cig        record;
 BEGIN
 
 	v_nombre_funcion = 'pro.ft_componente_concepto_ingas_det_sel';
@@ -50,8 +52,10 @@ BEGIN
 	if(p_transaccion='PRO_COMINDET_SEL')then
 
     	begin
-            --RAISE EXCEPTION 'macro % ,det %',v_parametros.id_componente_macro,v_parametros.id_componente_concepto_ingas;
-    		--Sentencia de la consulta
+            IF v_parametros.id_componente_macro is null  THEN --#48
+                RAISE EXCEPTION 'No puede escoger un Total';
+            END IF;
+                		--Sentencia de la consulta
             IF v_parametros.id_componente_concepto_ingas <> 0 THEN
 			v_consulta:='select
                         comindet.id_componente_concepto_ingas_det,
@@ -118,6 +122,27 @@ BEGIN
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
             raise notice 'v_consulta %',v_consulta;
             ELSE--#48
+                --escogemos q conceptos de gasto suministro de obra civil
+                 v_conceptos='';
+                    FOR v_record IN(
+                        SELECT
+                            ciga.id_concepto_ingas_agrupador
+                        FROM param.tconcepto_ingas_agrupador ciga
+                        where ciga.es_obra_civil = 'si'
+                    )LOOP
+                       FOR v_record_cig IN(
+                          SELECT
+                              cig.id_concepto_ingas
+                          FROM param.tconcepto_ingas cig
+                          WHERE cig.id_concepto_ingas_agrupador = v_record.id_concepto_ingas_agrupador
+                       )LOOP
+                            v_conceptos = v_conceptos||v_record_cig.id_concepto_ingas||',';
+
+                       END LOOP;
+                    END LOOP;
+                    --los conceptos de obra civil no cuentan en conceptos de suministros
+                    v_conceptos = SUBSTRING (v_conceptos,1,length(v_conceptos) - 1);
+
                 v_consulta:='select
                         comindet.id_componente_concepto_ingas_det,
                         comindet.estado_reg,
@@ -176,7 +201,7 @@ BEGIN
                         left join pro.tcomponente_concepto_ingas cci on cci.id_componente_concepto_ingas = comindet.id_componente_concepto_ingas  --#21
                         left join pro.tcomponente_macro cm on cm.id_componente_macro = cci.id_componente_macro  --#21
                         left join param.tunidad_medida um on um.id_unidad_medida = comindet.id_unidad_medida
-                        where (comindet.precio_obra_civil is not null or  comindet.precio_obra_civil = 0 ) and  cm.id_componente_macro = '||v_parametros.id_componente_macro ;
+                        where (comindet.precio_obra_civil is not null or  comindet.precio_obra_civil = 0 ) and cci.id_concepto_ingas not in ('||v_conceptos||') and cm.id_componente_macro = '||v_parametros.id_componente_macro ;
 
             END IF;
 			--Devuelve la respuesta
@@ -215,6 +240,26 @@ BEGIN
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
             ELSE--#48
+                  --escogemos q conceptos de gasto suministro de obra civil
+                 v_conceptos='';
+                    FOR v_record IN(
+                        SELECT
+                            ciga.id_concepto_ingas_agrupador
+                        FROM param.tconcepto_ingas_agrupador ciga
+                        where ciga.es_obra_civil = 'si'
+                    )LOOP
+                       FOR v_record_cig IN(
+                          SELECT
+                              cig.id_concepto_ingas
+                          FROM param.tconcepto_ingas cig
+                          WHERE cig.id_concepto_ingas_agrupador = v_record.id_concepto_ingas_agrupador
+                       )LOOP
+                            v_conceptos = v_conceptos||v_record_cig.id_concepto_ingas||',';
+
+                       END LOOP;
+                    END LOOP;
+                    --los conceptos de obra civil no cuentan en conceptos de suministros
+                    v_conceptos = SUBSTRING (v_conceptos,1,length(v_conceptos) - 1);
             v_consulta:='select
                                 count(comindet.id_componente_concepto_ingas_det),
                                 sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_desadeanizacion,0))::numeric as total_precio_det,	 --#34
@@ -228,7 +273,7 @@ BEGIN
                         left join pro.tunidad_constructiva uc on uc.id_unidad_constructiva = comindet.id_unidad_constructiva
 					    left join pro.tcomponente_concepto_ingas cci on cci.id_componente_concepto_ingas = comindet.id_componente_concepto_ingas --#21
                         left join pro.tcomponente_macro cm on cm.id_componente_macro = cci.id_componente_macro --#21
-                        where (comindet.precio_obra_civil is not null or  comindet.precio_obra_civil = 0 ) and  cm.id_componente_macro = '||v_parametros.id_componente_macro ;
+                        where (comindet.precio_obra_civil is not null or  comindet.precio_obra_civil = 0 ) and cci.id_concepto_ingas not in ('||v_conceptos||') and  cm.id_componente_macro = '||v_parametros.id_componente_macro ;
 
             END IF;
 
