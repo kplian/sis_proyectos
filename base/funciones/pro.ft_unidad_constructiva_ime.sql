@@ -308,30 +308,31 @@ BEGIN
                     WHERE  id_unidad_constructiva_fk is null
                     order by arbol.id_unidad_constructiva ASC;
 
+                    v_codigo = '['||v_codigo||']-';
                     v_codigo_sub = v_parametros.codigo; --guardamos solo el codigo
-                    v_parametros.codigo = '['||v_codigo||']-'||v_parametros.codigo;--adjuntamos el codigo del proyecto
+                    -- comparamos que el codigo de la raiz exista en el codigo del nodo
+                    IF  v_codigo <>  substring(v_parametros.codigo from 1 for char_length(v_codigo))  THEN
+
+                        v_parametros.codigo = v_codigo||v_parametros.codigo;--adjuntamos el codigo del proyecto si no tiene
+
+                    ELSE
+                        v_parametros.codigo = v_parametros.codigo; --si tiene lo dejamos asi
+                    END IF;
 
                    --validamos que la unidad construtiva el codigo sea unico #49
                     SELECT
-                        uc.id_unidad_constructiva
+                        uc.codigo
                     INTO
                         v_codigo_uc  --codigo de uc si exsiste
                     FROM pro.tunidad_constructiva uc
-                    WHERE lower(uc.codigo) = lower(v_parametros.codigo);
+                    WHERE lower(uc.codigo) = lower(v_parametros.codigo) and uc.id_unidad_constructiva <> v_parametros.id_unidad_constructiva;
 
                     IF v_codigo_uc is not null THEN
                             RAISE EXCEPTION 'Ya existe una unidad Constructiva con el codigo %',v_codigo_sub;
                     END IF;
 
-                       /*
-                    v_codigo = '['||v_codigo||']-';
 
-                    -- comparamos que el codigo de la raiz exista en el codigo del nodo
-                    IF  v_codigo <>  substring(v_parametros.codigo from 1 for char_length(v_codigo))  THEN
 
-                        RAISE EXCEPTION 'El codigo debe tener El codigo del UC raiz,al modificar';
-
-                    END IF;*/
 
             END IF;
             -- antes de insertar verificamos en la rama de la uc no tenga un activo
