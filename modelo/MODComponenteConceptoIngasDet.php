@@ -35,6 +35,7 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->capturaCount('total_precio_mon','numeric');
         $this->capturaCount('total_precio_oc','numeric');
         $this->capturaCount('total_precio_pru','numeric');
+        $this->capturaCount('total_precio','numeric'); //#49
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_componente_concepto_ingas_det','int4');
