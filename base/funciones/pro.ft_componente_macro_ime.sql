@@ -213,7 +213,7 @@ BEGIN
             INTO
                 v_codigo
             FROM pro.tcomponente_macro cm
-            WHERE upper(cm.codigo) =  upper(v_parametros.codigo) ;
+            WHERE upper(cm.codigo) =  upper(v_parametros.codigo) and cm.id_componente_macro <> v_parametros.id_componente_macro;
 
             IF v_codigo is not null THEN
                     RAISE EXCEPTION 'Ya existe el codigo %',v_codigo;
