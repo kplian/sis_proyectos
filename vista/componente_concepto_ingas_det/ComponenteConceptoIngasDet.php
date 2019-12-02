@@ -12,7 +12,8 @@
 #39 EndeEtr         17/10/2019          EGS              Se agrega WF
  *  #44 EndeEtr         11/11/2019          EGS             Se agrega Porcentaje de pruebas en concepto detalle y codigos de  invitaciones de precios referenciales
  *  #46 EndeEtr         18/11/2019          EGS             Se agrega campos para historico de precios detalle
- * //#48 EndeEtr        27/11/2019          EGS
+ * #48 EndeEtr        27/11/2019          EGS
+    #49EndeEtr          02/12/2019         EGS              e agrega decimales
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -260,10 +261,10 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:10,
                         allowDecimals:true,
                         decimalPrecision:4,
-                        renderer:function (value,p,record){
-                            return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
-
-                        }
+                        // renderer:function (value,p,record){
+                        //     return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
+                        //
+                        // }
                     },
                     type:'NumberField',
                     id_grupo:0,
@@ -277,7 +278,13 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowBlank: true,
                         anchor: '80%',
                         gwidth: 100,
-                        maxLength:1179648
+                        allowDecimals:true,//#49
+                        decimalPrecision:3, //#49
+                        maxLength:1179648,
+                        renderer:function (value,p,record){
+                            return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
+
+                        }
                     },
                     type:'NumberField',
                     filters:{pfiltro:'comindet.cantidad_est',type:'numeric'},

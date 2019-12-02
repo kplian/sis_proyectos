@@ -1080,3 +1080,7 @@ ALTER TABLE pro.tcomponente_concepto_ingas_det
 COMMENT ON COLUMN pro.tcomponente_concepto_ingas_det.id_invitacion_dets
 IS 'id de invitaciones detalle que dan el promedio del precio';
 /***********************************F-SCP-EGS-PRO-25-18/11/2019****************************************/
+/***********************************I-SCP-EGS-PRO-26-02/12/2019****************************************/
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ALTER COLUMN cantidad_est TYPE NUMERIC(18,3);
+/***********************************F-SCP-EGS-PRO-26-02/12/2019****************************************/
