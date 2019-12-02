@@ -13,6 +13,7 @@
 #28 EndeEtr         16/09/2019          EGS                 se carga porc_prueba
 #39 EndeEtr         17/10/2019          EGS                 Se agrega WF
 #44 EndeEtr         11/11/2019          EGS                 seagregan campos de invitaciones referenciales de precios
+#48 EndeEtr        27/11/2019          EGS             se agrega total
  */
 
 class MODComponenteConceptoIngasDet extends MODbase{
@@ -26,6 +27,9 @@ class MODComponenteConceptoIngasDet extends MODbase{
 		$this->procedimiento='pro.ft_componente_concepto_ingas_det_sel';
 		$this->transaccion='PRO_COMINDET_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        $this->setParametro('id_componente_macro','id_componente_macro','int4');//#48
+        $this->setParametro('id_componente_concepto_ingas','id_componente_concepto_ingas','int4');//#48
 
         $this->capturaCount('total_precio_det','numeric');
         $this->capturaCount('total_precio_mon','numeric');
@@ -80,6 +84,7 @@ class MODComponenteConceptoIngasDet extends MODbase{
         $this->captura('codigo_inv_montaje','varchar');//#45
         $this->captura('codigo_inv_oc','varchar');//#45
         $this->captura('id_invitacion_dets','varchar');
+        $this->captura('total','numeric');//#48
         //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

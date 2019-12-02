@@ -54,6 +54,10 @@ BEGIN
     if(p_transaccion='PRO_COMINGAS_SEL')then
 
         begin
+            IF v_parametros.id_componente_macro is null  THEN --#48
+                RAISE EXCEPTION 'No puede escoger un Total';
+            END IF;
+
             --buscamos los concepto de gasto que son obras civiles
             v_conceptos='';
             FOR v_record IN(
