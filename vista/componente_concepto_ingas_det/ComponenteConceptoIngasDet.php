@@ -261,10 +261,10 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:10,
                         allowDecimals:true,
                         decimalPrecision:4,
-                        // renderer:function (value,p,record){
-                        //     return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
-                        //
-                        // }
+                        renderer:function (value,p,record){
+                            return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
+
+                         }
                     },
                     type:'NumberField',
                     id_grupo:0,
