@@ -227,7 +227,8 @@ BEGIN
                                 sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_desadeanizacion,0))::numeric as total_precio_det,	 --#34
                                 sum(COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_escala_xfd_montaje,0))::numeric as total_precio_mon,
                                 sum(COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_escala_xfd_obra_civil,0) )::numeric as total_precio_oc,
-                                sum(COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_pru
+                                sum(COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_pru,
+                                sum(COALESCE(comindet.cantidad_est, 0)*((COALESCE(comindet.f_desadeanizacion, 0)*COALESCE(comindet.precio, 0))+(COALESCE(comindet.f_escala_xfd_montaje, 0)* COALESCE(comindet.precio_montaje, 0))+(COALESCE(comindet.f_escala_xfd_obra_civil, 0)*COALESCE(comindet.precio_obra_civil, 0))+ (COALESCE(comindet.porc_prueba, 0)*COALESCE(comindet.precio_montaje, 0))))::numeric as total_precio
                         from pro.tcomponente_concepto_ingas_det comindet
 					    inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
@@ -265,7 +266,8 @@ BEGIN
                                 sum(COALESCE(comindet.precio, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_desadeanizacion,0))::numeric as total_precio_det,	 --#34
                                 sum(COALESCE(comindet.precio_montaje, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_escala_xfd_montaje,0))::numeric as total_precio_mon,
                                 sum(COALESCE(comindet.precio_obra_civil, 0) * COALESCE(comindet.cantidad_est,0) * COALESCE(comindet.f_escala_xfd_obra_civil,0) )::numeric as total_precio_oc,
-                                sum(COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_pru
+                                sum(COALESCE(comindet.precio_prueba, 0) * COALESCE(comindet.cantidad_est,0))::numeric as total_precio_pru,
+                                sum(COALESCE(comindet.cantidad_est, 0)*((COALESCE(comindet.f_desadeanizacion, 0)*COALESCE(comindet.precio, 0))+(COALESCE(comindet.f_escala_xfd_montaje, 0)* COALESCE(comindet.precio_montaje, 0))+(COALESCE(comindet.f_escala_xfd_obra_civil, 0)*COALESCE(comindet.precio_obra_civil, 0))+ (COALESCE(comindet.porc_prueba, 0)*COALESCE(comindet.precio_montaje, 0))))::numeric as total_precio
                         from pro.tcomponente_concepto_ingas_det comindet
 					    inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
