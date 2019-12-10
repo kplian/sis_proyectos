@@ -20,6 +20,7 @@ $body$
  #18 	PRO		ETR			08/08/2019	RCM 		Adición de fecha tope inferior al obtener el mayor de contabilidad
  #36    PRO     ETR         16/10/2019  RCM         Adición de campo Funcionario
  #38    PRO     ETR      	17/10/2019  RCM         Adición de campo Fecha de compra
+ #50    PRO     ETR      	09/12/2019  RCM         Inclusión de almacén en importación de cierre
 ***************************************************************************/
 
 DECLARE
@@ -88,7 +89,9 @@ BEGIN
 						praf.id_unidad_medida,
 						praf.codigo_af_rel,
 						um.codigo as desc_unmed,
-						praf.fecha_compra --#38
+						praf.fecha_compra, --#38
+						praf.id_almacen, --#50
+						alm.codigo as desc_almacen --#50
 						from pro.tproyecto_activo praf
 						inner join segu.tusuario usu1 on usu1.id_usuario = praf.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = praf.id_usuario_mod
@@ -100,6 +103,7 @@ BEGIN
 						left join kaf.tgrupo gru on gru.id_grupo = praf.id_grupo
 						left join kaf.tgrupo gru1 on gru1.id_grupo = praf.id_grupo_clasif
 						left join param.tunidad_medida um on um.id_unidad_medida = praf.id_unidad_medida
+						left join alm.talmacen alm on alm.id_almacen = praf.id_almacen --#50
 				        where ';
 
 			--Definicion de la respuesta
@@ -134,6 +138,7 @@ BEGIN
 						left join kaf.tgrupo gru on gru.id_grupo = praf.id_grupo
 						left join kaf.tgrupo gru1 on gru1.id_grupo = praf.id_grupo_clasif
 						left join param.tunidad_medida um on um.id_unidad_medida = praf.id_unidad_medida
+						left join alm.talmacen alm on alm.id_almacen = praf.id_almacen --#50
 					    where ';
 
 			--Definicion de la respuesta
@@ -194,12 +199,16 @@ BEGIN
     					id_activo_fijo integer';
     		v_columnas = v_columnas || ', id_funcionario integer, desc_person varchar'; --#36
     		v_columnas = v_columnas || ', fecha_compra date'; --#38
+    		v_columnas = v_columnas || ', id_almacen integer'; --#50
+    		v_columnas = v_columnas || ', desc_almacen varchar'; --#50
 
     		--Nombres de las columnas
     		v_nombres_col = 'id_proyecto, id_proyecto_activo, id_clasificacion, denominacion, descripcion, observaciones, desc_clasificacion, cantidad_det, id_depto, estado, id_lugar, ubicacion, id_centro_costo, id_ubicacion, id_grupo, id_grupo_clasif, nro_serie, marca, fecha_ini_dep, vida_util_anios, id_unidad_medida, codigo_af_rel,
 							desc_depto, desc_centro_costo, desc_ubicacion, desc_grupo, desc_grupo_clasif, desc_unmed, costo, codigo, id_activo_fijo';
 			v_nombres_col = v_nombres_col || ',id_funcionario, desc_person'; --#36
 			v_nombres_col = v_nombres_col || ',fecha_compra'; --#38
+			v_nombres_col = v_nombres_col || ',id_almacen'; --#50
+			v_nombres_col = v_nombres_col || ',desc_almacen'; --#50
 
     		--Obtención del id_tipo_cc
     		select id_tipo_cc
@@ -277,7 +286,9 @@ BEGIN
 				id_activo_fijo,
 				id_funcionario, --#36
 				desc_person, --#36
-				fecha_compra --#38
+				fecha_compra, --#38
+				id_almacen, --#50
+				desc_almacen --#50
     		)
     		select
     		pa.id_proyecto, pa.id_proyecto_activo, pa.id_clasificacion, pa.denominacion, pa.descripcion, pa.observaciones,
@@ -309,7 +320,9 @@ BEGIN
 			af.id_activo_fijo,
 			pa.id_funcionario, --#36
 			fun.desc_funcionario1, --#36
-			pa.fecha_compra --#38
+			pa.fecha_compra, --#38
+			pa.id_almacen, --#50
+			alm.codigo as desc_almacen --#50
     		from pro.tproyecto_activo pa
     		left join kaf.tclasificacion cla
     		on cla.id_clasificacion = pa.id_clasificacion
@@ -328,6 +341,10 @@ BEGIN
     		left join kaf.tactivo_fijo af on af.id_activo_fijo = pa.id_activo_fijo
     		LEFT JOIN orga.vfuncionario fun
     		ON fun.id_funcionario = pa.id_funcionario
+    		--Inicio #50
+    		LEFT JOIN alm.talmacen alm
+    		ON alm.id_almacen = pa.id_almacen
+    		--Fin #50
     		where pa.id_proyecto = v_parametros.id_proyecto;
 
     		--Update para el costo total del activo

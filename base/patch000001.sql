@@ -1084,3 +1084,8 @@ IS 'id de invitaciones detalle que dan el promedio del precio';
 ALTER TABLE pro.tcomponente_concepto_ingas_det
   ALTER COLUMN cantidad_est TYPE NUMERIC(18,3);
 /***********************************F-SCP-EGS-PRO-26-02/12/2019****************************************/
+
+/***********************************I-SCP-RCM-PRO-50-09/12/2019****************************************/
+ALTER TABLE pro.tproyecto_activo
+  ADD COLUMN id_almacen INTEGER;
+/***********************************F-SCP-RCM-PRO-50-09/12/2019****************************************/

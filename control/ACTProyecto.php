@@ -6,10 +6,11 @@
 *@date 28-09-2017 20:12:15
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 ******************************************************************************
-* ISSUE       EMPRESA    FECHA          AUTOR       DESCRIPCION
-* 			  ETR 		 28/09/2017 	RCM 		Creación de archivo
-* #8	  	  endeETR	 18/03/2019		EGS			Se filtra por estado nuevo y ejecucion en la vista de planificaion
-* #37         ETR        17/10/2019     RCM         Corrección de importación de datos
+* ISSUE  SIS     EMPRESA    FECHA          AUTOR       DESCRIPCION
+* 		 PRO	 ETR 		28/09/2017     RCM 		   Creación de archivo
+* #8	 PRO 	 endeETR	18/03/2019	   EGS		   Se filtra por estado nuevo y ejecucion en la vista de planificaion
+* #37    PRO     ETR        17/10/2019     RCM         Corrección de importación de datos
+* #50    PRO     ETR        09/12/2019     RCM         Inclusión de almacén en importación de cierre
 * ****************************************************************************
 */
 include_once(dirname(__FILE__).'/../../lib/lib_general/ExcelInput.php');
@@ -61,7 +62,7 @@ class ACTProyecto extends ACTbase{
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 
-	function ImportarCierreValorado(){
+	function ImportarCierreValorado() {
 		$arregloFiles = $this->objParam->getArregloFiles();
         $ext = pathinfo($arregloFiles['archivo']['name']);
         $extension = $ext['extension'];
@@ -93,6 +94,7 @@ class ACTProyecto extends ACTbase{
 
                 	if($cont > 0){
 	                	//Guarda el registro del activo
+	                	$this->objParam->addParametro('item', $fila['item']); //#50
 						$this->objParam->addParametro('clasificacion', $fila['clasificacion']);
 						$this->objParam->addParametro('vida_util_anios', $fila['vida_util_anios']);
 						$this->objParam->addParametro('nro_serie', $fila['nro_serie']);
@@ -115,6 +117,7 @@ class ACTProyecto extends ACTbase{
 						$this->objParam->addParametro('observaciones', $fila['pedido']);
 						$this->objParam->addParametro('codigo_activo_rel', $fila['codigo_activo_rel']);
 						$this->objParam->addParametro('responsable', $fila['responsable']); //#37
+						$this->objParam->addParametro('almacen', $fila['almacen']); //#50
 
 						//Guarda el Activo Fijo en la tabla Proyecto Activo
 						$this->objFunc = $this->create('MODProyectoActivo');
@@ -132,9 +135,9 @@ class ACTProyecto extends ACTbase{
 	                    	$idProyectoActivo = $dat['id_proyecto_activo'];
 	                    	$this->objParam->addParametro('id_proyecto_activo',$idProyectoActivo);
 
-	                    	//Guarda el prorrateo de la valoación del activo (tabla tproyecto_activo_detalle), recorriendo 50 columnas que pudiera tener el escel
+	                    	//Guarda el prorrateo de la valoración del activo (tabla tproyecto_activo_detalle), recorriendo 50 columnas que pudiera tener el excel
 	                    	for ($i=0; $i < 50; $i++) {
-	                    		if($fila["centro_costo_$i"]!=''){
+	                    		if($fila["centro_costo_$i"] != ''){
 	                    			//echo "centro_costo_$i: ".$fila["centro_costo_$i"]."<br>";
 	                    			$this->objParam->addParametro('centro_costo',$cc[$i]);
 	                    			$this->objParam->addParametro('monto',$fila["centro_costo_$i"]);
@@ -145,10 +148,6 @@ class ACTProyecto extends ACTbase{
 	                    			if ($this->res->getTipo() == 'ERROR') {
 				                    	$this->res->imprimirRespuesta($this->res->generarJson());
 							            exit;
-
-				                        $error = 'error';
-				                        $mensaje_completo = "Error al guardar el fila en tabla :  " . $this->res->getMensajeTec();
-				                        break;
 				                    }
 	                    		}
 	                    	}

@@ -19,6 +19,7 @@ $body$
  #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
  #38    PRO     ETR      17/10/2019   RCM         Adición de campo Fecha de compra
  #41    PRO     ETR      22/10/2019   RCM         Adición de condición fecha is null en la consulta de AF existentes
+ #50    PRO     ETR      09/12/2019   RCM         Inclusión de almacén en importación de cierre
 ***************************************************************************
 */
 DECLARE
@@ -69,17 +70,17 @@ BEGIN
     ----------------------------------
     -- VALIDACIONES
     ----------------------------------
-    --Verificar que el proceso del cierre esté en estado finalizado
+    --Verificar existencia del proyecto
     if not exists (select 1 from pro.tproyecto
-        where id_proyecto = p_id_proyecto) then
-      raise exception 'Proyecto inexistente';
+                    where id_proyecto = p_id_proyecto) then
+        raise exception 'Proyecto inexistente';
     end if;
 
-    --Verificar que el proceso del cierre esté en estado finalizado
+    --Verificar que el proceso del cierre esté en estado 'Activos Fijos'
     if exists (select 1 from pro.tproyecto
-        where id_proyecto = p_id_proyecto
-            and estado_cierre <> 'af') then
-      raise exception 'No se puede generar registros en el Sistema de Activos Fijos, el estado debería estar en ''Activos Fijos''';
+                where id_proyecto = p_id_proyecto
+                and estado_cierre <> 'af') then
+        raise exception 'No se puede generar registros en el Sistema de Activos Fijos, el estado debería estar en ''Activos Fijos''';
     end if;
 
 
@@ -208,17 +209,17 @@ BEGIN
             ON pad.id_proyecto_activo = pa.id_proyecto_activo
             WHERE pa.id_proyecto = p_id_proyecto
         ), tcbtes AS (
-          SELECT
-          py.id_proyecto,
-          SUM(tr.importe_debe_mb) AS importe_mb,
-          SUM(tr.importe_debe_mt) AS importe_mt,
-          SUM(tr.importe_debe_ma) AS importe_ma
-          FROM conta.tint_transaccion tr
-          INNER JOIN pro.tproyecto py
-          ON py.id_int_comprobante_1 = tr.id_int_comprobante
-          OR py.id_int_comprobante_3 = tr.id_int_comprobante
-          WHERE py.id_proyecto = p_id_proyecto
-          GROUP BY py.id_proyecto
+            SELECT
+            py.id_proyecto,
+            SUM(tr.importe_debe_mb) AS importe_mb,
+            SUM(tr.importe_debe_mt) AS importe_mt,
+            SUM(tr.importe_debe_ma) AS importe_ma
+            FROM conta.tint_transaccion tr
+            INNER JOIN pro.tproyecto py
+            ON py.id_int_comprobante_1 = tr.id_int_comprobante
+            OR py.id_int_comprobante_3 = tr.id_int_comprobante
+            WHERE py.id_proyecto = p_id_proyecto
+            GROUP BY py.id_proyecto
         )
         SELECT
         pa.id_proyecto_activo,
@@ -256,6 +257,7 @@ BEGIN
         ON py.id_proyecto = pa.id_proyecto
         WHERE pa.id_proyecto = p_id_proyecto
         AND COALESCE(pa.codigo_af_rel, '') = ''
+        AND pa.id_almacen IS NULL --#50
     ) LOOP
 
         --Parámetros
@@ -507,7 +509,9 @@ BEGIN
     IF EXISTS(SELECT 1 FROM pro.tproyecto_activo
             WHERE id_proyecto = p_id_proyecto
             AND COALESCE(codigo_af_rel,'') <> ''
-            AND COALESCE(codigo_af_rel,'') <> 'GASTO') THEN
+            AND COALESCE(codigo_af_rel,'') <> 'GASTO'
+            AND id_almacen IS NULL --#50
+    ) THEN
 
         --Obtención del ID del movimiento de Ajuste
         SELECT cat.id_catalogo
@@ -846,6 +850,7 @@ BEGIN
             WHERE pa.id_proyecto = p_id_proyecto
             AND COALESCE(pa.codigo_af_rel, '') <> ''
             AND COALESCE(pa.codigo_af_rel, '') <> 'GASTO'
+            AND pa.id_almacen IS NULL --#50
             AND afv.fecha_fin IS NULL --#41
             ORDER BY af.id_activo_fijo, mdep.id_moneda
         ) LOOP
