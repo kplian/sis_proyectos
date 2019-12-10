@@ -17,6 +17,7 @@ $body$
  #19    PRO     ETR      21/08/2019   RCM         Adición del id_activo_fijo para el caso de activos fijos existentes relacionados
  #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
  #40    PRO     ETR      22/10/2019   RCM         Validación para no permitir se repita más de una vez un activo fijo relacionado
+ #50    PRO     ETR      09/12/2019   RCM         Inclusión de almacén en importación de cierre
 ***************************************************************************/
 DECLARE
 
@@ -74,7 +75,8 @@ BEGIN
     id_unidad_medida,
     codigo_af_rel,
     id_funcionario,
-    id_activo_fijo --#19
+    id_activo_fijo, --#19
+    id_almacen --#50
     ) VALUES(
     (p_parametros->'id_proyecto')::integer,
     (p_parametros->'observaciones')::varchar,
@@ -104,7 +106,8 @@ BEGIN
     (p_parametros->'id_unidad_medida')::integer,
     (p_parametros->'codigo_af_rel')::varchar,
     (p_parametros->'id_funcionario')::integer,
-    (p_parametros->'id_activo_fijo')::integer --#19
+    (p_parametros->'id_activo_fijo')::integer, --#19
+    (p_parametros->'id_almacen')::integer --#50
     ) RETURNING id_proyecto_activo INTO v_id_proyecto_activo;
 
     --Respuesta

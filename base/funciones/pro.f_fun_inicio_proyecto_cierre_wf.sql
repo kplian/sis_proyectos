@@ -21,8 +21,9 @@ $body$
  COMENTARIOS:
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- 0      PRO       ETR           24/09/2018  RCM         Creación del archivo
+  0     PRO       ETR           24/09/2018  RCM         Creación del archivo
  #18    PRO       ETR           08/08/2019  RCM         Modificación generación comprobante 1 para insertar directamente en las 3 monedas sin utilizar la plantilla
+ #50    PRO       ETR           09/12/2019  RCM         Inclusión de almacén en importación de cierre
 ***************************************************************************
 */
 DECLARE
@@ -75,18 +76,21 @@ BEGIN
     ---------------------------------
 
     if p_codigo_estado = 'cbte' then
+        ------------------------------------
+        --GENERACIÓN DE COMPROBANTE CONTABLE
+        ------------------------------------
 
-        --Verifica que exista información en la tabla del SIGEMA
+        --Verificación existencia del proyecto
         if not exists(select 1
                     from pro.tproyecto_activo
                     where id_proyecto = v_rec.id_proyecto) then
-            raise exception 'Aún no se definieron los activos fijos para el cierre';
+            raise exception 'Proyecto inexistente';
         end if;
 
         -------------------------------
         --Genera el comprobante 1 de 4
         -------------------------------
-        --Inicio #18
+        --Inicio #18 (Sólo genera la cabecera)
         v_id_int_comprobante = conta.f_gen_comprobante
                                 (
                                     v_rec.id_proyecto,
@@ -97,7 +101,7 @@ BEGIN
                                     p_usuario_ai
                                 );
 
-        --DEBE, LO QUE NO ES GASTO
+        --Registro del detalle de comprobante (1/3): DEBE, LO QUE NO ES GASTO
         INSERT INTO conta.tint_transaccion
         (
             id_partida,
@@ -216,10 +220,11 @@ BEGIN
         AND rc_1.gestion = date_part('year', py.fecha_fin)::integer
         WHERE COALESCE(pa.codigo_af_rel, ''::character varying)::text <> 'GASTO'::text
         AND py.id_proyecto = v_rec.id_proyecto
+        AND pa.id_almacen IS NULL --#50
         GROUP BY py.id_proyecto, pa.id_proyecto_activo, pa.denominacion, pa.id_clasificacion,
         py.id_moneda, rc.id_cuenta, rc.id_partida, rc.gestion, rc_1.id_centro_costo;
 
-        --DEBE, LO QUE ES GASTO
+        --Registro del detalle de comprobante (2/3): DEBE, LO QUE ES GASTO
         INSERT INTO conta.tint_transaccion
         (
             id_partida,
@@ -295,11 +300,11 @@ BEGIN
         SUM(pad.monto) AS importe_debe,
         SUM(pad.monto * param.f_get_tipo_cambio_v2(py.id_moneda, param.f_get_moneda_base(), py.fecha_fin, 'O')) AS importe_debe_mb,
         SUM(pad.monto) AS importe_debe_mt,
-        SUM(tot.importe_ma * pad.monto/tot.importe_mt) AS importe_debe_ma,
+        SUM(tot.importe_ma * pad.monto / tot.importe_mt) AS importe_debe_ma,
         SUM(pad.monto) AS importe_gasto,
         SUM(pad.monto * param.f_get_tipo_cambio_v2(py.id_moneda, param.f_get_moneda_base(), py.fecha_fin, 'O')) AS importe_gasto_mb,
         SUM(pad.monto) AS importe_gasto_mt,
-        SUM(tot.importe_ma * pad.monto/tot.importe_mt) AS importe_gasto_ma,
+        SUM(tot.importe_ma * pad.monto / tot.importe_mt) AS importe_gasto_ma,
         0 AS importe_haber,
         0 AS importe_haber_mb,
         0 AS importe_haber_mt,
@@ -316,17 +321,142 @@ BEGIN
         JOIN pro.tproyecto py ON py.id_proyecto = pa.id_proyecto
         JOIN ttotales tot ON tot.id_proyecto = py.id_proyecto
         JOIN trel_contable rc
-        ON rc.codigo_tipo_relacion = 'ALTAAF'
+        ON rc.codigo_tipo_relacion = 'PRO-CIEGANT'
         AND rc.gestion = date_part('year', py.fecha_fin)::integer
         JOIN trel_contable rc_1
         ON rc_1.codigo_tipo_relacion = 'CCDEPCON'
         AND rc_1.gestion = date_part('year', py.fecha_fin)::integer
         WHERE COALESCE(pa.codigo_af_rel, ''::character varying)::text = 'GASTO'::text
         AND py.id_proyecto = v_rec.id_proyecto
+        AND pa.id_almacen IS NULL --#50
         GROUP BY py.id_proyecto, pa.id_proyecto_activo, pa.denominacion, pa.id_clasificacion,
         py.id_moneda, rc.id_cuenta, rc.id_partida, rc.gestion, rc_1.id_centro_costo;
 
-        --HABER
+        --Inicio #50
+        --Registro del detalle de comprobante (3/4): DEBE, LO QUE VA DIRECTO A ALMACÉN
+        INSERT INTO conta.tint_transaccion
+        (
+            id_partida,
+            id_centro_costo,
+            estado_reg,
+            id_cuenta,
+            id_int_comprobante,
+            importe_debe,
+            importe_debe_mb,
+            importe_debe_mt,
+            importe_debe_ma,
+            importe_gasto,
+            importe_gasto_mb,
+            importe_gasto_mt,
+            importe_gasto_ma,
+            importe_haber,
+            importe_haber_mb,
+            importe_haber_mt,
+            importe_haber_ma,
+            importe_recurso,
+            importe_recurso_mb,
+            importe_recurso_mt,
+            importe_recurso_ma,
+            id_usuario_reg,
+            fecha_reg,
+            glosa
+        )
+        WITH ttotales AS (
+            SELECT
+            py.id_proyecto,
+            SUM(tr.importe_debe_mt - tr.importe_haber_mt) AS importe_mt,
+            SUM(tr.importe_debe_ma - tr.importe_haber_ma) AS importe_ma
+            FROM pro.tproyecto py
+            JOIN pro.tproyecto_columna_tcc pc
+            ON pc.id_proyecto = py.id_proyecto
+            JOIN param.ttipo_cc tcc
+            ON tcc.id_tipo_cc = pc.id_tipo_cc
+            JOIN param.tcentro_costo cc
+            ON cc.id_tipo_cc = pc.id_tipo_cc
+            JOIN conta.tint_transaccion tr
+            ON tr.id_centro_costo =
+            cc.id_centro_costo
+            JOIN conta.tint_comprobante cbte
+            ON cbte.id_int_comprobante = tr.id_int_comprobante
+            AND cbte.estado_reg::text = 'validado'::text
+            AND cbte.fecha BETWEEN py.fecha_ini AND py.fecha_fin
+            JOIN conta.tcuenta cue
+            ON cue.id_cuenta = tr.id_cuenta
+            WHERE NOT
+            (cue.nro_cuenta IN
+                (
+                    SELECT nro_cuenta
+                    FROM pro.tcuenta_excluir
+                )
+            )
+            GROUP BY py.id_proyecto
+        ), trel_contable AS (
+            SELECT
+            rc.id_cuenta, rc.id_partida, rc.id_gestion, ges.gestion, trc.codigo_tipo_relacion, rc.id_centro_costo
+            FROM  conta.ttipo_relacion_contable trc
+            JOIN conta.trelacion_contable rc
+            ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+            INNER JOIN param.tgestion ges
+            ON ges.id_gestion = rc.id_gestion
+            WHERE trc.codigo_tipo_relacion = 'CCDEPCON'
+        ), trel_contable_alm AS (
+            SELECT
+            rc.id_tabla AS id_almacen, rc.id_cuenta, rc.id_partida, ges.gestion
+            FROM conta.ttabla_relacion_contable tb
+            JOIN conta.ttipo_relacion_contable trc
+            ON trc.id_tabla_relacion_contable = tb.id_tabla_relacion_contable
+            JOIN conta.trelacion_contable rc
+            ON rc.id_tipo_relacion_contable = trc.id_tipo_relacion_contable
+            JOIN param.tgestion ges
+            ON ges.id_gestion = rc.id_gestion
+            WHERE tb.esquema = 'ALM'
+            AND tb.tabla = 'talmacen'
+            AND trc.codigo_tipo_relacion = 'ALMING'
+        )
+        SELECT
+        rcalm.id_partida,
+        rc.id_centro_costo,
+        'activo',
+        rcalm.id_cuenta,
+        v_id_int_comprobante,
+        SUM(pad.monto) AS importe_debe,
+        SUM(pad.monto * param.f_get_tipo_cambio_v2(py.id_moneda, param.f_get_moneda_base(), py.fecha_fin, 'O')) AS importe_debe_mb,
+        SUM(pad.monto) AS importe_debe_mt,
+        SUM(tot.importe_ma * pad.monto / tot.importe_mt) AS importe_debe_ma,
+        SUM(pad.monto) AS importe_gasto,
+        SUM(pad.monto * param.f_get_tipo_cambio_v2(py.id_moneda, param.f_get_moneda_base(), py.fecha_fin, 'O')) AS importe_gasto_mb,
+        SUM(pad.monto) AS importe_gasto_mt,
+        SUM(tot.importe_ma * pad.monto / tot.importe_mt) AS importe_gasto_ma,
+        0 AS importe_haber,
+        0 AS importe_haber_mb,
+        0 AS importe_haber_mt,
+        0 AS importe_haber_ma,
+        0 AS importe_recurso,
+        0 AS importe_recurso_mb,
+        0 AS importe_recurso_mt,
+        0 AS importe_recurso_ma,
+        p_id_usuario,
+        now(),
+        pa.denominacion
+        FROM pro.tproyecto_activo_detalle pad
+        JOIN pro.tproyecto_activo pa
+        ON pa.id_proyecto_activo = pad.id_proyecto_activo
+        JOIN pro.tproyecto py
+        ON py.id_proyecto = pa.id_proyecto
+        JOIN ttotales tot
+        ON tot.id_proyecto = py.id_proyecto
+        JOIN trel_contable_alm rcalm
+        ON rcalm.id_almacen = pa.id_almacen
+        AND rcalm.gestion = date_part('year', py.fecha_fin)::integer
+        JOIN trel_contable rc
+        ON rc.gestion = date_part('year', py.fecha_fin)::integer
+        WHERE pa.id_almacen IS NOT NULL
+        AND py.id_proyecto = v_rec.id_proyecto
+        GROUP BY py.id_proyecto, pa.id_proyecto_activo, pa.denominacion, pa.id_clasificacion,
+        py.id_moneda, rcalm.id_cuenta, rcalm.id_partida, rcalm.gestion, rc.id_centro_costo;
+        --Fin #50
+
+        --Registro del detalle de comprobante (4/4): HABER CON EL TOTAL
         INSERT INTO conta.tint_transaccion
         (
             id_partida,

@@ -6,11 +6,12 @@
 *@date 31-08-2017 16:52:19
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 ******************************************************************************
-* ISSUE       EMPRESA    FECHA          AUTOR       DESCRIPCION
-* #11  		  ETR        09/05/2019     MZM         Se incrementa opcion (boton) para exportar datos en CSV
-* #23         ETR        03/09/2019     RCM         Colorear celda para activos fijos existentes
-* #36         ETR        16/10/2019     RCM         Adición de campo Funcionario
-* #38         ETR        17/10/2019     RCM         Adición de campo Fecha Compra
+* ISSUE  SIS     EMPRESA    FECHA          AUTOR       DESCRIPCION
+* #11  	 PRO     ETR        09/05/2019     MZM         Se incrementa opcion (boton) para exportar datos en CSV
+* #23    PRO     ETR        03/09/2019     RCM         Colorear celda para activos fijos existentes
+* #36    PRO     ETR        16/10/2019     RCM         Adición de campo Funcionario
+* #38    PRO     ETR        17/10/2019     RCM         Adición de campo Fecha Compra
+* #50    PRO     ETR        09/12/2019     RCM         Inclusión de almacén en importación de cierre
 * ****************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -123,6 +124,14 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this.id_funcionario.modificado = true;
         this.id_funcionario.setValue(rec.id_funcionario);
         //Fin #36
+        //Inicio #50: Almacén
+        recClas = new Ext.data.Record({id_almacen: rec.id_almacen, codigo: rec.desc_almacen, nombre: rec.desc_almacen },'id_almacen');
+        console.log('azzzz',recClas, rec.id_almacen);
+        this.id_almacen.store.add(recClas);
+        this.id_almacen.store.commitChanges();
+        this.id_almacen.modificado = true;
+        this.id_almacen.setValue(rec.id_almacen);
+        //Fin #50
 
 
         ///Fields
@@ -151,11 +160,13 @@ Ext.define('Phx.vista.ProyectoActivo', {
     },
     crearGrid: function(response){
         var _cols=[],
-            col1='#c2f0cc',
-            col2='#EAA8A8',
-            col3='#fafbd9',
-            col4='#e8974a', //#23
-            col5='#706e6d'; //#23
+            col1='#c2f0cc', //verde
+            col2='#EAA8A8', //tono rojo
+            col3='#fafbd9', //amarillo
+            col4='#e8974a', //#23 café
+            col5='#706e6d', //#23 plomo
+            col6='#0099ff'; //#50 azul
+
 
         //Columnas por defecto
         _cols.push(new Ext.grid.RowNumberer());
@@ -168,7 +179,14 @@ Ext.define('Phx.vista.ProyectoActivo', {
                 } else if (rec.data.codigo_af_rel=='GASTO'){
                     //Gasto
                     metadata.style="background-color:"+col5;
-                } else {
+                }
+                //Inicio #50
+                else if (rec.data.id_almacen){
+                    //Almacén
+                    metadata.style="background-color:"+col6;
+                }
+                //Fin #50
+                else {
                     //Activos fijos nuevos
                     metadata.style="background-color:"+col1;
                 }
@@ -255,6 +273,8 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this._colsData.push({name:'desc_person', type: 'string'});
         //Fin #36
         this._colsData.push({name:'fecha_compra', type:'date', dateFormat:'Y-m-d'});//#38
+        this._colsData.push({name:'id_almacen', type: 'numeric'});//#50
+        this._colsData.push({name:'desc_almacen', type: 'string'});//#50
 
         //Inicializa los valores del array para mapeo de Ids
         for (var i=0; i<=5; i++) {
@@ -797,6 +817,48 @@ Ext.define('Phx.vista.ProyectoActivo', {
         });
         //Fin #38
 
+        //Inicio #50
+        this.id_almacen = new Ext.form.ComboBox({
+            name: 'id_almacen',
+            fieldLabel: 'Almacén',
+            allowBlank: true,
+            emptyText:'Seleccione un registro...',
+            store: new Ext.data.JsonStore({
+                url: '../../sis_almacenes/control/Almacen/listarAlmacen',
+                id: 'id_almacen',
+                root: 'datos',
+                fields: ['id_almacen','codigo','nombre'],
+                totalProperty: 'total',
+                sortInfo: {
+                    field: 'codigo',
+                    direction: 'ASC'
+                },
+                baseParams:{
+                    start: 0,
+                    limit: 10,
+                    sort: 'codigo',
+                    dir: 'ASC',
+                    par_filtro:'alm.codigo#alm.nombre'
+                }
+            }),
+            valueField: 'id_almacen',
+            displayField: 'nombre',
+            gdisplayField: 'desc_almacen',
+            hiddenName: 'id_almacen',
+            mode: 'remote',
+            triggerAction: 'all',
+            typeAhead: false,
+            lazyRender: true,
+            pageSize: 15,
+            queryDelay: 1000,
+            minChars: 2,
+            renderer: function(value, p, record) {
+                return String.format('{0}', record.data['desc_almacen']);
+            },
+            anchor: '97%'
+        });
+        //Fin #50
+
         //Formulario
         this.frmDatos = new Ext.form.FormPanel({
             items: [{
@@ -814,7 +876,8 @@ Ext.define('Phx.vista.ProyectoActivo', {
                             this.id_ubicacion, this.id_grupo, this.id_grupo_clasif, this.nro_serie, this.marca, this.fecha_ini_dep,
                             this.vida_util_anios, this.codigo_af_rel,
                             this.id_funcionario, //#36
-                            this.fecha_compra //#38
+                            this.fecha_compra, //#38
+                            this.id_almacen //#50
                             ],
                     id_grupo: 0
                 }
@@ -878,7 +941,8 @@ Ext.define('Phx.vista.ProyectoActivo', {
                 id_unidad_medida: this.id_unidad_medida.getValue(),
                 codigo_af_rel: this.codigo_af_rel.getValue(),
                 id_funcionario: this.id_funcionario.getValue(),//#36
-                fecha_compra: this.fecha_compra.getValue() //#38
+                fecha_compra: this.fecha_compra.getValue(), //#38
+                id_almacen: this.id_almacen.getValue() //#50
             };
 
             Ext.Ajax.request({
@@ -908,12 +972,6 @@ Ext.define('Phx.vista.ProyectoActivo', {
             var rec = obj.selModel.selections.items[0].data;
             rec.desc_cc = this.colModel.columns[columnIndex].header;
             rec.id_tipo_cc = this.columnsMapId[columnIndex];
-
-            /*console.log('vvvvvvvvvvv',obj, rowIndex, columnIndex, e);
-            console.log('RRR',this.columnsMapId[columnIndex]);
-            console.log('colmodel',rec,this.colModel.columns[columnIndex].header);
-            console.log('dato',this.storeGrid.getAt(rowIndex));
-            this.onButtonNewEdit(rec);*/
 
             var win = Phx.CP.loadWindows(
                 '../../../sis_proyectos/vista/proyecto_activo_detalle/ProyectoActivoDetalle.php',
@@ -1184,8 +1242,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         objTotal.costo = rec[0]['total']-rec[1]['total'];
         return new Ext.data.Record(objTotal,label.toLowerCase()+index);
     },
-    SubirArchivo: function(rec)
-    {
+    SubirArchivo: function(rec) {
         Phx.CP.loadWindows
         (
             '../../../sis_contabilidad/vista/int_transaccion/SubirArchivoTran.php',
@@ -1201,7 +1258,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         );
     },
 
-    onButtonDet: function(){
+    onButtonDet: function() {
         var data=this.gridCierre.getSelectionModel().getSelected().data;
         Phx.CP.loadWindows('../../../sis_proyectos/vista/proyecto_activo_det_mon/ProyectoActivoDetMon.php',
             'Incrementro por Actualización ',
@@ -1265,10 +1322,10 @@ Ext.define('Phx.vista.ProyectoActivo', {
 
 		return col
 	},
-	addMaestro: function(data){
+	addMaestro: function(data) {
 		return data;
 	},
-	successExport:function(resp){
+	successExport:function(resp) {
 		Phx.CP.loadingHide();
         var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
         console.log(objRes.ROOT.detalle);
@@ -1279,7 +1336,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         window.open('../../../lib/lib_control/Intermediario.php?r='+nomRep+'&t='+new Date().toLocaleTimeString())
 
 	},
-    onButtonExport: function(a,b,c,d){
+    onButtonExport: function(a,b,c,d) {
 
         var col = this.getColumnasVisibles(false,false);
         if(this.idContenedorPadre){

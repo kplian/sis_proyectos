@@ -8,9 +8,10 @@
 
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
-        KAF                     31/08/2017  RCM         Creación del archivo
- #36    KAF       ETR           16/10/2019  RCM         Adición de campo Funcionario
- #38    KAF       ETR           17/10/2019  RCM         Adición de campo Fecha Compra
+        PRO                     31/08/2017  RCM         Creación del archivo
+ #36    PRO       ETR           16/10/2019  RCM         Adición de campo Funcionario
+ #38    PRO       ETR           17/10/2019  RCM         Adición de campo Fecha Compra
+ #50    PRO  	  ETR        	09/12/2019  RCM         Inclusión de almacén en importación de cierre
 ***************************************************************************
 */
 
@@ -67,6 +68,8 @@ class MODProyectoActivo extends MODbase{
 		$this->captura('desc_unmed','varchar');
 		$this->captura('codigo','varchar');
 		$this->captura('fecha_compra','date'); //#38
+		$this->captura('id_almacen','integer'); //#50
+		$this->captura('desc_almacen','varchar'); //#50
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -218,6 +221,8 @@ class MODProyectoActivo extends MODbase{
 		$this->captura('id_funcionario', 'integer');//#36
 		$this->captura('desc_person', 'varchar');//#36
 		$this->captura('fecha_compra', 'date');//#38
+		$this->captura('id_almacen', 'integer');//#50
+		$this->captura('desc_almacen', 'varchar');//#50
 
 		//Definicion de la lista dinámica de columnas
 		$col_arrays = $this->objParam->getParametro('columnas_dinamicas');
@@ -295,6 +300,7 @@ class MODProyectoActivo extends MODbase{
 		$this->setParametro('codigo_activo','codigo_activo','varchar');
 		$this->setParametro('observaciones','observaciones','varchar');
 		$this->setParametro('codigo_activo_rel','codigo_activo_rel','varchar');
+		$this->setParametro('almacen','almacen','varchar'); //#50
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
