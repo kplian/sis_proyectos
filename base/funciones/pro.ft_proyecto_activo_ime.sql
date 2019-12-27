@@ -304,7 +304,7 @@ BEGIN
 	        			SELECT id_ubicacion
 						INTO v_id_ubicacion
 						FROM kaf.tubicacion
-						WHERE codigo = v_parametros.local;
+						WHERE LOWER(TRIM(codigo)) = LOWER(TRIM(v_parametros.local));
 						END IF; --#50
         		END IF;
         		--Fin #40
@@ -312,7 +312,7 @@ BEGIN
 				select id_ubicacion
 				into v_id_ubicacion
 				from kaf.tubicacion
-				where codigo = v_parametros.local;
+				where LOWER(TRIM(codigo)) = LOWER(TRIM(v_parametros.local));
             end if;
 
             IF COALESCE(v_codigo_af_rel, '') <> 'GASTO' AND NOT pxp.f_existe_parametro(p_tabla, 'almacen') THEN --#50
