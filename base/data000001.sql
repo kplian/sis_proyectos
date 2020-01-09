@@ -181,3 +181,8 @@ valor = 'INV,PPY,PFA,PLADET',
 descripcion =' invitaciones,planificacion,fases,planificacion detalle  codigos de tipo de procesos del sistema de proyectos'
 WHERE variable = 'tipo_proceso_macro_proyectos';
 /***********************************F-DAT-EGS-PRO-10-17/10/2019****************************************/
+
+/***********************************I-DAT-RCM-PRO-51-06/01/2020****************************************/
+select pxp.f_insert_tgui ('Excluir Cuentas Contables', 'Excluir Cuentas Contables', 'CUEEXC', 'si', 4, 'sis_proyectos/vista/cuenta_excluir/CuentaExcluir.php', 3, '', 'CuentaExcluir', 'PRO');
+select pxp.f_insert_testructura_gui ('CUEEXC', 'CFGPRO');
+/***********************************F-DAT-RCM-PRO-51-06/01/2020****************************************/

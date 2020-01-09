@@ -562,7 +562,7 @@ BEGIN
         FOR v_rec IN
         (
             WITH tactivos AS (
-                SELECT
+                SELECT DISTINCT --#41
                 pa.id_proyecto,
                 pa.id_proyecto_activo,
                 SUM(pad.monto) OVER (PARTITION BY pa.id_proyecto_activo) AS importe_activo,
