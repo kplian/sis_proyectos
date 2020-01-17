@@ -9,6 +9,7 @@
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #14    PRO       ETR           24/07/2019  RCM         Corrección filtro por columnas y adición filtro rápido
+ #52	PRO		  ETR			16/01/2020	MZM			Adicion de campo nro_tramite_cierre en grid
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -183,6 +184,21 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
                 id_grupo:1,
                 grid:true,
                 form:true
+        },//#52
+        {
+            config:{
+                name: 'nro_tramite_cierre',
+                fieldLabel: '# Tramite Cierre',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 120,
+                maxLength:4
+            },
+                type:'Field',
+                filters:{pfiltro:'proy.nro_tramite_cierre',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false
         },
         {
             config:{
@@ -714,7 +730,23 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
             }
         });
         this.tbar.add(this.menuAdqGantt);
-    },
+    },//#52
+    diagramGantt: function (){			
+			var data=this.sm.getSelected().data.id_proceso_wf_cierre;
+			Phx.CP.loadingShow();
+			Ext.Ajax.request({
+				url:'../../sis_workflow/control/ProcesoWf/diagramaGanttTramite',
+				params:{'id_proceso_wf':data},
+				success: this.successExport,
+				failure: this.conexionFailure,
+				timeout: this.timeout,
+				scope: this
+			});			
+	},
+	diagramGanttDinamico: function (){			
+			var data=this.sm.getSelected().data.id_proceso_wf_cierre;
+			window.open('../../../sis_workflow/reportes/gantt/gantt_dinamico.html?id_proceso_wf='+data)		
+	},  
     onSaveWizard:function(wizard,resp){
         Phx.CP.loadingShow();
         Ext.Ajax.request({
