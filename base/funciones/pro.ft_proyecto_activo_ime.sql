@@ -21,6 +21,7 @@ $body$
  #38    PRO     ETR      17/10/2019   RCM         Adición de campo Fecha de compra
  #40    PRO     ETR      18/10/2019   RCM         En caso de incrementar valor a un AF existente, si el padre no tiene local que agarre el de la plantilla. Lo mismo con el CC
  #50    PRO  	ETR      09/12/2019   RCM         Inclusión de almacén en importación de cierre
+ #55    PRO     ETR      26/02/2020   RCM         Adición de vldiación campo fecha de compra
 ***************************************************************************/
 
 DECLARE
@@ -497,7 +498,11 @@ BEGIN
 			END IF;
 			--Fin #50
 
-
+			--Inicio #55
+			IF pxp.f_existe_parametro(p_tabla, 'almacen') THEN
+				RAISE EXCEPTION 'Fecha de compra no definida: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+			END IF;
+			--Fin #55
 
 			--Preparación del record para la inserción
 			SELECT

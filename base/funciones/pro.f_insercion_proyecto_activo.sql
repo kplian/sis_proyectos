@@ -18,6 +18,7 @@ $body$
  #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
  #40    PRO     ETR      22/10/2019   RCM         Validación para no permitir se repita más de una vez un activo fijo relacionado
  #50    PRO     ETR      09/12/2019   RCM         Inclusión de almacén en importación de cierre
+ #55    PRO     ETR      26/02/2020   RCM         Adición de campo fecha de compra
 ***************************************************************************/
 DECLARE
 
@@ -76,7 +77,8 @@ BEGIN
     codigo_af_rel,
     id_funcionario,
     id_activo_fijo, --#19
-    id_almacen --#50
+    id_almacen, --#50
+    fecha_compra --#55
     ) VALUES(
     (p_parametros->'id_proyecto')::integer,
     (p_parametros->'observaciones')::varchar,
@@ -107,7 +109,8 @@ BEGIN
     (p_parametros->'codigo_af_rel')::varchar,
     (p_parametros->'id_funcionario')::integer,
     (p_parametros->'id_activo_fijo')::integer, --#19
-    (p_parametros->'id_almacen')::integer --#50
+    (p_parametros->'id_almacen')::integer, --#50
+    (p_parametros->'fecha_compra')::date --#55
     ) RETURNING id_proyecto_activo INTO v_id_proyecto_activo;
 
     --Respuesta

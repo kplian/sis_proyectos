@@ -12,6 +12,7 @@
 * #36    PRO     ETR        16/10/2019     RCM         Adición de campo Funcionario
 * #38    PRO     ETR        17/10/2019     RCM         Adición de campo Fecha Compra
 * #50    PRO     ETR        09/12/2019     RCM         Inclusión de almacén en importación de cierre
+* #53   PRO      ETR        24/01/2020     RCM         Adicion de columnas en la grilla de datos
 * ****************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -126,7 +127,6 @@ Ext.define('Phx.vista.ProyectoActivo', {
         //Fin #36
         //Inicio #50: Almacén
         recClas = new Ext.data.Record({id_almacen: rec.id_almacen, codigo: rec.desc_almacen, nombre: rec.desc_almacen },'id_almacen');
-        console.log('azzzz',recClas, rec.id_almacen);
         this.id_almacen.store.add(recClas);
         this.id_almacen.store.commitChanges();
         this.id_almacen.modificado = true;
@@ -194,24 +194,129 @@ Ext.define('Phx.vista.ProyectoActivo', {
             }
             return value;
         }});
-        _cols.push({header: 'Denominación', dataIndex: 'denominacion',renderer: function(value,metadata,rec,index){
-            if(rec.data.id_proyecto_activo>0){
-                metadata.style="background-color:"+col1;
+        _cols.push({
+            header: 'Denominación', 
+            dataIndex: 'denominacion',
+            renderer: function(value,metadata,rec,index){
+                if(rec.data.id_proyecto_activo>0){
+                    metadata.style="background-color:"+col1;
+                }
+                return value;
             }
-            return value;
-        }});
+        });
         _cols.push({header: 'Descripción', dataIndex: 'descripcion',renderer: function(value,metadata,rec,index){
             if(rec.data.id_proyecto_activo>0){
                 metadata.style="background-color:"+col1;
             }
             return value;
         }});
-        _cols.push({header: 'Clasificación', dataIndex: 'id_clasificacion',renderer: function(value,metadata,rec,index){
+        _cols.push({header: 'Clasificación', dataIndex: 'desc_clasificacion',renderer: function(value,metadata,rec,index){
             if(rec.data.id_proyecto_activo>0){
                 metadata.style="background-color:"+col1;
             }
             return String.format('{0}', rec.data['desc_clasificacion']);
         }});
+
+        //Inicio #53
+        _cols.push({header: 'Cantidad', dataIndex: 'cantidad_det', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['cantidad_det']);
+        }});
+        _cols.push({header: 'Unidad Medida', dataIndex: 'desc_unmed', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['desc_unmed']);
+        }});
+        _cols.push({header: 'Depto.', dataIndex: 'desc_depto', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['desc_depto']);
+        }});
+        _cols.push({header: 'Ubicación', dataIndex: 'ubicacion', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['ubicacion']);
+        }});
+        _cols.push({header: 'Centro Costo', dataIndex: 'desc_centro_costo', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['desc_centro_costo']);
+        }});
+        _cols.push({header: 'Local', dataIndex: 'desc_ubicacion', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['desc_ubicacion']);
+        }});
+        _cols.push({header: 'Grupo AE', dataIndex: 'desc_grupo', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['desc_grupo']);
+        }});
+        _cols.push({header: 'Clasificación AE', dataIndex: 'desc_clasif_ae', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['desc_clasif_ae']);
+        }});
+        _cols.push({header: 'Nro.Serie', dataIndex: 'nro_serie', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['nro_serie']);
+        }});
+        _cols.push({header: 'Marca', dataIndex: 'marca', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['marca']);
+        }});
+        _cols.push({header: 'Fecha Ini.Dep.', dataIndex: 'fecha_ini_dep', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['fecha_ini_dep']);
+        }});
+        _cols.push({header: 'Vida Util (años)', dataIndex: 'vida_util_anios', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['vida_util_anios']);
+        }});
+        _cols.push({header: 'Código AF Rel.', dataIndex: 'codigo_af_rel', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['codigo_af_rel']);
+        }});
+        _cols.push({header: 'Responsable', dataIndex: 'desc_person', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['desc_person']);
+        }});
+        _cols.push({header: 'Fecha Compra', dataIndex: 'fecha_compra', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['fecha_compra']);
+        }});
+        _cols.push({header: 'Almacén', dataIndex: 'desc_almacen', /*hidden: true, */renderer: function(value,metadata,rec,index){
+            if(rec.data.id_proyecto_activo > 0){
+                metadata.style="background-color:"+col1;
+            }
+            return String.format('{0}', rec.data['desc_almacen']);
+        }});
+        //Fin #53
+
+
         _cols.push({header: 'Observaciones', dataIndex: 'observaciones',renderer: function(value,metadata,rec,index){
             if(rec.data.id_proyecto_activo>0){
                 metadata.style="background-color:"+col1;
@@ -230,7 +335,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
                     metadata.style='text-align: right;';
                 }
             }
-            return String.format('<b >{0}</b>', Ext.util.Format.number(value,'0,000.000000'));
+            return String.format('<b>{0}</b>', Ext.util.Format.number(value,'0,000.000000'));
         }});
 
         //Fields para el store
@@ -277,7 +382,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
         this._colsData.push({name:'desc_almacen', type: 'string'});//#50
 
         //Inicializa los valores del array para mapeo de Ids
-        for (var i=0; i<=5; i++) {
+        for (var i=0; i<=21 ; i++) {
             this.columnsMapId.push(0);
         }
 
@@ -641,7 +746,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
             }),
             valueField: 'id_grupo',
             displayField: 'nombre',
-            gdisplayField: 'desc_grupo_ae',
+            gdisplayField: 'desc_grupo',// 'desc_grupo_ae',
             hiddenName: 'id_grupo',
             mode: 'remote',
             triggerAction: 'all',
@@ -651,7 +756,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
             queryDelay: 1000,
             minChars: 2,
             renderer: function(value, p, record) {
-                return String.format('{0}', record.data['desc_grupo_ae']);
+                return String.format('{0}', record.data['desc_grupo']);//'desc_grupo_ae']);
             },
             anchor: '97%'
         });
