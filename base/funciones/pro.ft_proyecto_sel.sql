@@ -1,10 +1,12 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION pro.ft_proyecto_sel (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
+    p_administrador integer,
+    p_id_usuario integer,
+    p_tabla varchar,
+    p_transaccion varchar
 )
-RETURNS varchar AS
+    RETURNS varchar AS
 $body$
 /**************************************************************************
  SISTEMA:		Sistema de Proyectos
@@ -18,33 +20,35 @@ $body$
 	Issue 			Fecha 			Autor				Descripcion
  	#3				31/12/2018		EGS					Aumentar Importe Stea
     #10  EndeEtr    02/04/2019      EGS                 se agrega totalizadores de la suma de faseconceptoingas y de las invitaciones
+    #56             10/03/2020      EGS                 Se agrega los campos justificacion, id_lugar ,caracteristica_tecnica
+
 ***************************************************************************/
 
 DECLARE
 
-	v_consulta    		varchar;
-	v_parametros  		record;
-	v_nombre_funcion   	text;
-	v_resp				varchar;
+    v_consulta    		varchar;
+    v_parametros  		record;
+    v_nombre_funcion   	text;
+    v_resp				varchar;
 
 BEGIN
 
-	v_nombre_funcion = 'pro.ft_proyecto_sel';
+    v_nombre_funcion = 'pro.ft_proyecto_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************
- 	#TRANSACCION:  'PRO_PROY_SEL'
- 	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		admin
- 	#FECHA:		28-09-2017 20:12:15
-	***********************************/
+    /*********************************
+     #TRANSACCION:  'PRO_PROY_SEL'
+     #DESCRIPCION:	Consulta de datos
+     #AUTOR:		admin
+     #FECHA:		28-09-2017 20:12:15
+    ***********************************/
 
-	if(p_transaccion='PRO_PROY_SEL')then
+    if(p_transaccion='PRO_PROY_SEL')then
 
-    	begin
-    		--Sentencia de la consulta
+        begin
+            --Sentencia de la consulta
             --#10  se agrega totalizadores de la suma de faseconceptoingas y de las invitaciones por proyecto
-			v_consulta:='
+            v_consulta:='
                   WITH total_facoing(   id_proyecto,
                             total_fase_concepto_ingas
                            )as(
@@ -61,7 +65,7 @@ BEGIN
                       id_invitacion,
                       id_moneda_invitacion,
                       precio,
-                      cantidad_sol,          
+                      cantidad_sol,
                       precio_total_conversion,
                       codigo_moneda_total_conversion
                       )AS(
@@ -72,14 +76,14 @@ BEGIN
                                       inv.id_moneda,
                                       invd.precio,
                                       invd.cantidad_sol,
-                                     
+
                                      CASE
                                       WHEN pro.id_moneda = inv.id_moneda  THEN
                                            invd.precio*invd.cantidad_sol
                                       WHEN pro.id_moneda =  param.f_get_moneda_base() THEN
                                            ((invd.precio*invd.cantidad_sol)*((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,''O'')):: numeric)):: numeric(18,2)
                                       WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
-                                           ((invd.precio*invd.cantidad_sol)/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,''O'')):: numeric)):: numeric(18,2)   
+                                           ((invd.precio*invd.cantidad_sol)/((param.f_get_tipo_cambio(param.f_get_moneda_triangulacion(),inv.fecha::DATE,''O'')):: numeric)):: numeric(18,2)
                                       END as precio_total_conversion,
                                       case
                                        WHEN pro.id_moneda = inv.id_moneda  THEN
@@ -88,11 +92,11 @@ BEGIN
                                         (SELECT mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda =param.f_get_moneda_base())::varchar
                                       WHEN pro.id_moneda =  param.f_get_moneda_triangulacion() THEN
                                        (SELECT  mone.codigo FROM param.tmoneda mone WHERE mone.id_moneda = param.f_get_moneda_triangulacion())::varchar
-                                      END as codigo_moneda_total_conversion  
-                               
+                                      END as codigo_moneda_total_conversion
+
                                   FROM pro.tinvitacion_det invd
                                   left join pro.tinvitacion inv on inv.id_invitacion = invd.id_invitacion
-                                  left join pro.tproyecto pro on pro.id_proyecto = inv.id_proyecto 
+                                  left join pro.tproyecto pro on pro.id_proyecto = inv.id_proyecto
                                   left join param.tmoneda mon on mon.id_moneda = pro.id_moneda ),
                       total_invitacion(
                                 id_proyecto,
@@ -102,8 +106,8 @@ BEGIN
                           co.id_proyecto,
                           sum(precio_total_conversion)
                       FROM convertion co
-                      group by co.id_proyecto                    
-                      )                    
+                      group by co.id_proyecto
+                      )
                     select
 						proy.id_proyecto,
 						proy.codigo,
@@ -144,7 +148,11 @@ BEGIN
 						cbte3.id_proceso_wf as id_proceso_wf_cbte_3,
                         proy.importe_max,				--#3 31/12/2018	EGS
                         tfac.total_fase_concepto_ingas::numeric,
-                        tinv.total_invitacion::numeric(18,2)
+                        tinv.total_invitacion::numeric(18,2),
+                        proy.justificacion, --#56
+                        proy.id_lugar,   --#56
+                        proy.caracteristica_tecnica, --#56
+                        lug.nombre as lugar   --#56
 						from pro.tproyecto proy
 						inner join segu.tusuario usu1 on usu1.id_usuario = proy.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = proy.id_usuario_mod
@@ -156,29 +164,30 @@ BEGIN
 						left join conta.tint_comprobante cbte3 on cbte3.id_int_comprobante = proy.id_int_comprobante_3
                         left join total_facoing tfac on tfac.id_proyecto = proy.id_proyecto
                         left join total_invitacion tinv on tinv.id_proyecto = proy.id_proyecto
+                        left join param.tlugar lug on lug.id_lugar = proy.id_lugar --#56
 				        where ';
 
-			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-raise notice 'ff: %',v_consulta;
-			--Devuelve la respuesta
-			return v_consulta;
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            raise notice 'ff: %',v_consulta;
+            --Devuelve la respuesta
+            return v_consulta;
 
-		end;
+        end;
 
-	/*********************************
- 	#TRANSACCION:  'PRO_PROY_CONT'
- 	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin
- 	#FECHA:		28-09-2017 20:12:15
-	***********************************/
+        /*********************************
+         #TRANSACCION:  'PRO_PROY_CONT'
+         #DESCRIPCION:	Conteo de registros
+         #AUTOR:		admin
+         #FECHA:		28-09-2017 20:12:15
+        ***********************************/
 
-	elsif(p_transaccion='PRO_PROY_CONT')then
+    elsif(p_transaccion='PRO_PROY_CONT')then
 
-		begin
-			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(proy.id_proyecto)
+        begin
+            --Sentencia de la consulta de conteo de registros
+            v_consulta:='select count(proy.id_proyecto)
 					    from pro.tproyecto proy
 					    inner join segu.tusuario usu1 on usu1.id_usuario = proy.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = proy.id_usuario_mod
@@ -190,26 +199,26 @@ raise notice 'ff: %',v_consulta;
 						left join conta.tint_comprobante cbte3 on cbte3.id_int_comprobante = proy.id_int_comprobante_3
 					    where ';
 
-			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
 
-			--Devuelve la respuesta
-			return v_consulta;
+            --Devuelve la respuesta
+            return v_consulta;
 
-		end;
+        end;
 
-	/*********************************
- 	#TRANSACCION:  'PRO_PROY_TIPOCC_SEL'
- 	#DESCRIPCION:	Devuelve datos del Tipo de centro de costo del proyecto
- 	#AUTOR:			RCM
- 	#FECHA:			14/08/2018
-	***********************************/
+        /*********************************
+         #TRANSACCION:  'PRO_PROY_TIPOCC_SEL'
+         #DESCRIPCION:	Devuelve datos del Tipo de centro de costo del proyecto
+         #AUTOR:			RCM
+         #FECHA:			14/08/2018
+        ***********************************/
 
-	elsif(p_transaccion='PRO_PROY_TIPOCC_SEL')then
+    elsif(p_transaccion='PRO_PROY_TIPOCC_SEL')then
 
-    	begin
-    		--Sentencia de la consulta
-			v_consulta:='select
+        begin
+            --Sentencia de la consulta
+            v_consulta:='select
 						pro.id_proyecto,
 						pro.id_tipo_cc,
 						cc.codigo,
@@ -219,32 +228,32 @@ raise notice 'ff: %',v_consulta;
 						on cc.id_tipo_cc = pro.id_tipo_cc
 				        where ';
 
-			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
 
-			--Devuelve la respuesta
-			return v_consulta;
+            --Devuelve la respuesta
+            return v_consulta;
 
-		end;
+        end;
 
-	else
+    else
 
-		raise exception 'Transaccion inexistente';
+        raise exception 'Transaccion inexistente';
 
-	end if;
+    end if;
 
 EXCEPTION
 
-	WHEN OTHERS THEN
-			v_resp='';
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-			v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-			raise exception '%',v_resp;
+    WHEN OTHERS THEN
+        v_resp='';
+        v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
+        v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
+        v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
+        raise exception '%',v_resp;
 END;
 $body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    CALLED ON NULL INPUT
+    SECURITY INVOKER
+    COST 100;
