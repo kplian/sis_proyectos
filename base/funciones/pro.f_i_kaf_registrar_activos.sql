@@ -20,6 +20,8 @@ $body$
  #38    PRO     ETR      17/10/2019   RCM         Adición de campo Fecha de compra
  #41    PRO     ETR      22/10/2019   RCM         Adición de condición fecha is null en la consulta de AF existentes
  #50    PRO     ETR      09/12/2019   RCM         Inclusión de almacén en importación de cierre
+ #57    PRO     ETR      25/03/2020   RCM         Adición de id_proyecto_activo y id_movimiento_af_especial para creación de activos fijos
+ #58    PRO     ETR      29/04/2020   RCM         Inclusión de fecha para TC inicial predefinido para la primera depreciación del AF enla creación de AFVs
 ***************************************************************************
 */
 DECLARE
@@ -305,7 +307,8 @@ BEGIN
         v_rec.id_grupo                                      AS id_grupo,
         v_rec.id_grupo_clASif                               AS id_grupo_clasif,
         v_rec.id_centro_costo                               AS id_centro_costo,
-        v_rec.monto_bs                                      AS monto_compra_sin_actualiz
+        v_rec.monto_bs                                      AS monto_compra_sin_actualiz,
+        v_rec.id_proyecto_activo                            AS id_proyecto_activo --#57
         INTO v_rec_af;
 
         --Inserción de activo fijo
@@ -351,7 +354,9 @@ BEGIN
             id_moneda_dep,
             id_moneda,
             fecha_inicio,
-            monto_vigente_orig_100
+            monto_vigente_orig_100,
+            id_proyecto_activo, --#57
+            fecha_tc_ini_dep --#58
         ) VALUES (
             p_id_usuario,
             now(),
@@ -359,7 +364,7 @@ BEGIN
             v_id_activo_fijo,
             v_rec.monto_bs,            --  monto_vigente_orig
             v_rec.vida_util,      --  vida_util_orig
-            v_rec.fecha_ini_dep,           --  fecha_ini_dep
+            DATE_TRUNC('month', v_rec.fecha_ini_dep), --#58
             0,
             0,
             0,
@@ -374,7 +379,9 @@ BEGIN
             (SELECT id_moneda_dep FROM kaf.tmoneda_dep WHERE id_moneda = v_id_moneda_bs), --id_moneda_dep
             v_id_moneda_bs,
             v_rec.fecha_ini_dep,           --  fecha_ini  desde cuando se considera el activo valor
-            v_rec.monto_bs
+            v_rec.monto_bs,
+            v_rec.id_proyecto_activo, --#57
+            DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
         );
 
         --USD
@@ -410,7 +417,9 @@ BEGIN
             id_moneda_dep,
             id_moneda,
             fecha_inicio,
-            monto_vigente_orig_100
+            monto_vigente_orig_100,
+            id_proyecto_activo, --#57
+            fecha_tc_ini_dep --#58
         ) VALUES(
             p_id_usuario,
             now(),
@@ -418,7 +427,7 @@ BEGIN
             v_id_activo_fijo,
             v_rec.monto_usd,            --  monto_vigente_orig
             v_rec.vida_util,      --  vida_util_orig
-            v_rec.fecha_ini_dep,           --  fecha_ini_dep
+            DATE_TRUNC('month', v_rec.fecha_ini_dep), --#58           --  fecha_ini_dep
             0,
             0,
             0,
@@ -433,7 +442,9 @@ BEGIN
             (SELECT id_moneda_dep FROM kaf.tmoneda_dep WHERE id_moneda = v_rec.id_moneda), --id_moneda_dep
             v_rec.id_moneda,
             v_rec.fecha_ini_dep,           --  fecha_ini  desde cuando se considera el activo valor
-            v_rec.monto_usd
+            v_rec.monto_usd,
+            v_rec.id_proyecto_activo, --#57
+            DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
         );
 
         --UFV
@@ -469,15 +480,17 @@ BEGIN
             id_moneda_dep,
             id_moneda,
             fecha_inicio,
-            monto_vigente_orig_100
-        ) VALUES(
+            monto_vigente_orig_100,
+            id_proyecto_activo, --#57
+            fecha_tc_ini_dep --#58
+        ) VALUES (
             p_id_usuario,
             now(),
             'activo',
             v_id_activo_fijo,
             v_rec.monto_ufv,            --  monto_vigente_orig
             v_rec.vida_util,      --  vida_util_orig
-            v_rec.fecha_ini_dep,           --  fecha_ini_dep
+            DATE_TRUNC('month', v_rec.fecha_ini_dep), --#58           --  fecha_ini_dep
             0,
             0,
             0,
@@ -492,7 +505,9 @@ BEGIN
             (SELECT id_moneda_dep FROM kaf.tmoneda_dep WHERE id_moneda = v_id_moneda_ufv), --id_moneda_dep
             v_id_moneda_ufv,
             v_rec.fecha_ini_dep,           --  fecha_ini  desde cuando se considera el activo valor
-            v_rec.monto_ufv
+            v_rec.monto_ufv,
+            v_rec.id_proyecto_activo,
+            DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
         );
 
         --Actualización del ID activo fijo en proyecto activo
@@ -922,15 +937,16 @@ BEGIN
                 importe_modif,
                 --Inicio #33
                 aux_depmes_tot_del_inc,
-                aux_inc_dep_acum_del_inc
+                aux_inc_dep_acum_del_inc,
                 --Fin #33
+                fecha_tc_ini_dep --#58
             ) VALUES (
                 p_id_usuario,
                 NOW(),
                 'activo',
                 v_rec.id_activo_fijo,
                 v_rec.vida_util,
-                v_rec.fecha_ini_dep,
+                DATE_TRUNC('month', v_rec.fecha_ini_dep), --#58
                 v_rec.vida_util,
                 'activo',
                 'no',
@@ -965,8 +981,9 @@ BEGIN
                 v_rec.importe_modif,
                 --Inicio #33
                 v_rec.total_depreciacion_mes,
-                v_rec.total_inc_dep_acum
+                v_rec.total_inc_dep_acum,
                 --Fin #33
+                DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
             );
 
         END LOOP;
