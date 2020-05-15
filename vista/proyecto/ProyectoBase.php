@@ -361,7 +361,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:10
+                maxLength:500
             },
             type:'TextArea',
             filters:{pfiltro:'proy.justificacion',type:'string'},
@@ -377,7 +377,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-                maxLength:10
+                maxLength:500
             },
             type:'TextArea',
             filters:{pfiltro:'proy.caracteristica_tecnica',type:'string'},
