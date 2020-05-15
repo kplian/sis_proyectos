@@ -1089,3 +1089,21 @@ ALTER TABLE pro.tcomponente_concepto_ingas_det
 ALTER TABLE pro.tproyecto_activo
   ADD COLUMN id_almacen INTEGER;
 /***********************************F-SCP-RCM-PRO-50-09/12/2019****************************************/
+/***********************************I-SCP-EGS-PRO-27-10/03/2020****************************************/
+ALTER TABLE pro.tproyecto
+    ADD COLUMN justificacion VARCHAR;
+
+COMMENT ON COLUMN pro.tproyecto.justificacion
+    IS 'justicficacion del proyecto';
+ALTER TABLE pro.tproyecto
+    ADD COLUMN id_lugar INTEGER;
+
+COMMENT ON COLUMN pro.tproyecto.id_lugar
+    IS 'lugar de ubicacion del proyecto';
+
+ALTER TABLE pro.tproyecto
+    ADD COLUMN caracteristica_tecnica VARCHAR;
+
+COMMENT ON COLUMN pro.tproyecto.caracteristica_tecnica
+    IS 'Descripcion de las caracteristicas tecnicas del proyecto';
+/***********************************F-SCP-EGS-PRO-27-10/03/2020****************************************/

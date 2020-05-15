@@ -8,6 +8,8 @@
 	Issue 			Fecha 			Autor				Descripcion
  	#3				31/12/2018		EGS					Aumentar Importe Stea
  *  #10	EndeEtr		02/04/2019		EGS					Se agrego Totalizadores de fase_concepto y det invitacion
+ *  #56             10/03/2020      EGS                 Se agrega los campos justificacion, id_lugar ,caracteristica_tecnica
+
  * */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -203,8 +205,8 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				mode: 'remote',
 				pageSize: 15,
 				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
+                anchor: '80%',
+                gwidth: 100,
 				minChars: 2,
 				renderer : function(value, p, record) {
 					return String.format('{0}', record.data['codigo_tcc']);
@@ -252,8 +254,8 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				mode: 'remote',
 				pageSize: 15,
 				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
+				anchor: '80%',
+                gwidth: 100,
 				minChars: 2,
 
 			},
@@ -269,9 +271,9 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
                 origen: 'MONEDA',
                 allowBlank: false,
                 fieldLabel: 'Moneda',
-                anchor: '100%',
+                anchor: '80%',
+                gwidth: 100,
                 gdisplayField: 'desc_moneda',//mapea al store del grid
-                gwidth: 50,
                 renderer: function (value, p, record){return String.format('{0}', record.data['desc_moneda']);}
              },
             type: 'ComboRec',
@@ -309,7 +311,80 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-				//#3 31/12/2018		EGS	
+				//#3 31/12/2018		EGS
+        {//#56
+            config:{
+                name: 'id_lugar',
+                fieldLabel: 'Lugar',
+                allowBlank: true,
+                emptyText:'Lugar...',
+                store:new Ext.data.JsonStore(
+                    {
+                        url: '../../sis_parametros/control/Lugar/listarLugar',
+                        id: 'id_lugar',
+                        root: 'datos',
+                        sortInfo:{
+                            field: 'nombre',
+                            direction: 'ASC'
+                        },
+                        totalProperty: 'total',
+                        fields: ['id_lugar','id_lugar_fk','codigo','nombre','tipo','sw_municipio','sw_impuesto','codigo_largo'],
+                        // turn on remote sorting
+                        remoteSort: true,
+                        baseParams:{tipos:"''departamento'',''pais'',''localidad'',''ciudad''",par_filtro:'nombre'}
+                    }),
+                valueField: 'id_lugar',
+                displayField: 'nombre',
+                gdisplayField:'lugar',
+                hiddenName: 'id_lugar',
+                triggerAction: 'all',
+                lazyRender:true,
+                mode:'remote',
+                pageSize:50,
+                queryDelay:500,
+                anchor: '80%',
+                gwidth: 100,
+                forceSelection:true,
+                minChars:2,
+                renderer:function (value, p, record){return String.format('{0}', record.data['lugar']);}
+            },
+            type:'ComboBox',
+            filters:{pfiltro:'lug.nombre',type:'string'},
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
+        {//#56
+            config:{
+                name: 'justificacion',
+                fieldLabel: 'Justificacion',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:500
+            },
+            type:'TextArea',
+            filters:{pfiltro:'proy.justificacion',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+
+        {
+            config:{//#56
+                name: 'caracteristica_tecnica',
+                fieldLabel: 'Caracteristicas Tecnicas',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:500
+            },
+            type:'TextArea',
+            filters:{pfiltro:'proy.caracteristica_tecnica',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
 		{
 			config:{
 				name: 'estado_reg',
@@ -454,6 +529,9 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 		{name:'importe_max', type: 'numeric'},
 		'total_fase_concepto_ingas',//#10
 		'total_invitacion',//#10
+        {name:'justificacion', type: 'string'},//#56
+        {name:'id_lugar', type: 'numeric'},'lugar',//#56
+        {name:'caracteristica_tecnica', type: 'string'},//#56
 
 
 	],

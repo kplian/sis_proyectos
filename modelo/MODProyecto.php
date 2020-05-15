@@ -8,6 +8,7 @@
 	Issue 			Fecha 			Autor				Descripcion
  	#3				31/12/2018		EGS					Aumentar Importe Stea
  *  #10 EndeEtr		02/04/2019		EGS					Se agrego totalizadores de faseconceptoingas i det invitaion por proyecto
+ *  #56 EndeEtr     10/02/2020     EGS                Se agregan campos justificacion, id_lugar, caracteristicas tecnicas
  * */
 
 class MODProyecto extends MODbase{
@@ -64,6 +65,12 @@ class MODProyecto extends MODbase{
                     
 		$this->captura('total_fase_concepto_ingas','numeric');//#10
 		$this->captura('total_invitacion','numeric');//#10
+
+        $this->captura('justificacion','varchar');//#56
+        $this->captura('id_lugar','integer');//#56
+        $this->captura('caracteristica_tecnica','varchar');//#56
+        $this->captura('lugar','varchar');//#56
+
 		
 
 		//Ejecuta la instruccion
@@ -95,7 +102,11 @@ class MODProyecto extends MODbase{
 
 		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
 		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
-		$this->setParametro('importe_max','importe_max','numeric');	//#3 31/12/2018		EGS	
+		$this->setParametro('importe_max','importe_max','numeric');	//#3 31/12/2018		EGS
+
+        $this->setParametro('justificacion','justificacion','varchar'); //#56
+        $this->setParametro('id_lugar','id_lugar','integer');//#56
+        $this->setParametro('caracteristica_tecnica','caracteristica_tecnica','varchar');//#56
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -125,7 +136,11 @@ class MODProyecto extends MODbase{
 
 		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
 		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
-		$this->setParametro('importe_max','importe_max','numeric');	//#3 31/12/2018		EGS	
+		$this->setParametro('importe_max','importe_max','numeric');	//#3 31/12/2018		EGS
+
+        $this->setParametro('justificacion','justificacion','varchar'); //#56
+        $this->setParametro('id_lugar','id_lugar','integer');//#56
+        $this->setParametro('caracteristica_tecnica','caracteristica_tecnica','varchar');//#56
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
