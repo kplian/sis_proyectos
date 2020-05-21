@@ -8,7 +8,7 @@
 	ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
  	#5	  endeETR		09/01/2019	EGS				se agrego campos estado_lanzado y  dias_lanzado
  *  #15   ETR           31/07/2019	EGS             reporte Invitaciones 
- * 
+ *  #59                 21/05/2020  EGS             funciones para el Reporte  de ejecucion
  * 
  */
 
@@ -236,6 +236,83 @@ function listarPresupuesto(){
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+    function listarRepCentrosCostoEjecucion(){//#59
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.f_reporte_cc_ejecucion_sel';
+        $this->transaccion='PRO_REPCCEJEC_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(FALSE);
+        $this->setTipoRetorno('record');
+        //var_dump('excel');
+        $this->setParametro('id_proyecto','id_proyecto','int4');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('gestion','integer');
+        $this->captura('monto_mb','numeric');
+        $this->captura('monto_anticipo ','numeric');
+        $this->captura('monto_anticipo_mb ','numeric');
+        $this->captura('monto_desc_anticipo ','numeric');
+        $this->captura('monto_desc_anticipo_mb','numeric');
+        $this->captura('desc_moneda_base','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        //var_dump($this->respuesta);exit;
+        return $this->respuesta;
+    }
+    function listarTotCentrosCostoEjecucion(){//#59
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.f_reporte_cc_ejecucion_sel';
+        $this->transaccion='PRO_RETOTCC_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(FALSE);
+        $this->setTipoRetorno('record');
+        //var_dump('excel');
+        $this->setParametro('id_proyecto','id_proyecto','int4');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('total_monto_mb','numeric');
+        $this->captura('total_monto_anticipo ','numeric');
+        $this->captura('total_monto_anticipo_mb ','numeric');
+        $this->captura('total_monto_desc_anticipo ','numeric');
+        $this->captura('total_monto_desc_anticipo_mb','numeric');
+        $this->captura('desc_moneda_base','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        //var_dump($this->respuesta);exit;
+        return $this->respuesta;
+    }
+    function listarGesCentrosCostoPresupuestado(){  //#59
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.f_reporte_cc_ejecucion_sel';
+        $this->transaccion='PRO_RECCGEST_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(FALSE);
+        $this->setTipoRetorno('record');
+        //var_dump('excel');
+        $this->setParametro('id_proyecto','id_proyecto','int4');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('gestion_monto_mb','numeric');
+        $this->captura('gestion_monto_anticipo ','numeric');
+        $this->captura('gestion_monto_anticipo_mb ','numeric');
+        $this->captura('gestion_monto_desc_anticipo ','numeric');
+        $this->captura('gestion_monto_desc_anticipo_mb','numeric');
+        $this->captura('desc_moneda_base','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        //var_dump($this->respuesta);exit;
+        return $this->respuesta;
+    }
 	
 		
 	
