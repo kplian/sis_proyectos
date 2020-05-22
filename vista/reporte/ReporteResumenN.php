@@ -56,7 +56,7 @@ Phx.vista.ReporteResumenN=Ext.extend(Phx.frmInterfaz,{
 								['plan_pago','Plan Pago'],
 								['lanzamiento_item','Lanzamiento Items'],
 								['presupuesto','Presupuesto'],
-							
+                                ['ejecucion','Ejecucion'],
 							]
 				}),
 				valueField: 'variable',
