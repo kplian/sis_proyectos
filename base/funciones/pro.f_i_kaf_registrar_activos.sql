@@ -364,7 +364,7 @@ BEGIN
             v_id_activo_fijo,
             v_rec.monto_bs,            --  monto_vigente_orig
             v_rec.vida_util,      --  vida_util_orig
-            DATE_TRUNC('month', v_rec.fecha_ini_dep), --#58
+            DATE_TRUNC('day', v_rec.fecha_ini_dep), --#58
             0,
             0,
             0,
@@ -427,7 +427,7 @@ BEGIN
             v_id_activo_fijo,
             v_rec.monto_usd,            --  monto_vigente_orig
             v_rec.vida_util,      --  vida_util_orig
-            DATE_TRUNC('month', v_rec.fecha_ini_dep), --#58           --  fecha_ini_dep
+            DATE_TRUNC('day', v_rec.fecha_ini_dep), --#58           --  fecha_ini_dep
             0,
             0,
             0,
@@ -490,7 +490,7 @@ BEGIN
             v_id_activo_fijo,
             v_rec.monto_ufv,            --  monto_vigente_orig
             v_rec.vida_util,      --  vida_util_orig
-            DATE_TRUNC('month', v_rec.fecha_ini_dep), --#58           --  fecha_ini_dep
+            DATE_TRUNC('day', v_rec.fecha_ini_dep), --#58           --  fecha_ini_dep
             0,
             0,
             0,
