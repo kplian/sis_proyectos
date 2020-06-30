@@ -101,7 +101,8 @@ BEGIN
     null as id_depto_dest,
     null as id_deposito_dest,
     null id_funcionario_dest,
-    null as id_movimiento_motivo
+    null as id_movimiento_motivo,
+    'si' AS mov_rapido --#58
     into v_rec_af;
 
     --Creación del movimiento
