@@ -76,16 +76,17 @@ class REjecucionCC extends  ReportePDF {
 		//if($this->page==1){
 		//	$auxiliar = 250;	
 		//}
+       //var_dump('variable',$startY,$test,$auxiliar);
 		if ($startY +  $test > $auxiliar) {
 			//$this->Ln();
 			//$this->subtotales('Pasa a la siguiente página. '.$startY);
-			$this->subtotales('Pasa a la siguiente página');
+			//$this->subtotales('Pasa a la siguiente página');
 			$startY = $this->GetY();			
-			if($startY < 70){
+			if($startY < 240){//##61
 				//$this->AddPage();
 			}
 			else{
-				$this->AddPage();
+				//$this->AddPage();
 			}
 			
 			
