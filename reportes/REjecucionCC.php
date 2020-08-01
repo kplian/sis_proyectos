@@ -86,7 +86,7 @@ class REjecucionCC extends  ReportePDF {
 				//$this->AddPage();
 			}
 			else{
-				//$this->AddPage();
+				$this->AddPage();
 			}
 			
 			
