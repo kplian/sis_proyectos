@@ -17,11 +17,11 @@ $body$
  COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
-	Issue 			Fecha 			Autor				Descripcion
- 	#3				31/12/2018		EGS					Aumentar Importe Stea
-    #10  EndeEtr    02/04/2019      EGS                 se agrega totalizadores de la suma de faseconceptoingas y de las invitaciones
-    #56             10/03/2020      EGS                 Se agrega los campos justificacion, id_lugar ,caracteristica_tecnica
-
+	Issue 			      Fecha 			    Autor				Descripcion
+ 	  #3  		        31/12/2018		  EGS					Aumentar Importe Stea
+    #10  EndeEtr    02/04/2019      EGS         se agrega totalizadores de la suma de faseconceptoingas y de las invitaciones
+    #56             10/03/2020      EGS         Se agrega los campos justificacion, id_lugar ,caracteristica_tecnica
+    #60  EndeEtr    27/07/2020      RCM         Adición de fecha de reversión de AITB para cierre de proyectos
 ***************************************************************************/
 
 DECLARE
@@ -152,7 +152,8 @@ BEGIN
                         proy.justificacion, --#56
                         proy.id_lugar,   --#56
                         proy.caracteristica_tecnica, --#56
-                        lug.nombre as lugar   --#56
+                        lug.nombre as lugar,   --#56
+                        proy.fecha_rev_aitb --#60
 						from pro.tproyecto proy
 						inner join segu.tusuario usu1 on usu1.id_usuario = proy.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = proy.id_usuario_mod

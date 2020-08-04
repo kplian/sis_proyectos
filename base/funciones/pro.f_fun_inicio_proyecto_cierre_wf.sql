@@ -24,6 +24,7 @@ $body$
   0     PRO       ETR           24/09/2018  RCM         Creación del archivo
  #18    PRO       ETR           08/08/2019  RCM         Modificación generación comprobante 1 para insertar directamente en las 3 monedas sin utilizar la plantilla
  #50    PRO       ETR           09/12/2019  RCM         Inclusión de almacén en importación de cierre
+ #60    PRO       ETR           28/07/2020  RCM         Lógica para la generación cbte. 2 y 3. Nueva plantilla para cbte 3
 ***************************************************************************
 */
 DECLARE
@@ -39,6 +40,10 @@ DECLARE
     v_saldo_cbtes_cierre            numeric;
     v_saldo_cbtes_conta             numeric;
     --Fin #18
+    --Inicio #60
+    v_haber_mb                      NUMERIC;
+    v_debe_mb                       NUMERIC;
+    --Fin #60
 
 BEGIN
 
@@ -46,7 +51,7 @@ BEGIN
     v_nombre_funcion = 'pro.f_fun_inicio_proyecto_cierre_wf';
     v_plantilla_cbte[0] = 'PRO-CIE1V2';--#18 cambio de versión de la plantilla que sólo genera la cabecera
     v_plantilla_cbte[1] = 'PRO-CIE2';
-    v_plantilla_cbte[2] = 'PRO-CIE3';
+    v_plantilla_cbte[2] = 'PRO-CIE3V2'; --#60 'PRO-CIE3'
     v_plantilla_cbte[3] = 'PRO-CIE4';
 
     ---------------------
@@ -544,6 +549,30 @@ BEGIN
         cue.nombre_cuenta, tcc.codigo, py.id_moneda, rc.id_partida;
         --Fin #18
 
+        --Inicio #60
+        --ENTRE EL DEBE Y HABER SE GENERA DIFERENCIA POR DECIMALES, PORQUE EL CBTE REDONDEA A 2. Y COMO EL HABER LO SUMA EN UNO NO PIERDE DECIMALES, PERO SI EL DEBE
+        --ESA DIFERENCIA SE AJUSTARÁ EN UNA TRANSACCIÓN DEL DEBE
+        SELECT SUM(importe_haber_mb), SUM(importe_debe_mb)
+        INTO v_haber_mb, v_debe_mb
+        FROM conta.tint_transaccion
+        WHERE id_int_comprobante = v_id_int_comprobante;
+
+        IF ABS(v_haber_mb - v_debe_mb) <= 1 AND ABS(v_haber_mb - v_debe_mb) > 0  THEN
+            UPDATE conta.tint_transaccion AA SET
+            importe_debe_mb = importe_debe_mb + (v_haber_mb - v_debe_mb),
+            importe_gasto_mb = importe_gasto_mb + (v_haber_mb - v_debe_mb)
+            FROM (
+                SELECT id_int_transaccion
+                FROM conta.tint_transaccion
+                WHERE id_int_comprobante = v_id_int_comprobante
+                AND COALESCE(importe_debe_mb, 0) > 0
+                ORDER BY id_int_transaccion DESC LIMIT 1
+                ) DD
+            WHERE DD.id_int_transaccion = AA.id_int_transaccion
+            AND AA.id_int_comprobante = v_id_int_comprobante;
+        END IF;
+        --Fin #60
+
         --Actualización del Id del comprobante
         update pro.tproyecto set
         id_int_comprobante_1 = v_id_int_comprobante
@@ -563,29 +592,37 @@ BEGIN
                                     p_usuario_ai
                                 );
 
-        --Actualización del Id del comprobante
-        update pro.tproyecto set
-        id_int_comprobante_2 = v_id_int_comprobante
-        where id_proceso_wf_cierre = p_id_proceso_wf;
+        --Inicio #60
+        IF EXISTS(SELECT 1
+                FROM conta.tint_transaccion
+                WHERE id_int_comprobante = v_id_int_comprobante) THEN
+            --Actualización del Id del comprobante
+            update pro.tproyecto set
+            id_int_comprobante_2 = v_id_int_comprobante
+            where id_proceso_wf_cierre = p_id_proceso_wf;
 
-        update conta.tint_comprobante set
-        cbte_aitb = 'si',
-        tipo_cambio_2 = 0,
-        tipo_cambio_3 = 0
-        where id_int_comprobante = v_id_int_comprobante;
+            update conta.tint_comprobante set
+            cbte_aitb = 'si',
+            tipo_cambio_2 = 0,
+            tipo_cambio_3 = 0
+            where id_int_comprobante = v_id_int_comprobante;
 
-        --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
-        update conta.tint_transaccion set
-        importe_debe_mt = 0,
-        importe_haber_mt = 0,
-        importe_recurso_mt = 0,
-        importe_gasto_mt = 0,
-        importe_debe_ma = 0,
-        importe_haber_ma = 0,
-        importe_recurso_ma = 0,
-        importe_gasto_ma = 0,
-        actualizacion = 'si'
-        where id_int_comprobante = v_id_int_comprobante;
+            --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
+            update conta.tint_transaccion set
+            importe_debe_mt = 0,
+            importe_haber_mt = 0,
+            importe_recurso_mt = 0,
+            importe_gasto_mt = 0,
+            importe_debe_ma = 0,
+            importe_haber_ma = 0,
+            importe_recurso_ma = 0,
+            importe_gasto_ma = 0,
+            actualizacion = 'si'
+            where id_int_comprobante = v_id_int_comprobante;
+        ELSE
+            DELETE FROM conta.tint_comprobante WHERE id_int_comprobante = v_id_int_comprobante;
+        END IF;
+        --Fin #60
 
         --Inicio #18
         --Verifica si hay pendiente aún algún saldo para cerrar el proyecto. Sólo si hay diferencia genera el 3er comprobante
@@ -650,6 +687,32 @@ BEGIN
                                         p_id_usuario_ai,
                                         p_usuario_ai
                                     );
+
+            --Inicio #60
+            --ENTRE EL DEBE Y HABER SE GENERA DIFERENCIA POR DECIMALES, PORQUE EL CBTE REDONDEA A 2. Y COMO EL HABER LO SUMA EN UNO NO PIERDE DECIMALES, PERO SI EL DEBE
+            --ESA DIFERENCIA SE AJUSTARÁ EN UNA TRANSACCIÓN DEL DEBE
+            SELECT SUM(importe_haber_mb), SUM(importe_debe_mb)
+            INTO v_haber_mb, v_debe_mb
+            FROM conta.tint_transaccion
+            WHERE id_int_comprobante = v_id_int_comprobante;
+
+            IF ABS(v_haber_mb - v_debe_mb) <= 1 AND ABS(v_haber_mb - v_debe_mb) > 0  THEN
+                UPDATE conta.tint_transaccion AA SET
+                importe_debe = importe_debe + (v_haber_mb - v_debe_mb),
+                importe_gasto = importe_gasto + (v_haber_mb - v_debe_mb),
+                importe_debe_mb = importe_debe_mb + (v_haber_mb - v_debe_mb),
+                importe_gasto_mb = importe_gasto_mb + (v_haber_mb - v_debe_mb)
+                FROM (
+                    SELECT id_int_transaccion
+                    FROM conta.tint_transaccion
+                    WHERE id_int_comprobante = v_id_int_comprobante
+                    AND COALESCE(importe_debe_mb, 0) > 0
+                    ORDER BY id_int_transaccion DESC LIMIT 1
+                    ) DD
+                WHERE DD.id_int_transaccion = AA.id_int_transaccion
+                AND AA.id_int_comprobante = v_id_int_comprobante;
+            END IF;
+            --Fin #60
 
             --Actualización del Id del comprobante
             update pro.tproyecto set

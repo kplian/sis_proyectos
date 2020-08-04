@@ -10,6 +10,7 @@
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #14    PRO       ETR           24/07/2019  RCM         Corrección filtro por columnas y adición filtro rápido
  #52	PRO		  ETR			16/01/2020	MZM			Adicion de campo nro_tramite_cierre en grid
+ #60    PRO       ETR           27/07/2020  RCM         Adicion de fecha de reversión AITB cierre de proyectos
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -232,6 +233,24 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
                 grid:true,
                 form:true
         },
+        //Inicio #60
+        {
+            config:{
+                name: 'fecha_rev_aitb',
+                fieldLabel: 'Fecha Rev.AITB',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value, p, record){return value?value.dateFormat('d/m/Y') : ''}
+            },
+            type: 'DateField',
+            filters: {pfiltro: 'proy.fecha_rev_aitb', type: 'date'},
+            id_grupo: 1,
+            grid: true,
+            form: true
+        },
+        //Fin #60
         {
             config: {
                 name: 'id_tipo_cc',
@@ -560,7 +579,8 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
         {name:'id_proceso_wf_cbte_2', type: 'numeric'},
         {name:'id_proceso_wf_cbte_3', type: 'numeric'},
         {name:'fecha_ini_real', type: 'date',dateFormat:'Y-m-d'},
-        {name:'fecha_fin_real', type: 'date',dateFormat:'Y-m-d'}
+        {name:'fecha_fin_real', type: 'date',dateFormat:'Y-m-d'},
+        {name:'fecha_rev_aitb', type: 'date',dateFormat:'Y-m-d'} //#60
     ],
     sortInfo:{
         field: 'id_proyecto',
@@ -731,7 +751,7 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
         });
         this.tbar.add(this.menuAdqGantt);
     },//#52
-    diagramGantt: function (){			
+    diagramGantt: function (){
 			var data=this.sm.getSelected().data.id_proceso_wf_cierre;
 			Phx.CP.loadingShow();
 			Ext.Ajax.request({
@@ -741,12 +761,12 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
 				failure: this.conexionFailure,
 				timeout: this.timeout,
 				scope: this
-			});			
+			});
 	},
-	diagramGanttDinamico: function (){			
+	diagramGanttDinamico: function (){
 			var data=this.sm.getSelected().data.id_proceso_wf_cierre;
-			window.open('../../../sis_workflow/reportes/gantt/gantt_dinamico.html?id_proceso_wf='+data)		
-	},  
+			window.open('../../../sis_workflow/reportes/gantt/gantt_dinamico.html?id_proceso_wf='+data)
+	},
     onSaveWizard:function(wizard,resp){
         Phx.CP.loadingShow();
         Ext.Ajax.request({

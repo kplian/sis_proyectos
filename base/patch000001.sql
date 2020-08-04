@@ -1107,3 +1107,11 @@ ALTER TABLE pro.tproyecto
 COMMENT ON COLUMN pro.tproyecto.caracteristica_tecnica
     IS 'Descripcion de las caracteristicas tecnicas del proyecto';
 /***********************************F-SCP-EGS-PRO-27-10/03/2020****************************************/
+
+/***********************************I-SCP-RCM-PRO-60-27/07/2020****************************************/
+ALTER TABLE pro.tproyecto
+    ADD COLUMN fecha_rev_aitb DATE;
+
+COMMENT ON COLUMN pro.tproyecto.fecha_rev_aitb
+    IS 'Fecha a partir de la cual se hará la reversión de AITB en el cierre de proyectos';
+/***********************************F-SCP-RCM-PRO-60-27/07/2020****************************************/

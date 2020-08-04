@@ -20,6 +20,7 @@ $body$
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  0      PRO       ETR           24/09/2018  RCM         Creación del archivo
  #18    PRO       ETR           02/09/2019  RCM         Lógica para considerar que a veces generará 2 cbtes y otras 3 cbtes.
+ #60    PRO       ETR           28/07/2020  RCM         Lógica para considerar el caso de q el cbte 2 no se genere
 ***************************************************************************
 */
 
@@ -85,11 +86,15 @@ BEGIN
     from conta.tint_comprobante
     where id_int_comprobante = v_registros.id_int_comprobante_3;
 
+    --Inicio #60
     --Inicio #18
-    IF COALESCE(v_estado_1, '') = 'validado' AND COALESCE(v_estado_2, '') = 'validado' AND ((COALESCE(v_estado_3, '') = 'validado' AND v_registros.id_int_comprobante_3 IS NOT NULL) OR v_registros.id_int_comprobante_3 IS NULL) THEN
+    IF COALESCE(v_estado_1, '') = 'validado'
+    AND ((COALESCE(v_estado_2, '') = 'validado' AND v_registros.id_int_comprobante_2 IS NOT NULL) OR v_registros.id_int_comprobante_2 IS NULL)
+    AND ((COALESCE(v_estado_3, '') = 'validado' AND v_registros.id_int_comprobante_3 IS NOT NULL) OR v_registros.id_int_comprobante_3 IS NULL) THEN
         v_sw_fin = TRUE;
     END IF;
     --Fin #18
+    --Fin #60
 
 
     --4) Finaliza el movimiento si es que los 3 comprobantes de depreciación generados han sido validados
