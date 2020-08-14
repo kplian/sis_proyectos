@@ -227,7 +227,8 @@ BEGIN
         AND py.id_proyecto = v_rec.id_proyecto
         AND pa.id_almacen IS NULL --#50
         GROUP BY py.id_proyecto, pa.id_proyecto_activo, pa.denominacion, pa.id_clasificacion,
-        py.id_moneda, rc.id_cuenta, rc.id_partida, rc.gestion, rc_1.id_centro_costo;
+        py.id_moneda, rc.id_cuenta, rc.id_partida, rc.gestion, rc_1.id_centro_costo
+        HAVING SUM(pad.monto) > 0; --#60
 
         --Registro del detalle de comprobante (2/3): DEBE, LO QUE ES GASTO
         INSERT INTO conta.tint_transaccion
@@ -335,7 +336,8 @@ BEGIN
         AND py.id_proyecto = v_rec.id_proyecto
         AND pa.id_almacen IS NULL --#50
         GROUP BY py.id_proyecto, pa.id_proyecto_activo, pa.denominacion, pa.id_clasificacion,
-        py.id_moneda, rc.id_cuenta, rc.id_partida, rc.gestion, rc_1.id_centro_costo;
+        py.id_moneda, rc.id_cuenta, rc.id_partida, rc.gestion, rc_1.id_centro_costo
+        HAVING SUM(pad.monto) > 0; --#60
 
         --Inicio #50
         --Registro del detalle de comprobante (3/4): DEBE, LO QUE VA DIRECTO A ALMACÉN
@@ -458,7 +460,8 @@ BEGIN
         WHERE pa.id_almacen IS NOT NULL
         AND py.id_proyecto = v_rec.id_proyecto
         GROUP BY py.id_proyecto, pa.id_proyecto_activo, pa.denominacion, pa.id_clasificacion,
-        py.id_moneda, rcalm.id_cuenta, rcalm.id_partida, rcalm.gestion, rc.id_centro_costo;
+        py.id_moneda, rcalm.id_cuenta, rcalm.id_partida, rcalm.gestion, rc.id_centro_costo
+        HAVING SUM(pad.monto) > 0;
         --Fin #50
 
         --Registro del detalle de comprobante (4/4): HABER CON EL TOTAL
@@ -546,7 +549,8 @@ BEGIN
         ))
         AND py.id_proyecto = v_rec.id_proyecto
         GROUP BY py.id_proyecto, cc.id_centro_costo, cue.id_cuenta, cue.nro_cuenta,
-        cue.nombre_cuenta, tcc.codigo, py.id_moneda, rc.id_partida;
+        cue.nombre_cuenta, tcc.codigo, py.id_moneda, rc.id_partida
+        HAVING SUM(tr.importe_debe_mt - tr.importe_haber_mt) > 0; --#60
         --Fin #18
 
         --Inicio #60

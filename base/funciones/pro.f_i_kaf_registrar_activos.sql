@@ -646,34 +646,43 @@ BEGIN
             END as depreciacion_acum,*/
             CASE afv.id_moneda
                 WHEN 1 THEN
-                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     )) + mdep.depreciacion_acum
                 WHEN 2 THEN
-                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     )) + mdep.depreciacion_acum
                 WHEN 3 THEN
-                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     )) + mdep.depreciacion_acum
             END as depreciacion_acum,
             /*CASE afv.id_moneda
@@ -696,34 +705,43 @@ BEGIN
             END as depreciacion_per,*/
             CASE afv.id_moneda
                 WHEN 1 THEN
-                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     )) + mdep.depreciacion_per
                 WHEN 2 THEN
-                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     )) + mdep.depreciacion_per
                 WHEN 3 THEN
-                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     )) + mdep.depreciacion_per
             END as depreciacion_per,
             CASE afv.id_moneda
@@ -746,10 +764,9 @@ BEGIN
                     --Actualización del importe a incrementar
                     (
                         param.f_get_tipo_cambio(3, (date_trunc('month', py.fecha_fin) - interval '1 day')::date, 'O') /
-                        param.f_get_tipo_cambio(3, date_trunc('month', py.fecha_ini)::date, 'O') * --RCM 12/01/2020
+                        param.f_get_tipo_cambio(3, (DATE_TRUNC('month', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, 'O') * --#60
                         COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0)
                     )
-                    --COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0)
 
                 WHEN 2 THEN
                     COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0)
@@ -763,102 +780,130 @@ BEGIN
             --Inicio #33: adición de columnas
             CASE afv.id_moneda
                 WHEN 1 THEN
-                    (SELECT po_dep_mes_total FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_dep_mes_total FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     ))
                 WHEN 2 THEN
-                    (SELECT po_dep_mes_total FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_dep_mes_total FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     ))
                 WHEN 3 THEN
-                    (SELECT po_dep_mes_total FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_dep_mes_total FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     ))
             END as total_depreciacion_mes,
 
             CASE afv.id_moneda
                 WHEN 1 THEN
-                    (SELECT po_inc_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_inc_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     ))
                 WHEN 2 THEN
-                    (SELECT po_inc_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_inc_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     ))
                 WHEN 3 THEN
-                    (SELECT po_inc_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_inc_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     ))
             END as total_inc_dep_acum,
             CASE afv.id_moneda
                 WHEN 1 THEN
-                    (SELECT po_valor_actualiz - po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_valor_actualiz - po_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     )) + mdep.monto_vigente
                 WHEN 2 THEN
-                    (SELECT po_valor_actualiz - po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_valor_actualiz - po_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     )) + mdep.monto_vigente
                 WHEN 3 THEN
-                    (SELECT po_valor_actualiz - po_depreciacion_acum FROM kaf.f_calculo_aux_deprec
+                    (SELECT po_valor_actualiz - po_depreciacion_acum FROM kaf.f_calculo_aux_deprec2
                     (
                         --date_trunc('month', py.fecha_ini)::date,  --RCM 12/01/2020
-                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
-                        (date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        --(DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, --#60
+                        DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini))::DATE,
+                        --(date_trunc('month', py.fecha_fin) - interval '1 day')::date,
+                        (date_trunc('month', py.fecha_fin))::date,
                         (mdep.vida_util + EXTRACT(year FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date))*12 + EXTRACT(month FROM age((date_trunc('month', py.fecha_fin) - interval '1 day')::date,date_trunc('month', py.fecha_ini)::date)) + 1)::integer, --#33 --RCM 13/02/2020
                         COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0),
-                        afv.id_moneda
+                        afv.id_moneda,
+                        (DATE_TRUNC('MONTH', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE
                     )) + mdep.monto_vigente
-            END as valor_neto
+            END as valor_neto,
             --Fin #33
+            COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0) AS importe_modif_sin_act--#60
             FROM pro.tproyecto_activo pa
             INNER JOIN pro.tproyecto py
             ON py.id_proyecto = pa.id_proyecto
@@ -954,7 +999,9 @@ BEGIN
                 aux_depmes_tot_del_inc,
                 aux_inc_dep_acum_del_inc,
                 --Fin #33
-                fecha_tc_ini_dep --#58
+                fecha_tc_ini_dep, --#58
+                id_proyecto_activo, --#60
+                importe_modif_sin_act --#60
             ) VALUES (
                 p_id_usuario,
                 NOW(),
@@ -998,7 +1045,9 @@ BEGIN
                 v_rec.total_depreciacion_mes,
                 v_rec.total_inc_dep_acum,
                 --Fin #33
-                DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
+                DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL, --#58
+                v_rec.id_proyecto_activo, --#60
+                v_rec.importe_modif_sin_act --#60
             );
 
         END LOOP;
