@@ -1107,3 +1107,16 @@ ALTER TABLE pro.tproyecto
 COMMENT ON COLUMN pro.tproyecto.caracteristica_tecnica
     IS 'Descripcion de las caracteristicas tecnicas del proyecto';
 /***********************************F-SCP-EGS-PRO-27-10/03/2020****************************************/
+/***********************************I-SCP-EGS-PRO-27-25/08/2020****************************************/
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+ALTER COLUMN porc_prueba TYPE NUMERIC(19,3);
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+ALTER COLUMN precio_prueba TYPE NUMERIC(19,3);
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+ALTER COLUMN precio_obra_civil TYPE NUMERIC(19,3);
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+ALTER COLUMN precio_montaje TYPE NUMERIC(19,3);
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN observacion VARCHAR;
+/***********************************F-SCP-EGS-PRO-27-25/08/2020****************************************/
+

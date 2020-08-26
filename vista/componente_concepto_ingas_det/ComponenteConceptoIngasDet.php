@@ -7,13 +7,15 @@
  *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  * ISSUE                FECHA               AUTHOR          DESCRIPCION
 #25 EndeEtr         10/09/2019          EGS             Adicion de cmp precio montaje, precio obci y precio pruebas
- *  #27 EndeEtr         16/09/2019          EGS             Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
+#27 EndeEtr         16/09/2019          EGS             Se agrego campo f_desadeanizacion,f_seguridad,f_escala_xfd_montaje,f_escala_xfd_obra_civil,porc_prueba
 #28                 16/09/2019          EGS             Carga de recio de pruebas con el factor d pruebas
 #39 EndeEtr         17/10/2019          EGS              Se agrega WF
- *  #44 EndeEtr         11/11/2019          EGS             Se agrega Porcentaje de pruebas en concepto detalle y codigos de  invitaciones de precios referenciales
- *  #46 EndeEtr         18/11/2019          EGS             Se agrega campos para historico de precios detalle
- * #48 EndeEtr        27/11/2019          EGS
-    #49EndeEtr          02/12/2019         EGS              e agrega decimales
+#44 EndeEtr         11/11/2019          EGS             Se agrega Porcentaje de pruebas en concepto detalle y codigos de  invitaciones de precios referenciales
+#46 EndeEtr         18/11/2019          EGS             Se agrega campos para historico de precios detalle
+#48 EndeEtr         27/11/2019          EGS
+#49EndeEtr          02/12/2019          EGS              e agrega decimales
+#SIS-1              26/08/2020          EGS              Se Agrega la columna de observacion y se modifica calculo de total de suministro ,decimales en porcentaje y visibilidad de unidad de medida
+
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -175,7 +177,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 0,
                     filters: {pfiltro: 'ume.codigo',type: 'string'},
                     grid: true,
-                    form: false
+                    form: true//#SIS-1
                 },
                 {
                     config:{
@@ -234,6 +236,22 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid:true,
                     form:false
                 },
+                {//#
+                    config:{
+                        name: 'observacion',
+                        fieldLabel: 'Aclaracion',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength:10,
+                        allowDecimals:true,
+                        decimalPrecision:4,
+                    },
+                    type:'TextArea',
+                    id_grupo:0,
+                    grid:true,
+                    form:true
+                },
                 {
                     config:{
                         name: 'peso',
@@ -250,7 +268,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid:true,
                     form:true
                 },
-
                 {//#27
                     config:{
                         name: 'f_desadeanizacion',
@@ -600,8 +617,10 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '80%',
                         gwidth: 100,
                         maxLength:10,
+                        allowDecimals : true,//#SIS-1
+                        decimalPrecision : 3,//#SIS-1
                         renderer:function (value,p,record){
-                            return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+                            return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
 
                         }
                     },
@@ -849,6 +868,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name:'codigo_inv_montaje', type: 'string'},//#45
                 {name:'codigo_inv_oc', type: 'string'},//#45
                 {name:'total', type: 'numeric'},//#48
+                {name:'observacion', type: 'string'},//#SIS-1
             ],
             sortInfo:{
                 field: 'id_componente_concepto_ingas_det',
@@ -928,6 +948,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.calculoTotalSuministro();
                     this.calculoTotal();
                 } ,this);
+                this.Cmp.f_seguridad.on('valid',function(field){//#SIS-1
+                    this.calculoTotalSuministro();
+                    this.calculoTotal();
+                } ,this);
                 this.Cmp.precio_montaje.on('valid',function(field){//#48
                     this.calculoTotalMontaje();
                     this.calculoTotalPr();
@@ -959,6 +983,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.precio_total_oc.disable(true);//#48
                 this.Cmp.precio_total_pru.disable(true);//#48
                 this.Cmp.total.disable(true);//#48
+                this.Cmp.id_unidad_medida.disable(true);//#SIS-1
+
+
 
 
 
@@ -1034,6 +1061,7 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             onButtonEdit:function(){
                 var data = this.getSelectedData();
+                console.log('data',data.id_unidad_medida);
                 //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
                 Phx.vista.ComponenteConceptoIngasDet.superclass.onButtonEdit.call(this);
                 this.ocultarComponente(this.Cmp.id_concepto_ingas_det);
@@ -1056,6 +1084,17 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
                 this.Cmp.id_invitacion_dets.store.baseParams.id_concepto_ingas_det = data.id_concepto_ingas_det;//#46
                 this.Cmp.id_invitacion_dets.store.reload(true);//#46
+
+                this.Cmp.id_unidad_medida.store.baseParams.query = data.id_unidad_medida;//#SIS-1
+                this.Cmp.id_unidad_medida.store.load({params:{start:0,limit:this.tam_pag},
+                    callback : function (r) {
+                        if (r.length > 0 ) {
+                            this.Cmp.id_unidad_medida.setValue(data.id_unidad_medida);//#SIS-1
+                        }else{
+                            this.Cmp.id_unidad_medida.reset();
+                        }
+                    }, scope : this
+                });
 
 
             },
@@ -1220,7 +1259,7 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             calculoTotalSuministro :function () {//#48
                 let total = 0;
-                total = this.Cmp.cantidad_est.getValue()*this.Cmp.precio.getValue() * this.Cmp.f_desadeanizacion.getValue();
+                total = this.Cmp.cantidad_est.getValue()*this.Cmp.precio.getValue() * this.Cmp.f_desadeanizacion.getValue()* this.Cmp.f_seguridad.getValue();
                 this.Cmp.precio_total_det.setValue(total);
             },
             calculoTotalMontaje :function () {//#48
