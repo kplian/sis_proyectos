@@ -24,6 +24,7 @@ $body$
  #34 EndeEtr        03/10/2019          EGS                 Se mejro la logica
  #39 EndeEtr        17/10/2019          EGS                 Se actualizan los datos si son automaticos y se agrega proceso wf
  #45 EndeEtr        14/11/2019          EGS                 Codigos de invitacion Referencial de precios
+ #SIS-1             26/08/2020          EGS                 Se Agrega la columna de observacion
  ***************************************************************************/
 
 DECLARE
@@ -183,7 +184,8 @@ BEGIN
             codigo_inv_sumi,--#45
             codigo_inv_montaje,--#45
             codigo_inv_oc,--#45
-            id_invitacion_dets
+            id_invitacion_dets,
+            observacion --#SIS-1
           	) values(
 			'activo',
 			v_parametros.id_concepto_ingas_det,
@@ -212,7 +214,8 @@ BEGIN
             REPLACE(upper(v_parametros.codigo_inv_sumi),' ',''),--#45
             REPLACE(upper(v_parametros.codigo_inv_montaje),' ',''),--#45
             REPLACE(upper(v_parametros.codigo_inv_oc),' ',''),--#45
-            v_id_invitacion_dets
+            v_id_invitacion_dets,
+            v_parametros.observacion --#SIS-1
 			)RETURNING id_componente_concepto_ingas_det into v_id_componente_concepto_ingas_det;
             ---si se agrega desde el componente concepto los parametros ya estan definido
             IF pxp.f_existe_parametro(p_tabla,'automatico') THEN
@@ -369,7 +372,8 @@ BEGIN
             codigo_inv_sumi = REPLACE(upper(v_parametros.codigo_inv_sumi),' ',''),--#45
             codigo_inv_montaje = REPLACE(upper(v_parametros.codigo_inv_montaje),' ',''),--#45
             codigo_inv_oc = REPLACE(upper(v_parametros.codigo_inv_oc),' ',''),--#45
-            id_invitacion_dets = v_parametros.id_invitacion_dets
+            id_invitacion_dets = v_parametros.id_invitacion_dets,
+            observacion = v_parametros.observacion --#SIS-1
             where id_componente_concepto_ingas_det=v_parametros.id_componente_concepto_ingas_det;
 
             --Definicion de la respuesta

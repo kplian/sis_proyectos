@@ -26,6 +26,8 @@ $body$
 #35 EndeEtr         10/10/2019          EGS                 Se agrega los factores la suma producto
 #45 EndeEtr         14/11/2019          EGS                 Codigos de invitacion Referencial de precios
 #48 EndeEtr         27/11/2019          EGS                 se agrega total y no puedes escoger el total
+#SIS-1              26/08/2020          EGS                 Se Agrega la columna de observacion
+
 ***************************************************************************/
 
 DECLARE
@@ -105,7 +107,8 @@ BEGIN
                         comindet.codigo_inv_montaje,--#45
                         comindet.codigo_inv_oc,--#45
                         array_to_string(comindet.id_invitacion_dets, '','' )::varchar as id_invitacion_dets,
-                        (COALESCE(comindet.cantidad_est, 0)*((COALESCE(comindet.f_desadeanizacion, 0)*COALESCE(comindet.precio, 0))+(COALESCE(comindet.f_escala_xfd_montaje, 0)* COALESCE(comindet.precio_montaje, 0))+(COALESCE(comindet.f_escala_xfd_obra_civil, 0)*COALESCE(comindet.precio_obra_civil, 0))+ (COALESCE(comindet.porc_prueba, 0)*COALESCE(comindet.precio_montaje, 0))))::numeric as total   --#48
+                        (COALESCE(comindet.cantidad_est, 0)*((COALESCE(comindet.f_desadeanizacion, 0)*COALESCE(comindet.precio, 0))+(COALESCE(comindet.f_escala_xfd_montaje, 0)* COALESCE(comindet.precio_montaje, 0))+(COALESCE(comindet.f_escala_xfd_obra_civil, 0)*COALESCE(comindet.precio_obra_civil, 0))+ (COALESCE(comindet.porc_prueba, 0)*COALESCE(comindet.precio_montaje, 0))))::numeric as total,   --#48
+                        comindet.observacion --#SIS-1
 						from pro.tcomponente_concepto_ingas_det comindet
 						inner join segu.tusuario usu1 on usu1.id_usuario = comindet.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = comindet.id_usuario_mod
