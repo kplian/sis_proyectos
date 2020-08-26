@@ -1115,3 +1115,16 @@ ALTER TABLE pro.tproyecto
 COMMENT ON COLUMN pro.tproyecto.fecha_rev_aitb
     IS 'Fecha a partir de la cual se hará la reversión de AITB en el cierre de proyectos';
 /***********************************F-SCP-RCM-PRO-60-27/07/2020****************************************/
+/***********************************I-SCP-EGS-PRO-27-25/08/2020****************************************/
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+ALTER COLUMN porc_prueba TYPE NUMERIC(19,3);
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+ALTER COLUMN precio_prueba TYPE NUMERIC(19,3);
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+ALTER COLUMN precio_obra_civil TYPE NUMERIC(19,3);
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+ALTER COLUMN precio_montaje TYPE NUMERIC(19,3);
+ALTER TABLE pro.tcomponente_concepto_ingas_det
+  ADD COLUMN observacion VARCHAR;
+/***********************************F-SCP-EGS-PRO-27-25/08/2020****************************************/
+
