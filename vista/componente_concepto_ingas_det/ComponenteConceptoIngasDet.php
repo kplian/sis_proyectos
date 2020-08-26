@@ -83,7 +83,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 direction: 'ASC'
                             },
                             totalProperty: 'total',
-                            fields: ['id_concepto_ingas_det', 'nombre','descripcion','tension'],
+                            fields: ['id_concepto_ingas_det', 'nombre','descripcion','tension','id_unidad_medida'],
                             remoteSort: true,
                             baseParams: {par_filtro: 'coind.id_concepto_ingas_det#coind.nombre#coind.descripcion',start: 0, limit: 50,agrupador:'no'},
                             listeners: {
@@ -869,6 +869,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name:'codigo_inv_oc', type: 'string'},//#45
                 {name:'total', type: 'numeric'},//#48
                 {name:'observacion', type: 'string'},//#SIS-1
+                {name:'id_unidad_medida', type: 'numeric'},//#SIS-1
             ],
             sortInfo:{
                 field: 'id_componente_concepto_ingas_det',
@@ -1005,6 +1006,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.id_invitacion_dets.allowBlank = true;
                     //recarga el combo del precio si el historico esta marcado
                     this.Cmp.id_concepto_ingas_det.on('select', function (Combo, rec) { //#46
+                        console.log('rec',rec);
                         if(this.Cmp.historico.getValue() === true){
                             this.Cmp.id_invitacion_dets.store.baseParams.id_concepto_ingas_det = rec.data.id_concepto_ingas_det;
                             this.Cmp.id_invitacion_dets.store.load({params:{start:0,limit:this.tam_pag},
@@ -1020,6 +1022,17 @@ header("content-type: text/javascript; charset=UTF-8");
                         else{
                             this.Cmp.id_invitacion_dets.reset();
                         }
+                        this.Cmp.id_unidad_medida.store.baseParams.query = rec.data.id_unidad_medida;//#SIS-1
+                        this.Cmp.id_unidad_medida.store.load({params:{start:0,limit:this.tam_pag},
+                            callback : function (r) {
+                                if (r.length > 0 ) {
+                                    this.Cmp.id_unidad_medida.setValue(rec.data.id_unidad_medida);//#SIS-1
+                                }else{
+                                    this.Cmp.id_unidad_medida.reset();
+                                }
+                            }, scope : this
+                        });
+
                     }, this);
 
                     this.Cmp.historico.on('Check', function (Seleccion, dato) {//#46
