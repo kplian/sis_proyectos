@@ -24,6 +24,7 @@ $body$
     #30             23/09/2019      RCM                 Se excluye caso de depreciaciones anuladas en la validación para aprobación Cierre de Proyectos
     #35             07/10/2019      egs                 Solo inserta fechas reales si es necesario
     #56             10/03/2020      EGS                 Se agrega los campos justificacion, id_lugar ,caracteristica_tecnica
+    #60             27/07/2020      RCM                 Adición fecha reversión AITB para cierre de proyectos
 ***************************************************************************/
 
 DECLARE
@@ -1232,7 +1233,7 @@ BEGIN
             WHERE UPPER(proy.codigo) = UPPER(v_parametros.codigo);
 
             IF v_codigo_proyecto is not null THEN
-                RAISE EXCEPTION 'Este Codigo ya Existe';
+                RAISE EXCEPTION 'Código existente';
             END IF;
 
             v_codigo = UPPER(v_parametros.codigo);
@@ -1244,39 +1245,41 @@ BEGIN
             end if;
 
             --Sentencia de la insercion
-            insert into pro.tproyecto(
-                codigo,
-                nombre,
-                fecha_ini,
-                fecha_fin,
-                estado_reg,
-                usuario_ai,
-                fecha_reg,
-                id_usuario_reg,
-                id_usuario_ai,
-                id_usuario_mod,
-                fecha_mod,
-                id_moneda,
-                id_tipo_cc,
-                estado,
-                id_depto_conta
-            ) values(
-                        v_codigo,
-                        v_parametros.nombre,
-                        v_parametros.fecha_ini,
-                        v_parametros.fecha_fin,
-                        'activo',
-                        v_parametros._nombre_usuario_ai,
-                        now(),
-                        p_id_usuario,
-                        v_parametros._id_usuario_ai,
-                        null,
-                        null,
-                        v_parametros.id_moneda,
-                        v_parametros.id_tipo_cc,
-                        'cierre',
-                        v_id_depto_conta
-                    )RETURNING id_proyecto into v_id_proyecto;
+            INSERT INTO pro.tproyecto(
+            codigo,
+            nombre,
+            fecha_ini,
+            fecha_fin,
+            estado_reg,
+            usuario_ai,
+            fecha_reg,
+            id_usuario_reg,
+            id_usuario_ai,
+            id_usuario_mod,
+            fecha_mod,
+            id_moneda,
+            id_tipo_cc,
+            estado,
+            id_depto_conta,
+            fecha_rev_aitb --#60
+            ) VALUES (
+            v_codigo,
+            v_parametros.nombre,
+            v_parametros.fecha_ini,
+            v_parametros.fecha_fin,
+            'activo',
+            v_parametros._nombre_usuario_ai,
+            now(),
+            p_id_usuario,
+            v_parametros._id_usuario_ai,
+            null,
+            null,
+            v_parametros.id_moneda,
+            v_parametros.id_tipo_cc,
+            'cierre',
+            v_id_depto_conta,
+            v_parametros.fecha_rev_aitb --#60
+            )RETURNING id_proyecto into v_id_proyecto;
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Proyecto almacenado(a) con exito (id_proyecto'||v_id_proyecto||')');
@@ -1312,26 +1315,27 @@ BEGIN
 
 
             v_id_depto_conta = null;
-            if pxp.f_existe_parametro(p_tabla,'id_depto_conta') then
+            IF pxp.f_existe_parametro(p_tabla,'id_depto_conta') THEN
                 v_id_depto_conta = v_parametros.id_depto_conta;
-            end if;
+            END IF;
 
             --Sentencia de la modificacion
-            update pro.tproyecto set
-                                     codigo = UPPER(v_parametros.codigo),
-                                     nombre = v_parametros.nombre,
-                                     fecha_ini = v_parametros.fecha_ini,
-                                     fecha_fin = v_parametros.fecha_fin,
-                                     id_usuario_mod = p_id_usuario,
-                                     fecha_mod = now(),
-                                     id_usuario_ai = v_parametros._id_usuario_ai,
-                                     usuario_ai = v_parametros._nombre_usuario_ai,
-                                     id_moneda = v_parametros.id_moneda,
-                                     fecha_ini_real = v_parametros.fecha_ini_real,
-                                     fecha_fin_real = v_parametros.fecha_fin_real,
-                                     id_tipo_cc = v_parametros.id_tipo_cc,
-                                     id_depto_conta = v_id_depto_conta
-            where id_proyecto=v_parametros.id_proyecto;
+            UPDATE pro.tproyecto SET
+            codigo = UPPER(v_parametros.codigo),
+            nombre = v_parametros.nombre,
+            fecha_ini = v_parametros.fecha_ini,
+            fecha_fin = v_parametros.fecha_fin,
+            id_usuario_mod = p_id_usuario,
+            fecha_mod = now(),
+            id_usuario_ai = v_parametros._id_usuario_ai,
+            usuario_ai = v_parametros._nombre_usuario_ai,
+            id_moneda = v_parametros.id_moneda,
+            fecha_ini_real = v_parametros.fecha_ini_real,
+            fecha_fin_real = v_parametros.fecha_fin_real,
+            id_tipo_cc = v_parametros.id_tipo_cc,
+            id_depto_conta = v_id_depto_conta,
+            fecha_rev_aitb = v_parametros.fecha_rev_aitb --#60
+            WHERE id_proyecto = v_parametros.id_proyecto;
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Proyecto modificado(a)');

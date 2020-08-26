@@ -8,7 +8,8 @@
 	Issue 			Fecha 			Autor				Descripcion
  	#3				31/12/2018		EGS					Aumentar Importe Stea
  *  #10 EndeEtr		02/04/2019		EGS					Se agrego totalizadores de faseconceptoingas i det invitaion por proyecto
- *  #56 EndeEtr     10/02/2020     EGS                Se agregan campos justificacion, id_lugar, caracteristicas tecnicas
+ *  #56 EndeEtr     10/02/2020      EGS                 Se agregan campos justificacion, id_lugar, caracteristicas tecnicas
+ *  #60 EndeEtr     27/07/2020      RCM                 Adición fecha de reversión AITB cierre de proyectos
  * */
 
 class MODProyecto extends MODbase{
@@ -61,8 +62,8 @@ class MODProyecto extends MODbase{
 		$this->captura('id_proceso_wf_cbte_1','int4');
 		$this->captura('id_proceso_wf_cbte_2','int4');
 		$this->captura('id_proceso_wf_cbte_3','int4');
-		$this->captura('importe_max','numeric');	//#3 31/12/2018		EGS	                     
-                    
+		$this->captura('importe_max','numeric');	//#3 31/12/2018		EGS
+
 		$this->captura('total_fase_concepto_ingas','numeric');//#10
 		$this->captura('total_invitacion','numeric');//#10
 
@@ -70,8 +71,7 @@ class MODProyecto extends MODbase{
         $this->captura('id_lugar','integer');//#56
         $this->captura('caracteristica_tecnica','varchar');//#56
         $this->captura('lugar','varchar');//#56
-
-		
+        $this->captura('fecha_rev_aitb','date');//#60
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -297,6 +297,7 @@ class MODProyecto extends MODbase{
 
 		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
 		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
+		$this->setParametro('fecha_rev_aitb','fecha_rev_aitb','date'); //#60
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -326,6 +327,7 @@ class MODProyecto extends MODbase{
 
 		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
 		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
+		$this->setParametro('fecha_rev_aitb','fecha_rev_aitb','date'); //#60
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
