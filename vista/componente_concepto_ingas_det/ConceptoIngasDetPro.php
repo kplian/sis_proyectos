@@ -175,7 +175,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 fieldLabel: 'Tension',
                 anchor: '95%',
                 tinit: false,
-                allowBlank: false,
+                allowBlank: true,//#SIS-1
                 origen: 'CATALOGO',
                 gdisplayField: 'tension',
                 hiddenName: 'tension',
