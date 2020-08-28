@@ -243,9 +243,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowBlank: true,
                         anchor: '80%',
                         gwidth: 100,
-                        maxLength:10,
-                        allowDecimals:true,
-                        decimalPrecision:4,
+                        maxLength:500,//#SIS-1
                     },
                     type:'TextArea',
                     id_grupo:0,
@@ -281,7 +279,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         renderer:function (value,p,record){
                             return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,000/i'));
 
-                         }
+                        }
                     },
                     type:'NumberField',
                     id_grupo:0,
@@ -1319,5 +1317,4 @@ header("content-type: text/javascript; charset=UTF-8");
         }
     )
 </script>
-		
-		
+
