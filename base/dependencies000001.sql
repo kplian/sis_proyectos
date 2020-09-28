@@ -4661,3 +4661,6 @@ LEFT JOIN tcbte2 cb2
 ON cb2.id_cuenta = may.id_cuenta
 AND cb2.id_centro_costo = may.id_centro_costo;
 /***********************************F-DEP-RCM-PRO-60-27/07/2020****************************************/
+/***********************************I-DEP-EGS-PRO-1-28/09/2020****************************************/
+select pxp.f_insert_testructura_gui ('ANAINGDIF', 'PRO_1');
+/***********************************F-DEP-EGS-PRO-1-28/09/2020****************************************/

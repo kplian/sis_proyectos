@@ -193,3 +193,8 @@ select conta.f_import_tdetalle_plantilla_comprobante ('insert','PRO-CIE3V2','Deb
 select conta.f_import_tdetalle_plantilla_comprobante ('insert','PRO-CIE3V2','GASTO','debe','no','si','','{$tabla.denominacion}','PRO-CIEGANT','','{$tabla.importe_actualiz}','{$tabla.id_clasificacion}','','no','','','','si','','id_proyecto','','Importe que no se activa, sino se va al gasto','{$tabla.importe_actualiz}',NULL,'simple','','','no','','','','','','','','2','','pro.v_cbte_cierre_proy_3_gasto_debe_detV3',NULL,'','CCDEPCON','','','todos','','si');
 select conta.f_import_tdetalle_plantilla_comprobante ('insert','PRO-CIE3V2','Haber','haber','no','si','','','PRO-CIEREV','{$tabla.id_cuenta}','{$tabla.importe}','','','no','{$tabla.id_centro_costo}','','','si','','id_proyecto','','Reversión actualización','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','pro.v_cbte_cierre_proy_3_haber_det_V2',NULL,'','','','','todos','','si');
 /***********************************F-DAT-RCM-PRO-60-29/07/2020****************************************/
+
+/***********************************I-DAT-EGS-PRO-11-28/07/2020****************************************/
+select pxp.f_insert_tgui ('Analisis de Ingresos Diferidos', 'Analisis de Ingresos Diferidos', 'ANAINGDIF', 'si', 4, 'sis_proyectos/vista/proyecto/ProyectoAnaIngDif.php', 2, '', 'ProyectoAnaIngDif', 'PRO');
+/***********************************F-DAT-EGS-PRO-11-28/07/2020****************************************/
+

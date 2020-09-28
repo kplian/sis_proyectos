@@ -1133,6 +1133,15 @@ ALTER TABLE pro.tproyecto_contrato ADD COLUMN plazo_dias INTEGER;
 ALTER TABLE pro.tproyecto_contrato ADD COLUMN monto_anticipo NUMERIC;
 ALTER TABLE pro.tproyecto_contrato ADD COLUMN observaciones VARCHAR(500);
 /***********************************F-SCP-EGS-PRO-28-28/09/2020****************************************/
-
+/***********************************I-SCP-EGS-PRO-29-28/09/2020****************************************/
+CREATE TABLE pro.tproyecto_suspension (
+                                          id_proyecto_suspension SERIAL,
+                                          id_proyecto INTEGER,
+                                          fecha_desde DATE,
+                                          fecha_hasta DATE,
+                                          descripcion VARCHAR(500),
+                                          PRIMARY KEY (id_proyecto_suspension)
+) INHERITS (pxp.tbase);
+/***********************************F-SCP-EGS-PRO-29-28/09/2020****************************************/
 
 
