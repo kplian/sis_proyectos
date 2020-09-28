@@ -1127,4 +1127,12 @@ ALTER COLUMN precio_montaje TYPE NUMERIC(19,3);
 ALTER TABLE pro.tcomponente_concepto_ingas_det
   ADD COLUMN observacion VARCHAR;
 /***********************************F-SCP-EGS-PRO-27-25/08/2020****************************************/
+/***********************************I-SCP-EGS-PRO-28-28/09/2020****************************************/
+ALTER TABLE pro.tproyecto_contrato ADD COLUMN fecha_orden_proceder DATE;
+ALTER TABLE pro.tproyecto_contrato ADD COLUMN plazo_dias INTEGER;
+ALTER TABLE pro.tproyecto_contrato ADD COLUMN monto_anticipo NUMERIC;
+ALTER TABLE pro.tproyecto_contrato ADD COLUMN observaciones VARCHAR(500);
+/***********************************F-SCP-EGS-PRO-28-28/09/2020****************************************/
+
+
 

@@ -5,6 +5,8 @@
 *@author  (admin)
 *@date 29-09-2017 17:05:43
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ *  ISSUE       FECHA       AUTHOR          DESCRIPCION
+ *  #MDID-2     28/09/2020  EGS             Se agrgan los capos de fecha_orden_proceder,plazo_dias,monto_anticipo,observaciones
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -215,7 +217,72 @@ Phx.vista.ProyectoContrato=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
-		{
+        {//#MDID-2
+            config:{
+                name: 'fecha_orden_proceder',
+                fieldLabel: 'Fecha Orden Proceder.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+            },
+            type:'DateField',
+            filters:{pfiltro:'procon.fecha_orden_proceder',type:'date'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {//#MDID-2
+            config:{
+                name: 'plazo_dias',
+                fieldLabel: 'Plazos Dias',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10
+            },
+            type:'NumberField',
+            filters:{pfiltro:'procon.plazo_dias',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {//#MDID-2
+            config:{
+                name: 'monto_anticipo',
+                fieldLabel: 'Monto Anticipo',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:10,
+                allowDecimals:true,
+                decimalPrecision:2,
+            },
+            type:'NumberField',
+            filters:{pfiltro:'procon.monto_anticipo',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {//#MDID-2
+            config:{
+                name: 'observaciones',
+                fieldLabel: 'Observaciones',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:1000
+            },
+            type:'TextArea',
+            filters:{pfiltro:'procon.observaciones',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+
+
+        {
 			config:{
 				name: 'estado_reg',
 				fieldLabel: 'Estado Reg.',
@@ -353,7 +420,11 @@ Phx.vista.ProyectoContrato=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
 		{name:'desc_proveedor', type: 'string'},
-		{name:'moneda', type: 'string'}
+		{name:'moneda', type: 'string'},
+        {name:'fecha_orden_proceder', type: 'date',dateFormat:'Y-m-d'},
+        {name:'monto_anticipo', type: 'numeric'},
+        {name:'plazo_dias', type: 'numeric'},
+        {name:'observaciones', type: 'string'},
 	],
 	sortInfo:{
 		field: 'id_proyecto_contrato',
