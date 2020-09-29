@@ -55,6 +55,12 @@ Phx.vista.ProyectoAnaIngDif = {
             title:'Registro de Suspensiones',
             height:'50%',
             cls:'ProyectoSuspension'
+        },
+        {
+            url:'../../../sis_proyectos/vista/proyecto_hito/ProyectoHito.php',
+            title:'Hitos de Negocio Complementario',
+            height:'50%',
+            cls:'ProyectoHito'
         }],
 
 		preparaMenu: function(n){

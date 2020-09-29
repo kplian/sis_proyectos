@@ -1143,5 +1143,20 @@ CREATE TABLE pro.tproyecto_suspension (
                                           PRIMARY KEY (id_proyecto_suspension)
 ) INHERITS (pxp.tbase);
 /***********************************F-SCP-EGS-PRO-29-28/09/2020****************************************/
+/***********************************I-SCP-EGS-PRO-30-28/09/2020****************************************/
+
+CREATE TABLE pro.tproyecto_hito(
+                                   id_proyecto_hito SERIAL,
+                                   id_proyecto INTEGER,
+                                   descripcion VARCHAR(500),
+                                   fecha_plan DATE,
+                                   importe_plan NUMERIC,
+                                   fecha_real DATE,
+                                   importe_real NUMERIC,
+                                   observaciones VARCHAR(500),
+                                   PRIMARY KEY (id_proyecto_hito))
+    INHERITS(pxp.tbase);
+/***********************************F-SCP-EGS-PRO-30-28/09/2020****************************************/
+
 
 
