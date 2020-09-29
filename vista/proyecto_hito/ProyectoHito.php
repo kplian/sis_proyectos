@@ -61,7 +61,8 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
                 filters:{pfiltro:'prohit.descripcion',type:'string'},
                 id_grupo:1,
                 grid:true,
-                form:true
+                form:true,
+                egrid:true
 		},
         {
             config:{
@@ -77,7 +78,8 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
                 filters:{pfiltro:'prohit.fecha_plan',type:'date'},
                 id_grupo:1,
                 grid:true,
-                form:true
+                form:true,
+                egrid:true
 		},
         {
             config:{
@@ -86,13 +88,16 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-            	maxLength:-5
+                maxLength:10,
+                allowDecimals:true,
+                decimalPrecision:2,
             },
                 type:'NumberField',
                 filters:{pfiltro:'prohit.importe_plan',type:'numeric'},
                 id_grupo:1,
                 grid:true,
-                form:true
+                form:true,
+                egrid:true
 		},
         {
             config:{
@@ -108,7 +113,8 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
                 filters:{pfiltro:'prohit.fecha_real',type:'date'},
                 id_grupo:1,
                 grid:true,
-                form:true
+                form:true,
+                egrid:true
 		},
         {
             config:{
@@ -117,13 +123,16 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-            	maxLength:-5
+                maxLength:10,
+                allowDecimals:true,
+                decimalPrecision:2,
             },
                 type:'NumberField',
                 filters:{pfiltro:'prohit.importe_real',type:'numeric'},
                 id_grupo:1,
                 grid:true,
-                form:true
+                form:true,
+                egrid:true
 		},
         {
             config:{
@@ -132,13 +141,18 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-            	maxLength:500
+            	maxLength:500,
+                renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                    metaData.css = 'multilineColumn';
+                    return String.format('<div class="gridmultiline">{0}</div>', value);
+                }
             },
                 type:'TextField',
                 filters:{pfiltro:'prohit.observaciones',type:'string'},
                 id_grupo:1,
                 grid:true,
-                form:true
+                form:true,
+                egrid:true
 		},
         {
             config:{
@@ -280,6 +294,7 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
     },
     bdel:true,
     bsave:true,
+    bedit:false,
     onReloadPage: function(m) {
         this.maestro = m;
         this.Atributos[1].valorInicial = this.maestro.id_proyecto;

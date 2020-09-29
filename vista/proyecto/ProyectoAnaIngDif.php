@@ -6,6 +6,7 @@
 *@date 28-09-2017 20:12:15
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  * ISSUE FORK			FECHA		AUTHOR			DESCRIPCION
+ * MDID-4               29/09/2020  EGS             Se agrega botton de analisis diferidos
  * */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -29,6 +30,13 @@ Phx.vista.ProyectoAnaIngDif = {
 	                handler: this.loadCheckDocumentosWf,
 	                tooltip: '<b>Documentos del Trámite</b><br/>Permite ver los documentos asociados al NRO de trámite.'
 	            });
+        this.addButton('btnAnaDif', { //#MDID-4
+            text : 'Análisis  Diferidos',
+            iconCls : 'bexecdb',
+            disabled : true,
+            handler : this.openAnaDif,
+            tooltip : '<b>Analisis Diferidos</b>'
+        });
     this.load({params:{start:0, limit:this.tam_pag, planificacion:'si'}});//#8
     },
     iniciarEventos: function(){
@@ -61,6 +69,12 @@ Phx.vista.ProyectoAnaIngDif = {
             title:'Hitos de Negocio Complementario',
             height:'50%',
             cls:'ProyectoHito'
+        },
+        {
+            url:'../../../sis_proyectos/vista/proyecto_contrato/ProyectoContrato.php',
+            title:'Contratos',
+            height:'50%',
+            cls:'ProyectoContrato'
         }],
 
 		preparaMenu: function(n){
@@ -69,19 +83,34 @@ Phx.vista.ProyectoAnaIngDif = {
 		var data = this.getSelectedData();
 		console.log('tb',tb);
             this.getBoton('btnChequeoDocumentosWf').enable();
+            this.getBoton('btnAnaDif').enable();
 		return tb;
 	},
 	liberaMenu: function(){
 		var tb = Phx.vista.ProyectoAnaIngDif.superclass.liberaMenu.call(this);
 		if (tb) {
             this.getBoton('btnChequeoDocumentosWf').disable();
+            this.getBoton('btnAnaDif').disable();
         }
 		return tb;
 	},
     bdel:false,
     bnew:false,
     bedit:false,
-    bsave:false
+    bsave:false,
+    openAnaDif: function(){//#MDID-4
+        var data = this.getSelectedData();
+        var win = Phx.CP.loadWindows(
+            '../../../sis_proyectos/vista/proyecto_analisis/ProyectoAnalisis.php',
+            'Análisis  Diferidos', {
+                width: '95%',
+                height: '90%'
+            },
+            data,
+            this.idContenedor,
+            'ProyectoAnalisis'
+        );
+    },
 }
 </script>
 
