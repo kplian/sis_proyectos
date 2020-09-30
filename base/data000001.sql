@@ -197,4 +197,10 @@ select conta.f_import_tdetalle_plantilla_comprobante ('insert','PRO-CIE3V2','Hab
 /***********************************I-DAT-EGS-PRO-11-28/07/2020****************************************/
 select pxp.f_insert_tgui ('Analisis de Ingresos Diferidos', 'Analisis de Ingresos Diferidos', 'ANAINGDIF', 'si', 4, 'sis_proyectos/vista/proyecto/ProyectoAnaIngDif.php', 2, '', 'ProyectoAnaIngDif', 'PRO');
 /***********************************F-DAT-EGS-PRO-11-28/07/2020****************************************/
+/***********************************I-DAT-EGS-PRO-11-30/09/2020****************************************/
+select param.f_import_tcatalogo_tipo ('insert','tcuenta_excluir_tipo','PRO','tcuenta_excluir');
+select param.f_import_tcatalogo ('insert','PRO','Diferido','diferido','tcuenta_excluir_tipo');
+select param.f_import_tcatalogo ('insert','PRO','Cierre','cierre','tcuenta_excluir_tipo');
+/***********************************F-DAT-EGS-PRO-11-30/09/2020****************************************/
+
 

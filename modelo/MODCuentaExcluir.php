@@ -9,6 +9,7 @@
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #51    PRO       ETR           06/01/2020  RCM         Creación del archivo
+#MDID-9          ETR           30/03/2020  EGS         Se agrega tipo
 ***************************************************************************
 
 */
@@ -38,6 +39,7 @@ class MODCuentaExcluir extends MODbase{
 		$this->captura('id_usuario_mod','int4');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
+        $this->captura('tipo','varchar');//#MDID9
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -57,6 +59,7 @@ class MODCuentaExcluir extends MODbase{
 		$this->setParametro('id_cuenta','id_cuenta','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('nro_cuenta','nro_cuenta','varchar');
+        $this->setParametro('tipo','tipo','varchar');//#MDID9
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -77,6 +80,7 @@ class MODCuentaExcluir extends MODbase{
 		$this->setParametro('id_cuenta','id_cuenta','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('nro_cuenta','nro_cuenta','varchar');
+        $this->setParametro('tipo','tipo','varchar');//#MDID9
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

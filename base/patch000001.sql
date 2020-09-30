@@ -1157,6 +1157,12 @@ CREATE TABLE pro.tproyecto_hito(
                                    PRIMARY KEY (id_proyecto_hito))
     INHERITS(pxp.tbase);
 /***********************************F-SCP-EGS-PRO-30-28/09/2020****************************************/
+/***********************************I-SCP-EGS-PRO-31-30/09/2020****************************************/
+ALTER TABLE pro.tcuenta_excluir
+    ADD COLUMN tipo VARCHAR(20) DEFAULT 'cierre'::character varying NOT NULL;
+/***********************************F-SCP-EGS-PRO-31-30/09/2020****************************************/
+
+
 
 
 
