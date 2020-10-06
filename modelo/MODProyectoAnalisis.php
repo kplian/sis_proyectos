@@ -1,0 +1,139 @@
+<?php
+/****************************************************************************************
+*@package pXP
+*@file gen-MODProyectoAnalisis.php
+*@author  (egutierrez)
+*@date 29-09-2020 12:44:10
+*@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
+
+ HISTORIAL DE MODIFICACIONES:
+ #ISSUE                FECHA                AUTOR                DESCRIPCION
+  #0                29-09-2020 12:44:10    egutierrez             Creacion    
+  #
+*****************************************************************************************/
+
+class MODProyectoAnalisis extends MODbase{
+    
+    function __construct(CTParametro $pParam){
+        parent::__construct($pParam);
+    }
+            
+    function listarProyectoAnalisis(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.ft_proyecto_analisis_sel';
+        $this->transaccion='PRO_PROANA_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+                
+        //Definicion de la lista del resultado del query
+		$this->captura('id_proyecto_analisis','int4');
+		$this->captura('estado_reg','varchar');
+		$this->captura('id_proyecto','int4');
+		$this->captura('fecha','date');
+		$this->captura('glosa','varchar');
+		$this->captura('estado','varchar');
+		$this->captura('id_usuario_reg','int4');
+		$this->captura('fecha_reg','timestamp');
+		$this->captura('id_usuario_ai','int4');
+		$this->captura('usuario_ai','varchar');
+		$this->captura('id_usuario_mod','int4');
+		$this->captura('fecha_mod','timestamp');
+		$this->captura('usr_reg','varchar');
+        $this->captura('usr_mod','varchar');
+        $this->captura('id_proveedor','int4');
+        $this->captura('desc_proveedor','varchar');
+        $this->captura('saldo_activo','numeric');
+        $this->captura('saldo_pasivo','numeric');
+        $this->captura('saldo_ingreso','numeric');
+        $this->captura('saldo_gasto','numeric');
+        
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+            
+    function insertarProyectoAnalisis(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='pro.ft_proyecto_analisis_ime';
+        $this->transaccion='PRO_PROANA_INS';
+        $this->tipo_procedimiento='IME';
+                
+        //Define los parametros para la funcion
+		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('id_proyecto','id_proyecto','int4');
+		$this->setParametro('fecha','fecha','date');
+		$this->setParametro('glosa','glosa','varchar');
+		$this->setParametro('estado','estado','varchar');
+        $this->setParametro('id_proveedor','id_proveedor','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+            
+    function modificarProyectoAnalisis(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='pro.ft_proyecto_analisis_ime';
+        $this->transaccion='PRO_PROANA_MOD';
+        $this->tipo_procedimiento='IME';
+                
+        //Define los parametros para la funcion
+		$this->setParametro('id_proyecto_analisis','id_proyecto_analisis','int4');
+		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('id_proyecto','id_proyecto','int4');
+		$this->setParametro('fecha','fecha','date');
+		$this->setParametro('glosa','glosa','varchar');
+		$this->setParametro('estado','estado','varchar');
+        $this->setParametro('id_proveedor','id_proveedor','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+            
+    function eliminarProyectoAnalisis(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='pro.ft_proyecto_analisis_ime';
+        $this->transaccion='PRO_PROANA_ELI';
+        $this->tipo_procedimiento='IME';
+                
+        //Define los parametros para la funcion
+		$this->setParametro('id_proyecto_analisis','id_proyecto_analisis','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function listarProyectoProveedor(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='pro.ft_proyecto_analisis_sel';
+        $this->transaccion='PRO_PROVEANA_SEL';
+        $this->tipo_procedimiento='SEL';
+        $this->setCount(false);
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_proyecto','id_proyecto','int4');
+        $this->captura('id_proveedor','int4');
+        $this->captura('total_registros','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+            
+}
+?>

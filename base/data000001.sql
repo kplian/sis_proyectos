@@ -202,5 +202,25 @@ select param.f_import_tcatalogo_tipo ('insert','tcuenta_excluir_tipo','PRO','tcu
 select param.f_import_tcatalogo ('insert','PRO','Diferido','diferido','tcuenta_excluir_tipo');
 select param.f_import_tcatalogo ('insert','PRO','Cierre','cierre','tcuenta_excluir_tipo');
 /***********************************F-DAT-EGS-PRO-11-30/09/2020****************************************/
+/***********************************I-SCP-EGS-PRO-31-29/09/2020****************************************/
+CREATE TABLE pro.tproyecto_analisis(
+                                       id_proyecto_analisis SERIAL,
+                                       id_proyecto INTEGER,
+                                       fecha DATE,
+                                       glosa VARCHAR(500),
+                                       estado VARCHAR(30),
+                                       PRIMARY KEY (id_proyecto_analisis))
+    INHERITS(pxp.tbase);
+CREATE TABLE pro.tproyecto_analisis_det(
+                                           id_proyecto_analisis_det SERIAL,
+                                           id_proyecto_analisis INTEGER,
+                                           id_int_transaccion INTEGER,
+                                           estado VARCHAR(30),
+                                           PRIMARY KEY (id_proyecto_analisis_det))
+    INHERITS(pxp.tbase);
+
+ALTER TABLE pro.tproyecto
+    ADD COLUMN diferido VARCHAR(2) DEFAULT 'no' NOT NULL;
+/***********************************F-SCP-EGS-PRO-31-29/09/2020****************************************/
 
 

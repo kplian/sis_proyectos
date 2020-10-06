@@ -23,7 +23,12 @@ Phx.vista.ProyectoSuspension=Ext.extend(Phx.gridInterfaz,{
         //llama al constructor de la clase padre
         Phx.vista.ProyectoSuspension.superclass.constructor.call(this,config);
         this.init();
-        this.bloquearMenus();
+        var dataPadre = Phx.CP.getPagina(this.idContenedorPadre).getSelectedData()
+        if(dataPadre){
+            this.onEnablePanel(this, dataPadre);
+        } else {
+            this.bloquearMenus();
+        }
     },
             
     Atributos:[
@@ -88,7 +93,7 @@ Phx.vista.ProyectoSuspension=Ext.extend(Phx.gridInterfaz,{
                 gwidth: 100,
             	maxLength:500
             },
-                type:'TextField',
+                type:'TextArea',
                 filters:{pfiltro:'regsus.descripcion',type:'string'},
                 id_grupo:1,
                 grid:true,

@@ -1,12 +1,12 @@
 --------------- SQL ---------------
 
 CREATE OR REPLACE FUNCTION pro.ft_proyecto_sel (
-    p_administrador integer,
-    p_id_usuario integer,
-    p_tabla varchar,
-    p_transaccion varchar
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
 )
-    RETURNS varchar AS
+RETURNS varchar AS
 $body$
 /**************************************************************************
  SISTEMA:		Sistema de Proyectos
@@ -153,7 +153,8 @@ BEGIN
                         proy.id_lugar,   --#56
                         proy.caracteristica_tecnica, --#56
                         lug.nombre as lugar,   --#56
-                        proy.fecha_rev_aitb --#60
+                        proy.fecha_rev_aitb, --#60
+                        proy.diferido  --#MDID-4
 						from pro.tproyecto proy
 						inner join segu.tusuario usu1 on usu1.id_usuario = proy.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = proy.id_usuario_mod
@@ -253,8 +254,8 @@ EXCEPTION
         raise exception '%',v_resp;
 END;
 $body$
-    LANGUAGE 'plpgsql'
-    VOLATILE
-    CALLED ON NULL INPUT
-    SECURITY INVOKER
-    COST 100;
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;

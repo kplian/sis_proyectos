@@ -1162,6 +1162,30 @@ ALTER TABLE pro.tcuenta_excluir
     ADD COLUMN tipo VARCHAR(20) DEFAULT 'cierre'::character varying NOT NULL;
 /***********************************F-SCP-EGS-PRO-31-30/09/2020****************************************/
 
+/***********************************I-SCP-EGS-PRO-31-29/09/2020****************************************/
+CREATE TABLE pro.tproyecto_analisis(
+                                       id_proyecto_analisis SERIAL,
+                                       id_proyecto INTEGER,
+                                       fecha DATE,
+                                       glosa VARCHAR(500),
+                                       estado VARCHAR(30),
+                                       PRIMARY KEY (id_proyecto_analisis))
+    INHERITS(pxp.tbase);
+CREATE TABLE pro.tproyecto_analisis_det(
+                                           id_proyecto_analisis_det SERIAL,
+                                           id_proyecto_analisis INTEGER,
+                                           id_int_transaccion INTEGER,
+                                           estado VARCHAR(30),
+                                           PRIMARY KEY (id_proyecto_analisis_det))
+    INHERITS(pxp.tbase);
+
+ALTER TABLE pro.tproyecto
+    ADD COLUMN diferido VARCHAR(2) DEFAULT 'no' NOT NULL;
+
+ALTER TABLE pro.tproyecto_analisis
+    ADD COLUMN id_proveedor INTEGER;
+/***********************************F-SCP-EGS-PRO-31-29/09/2020****************************************/
+
 
 
 

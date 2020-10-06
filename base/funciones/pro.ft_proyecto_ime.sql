@@ -1,12 +1,12 @@
 --------------- SQL ---------------
 
 CREATE OR REPLACE FUNCTION pro.ft_proyecto_ime (
-    p_administrador integer,
-    p_id_usuario integer,
-    p_tabla varchar,
-    p_transaccion varchar
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
 )
-    RETURNS varchar AS
+RETURNS varchar AS
 $body$
 /**************************************************************************
  SISTEMA:		Sistema de Proyectos
@@ -25,6 +25,7 @@ $body$
     #35             07/10/2019      egs                 Solo inserta fechas reales si es necesario
     #56             10/03/2020      EGS                 Se agrega los campos justificacion, id_lugar ,caracteristica_tecnica
     #60             27/07/2020      RCM                 Adición fecha reversión AITB para cierre de proyectos
+    #MDID-4         06/10/2020      EGS                 Se agrega Diferido
 ***************************************************************************/
 
 DECLARE
@@ -245,7 +246,8 @@ BEGIN
                 importe_max,
                 justificacion,
                 id_lugar,
-                caracteristica_tecnica
+                caracteristica_tecnica,
+                diferido --#MDID-4
 
             ) values(
                         v_codigo,
@@ -273,7 +275,8 @@ BEGIN
                         v_parametros.importe_max,			--#3 31/12/2018	EGS
                         v_parametros.justificacion,--#56
                         v_parametros.id_lugar,--#56
-                        v_parametros.caracteristica_tecnica--#56
+                        v_parametros.caracteristica_tecnica,--#56
+                        v_parametros.diferido --#MDID-4
                     )RETURNING id_proyecto into v_id_proyecto;
 
             ---Insercion de plantilla de fases
@@ -535,7 +538,8 @@ BEGIN
                                      importe_max = v_parametros.importe_max,  --#3 31/12/2018	EGS
                                      justificacion = v_parametros.justificacion,--#56
                                      id_lugar = v_parametros.id_lugar,--#56
-                                     caracteristica_tecnica = v_parametros.caracteristica_tecnica --#56
+                                     caracteristica_tecnica = v_parametros.caracteristica_tecnica, --#56
+                                     diferido = v_parametros.diferido --#MDID-4
             where id_proyecto=v_parametros.id_proyecto;
 
             --Definicion de la respuesta
@@ -1363,8 +1367,8 @@ EXCEPTION
 
 END;
 $body$
-    LANGUAGE 'plpgsql'
-    VOLATILE
-    CALLED ON NULL INPUT
-    SECURITY INVOKER
-    COST 100;
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;

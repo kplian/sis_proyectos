@@ -72,6 +72,7 @@ class MODProyecto extends MODbase{
         $this->captura('caracteristica_tecnica','varchar');//#56
         $this->captura('lugar','varchar');//#56
         $this->captura('fecha_rev_aitb','date');//#60
+        $this->captura('diferido','varchar');//#MDID-4
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -107,6 +108,7 @@ class MODProyecto extends MODbase{
         $this->setParametro('justificacion','justificacion','varchar'); //#56
         $this->setParametro('id_lugar','id_lugar','integer');//#56
         $this->setParametro('caracteristica_tecnica','caracteristica_tecnica','varchar');//#56
+        $this->setParametro('diferido','diferido','varchar');//#MDID-4
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -141,7 +143,7 @@ class MODProyecto extends MODbase{
         $this->setParametro('justificacion','justificacion','varchar'); //#56
         $this->setParametro('id_lugar','id_lugar','integer');//#56
         $this->setParametro('caracteristica_tecnica','caracteristica_tecnica','varchar');//#56
-
+        $this->setParametro('diferido','diferido','varchar');//#MDID-4
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

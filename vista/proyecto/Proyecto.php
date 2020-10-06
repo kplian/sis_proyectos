@@ -84,8 +84,12 @@ Phx.vista.ProyectoPr = {
        	   
 		this.cmbEstado.on('select',this.capturaFiltros,this);
 		this.cmbEstado.fireEvent('select');
-     
-    this.load({params:{start:0, limit:this.tam_pag, planificacion:'si'}});//#8
+
+        this.store.baseParams = {
+            diferido: 'no',
+            planificacion:'si'
+        };
+        this.load({ params: {start: 0,limit: 50 }});
     },
     
     capturaFiltros:function(combo, record, index){

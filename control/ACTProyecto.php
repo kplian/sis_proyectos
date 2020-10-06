@@ -11,6 +11,7 @@
 * #8	 PRO 	 endeETR	18/03/2019	   EGS		   Se filtra por estado nuevo y ejecucion en la vista de planificaion
 * #37    PRO     ETR        17/10/2019     RCM         Corrección de importación de datos
 * #50    PRO     ETR        09/12/2019     RCM         Inclusión de almacén en importación de cierre
+MDID-4                      29/09/2020     EGS         Se agrega filtro de diferido
 * ****************************************************************************
 */
 include_once(dirname(__FILE__).'/../../lib/lib_general/ExcelInput.php');
@@ -34,6 +35,10 @@ class ACTProyecto extends ACTbase{
 		if($this->objParam->getParametro('planificacion') =='si'){
 				$this->objParam->addFiltro("proy.estado in (''nuevo'',''ejecucion'')");
 		}
+
+        if($this->objParam->getParametro('diferido')!=''){ //#MDID-4
+            $this->objParam->addFiltro("proy.diferido = ''".$this->objParam->getParametro('diferido')."''");
+        }
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);

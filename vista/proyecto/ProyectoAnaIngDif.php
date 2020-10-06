@@ -14,6 +14,7 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.ProyectoAnaIngDif = {
 	require:'../../../sis_proyectos/vista/proyecto/ProyectoBase.php',
     requireclase:'Phx.vista.ProyectoBase',
+    nombreVista:'ProyectoAnaIngDif',
     constructor: function(config) {
     	//this.initButtons=[this.cmbEstado];//Un combo que da la opcion de recargar el estado que se elija
 
@@ -37,7 +38,10 @@ Phx.vista.ProyectoAnaIngDif = {
             handler : this.openAnaDif,
             tooltip : '<b>Analisis Diferidos</b>'
         });
-    this.load({params:{start:0, limit:this.tam_pag, planificacion:'si'}});//#8
+        this.store.baseParams = {
+            diferido: 'si'
+        };
+        this.load({ params: {start: 0,limit: 50 }});
     },
     iniciarEventos: function(){
 
@@ -94,9 +98,9 @@ Phx.vista.ProyectoAnaIngDif = {
         }
 		return tb;
 	},
-    bdel:false,
-    bnew:false,
-    bedit:false,
+    bdel:true,
+    bnew:true,
+    bedit:true,
     bsave:false,
     openAnaDif: function(){//#MDID-4
         var data = this.getSelectedData();
@@ -110,6 +114,12 @@ Phx.vista.ProyectoAnaIngDif = {
             this.idContenedor,
             'ProyectoAnalisis'
         );
+    },
+    onButtonNew: function(){
+        Phx.vista.ProyectoAnaIngDif.superclass.onButtonNew.call(this);
+        this.Cmp.diferido.setValue('si');
+        //this.Cmp.fecha_fin_real.disable(true);
+
     },
 }
 </script>
