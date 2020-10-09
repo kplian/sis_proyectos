@@ -159,7 +159,7 @@ BEGIN
 						inner join segu.tusuario usu1 on usu1.id_usuario = proy.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = proy.id_usuario_mod
 						inner join param.vtipo_cc tcc on tcc.id_tipo_cc = proy.id_tipo_cc
-						inner join param.tmoneda mon on mon.id_moneda = proy.id_moneda
+						left join param.tmoneda mon on mon.id_moneda = proy.id_moneda
 						left join param.tdepto dep on dep.id_depto = proy.id_depto_conta
 						left join conta.tint_comprobante cbte1 on cbte1.id_int_comprobante = proy.id_int_comprobante_1
 						left join conta.tint_comprobante cbte2 on cbte2.id_int_comprobante = proy.id_int_comprobante_2
@@ -194,7 +194,7 @@ BEGIN
 					    inner join segu.tusuario usu1 on usu1.id_usuario = proy.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = proy.id_usuario_mod
 						inner join param.vtipo_cc tcc on tcc.id_tipo_cc = proy.id_tipo_cc
-						inner join param.tmoneda mon on mon.id_moneda = proy.id_moneda
+						left join param.tmoneda mon on mon.id_moneda = proy.id_moneda
 						left join param.tdepto dep on dep.id_depto = proy.id_depto_conta
 						left join conta.tint_comprobante cbte1 on cbte1.id_int_comprobante = proy.id_int_comprobante_1
 						left join conta.tint_comprobante cbte2 on cbte2.id_int_comprobante = proy.id_int_comprobante_2

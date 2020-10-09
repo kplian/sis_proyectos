@@ -9,7 +9,7 @@
 HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #0                29-09-2020 12:44:10    egutierrez            Creacion    
- #   
+ #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
 
 *******************************************************************************************/
 
@@ -26,6 +26,7 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         this.Atributos[this.getIndAtributo('id_proyecto')].valorInicial = this.maestro.id_proyecto;
         //llama al constructor de la clase padre
         Phx.vista.ProyectoAnalisis.superclass.constructor.call(this,config);
+        this.addBotonesGantt();//#MDID-8
         this.init();
         this.store.baseParams = {
             id_proyecto: this.maestro.id_proyecto
@@ -36,6 +37,92 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
                 limit: 50
             }
         });
+        this.addButton('ant_estado', //#MDID-8
+            {argument: {estado: 'anterior'},
+                text:'Anterior',
+                grupo:[0,2],
+                iconCls: 'batras',
+                disabled:true,
+                handler:this.antEstado,
+                tooltip: '<b>Pasar al Anterior Estado</b>'
+            });
+        this.addButton('sig_estado',//#MDID-8
+            { text:'Siguiente',
+                grupo:[0,2],
+                iconCls: 'badelante',
+                disabled: true,
+                handler: this.sigEstado,
+                tooltip: '<b>Pasar al Siguiente Estado</b>'
+            });
+        this.addButton('btnChequeoDocumentosWf',//#MDID-8
+            {
+                text: 'Documentos',
+                grupo:[0,1,2,3,4],
+                iconCls: 'bchecklist',
+                disabled: true,
+                handler: this.loadCheckDocumentosWf,
+                tooltip: '<b>Documentos </b><br/>Permite ver los documentos asociados al NRO de trámite.'
+            });
+
+    },
+    loadCheckDocumentosWf:function() {//#MDID-8
+        var rec=this.sm.getSelected();
+        rec.data.nombreVista = this.nombreVista;
+        Phx.CP.loadWindows('../../../sis_workflow/vista/documento_wf/DocumentoWf.php',
+            'Documentos del Proceso',
+            {
+                width:'90%',
+                height:500
+            },
+            rec.data,
+            this.idContenedor,
+            'DocumentoWf'
+        )},
+    addBotonesGantt: function() {//#MDID-8
+        this.menuAdqGantt = new Ext.Toolbar.SplitButton({
+            id: 'b-diagrama_gantt-' + this.idContenedor,
+            text: 'Gantt',
+            disabled: true,
+            grupo:[0,1,2,3,4],
+            iconCls : 'bgantt',
+            handler:this.diagramGanttDinamico,
+            scope: this,
+            menu:{
+                items: [{
+                    id:'b-gantti-' + this.idContenedor,
+                    text: 'Gantt Imagen',
+                    tooltip: '<b>Muestra un reporte gantt en formato de imagen</b>',
+                    handler:this.diagramGantt,
+                    scope: this
+                }, {
+                    id:'b-ganttd-' + this.idContenedor,
+                    text: 'Gantt Dinámico',
+                    tooltip: '<b>Muestra el reporte gantt facil de entender</b>',
+                    handler:this.diagramGanttDinamico,
+                    scope: this
+                }]
+            }
+        });
+        this.tbar.add(this.menuAdqGantt);
+    },
+    diagramGantt: function (){//#MDID-8
+        var data=this.sm.getSelected().data.id_proceso_wf;
+
+        Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url:'../../sis_workflow/control/ProcesoWf/diagramaGanttTramite',
+            params:{'id_proceso_wf':data},
+            success: this.successExport,
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope: this
+        });
+    },
+
+    diagramGanttDinamico: function (){//#MDID-8
+        var data=this.sm.getSelected().data.id_proceso_wf;
+
+        window.open('../../../sis_workflow/reportes/gantt/gantt_dinamico.html?id_proceso_wf='+data)
     },
 
     Atributos:[
@@ -58,6 +145,56 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             },
             type:'Field',
             form:true
+        },
+        {//#MDID-8
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'id_estado_wf'
+            },
+            type:'Field',
+            form:true
+        },
+        {//#MDID-8
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'id_proceso_wf'
+            },
+            type:'Field',
+            form:true
+        },
+        {
+            config:{//#MDID-8
+                name: 'nro_tramite',
+                fieldLabel: 'Nro Tramite',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:30
+            },
+            type:'TextField',
+            filters:{pfiltro:'proana.estado',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'estado',
+                fieldLabel: 'Estado',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:30
+            },
+            type:'TextField',
+            filters:{pfiltro:'proana.estado',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
         },
         {
             config:{
@@ -110,19 +247,54 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
 		},
         {
             config:{
-                name: 'estado',
-                fieldLabel: 'Estado',
+                name: 'porc_diferido',
+                fieldLabel: 'Porcentaje',
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
-            	maxLength:30
+                maxLength:30,
+                allowDecimals : true,
+                decimalPrecision : 2,
+                renderer:function (value,p,record){
+                    Ext.util.Format.usMoney
+                    return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'000.000.000,00/i'));
+
+                }
             },
-                type:'TextField',
-                filters:{pfiltro:'proana.estado',type:'string'},
-                id_grupo:1,
-                grid:true,
-                form:true
-		},
+            type:'NumberField',
+            filters:{pfiltro:'proana.porc_diferido',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {
+            config:{
+                name:'cerrar',
+                fieldLabel:'Cerrar',
+                allowBlank:false,
+                emptyText:'...',
+                typeAhead: true,
+                triggerAction: 'all',
+                lazyRender:true,
+                mode: 'local',
+                gwidth: 100,
+                store:new Ext.data.ArrayStore({
+                    fields: ['ID', 'valor'],
+                    data :    [['si','si'],
+                        ['no','no']]
+
+                }),
+                valueField:'ID',
+                displayField:'valor',
+                //renderer:function (value, p, record){if (value == 1) {return 'si'} else {return 'no'}}
+            },
+            type:'ComboBox',
+            valorInicial: 'no',
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
+
         {
             config:{
                 name: 'saldo_activo',
@@ -344,6 +516,11 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         {name:'saldo_pasivo', type: 'numeric'},
         {name:'saldo_ingreso', type: 'numeric'},
         {name:'saldo_gasto', type: 'numeric'},
+        {name:'porc_diferido', type: 'numeric'},
+        {name:'cerrar', type: 'string'},
+        {name:'nro_tramite', type: 'string'},//#MDID-8
+        {name:'id_estado_wf', type: 'string'},//#MDID-8
+        {name:'id_proceso_wf', type: 'string'},//#MDID-8
         
     ],
     sortInfo:{
@@ -437,7 +614,142 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         });
 
     },
-   
+        sigEstado:function(){//#MDID-8
+            var data = this.getSelectedData();
+            this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
+                'Estado de Wf',
+                {
+                    modal:true,
+                    width:700,
+                    height:450
+                }, {data:{
+                        id_proyecto_analisis:data.id_proyecto_analisis,
+                        id_estado_wf:data.id_estado_wf,
+                        id_proceso_wf:data.id_proceso_wf,
+
+                    }}, this.idContenedor,'FormEstadoWf',
+                {
+                    config:[{
+                        event:'beforesave',
+                        delegate: this.onSaveWizard,
+
+                    }],
+
+                    scope:this
+                });
+
+        },
+        onSaveWizard:function(wizard,resp){//#MDID-8
+
+            Ext.Ajax.request({
+                url:'../../sis_proyectos/control/ProyectoAnalisis/siguienteEstado',
+                params:{
+                    id_proyecto_analisis:      wizard.data.id_proyecto_analisis,
+                    id_proceso_wf_act:  resp.id_proceso_wf_act,
+                    id_estado_wf_act:   resp.id_estado_wf_act,
+                    id_tipo_estado:     resp.id_tipo_estado,
+                    id_funcionario_wf:  resp.id_funcionario_wf,
+                    id_depto_wf:        resp.id_depto_wf,
+                    obs:                resp.obs,
+                    json_procesos:      Ext.util.JSON.encode(resp.procesos)
+                },
+                success:this.successWizard,
+                failure: this.conexionFailure,
+                argument:{wizard:wizard},
+                timeout:this.timeout,
+                scope:this
+            });
+
+        },
+        successWizard:function(resp){//#MDID-8
+            Phx.CP.loadingHide();
+            resp.argument.wizard.panel.destroy()
+            this.reload();
+        },
+        antEstado: function(res){//#MDID-8
+            var data = this.getSelectedData();
+            Phx.CP.loadingHide();
+            Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
+                'Estado de Wf',
+                {   modal: true,
+                    width: 450,
+                    height: 250
+                },
+                {    data: data,
+                    estado_destino: res.argument.estado
+                },
+                this.idContenedor,'AntFormEstadoWf',
+                {
+                    config:[{
+                        event:'beforesave',
+                        delegate: this.onAntEstado,
+                    }],
+                    scope:this
+                });
+
+        },
+        onAntEstado: function(wizard,resp){//#MDID-8
+            Phx.CP.loadingShow();
+            var operacion = 'cambiar';
+
+            Ext.Ajax.request({
+                url:'../../sis_proyectos/control/ProyectoAnalisis/anteriorEstado',
+                params:{
+                    id_proyecto_analisis: wizard.data.id_proyecto_analisis,
+                    id_proceso_wf: resp.id_proceso_wf,
+                    id_estado_wf:  resp.id_estado_wf,
+                    obs: resp.obs,
+                    operacion: operacion
+                },
+                argument:{wizard:wizard},
+                success: this.successAntEstado,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
+        },
+
+        successAntEstado:function(resp){//#MDID-8
+            Phx.CP.loadingHide();
+            resp.argument.wizard.panel.destroy()
+            this.reload();
+
+        },
+    preparaMenu:function(n){//#MDID-8
+        var data = this.getSelectedData();
+        var tb =this.tbar;
+        Phx.vista.ProyectoAnalisis.superclass.preparaMenu.call(this,n);
+        this.getBoton('diagrama_gantt').enable();
+        this.getBoton('btnChequeoDocumentosWf').enable();
+
+        if (data.estado == 'borrador') {
+            this.getBoton('ant_estado').disable();
+            this.getBoton('sig_estado').enable();
+
+        }else if(data.estado == 'finalizado'){
+            this.getBoton('ant_estado').disable();
+            this.getBoton('sig_estado').disable();
+        } else {
+            this.getBoton('ant_estado').enable();
+            this.getBoton('sig_estado').enable();
+
+        };
+
+
+
+        return tb
+    },
+    liberaMenu:function(){//#MDID-8
+        var tb = Phx.vista.ProyectoAnalisis.superclass.liberaMenu.call(this);
+        if(tb){
+            this.getBoton('btnChequeoDocumentosWf').disable();
+            this.getBoton('diagrama_gantt').disable();
+            this.getBoton('ant_estado').disable();
+            this.getBoton('sig_estado').disable();
+        }
+        return tb
+    },
+
     }
 )
 </script>

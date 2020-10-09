@@ -26,6 +26,7 @@ $body$
     #56             10/03/2020      EGS                 Se agrega los campos justificacion, id_lugar ,caracteristica_tecnica
     #60             27/07/2020      RCM                 Adición fecha reversión AITB para cierre de proyectos
     #MDID-4         06/10/2020      EGS                 Se agrega Diferido
+    #MDIS-8         08/10/202       EGS                 Se agrega nombre de vista
 ***************************************************************************/
 
 DECLARE
@@ -279,6 +280,7 @@ BEGIN
                         v_parametros.diferido --#MDID-4
                     )RETURNING id_proyecto into v_id_proyecto;
 
+            IF v_parametros.nombreVista = 'Proyecto' THEN --#MDID-8
             ---Insercion de plantilla de fases
             --tabla temporal para asociar y guardar los ids para recrear el arbol
             CREATE TEMPORARY TABLE temp_id(
@@ -456,7 +458,7 @@ BEGIN
                         v_parametros.nombre,
                         v_id_proyecto
                     );
-
+            END IF ;-- fin de nombre vista
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Proyecto almacenado(a) con exito (id_proyecto'||v_id_proyecto||')');
             v_resp = pxp.f_agrega_clave(v_resp,'id_proyecto',v_id_proyecto::varchar);

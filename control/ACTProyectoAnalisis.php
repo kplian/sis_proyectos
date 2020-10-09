@@ -9,8 +9,8 @@
  HISTORIAL DE MODIFICACIONES:
  #ISSUE                FECHA                AUTOR                DESCRIPCION
   #0                29-09-2020 12:44:10    egutierrez             Creacion    
-  #
-*****************************************************************************************/
+    #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
+ *****************************************************************************************/
 
 class ACTProyectoAnalisis extends ACTbase{    
             
@@ -33,7 +33,9 @@ class ACTProyectoAnalisis extends ACTbase{
     }
                 
     function insertarProyectoAnalisis(){
-        $this->objFunc=$this->create('MODProyectoAnalisis');    
+        $this->objParam->addParametro('id_funcionario',$_SESSION["ss_id_funcionario"]);
+
+        $this->objFunc=$this->create('MODProyectoAnalisis');
         if($this->objParam->insertar('id_proyecto_analisis')){
             $this->res=$this->objFunc->insertarProyectoAnalisis($this->objParam);            
         } else{            
@@ -53,6 +55,17 @@ class ACTProyectoAnalisis extends ACTbase{
         }
         $this->objFunc=$this->create('MODProyectoAnalisis');
         $this->res=$this->objFunc->listarProyectoProveedor($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    function siguienteEstado(){//#MDID-8
+        $this->objFunc=$this->create('MODProyectoAnalisis');
+        $this->res=$this->objFunc->siguienteEstado($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    function anteriorEstado(){//#MDID-8
+        $this->objFunc=$this->create('MODProyectoAnalisis');
+        $this->res=$this->objFunc->anteriorEstado($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
             

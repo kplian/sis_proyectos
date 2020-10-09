@@ -19,7 +19,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #0                29-09-2020 12:44:10    egutierrez             Creacion
- #
+ #MDID-8               08/10/2020           EGS                 Se agrega WF
  ***************************************************************************/
 
 DECLARE
@@ -87,7 +87,12 @@ BEGIN
                             FROM pro.tproyecto_analisis_det p
                             left join conta.tint_transaccion intra on intra.id_int_transaccion = p.id_int_transaccion
                             left join conta.tcuenta cue on cue.id_cuenta = intra.id_cuenta
-                            WHERE cue.tipo_cuenta =''gasto'' and p.id_proyecto_analisis =  proana.id_proyecto_analisis) as saldo_gasto
+                            WHERE cue.tipo_cuenta =''gasto'' and p.id_proyecto_analisis =  proana.id_proyecto_analisis) as saldo_gasto,
+                        proana.porc_diferido,--#MDID-8
+                        proana.cerrar,--#MDID-8
+                        proana.nro_tramite,--#MDID-8
+                        proana.id_estado_wf,--#MDID-8
+                        proana.id_proceso_wf--#MDID-8
                         FROM pro.tproyecto_analisis proana
                         JOIN segu.tusuario usu1 ON usu1.id_usuario = proana.id_usuario_reg
                         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = proana.id_usuario_mod
