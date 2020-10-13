@@ -10,6 +10,7 @@
  #ISSUE                FECHA                AUTOR                DESCRIPCION
   #0                29-09-2020 12:44:10    egutierrez             Creacion    
     #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
+ * #MDID-10             13/10/2020             EGS                  Se agrega filtro pos tipo_cc
  *****************************************************************************************/
 
 class ACTProyectoAnalisis extends ACTbase{    
@@ -19,6 +20,10 @@ class ACTProyectoAnalisis extends ACTbase{
         if($this->objParam->getParametro('id_proyecto')!=''){
             $this->objParam->addFiltro("proana.id_proyecto = ".$this->objParam->getParametro('id_proyecto'));
         }
+        if($this->objParam->getParametro('id_tipo_cc')!=''){ //#MDID-10
+            $this->objParam->addFiltro("proana.id_tipo_cc = ".$this->objParam->getParametro('id_tipo_cc'));
+        }
+
 
         $this->objParam->defecto('dir_ordenacion','asc');
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){

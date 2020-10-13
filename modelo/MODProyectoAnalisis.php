@@ -10,6 +10,7 @@
  #ISSUE                FECHA                AUTOR                DESCRIPCION
   #0                29-09-2020 12:44:10    egutierrez             Creacion    
   #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
+  #MDID-10           13/10/2020              EGS                 Se agrega filto por tipo_cc
 
  *****************************************************************************************/
 
@@ -51,6 +52,8 @@ class MODProyectoAnalisis extends MODbase{
         $this->captura('nro_tramite','varchar');//#MDID-8
         $this->captura('id_estado_wf','integer');//#MDID-8
         $this->captura('id_proceso_wf','integer');//#MDID-8
+        $this->captura('id_tipo_cc','integer');//#MDID-10
+        $this->captura('desc_tipo_cc','varchar');//#MDID-10
 
 
         //Ejecuta la instruccion
@@ -77,6 +80,7 @@ class MODProyectoAnalisis extends MODbase{
         $this->setParametro('porc_diferido','porc_diferido','numeric');//
         $this->setParametro('cerrar','cerrar','varchar');//
         $this->setParametro('id_funcionario','id_funcionario','integer');//#MDID-8
+        $this->setParametro('id_tipo_cc','id_tipo_cc','integer');//#MDID-6
 
 
 

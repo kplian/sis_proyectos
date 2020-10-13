@@ -10,6 +10,7 @@ HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #0                29-09-2020 12:44:10    egutierrez            Creacion    
  #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
+ #MDID-10           13/10/2020              EGS                 Se agrega filtro po tipo cc
 
 *******************************************************************************************/
 
@@ -23,20 +24,37 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         let formr;
         console.log('config',config);
         this.maestro=config;
+        this.initButtons=[this.cmbTipoCC];
         this.Atributos[this.getIndAtributo('id_proyecto')].valorInicial = this.maestro.id_proyecto;
         //llama al constructor de la clase padre
         Phx.vista.ProyectoAnalisis.superclass.constructor.call(this,config);
         this.addBotonesGantt();//#MDID-8
         this.init();
-        this.store.baseParams = {
-            id_proyecto: this.maestro.id_proyecto
-        };
-        this.load({
-            params: {
-                start: 0,
-                limit: 50
+        this.sw_init = true
+        this.cmbTipoCC.on('select',function(combo,record,index){
+            this.desbloquearOrdenamientoGrid();
+            if(this.sw_init){
+
+                this.store.baseParams = {
+                    id_proyecto: this.maestro.id_proyecto,
+                    id_tipo_cc:record.data.id_tipo_cc //#MDID-10
+                };
+                this.load({
+                    params: {
+                        start: 0,
+                        limit: 50
+                    }
+                });
+                this.sw_init = true;
             }
-        });
+            else{
+                this.store.reload();
+
+            }
+        },this);
+        this.cmbTipoCC.store.baseParams.id_tipo_cc= this.maestro.id_tipo_cc;
+
+
         this.addButton('ant_estado', //#MDID-8
             {argument: {estado: 'anterior'},
                 text:'Anterior',
@@ -65,6 +83,54 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             });
 
     },
+    validarFiltros:function(){
+        if(this.cmbTipoCC.getValue()){
+            this.desbloquearOrdenamientoGrid();
+            return true;
+        }
+        else{
+            this.bloquearOrdenamientoGrid();
+            return false;
+        }
+    },
+
+    cmbTipoCC:new Ext.form.ComboBox({
+        name: 'id_tipo_cc',
+        fieldLabel: 'Tipo CC',
+        typeAhead: false,
+        forceSelection: true,
+        allowBlank: false,
+        emptyText: 'Tipo CC...',
+        store: new Ext.data.JsonStore({
+            url: '../../sis_parametros/control/TipoCc/listarTipoCcArbHijos',
+            id: 'id_tipo_cc',
+            root: 'datos',
+            sortInfo: {
+                field: 'codigo',
+                direction: 'ASC'
+            },
+            totalProperty: 'total',
+            fields: ['id_tipo_cc', 'codigo', 'descripcion'],
+            remoteSort: true,
+            baseParams: {par_filtro: 'tcc.codigo#tcc.descripcion'}
+        }),
+        valueField: 'id_tipo_cc',
+        displayField: 'codigo',
+
+        triggerAction: 'all',
+        lazyRender: true,
+        mode: 'remote',
+        pageSize: 20,
+        queryDelay: 200,
+        anchor: '80%',
+        listWidth:'280',
+        resizable:true,
+        minChars: 2,
+        tpl:'<tpl for=".">\<div class="x-combo-list-item">\
+                           <p><b>Codigo:</b>{codigo}</p>\
+		                   <p><b>Descripcion: </b>{descripcion}</p>\
+		                   </div></tpl>'
+    }),
     loadCheckDocumentosWf:function() {//#MDID-8
         var rec=this.sm.getSelected();
         rec.data.nombreVista = this.nombreVista;
@@ -146,6 +212,22 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             type:'Field',
             form:true
         },
+        {
+            config:{ //#MDID-10
+                name: 'id_tipo_cc',
+                fieldLabel: 'Tipo Cc.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:30,
+                renderer:function (value, p, record){return String.format('{0}', record.data['desc_tipo_cc']);}
+            },
+            type:'TextField',
+            filters:{pfiltro:'proana.id_tipo_cc',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
         {//#MDID-8
             //configuracion del componente
             config:{
@@ -180,6 +262,16 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             id_grupo:1,
             grid:true,
             form:false
+        },
+        {//#MDID-8
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'id_tipo_cc'
+            },
+            type:'Field',
+            form:true
         },
         {
             config:{
@@ -521,6 +613,8 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         {name:'nro_tramite', type: 'string'},//#MDID-8
         {name:'id_estado_wf', type: 'string'},//#MDID-8
         {name:'id_proceso_wf', type: 'string'},//#MDID-8
+        {name:'id_tipo_cc', type: 'numeric'},//#
+        {name:'desc_tipo_cc', type: 'varchar'}, //#MDID-10 
         
     ],
     sortInfo:{
@@ -528,7 +622,7 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         direction: 'ASC'
     },
     bdel:true,
-    bsave:true,
+    bsave:false,
     tabsouth: [
         {
             url:'../../../sis_proyectos/vista/proyecto_analisis_det/ProyectoAnalisisDetActivo.php',
@@ -554,21 +648,42 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             height:'50%',
             cls:'ProyectoAnalisisDetGasto'
         }],
-
         onButtonNew:function(){
             //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
-            Phx.vista.ProyectoAnalisis.superclass.onButtonNew.call(this);
-            this.formr = 'new';
-            this.obtenerProveedor(this.maestro);
+
+
+            if(!this.validarFiltros()){
+                alert('Especifique el Tipo Centro de Costo')
+            }
+            else{
+                Phx.vista.ProyectoAnalisis.superclass.onButtonNew.call(this);
+                this.formr = 'new';
+                this.obtenerProveedor(this.maestro);
+                this.Cmp.id_tipo_cc.setValue(this.cmbTipoCC.getValue());
+            }
+
+
 
 
         },
     onButtonEdit:function(){
         //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
-        Phx.vista.ProyectoAnalisis.superclass.onButtonEdit.call(this);
-        var data = this.getSelectedData();
-        this.formr = 'edit';
-        this.obtenerProveedor(this.maestro);
+            Phx.vista.ProyectoAnalisis.superclass.onButtonEdit.call(this);
+            var data = this.getSelectedData();
+            this.formr = 'edit';
+            this.obtenerProveedor(this.maestro);
+
+
+    },
+
+    onButtonAct:function(){
+        //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
+        if(!this.validarFiltros()){
+            alert('Especifique el Tipo Centro de Costo')
+        }
+        else{
+            Phx.vista.ProyectoAnalisis.superclass.onButtonAct.call(this);
+        }
     },
     obtenerProveedor: function(config){
         Phx.CP.loadingShow();

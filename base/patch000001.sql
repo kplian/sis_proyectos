@@ -1214,6 +1214,12 @@ ALTER TABLE pro.tproyecto_analisis
   ALTER TABLE pro.tproyecto_analisis
   ADD COLUMN id_estado_wf INTEGER;
 /***********************************F-SCP-EGS-PRO-32-08/10/2020****************************************/
+/***********************************I-SCP-EGS-PRO-33-13/10/2020****************************************/
+ALTER TABLE pro.tproyecto_analisis
+    ADD COLUMN id_tipo_cc INTEGER;
+/***********************************F-SCP-EGS-PRO-33-13/10/2020****************************************/
+
+
 
 
 
