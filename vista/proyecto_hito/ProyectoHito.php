@@ -9,8 +9,7 @@
 HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #0                28-09-2020 20:15:06    egutierrez            Creacion    
- #   
-
+#MDID-12              16/10/2020          EGS                   Se agrega funciones de memoria
 *******************************************************************************************/
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -23,12 +22,21 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
         //llama al constructor de la clase padre
         Phx.vista.ProyectoHito.superclass.constructor.call(this,config);
         this.init();
+        this.addButton('btnMenHit', { //#MDID-12
+            text : 'Memoria',
+            iconCls : 'bexecdb',
+            disabled : true,
+            handler : this.openMenHit,
+            tooltip : '<b>Memoria</b>'
+        });
+
         var dataPadre = Phx.CP.getPagina(this.idContenedorPadre).getSelectedData()
         if(dataPadre){
             this.onEnablePanel(this, dataPadre);
         } else {
             this.bloquearMenus();
         }
+
     },
             
     Atributos:[
@@ -51,6 +59,56 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
             },
             type:'Field',
             form:true
+        },
+
+        {
+            config:{
+                name: 'codigo',
+                fieldLabel: 'Codigo',
+                allowBlank: false,
+                emptyText: 'Elegir ...',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_proyectos/control/ProyectoHito/listarProyectoHitoCodigo',
+                    id : 'codigo',
+                    root: 'datos',
+                    sortInfo:{
+                        field: 'codigo',
+                        direction: 'ASC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['codigo'],
+                    remoteSort: true,
+                    baseParams: { par_filtro: 'prohit.codigo'}
+                }),
+                tpl:'<tpl for=".">\
+		                       <div class="x-combo-list-item"><p><b>Codigo: </b>{codigo}</p>\
+		                       </div></tpl>',
+                valueField: 'codigo',
+                displayField: 'codigo',
+                gdisplayField: 'codigo',
+                hiddenName: 'codigo',
+                forceSelection:false,
+                typeAhead: false,
+                triggerAction: 'all',
+                listWidth:500,
+                resizable:true,
+                lazyRender:true,
+                mode:'remote',
+                pageSize:10,
+                queryDelay:1000,
+                width: 150,
+                gwidth:150,
+                minChars:2,
+                anchor:'80%',
+                qtip:'Codigos de Hito',
+                //tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_ingas}</p></div></tpl>',
+
+            },
+            type:'ComboBox',
+            id_grupo:1,
+            grid:true,
+            form:true
+
         },
 
         {
@@ -291,6 +349,7 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+        {name:'codigo', type: 'string'},
         
     ],
     sortInfo:{
@@ -314,6 +373,36 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
             }
         });
     },
+    preparaMenu: function(n){
+
+        var tb = Phx.vista.ProyectoHito.superclass.preparaMenu.call(this);
+        var data = this.getSelectedData();
+        console.log('tb',tb);
+        this.getBoton('btnMenHit').enable();//#MDID-12
+        return tb;
+    },
+    liberaMenu: function(){
+        var tb = Phx.vista.ProyectoHito.superclass.liberaMenu.call(this);
+        if (tb) {
+            //this.getBoton('btnMenHit').disable();
+        }
+        return tb;
+    },
+    openMenHit: function(){//#MDID-12
+        var win = Phx.CP.loadWindows(
+            '../../../sis_proyectos/vista/proyecto_hito/Memoria.php',
+            'Memoria', {
+                width: '90%',
+                height: '70%'
+            },
+            this.maestro,
+            this.idContenedor,
+            'Memoria'
+        );
+    },
+
+
+
     }
 )
 </script>

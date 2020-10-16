@@ -4664,3 +4664,30 @@ AND cb2.id_centro_costo = may.id_centro_costo;
 /***********************************I-DEP-EGS-PRO-1-28/09/2020****************************************/
 select pxp.f_insert_testructura_gui ('ANAINGDIF', 'PRO_1');
 /***********************************F-DEP-EGS-PRO-1-28/09/2020****************************************/
+/***********************************I-DEP-EGS-PRO-1-15/10/2020****************************************/
+ALTER TABLE pro.tproyecto_analisis_det
+    ADD CONSTRAINT tproyecto_analisis_det_fk FOREIGN KEY (id_proyecto_analisis)
+        REFERENCES pro.tproyecto_analisis(id_proyecto_analisis)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+        NOT DEFERRABLE;
+ALTER TABLE pro.tproyecto_analisis
+    ADD CONSTRAINT tproyecto_analisis_fk FOREIGN KEY (id_proyecto)
+        REFERENCES pro.tproyecto(id_proyecto)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+        NOT DEFERRABLE;
+ALTER TABLE pro.tproyecto_hito
+    ADD CONSTRAINT tproyecto_hito_fk FOREIGN KEY (id_proyecto)
+        REFERENCES pro.tproyecto(id_proyecto)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+        NOT DEFERRABLE;
+ALTER TABLE pro.tproyecto_suspension
+    ADD CONSTRAINT tproyecto_suspension_fk FOREIGN KEY (id_proyecto)
+        REFERENCES pro.tproyecto(id_proyecto)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+        NOT DEFERRABLE;
+/***********************************F-DEP-EGS-PRO-1-15/10/2020****************************************/
+
