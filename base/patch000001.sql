@@ -1222,6 +1222,17 @@ ALTER TABLE pro.tproyecto_analisis
 ALTER TABLE pro.tproyecto_hito
     ADD COLUMN codigo VARCHAR;
 /***********************************F-SCP-EGS-PRO-34-16/10/2020****************************************/
+/***********************************I-SCP-EGS-PRO-35-19/10/2020****************************************/
+
+CREATE TABLE pro.tcuenta_incluir (
+  id_cuenta_incluir SERIAL,
+  nro_cuenta VARCHAR(20) NOT NULL,
+  tipo VARCHAR(20) DEFAULT 'diferido'::character varying NOT NULL,
+  CONSTRAINT tcuenta_incluir_pkey PRIMARY KEY(id_cuenta_incluir)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+/***********************************F-SCP-EGS-PRO-35-19/10/2020****************************************/
+
 
 
 
