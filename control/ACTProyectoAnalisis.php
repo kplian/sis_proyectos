@@ -11,10 +11,11 @@
   #0                29-09-2020 12:44:10    egutierrez             Creacion    
     #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
  * #MDID-10             13/10/2020             EGS                  Se agrega filtro pos tipo_cc
+ * #MDID-11              29/10/2020           EGS                 se agrega saldos para el panel
  *****************************************************************************************/
 
-class ACTProyectoAnalisis extends ACTbase{    
-            
+class ACTProyectoAnalisis extends ACTbase{
+
     function listarProyectoAnalisis(){
 		$this->objParam->defecto('ordenacion','id_proyecto_analisis');
         if($this->objParam->getParametro('id_proyecto')!=''){
@@ -73,7 +74,14 @@ class ACTProyectoAnalisis extends ACTbase{
         $this->res=$this->objFunc->anteriorEstado($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-            
+    function listarAnalisisDiferido(){//#MDID-11
+        $this->objParam->defecto('ordenacion','id_proyecto_analisis');
+
+        $this->objParam->defecto('dir_ordenacion','asc');
+        $this->objFunc=$this->create('MODProyectoAnalisis');
+        $this->res=$this->objFunc->listarAnalisisDiferido($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 }
 
 ?>

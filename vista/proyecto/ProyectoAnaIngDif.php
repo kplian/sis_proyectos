@@ -116,7 +116,7 @@ Phx.vista.ProyectoAnaIngDif = {
             '../../../sis_proyectos/vista/proyecto_analisis/ProyectoAnalisis.php',
             'Análisis  Diferidos', {
                 width: '95%',
-                height: '90%'
+                height: '95%'
             },
             data,
             this.idContenedor,

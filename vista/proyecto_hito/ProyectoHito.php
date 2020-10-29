@@ -362,6 +362,14 @@ Phx.vista.ProyectoHito=Ext.extend(Phx.gridInterfaz,{
     onReloadPage: function(m) {
         this.maestro = m;
         this.Atributos[1].valorInicial = this.maestro.id_proyecto;
+        this.Cmp.codigo.store.baseParams.start=0;
+        this.Cmp.codigo.store.baseParams.limit= this.tam_pag;
+        this.Cmp.codigo.store.baseParams.id_proyecto = this.maestro.id_proyecto;
+        this.Cmp.codigo.on('expand', function (Combo) {
+            console.log('entra');
+            this.Cmp.codigo.store.reload(true);
+        }, this);
+
         //Define the filter to apply for activos fijod drop down
         this.store.baseParams = {
             id_proyecto: this.maestro.id_proyecto

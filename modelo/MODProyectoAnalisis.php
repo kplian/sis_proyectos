@@ -11,6 +11,7 @@
   #0                29-09-2020 12:44:10    egutierrez             Creacion    
   #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
   #MDID-10           13/10/2020              EGS                 Se agrega filto por tipo_cc
+ *#MDID-11              29/10/2020           EGS                 se agrega saldos para el panel
 
  *****************************************************************************************/
 
@@ -188,6 +189,40 @@ class MODProyectoAnalisis extends MODbase{
         $this->setParametro('obs','obs','varchar');
         $this->setParametro('estado_destino','estado_destino','varchar');
         //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function listarAnalisisDiferido(){//MDID-11
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.f_analisis_diferido_sel';
+        $this->transaccion='PRO_ANADIF_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+        $this->setTipoRetorno('record');
+        //var_dump('h',$this->objParam);
+        $this->setParametro('id_proyecto_analisis','id_proyecto_analisis','int4');
+
+        $this->captura('id_proyecto_analisis','int4');
+        $this->captura('saldo_activo','numeric');
+        $this->captura('saldo_pasivo','numeric');
+        $this->captura('saldo_ingreso','numeric');
+        $this->captura('saldo_gasto','numeric');
+        $this->captura('saldo_activo_cbt','numeric');
+        $this->captura('saldo_pasivo_cbt','numeric');
+        $this->captura('saldo_ingreso_cbt','numeric');
+        $this->captura('saldo_gasto_cbt','numeric');
+        $this->captura('saldo_activo_cbtII','numeric');
+        $this->captura('saldo_pasivo_cbtII','numeric');
+        $this->captura('saldo_ingreso_cbtII','numeric');
+        $this->captura('saldo_gasto_cbtII','numeric');
+        $this->captura('saldo_activo_cbtIII','numeric');
+        $this->captura('saldo_pasivo_cbtIII','numeric');
+        $this->captura('saldo_ingreso_cbtIII','numeric');
+        $this->captura('saldo_gasto_cbtIII','numeric');
+
         $this->armarConsulta();
         $this->ejecutarConsulta();
 

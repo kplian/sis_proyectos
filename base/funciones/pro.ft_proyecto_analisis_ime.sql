@@ -277,6 +277,21 @@ BEGIN
     ELSIF (p_transaccion='PRO_PROANA_ELI') THEN
 
         BEGIN
+            SELECT
+                pa.estado
+            INTO
+                v_record
+            FROM pro.tproyecto_analisis pa
+            WHERE pa.id_proyecto_analisis=v_parametros.id_proyecto_analisis ;
+
+            IF v_record.estado <> 'borrador' THEN
+                RAISE EXCEPTION 'No puede eleminar el registro se encuentra en estado  (%) Solo puede eliminarlo en estado Borrador',v_record.estado;
+            END IF;
+
+            --Eliminamos todos los registros detalle relacionados al analisis
+            DELETE FROM pro.tproyecto_analisis_det
+            WHERE id_proyecto_analisis=v_parametros.id_proyecto_analisis;
+
             --Sentencia de la eliminacion
             DELETE FROM pro.tproyecto_analisis
             WHERE id_proyecto_analisis=v_parametros.id_proyecto_analisis;

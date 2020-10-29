@@ -30,6 +30,8 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         Phx.vista.ProyectoAnalisis.superclass.constructor.call(this,config);
         this.addBotonesGantt();//#MDID-8
         this.init();
+        this.retornarAnaDif();
+        this.iniciarEventos();
         this.sw_init = true
         this.cmbTipoCC.on('select',function(combo,record,index){
             this.desbloquearOrdenamientoGrid();
@@ -82,6 +84,9 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
                 tooltip: '<b>Documentos </b><br/>Permite ver los documentos asociados al NRO de trámite.'
             });
 
+    },
+    iniciarEventos:function(){
+        this.ocultarComponente(this.Cmp.id_tipo_cc);
     },
     validarFiltros:function(){
         if(this.cmbTipoCC.getValue()){
@@ -226,7 +231,7 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             filters:{pfiltro:'proana.id_tipo_cc',type:'string'},
             id_grupo:1,
             grid:true,
-            form:false
+            form:true
         },
         {//#MDID-8
             //configuracion del componente
@@ -262,16 +267,6 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             id_grupo:1,
             grid:true,
             form:false
-        },
-        {//#MDID-8
-            //configuracion del componente
-            config:{
-                labelSeparator:'',
-                inputType:'hidden',
-                name: 'id_tipo_cc'
-            },
-            type:'Field',
-            form:true
         },
         {
             config:{
@@ -310,7 +305,7 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             config:{
                 name: 'fecha',
                 fieldLabel: 'Fecha',
-                allowBlank: true,
+                allowBlank: false,
                 anchor: '80%',
                 gwidth: 100,
                             format: 'd/m/Y', 
@@ -648,6 +643,16 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             height:'50%',
             cls:'ProyectoAnalisisDetGasto'
         }],
+    tabeast : [
+        {
+            url:'../../../sis_proyectos/vista/proyecto_analisis/InfAnaDif.php',
+            title:'Analisis de Diferimiento',
+            width:'40%',
+            height:'50%',
+            cls:'InfAnaDif',
+
+        }
+    ],
         onButtonNew:function(){
             //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
 
@@ -864,6 +869,25 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         }
         return tb
     },
+
+    retornarAnaDif:function (){// #10
+        var data = this.getSelectedData();
+        if (data == undefined){}
+        else{
+            return data;
+        }
+
+    },
+    actualizarInfAnadif: function (){ // #10
+        contenedor = this.idContenedor +'-east-0';
+
+        Phx.CP.getPagina(contenedor).actualizarInfAnaDif();
+    },
+    onButtonDel: function () {
+        Phx.vista.ProyectoAnalisis.superclass.onButtonDel.call(this);
+        contenedor = this.idContenedor +'-east-0';
+        Phx.CP.getPagina(contenedor).actualizarInfAnaDif();
+    }
 
     }
 )

@@ -1,14 +1,14 @@
 --------------- SQL ---------------
 
 CREATE OR REPLACE FUNCTION pro.f_insertar_int_transaccion_tipo_cc (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_id_tipo_cc integer,
-  p_fecha date,
-  p_id_proyecto_analisis integer,
-  p_id_auxiliar_ant integer
+    p_administrador integer,
+    p_id_usuario integer,
+    p_id_tipo_cc integer,
+    p_fecha date,
+    p_id_proyecto_analisis integer,
+    p_id_auxiliar_ant integer
 )
-RETURNS varchar AS
+    RETURNS varchar AS
 $body$
 /**************************************************************************
  SISTEMA:        Sistema de Proyectos
@@ -21,7 +21,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #0                29-09-2020 12:44:10    egutierrez             Creacion
- #
+#MDID-11               29/10/2020           EGS                  Se Modifica para que ahora se incluyan las cuentas en vez de excluir cuentas
  ***************************************************************************/
 
 DECLARE
@@ -43,32 +43,39 @@ BEGIN
 
     v_nombre_funcion = 'pro.f_insertar_int_transaccion_tipo_cc';
 
-        BEGIN
+    BEGIN
 
+        IF NOT EXISTS ( SELECT 1
+                        FROM pro.tcuenta_incluir e
+                        Where e.tipo = 'diferido') THEN
+            RAISE EXCEPTION 'No existe una cuenta registrada en incluir cuentas contables';
+        END IF ;
 
-            SELECT
-                pro.id_auxiliar
-            INTO
-                v_id_auxiliar
-            FROM pro.tproyecto_analisis proa
-            LEFT join param.tproveedor pro on pro.id_proveedor = proa.id_proveedor
-            WHERE  proa.id_proyecto_analisis = p_id_proyecto_analisis;
-
-            IF v_id_auxiliar = p_id_auxiliar_ant  THEN
-                p_id_auxiliar_ant = 0;
-            END IF;
-            --si se ingresa un fecha menor al registrado eliminamos las transacciones que sean mayores a la fecha registrada
-            DELETE FROM   pro.tproyecto_analisis_det
-            WHERE id_int_transaccion in (
+        SELECT
+            pro.id_auxiliar
+        INTO
+            v_id_auxiliar
+        FROM pro.tproyecto_analisis proa
+                 LEFT join param.tproveedor pro on pro.id_proveedor = proa.id_proveedor
+        WHERE  proa.id_proyecto_analisis = p_id_proyecto_analisis;
+        -- Si el Id_auxiliar no cambia entonces no eliminamos los registros del auxiliar
+        IF v_id_auxiliar = p_id_auxiliar_ant  THEN
+            p_id_auxiliar_ant = 0;
+        END IF;
+        --si se ingresa un fecha menor al registrado eliminamos las transacciones que sean mayores a la fecha registrada
+        -- o eliminamos los registros del auxiliar si es diferente al ingresado
+        DELETE FROM   pro.tproyecto_analisis_det
+        WHERE id_int_transaccion in (
             SELECT
                 pr.id_int_transaccion
             FROM pro.tproyecto_analisis_det pr
-            left join conta.tint_transaccion intra on intra.id_int_transaccion = pr.id_int_transaccion
-             left join conta.tint_comprobante cbt on cbt.id_int_comprobante = intra.id_int_comprobante
+                     left join conta.tint_transaccion intra on intra.id_int_transaccion = pr.id_int_transaccion
+                     left join conta.tint_comprobante cbt on cbt.id_int_comprobante = intra.id_int_comprobante
             WHERE (cbt.fecha > p_fecha) or (intra.id_auxiliar = p_id_auxiliar_ant)
-            );
-            --registramos las transacciones menores a la fecha solicitado
-            v_consulta='
+        );
+
+        --registramos las transacciones menores o iguales a la fecha solicitado
+        v_consulta='
             SELECT
                   intra.id_int_transaccion,
                   cbt.fecha,
@@ -101,37 +108,37 @@ BEGIN
                   )
                   and cbt.fecha <= '''||p_fecha||'''::date
                   and pa.id_proyecto_analisis_det is NULL
-                  and nro_cuenta not in (
+                  and nro_cuenta in (
                             SELECT
-                            e.nro_cuenta
-                            FROM pro.tcuenta_excluir e
+                            DISTINCT(e.nro_cuenta)
+                            FROM pro.tcuenta_incluir e
                             Where e.tipo = ''diferido''
                   )
                   ' ;
 
-            FOR v_record IN EXECUTE  (
-                v_consulta
+        FOR v_record IN EXECUTE  (
+            v_consulta
 
             )LOOP
                 INSERT INTO
-                pro.tproyecto_analisis_det
+                    pro.tproyecto_analisis_det
                 (
-                  id_usuario_reg,
-                  id_proyecto_analisis,
-                  id_int_transaccion
+                    id_usuario_reg,
+                    id_proyecto_analisis,
+                    id_int_transaccion
                 )
                 VALUES (
-                  p_id_usuario,
-                  p_id_proyecto_analisis,
-                  v_record.id_int_transaccion
-                );
+                           p_id_usuario,
+                           p_id_proyecto_analisis,
+                           v_record.id_int_transaccion
+                       );
 
             END LOOP;
 
-            --Devuelve la respuesta
-            RETURN v_resp;
+        --Devuelve la respuesta
+        RETURN v_resp;
 
-        END;
+    END;
 
 EXCEPTION
 
@@ -144,8 +151,8 @@ EXCEPTION
 
 END;
 $body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    CALLED ON NULL INPUT
+    SECURITY INVOKER
+    COST 100;
