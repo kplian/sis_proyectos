@@ -44,7 +44,15 @@ Phx.vista.ProyectoAnaIngDif = {
         this.load({ params: {start: 0,limit: 50 }});
     },
     iniciarEventos: function(){
-
+        this.Cmp.diferido.setValue('si');
+        this.Cmp.nombreVista.setValue(this.nombreVista);
+        //this.Cmp.id_tipo_cc.store.baseParams.movimiento='si';
+        this.Cmp.importe_max.allowBlank = true;
+        this.ocultarComponente(this.Cmp.importe_max);
+        this.Cmp.id_moneda.allowBlank = true;
+        this.ocultarComponente(this.Cmp.id_moneda);
+        this.Cmp.id_fase_plantilla.allowBlank = true;
+        this.ocultarComponente(this.Cmp.id_fase_plantilla);
     	
     },
     	loadCheckDocumentosWf:function() {
@@ -108,7 +116,7 @@ Phx.vista.ProyectoAnaIngDif = {
             '../../../sis_proyectos/vista/proyecto_analisis/ProyectoAnalisis.php',
             'Análisis  Diferidos', {
                 width: '95%',
-                height: '90%'
+                height: '95%'
             },
             data,
             this.idContenedor,
@@ -117,7 +125,13 @@ Phx.vista.ProyectoAnaIngDif = {
     },
     onButtonNew: function(){
         Phx.vista.ProyectoAnaIngDif.superclass.onButtonNew.call(this);
-        this.Cmp.diferido.setValue('si');
+        this.iniciarEventos();
+        //this.Cmp.fecha_fin_real.disable(true);
+
+    },
+    onButtonEdit: function(){
+        Phx.vista.ProyectoAnaIngDif.superclass.onButtonEdit.call(this);
+        this.iniciarEventos();
         //this.Cmp.fecha_fin_real.disable(true);
 
     },

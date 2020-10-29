@@ -11,7 +11,6 @@ HISTORIAL DE MODIFICACIONES:
  #0                29-09-2020 12:44:10    egutierrez            Creacion    
  #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
  #MDID-10           13/10/2020              EGS                 Se agrega filtro po tipo cc
-   
 *******************************************************************************************/
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -30,7 +29,8 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         Phx.vista.ProyectoAnalisis.superclass.constructor.call(this,config);
         this.addBotonesGantt();//#MDID-8
         this.init();
-       this.retornarAnaDif();
+        this.retornarAnaDif();
+
         this.iniciarEventos();
         this.sw_init = true
         this.cmbTipoCC.on('select',function(combo,record,index){
@@ -83,11 +83,13 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
                 handler: this.loadCheckDocumentosWf,
                 tooltip: '<b>Documentos </b><br/>Permite ver los documentos asociados al NRO de trámite.'
             });
+
            this.addButton('SolPag',{text:'Cbte Reonocimiento Gasto', iconCls: 'bcbte',disabled: false, handler: this.onBtnCbte ,tooltip: '<b>Generar Cbte</b><br/>Genera el comprobante'});
    },   
    iniciarEventos:function(){
 		this.ocultarComponente(this.Cmp.id_tipo_cc);
    },
+
     validarFiltros:function(){
         if(this.cmbTipoCC.getValue()){
             this.desbloquearOrdenamientoGrid();
@@ -98,7 +100,7 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             return false;
         }
     },
-    
+
     cmbTipoCC:new Ext.form.ComboBox({
         name: 'id_tipo_cc',
         fieldLabel: 'Tipo CC',
@@ -269,6 +271,72 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             form:false
         },
         {
+            config:{ //#MDID-10
+                name: 'id_tipo_cc',
+                fieldLabel: 'Tipo Cc.',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:30,
+                renderer:function (value, p, record){return String.format('{0}', record.data['desc_tipo_cc']);}
+            },
+            type:'TextField',
+            filters:{pfiltro:'proana.id_tipo_cc',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {//#MDID-8
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'id_estado_wf'
+            },
+            type:'Field',
+            form:true
+        },
+        {//#MDID-8
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'id_proceso_wf'
+            },
+            type:'Field',
+            form:true
+        },
+        {
+            config:{//#MDID-8
+                name: 'nro_tramite',
+                fieldLabel: 'Nro Tramite',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:30
+            },
+            type:'TextField',
+            filters:{pfiltro:'proana.estado',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'estado',
+                fieldLabel: 'Estado',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:30
+            },
+            type:'TextField',
+            filters:{pfiltro:'proana.estado',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
             config:{
                 name:'id_proveedor',
                 hiddenName: 'id_proveedor',
@@ -290,7 +358,7 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             config:{
                 name: 'fecha',
                 fieldLabel: 'Fecha',
-                allowBlank: true,
+                allowBlank: false,
                 anchor: '80%',
                 gwidth: 100,
                             format: 'd/m/Y', 
@@ -319,20 +387,6 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
 		},
         {
             config:{
-                name: 'estado',
-                fieldLabel: 'Estado',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 100,
-            	maxLength:30
-            },
-                type:'TextField',
-                filters:{pfiltro:'proana.estado',type:'string'},
-                id_grupo:1,
-                grid:true,
-                form:true
-		},{
-            config:{
                 name: 'porc_diferido',
                 fieldLabel: 'Porcentaje',
                 allowBlank: true,
@@ -347,6 +401,7 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
 
                 }
             },
+
             type:'NumberField',
             filters:{pfiltro:'proana.porc_diferido',type:'numeric'},
             id_grupo:1,
@@ -610,7 +665,6 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         {name:'id_tipo_cc', type: 'numeric'},//#
         {name:'desc_tipo_cc', type: 'varchar'}, //#MDID-10 
 
-        
     ],
     sortInfo:{
         field: 'id_proyecto_analisis',
@@ -643,21 +697,22 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             height:'50%',
             cls:'ProyectoAnalisisDetGasto'
         }],
-    	tabeast : [
+
+    tabeast : [
         {
             url:'../../../sis_proyectos/vista/proyecto_analisis/InfAnaDif.php',
-            title:'',
+            title:'Analisis de Diferimiento',
             width:'40%',
             height:'50%',
             cls:'InfAnaDif',
 
-        }    
-       
-       ],
 
-
+        }
+    ],
         onButtonNew:function(){
+
            if(!this.validarFiltros()){
+
                 alert('Especifique el Tipo Centro de Costo')
             }
             else{
@@ -667,15 +722,19 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
                 this.Cmp.id_tipo_cc.setValue(this.cmbTipoCC.getValue());
             }
 
-
         },
     onButtonEdit:function(){
         //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
-        Phx.vista.ProyectoAnalisis.superclass.onButtonEdit.call(this);
-        var data = this.getSelectedData();
-        this.formr = 'edit';
-        this.obtenerProveedor(this.maestro);
-    },    
+
+            Phx.vista.ProyectoAnalisis.superclass.onButtonEdit.call(this);
+            var data = this.getSelectedData();
+            this.formr = 'edit';
+            this.obtenerProveedor(this.maestro);
+
+
+    },
+
+
     onButtonAct:function(){
         //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
         if(!this.validarFiltros()){
@@ -684,7 +743,9 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         else{
             Phx.vista.ProyectoAnalisis.superclass.onButtonAct.call(this);
         }
-     },
+
+    },
+
     obtenerProveedor: function(config){
         Phx.CP.loadingShow();
         Ext.Ajax.request({
@@ -729,7 +790,9 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         });
 
     },
-    sigEstado:function(){//#MDID-8
+
+        sigEstado:function(){//#MDID-8
+
             var data = this.getSelectedData();
             this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
                 'Estado de Wf',
@@ -830,6 +893,7 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             this.reload();
 
         },
+
    onBtnCbte: function(){
     	var rec=this.sm.getSelected();
     	var confirmado = true;
@@ -858,14 +922,17 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             this.reload();
     },
     preparaMenu: function(n){
+
         var data = this.getSelectedData();
         var tb =this.tbar;
         Phx.vista.ProyectoAnalisis.superclass.preparaMenu.call(this,n);
         this.getBoton('diagrama_gantt').enable();
         this.getBoton('btnChequeoDocumentosWf').enable();
 
-        if (data.estado == 'borrador') {   
-         	this.getBoton('ant_estado').disable();
+
+        if (data.estado == 'borrador') {
+            this.getBoton('ant_estado').disable();
+
             this.getBoton('sig_estado').enable();
 
         }else if(data.estado == 'finalizado'){
@@ -876,9 +943,11 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('sig_estado').enable();
 
         };
+
         return tb
        },
     
+
     liberaMenu:function(){//#MDID-8
         var tb = Phx.vista.ProyectoAnalisis.superclass.liberaMenu.call(this);
         if(tb){
@@ -902,6 +971,13 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         contenedor = this.idContenedor +'-east-0';
 
         Phx.CP.getPagina(contenedor).actualizarInfAnaDif();
+
+    },
+    onButtonDel: function () {
+        Phx.vista.ProyectoAnalisis.superclass.onButtonDel.call(this);
+        contenedor = this.idContenedor +'-east-0';
+        Phx.CP.getPagina(contenedor).actualizarInfAnaDif();
+
     }
 
     }

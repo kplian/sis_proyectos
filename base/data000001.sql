@@ -202,25 +202,21 @@ select param.f_import_tcatalogo_tipo ('insert','tcuenta_excluir_tipo','PRO','tcu
 select param.f_import_tcatalogo ('insert','PRO','Diferido','diferido','tcuenta_excluir_tipo');
 select param.f_import_tcatalogo ('insert','PRO','Cierre','cierre','tcuenta_excluir_tipo');
 /***********************************F-DAT-EGS-PRO-11-30/09/2020****************************************/
-/***********************************I-SCP-EGS-PRO-31-29/09/2020****************************************/
-CREATE TABLE pro.tproyecto_analisis(
-                                       id_proyecto_analisis SERIAL,
-                                       id_proyecto INTEGER,
-                                       fecha DATE,
-                                       glosa VARCHAR(500),
-                                       estado VARCHAR(30),
-                                       PRIMARY KEY (id_proyecto_analisis))
-    INHERITS(pxp.tbase);
-CREATE TABLE pro.tproyecto_analisis_det(
-                                           id_proyecto_analisis_det SERIAL,
-                                           id_proyecto_analisis INTEGER,
-                                           id_int_transaccion INTEGER,
-                                           estado VARCHAR(30),
-                                           PRIMARY KEY (id_proyecto_analisis_det))
-    INHERITS(pxp.tbase);
 
-ALTER TABLE pro.tproyecto
-    ADD COLUMN diferido VARCHAR(2) DEFAULT 'no' NOT NULL;
-/***********************************F-SCP-EGS-PRO-31-29/09/2020****************************************/
-
-
+/***********************************I-DAT-EGS-PRO-12-08/10/2020****************************************/
+--WF ingresos Diferidos
+select wf.f_import_tproceso_macro ('insert','ANADIFING', 'PRO', 'Analisis de Ingresos Diferidos','si');
+select wf.f_import_tcategoria_documento ('insert','legales', 'Legales');
+select wf.f_import_tcategoria_documento ('insert','proceso', 'Proceso');
+select wf.f_import_ttipo_proceso ('insert','DIFING',NULL,NULL,'ANADIFING','Ingresos Diferidos','','','si','','','','DIFING',NULL);
+select wf.f_import_ttipo_estado ('insert','borrador','DIFING','borrador','si','si','no','todos','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'no','borrador','','',NULL,'no',NULL,'','');
+select wf.f_import_ttipo_estado ('insert','voboconta','DIFING','voboconta','no','no','no','todos','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'no','voboconta','','',NULL,'no',NULL,'','');
+select wf.f_import_ttipo_estado ('insert','cbt','DIFING','cbt','no','no','no','todos','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'no','cbt','','',NULL,'no',NULL,'','');
+select wf.f_import_ttipo_estado ('insert','finalizado','DIFING','finalizado','no','no','si','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'no','finalizado','','',NULL,'no',NULL,'','');
+select wf.f_import_testructura_estado ('insert','borrador','voboconta','DIFING',1,'','no');
+select wf.f_import_testructura_estado ('insert','voboconta','cbt','DIFING',1,'','no');
+select wf.f_import_testructura_estado ('insert','cbt','finalizado','DIFING',1,'','no');
+/***********************************F-DAT-EGS-PRO-12-08/10/2020****************************************/
+/***********************************I-DAT-EGS-PRO-13-29/10/2020****************************************/
+select pxp.f_insert_tgui ('Incluir Cuentas Contables', 'Incluir Cuentas Contables', 'CUEINC', 'si', 5, 'sis_proyectos/vista/cuenta_incluir/CuentaIncluir.php', 3, '', 'CuentaIncluir', 'PRO');
+/***********************************F-DAT-EGS-PRO-13-29/10/2020****************************************/

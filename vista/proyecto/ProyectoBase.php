@@ -37,16 +37,16 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true
 		},
-		/*{
-			//configuracion del componente
-			config:{
-					labelSeparator:'',
-					inputType:'hidden',
-					name: 'estado'
-			},
-			type:'Field',
-			form:true
-		},*/
+        {
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'nombreVista'
+            },
+            type:'Field',
+            form:true
+        },
 		{
 			config:{
 				name: 'codigo',
@@ -224,7 +224,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 			config: {
 				name: 'id_fase_plantilla',
 				fieldLabel: 'Plantilla Proyecto:',
-				allowBlank: true,
+				allowBlank: false,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
 					url: '../../sis_proyectos/control/FasePlantilla/listarFasePlantilla',

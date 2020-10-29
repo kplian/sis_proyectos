@@ -109,7 +109,7 @@ class MODProyecto extends MODbase{
         $this->setParametro('id_lugar','id_lugar','integer');//#56
         $this->setParametro('caracteristica_tecnica','caracteristica_tecnica','varchar');//#56
         $this->setParametro('diferido','diferido','varchar');//#MDID-4
-
+        $this->setParametro('nombreVista','nombreVista','varchar');//
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -144,7 +144,9 @@ class MODProyecto extends MODbase{
         $this->setParametro('id_lugar','id_lugar','integer');//#56
         $this->setParametro('caracteristica_tecnica','caracteristica_tecnica','varchar');//#56
         $this->setParametro('diferido','diferido','varchar');//#MDID-4
-		//Ejecuta la instruccion
+        $this->setParametro('nombreVista','nombreVista','varchar');//
+
+        //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 
