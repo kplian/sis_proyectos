@@ -1232,6 +1232,19 @@ CREATE TABLE pro.tcuenta_incluir (
 ) INHERITS (pxp.tbase)
 WITH (oids = false);
 /***********************************F-SCP-EGS-PRO-35-19/10/2020****************************************/
+/***********************************I-SCP-EGS-PRO-36-29/10/2020****************************************/
+ALTER TABLE pro.tproyecto_analisis
+    ADD COLUMN porc_diferido NUMERIC(5,2);
+
+COMMENT ON COLUMN pro.tproyecto_analisis.porc_diferido
+    IS 'el porcentaje de diferimiento q se aplica';
+ALTER TABLE pro.tproyecto_analisis
+    ADD COLUMN cerrar VARCHAR(2) DEFAULT 'no'::character varying NOT NULL;
+
+COMMENT ON COLUMN pro.tproyecto_analisis.cerrar
+    IS 'Cierra la insercion de registros en el analisis dieridos';
+/***********************************F-SCP-EGS-PRO-36-29/10/2020****************************************/
+
 
 
 

@@ -217,3 +217,6 @@ select wf.f_import_testructura_estado ('insert','borrador','voboconta','DIFING',
 select wf.f_import_testructura_estado ('insert','voboconta','cbt','DIFING',1,'','no');
 select wf.f_import_testructura_estado ('insert','cbt','finalizado','DIFING',1,'','no');
 /***********************************F-DAT-EGS-PRO-12-08/10/2020****************************************/
+/***********************************I-DAT-EGS-PRO-13-29/10/2020****************************************/
+select pxp.f_insert_tgui ('Incluir Cuentas Contables', 'Incluir Cuentas Contables', 'CUEINC', 'si', 5, 'sis_proyectos/vista/cuenta_incluir/CuentaIncluir.php', 3, '', 'CuentaIncluir', 'PRO');
+/***********************************F-DAT-EGS-PRO-13-29/10/2020****************************************/
