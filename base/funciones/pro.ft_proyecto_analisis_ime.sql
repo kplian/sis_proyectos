@@ -64,7 +64,7 @@ DECLARE
     v_id_usuario_reg        integer;
     v_id_estado_wf_ant       integer;
     v_id_funcionario        integer;
-
+	v_res_cbte               boolean; 
 BEGIN
 
     v_nombre_funcion = 'pro.ft_proyecto_analisis_ime';
@@ -359,8 +359,18 @@ BEGIN
             end if;
 
             --Acciones por estado siguiente que podrian realizarse
-            if v_codigo_estado_siguiente in ('') then
+            if v_codigo_estado_siguiente in ('voboconta') then -- MZM 19.10.2020
+                  -- llamar a funcion q genera los cbtes
+                  		v_res_cbte =    pro.f_generar_cbte( p_id_usuario,
+                                                         v_parametros._id_usuario_ai,
+                                                         v_parametros._nombre_usuario_ai,
+                                                         v_parametros.id_proyecto_analisis,
+                                                         v_parametros.id_proyecto_analisis,
+                                                         'pago');
+                  
+                  	   
             end if;
+
 
             ---------------------------------------
             -- REGISTRA EL SIGUIENTE ESTADO DEL WF
