@@ -11,6 +11,7 @@ HISTORIAL DE MODIFICACIONES:
  #0                29-09-2020 12:44:10    egutierrez            Creacion    
  #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
  #MDID-10           13/10/2020              EGS                 Se agrega filtro po tipo cc
+
 *******************************************************************************************/
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -30,7 +31,6 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         this.addBotonesGantt();//#MDID-8
         this.init();
         this.retornarAnaDif();
-
         this.iniciarEventos();
         this.sw_init = true
         this.cmbTipoCC.on('select',function(combo,record,index){
@@ -84,12 +84,10 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
                 tooltip: '<b>Documentos </b><br/>Permite ver los documentos asociados al NRO de trámite.'
             });
 
-           this.addButton('SolPag',{text:'Cbte Reonocimiento Gasto', iconCls: 'bcbte',disabled: false, handler: this.onBtnCbte ,tooltip: '<b>Generar Cbte</b><br/>Genera el comprobante'});
-   },   
-   iniciarEventos:function(){
-		this.ocultarComponente(this.Cmp.id_tipo_cc);
-   },
-
+    },
+    iniciarEventos:function(){
+        this.ocultarComponente(this.Cmp.id_tipo_cc);
+    },
     validarFiltros:function(){
         if(this.cmbTipoCC.getValue()){
             this.desbloquearOrdenamientoGrid();
@@ -218,57 +216,6 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             },
             type:'Field',
             form:true
-        },
-        {       
-        	config:{ //#MDID-10
-                name: 'id_tipo_cc',
-                fieldLabel: 'Tipo Cc.',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 100,
-                maxLength:30,
-                renderer:function (value, p, record){return String.format('{0}', record.data['desc_tipo_cc']);}
-            },
-            type:'TextField',
-            filters:{pfiltro:'proana.id_tipo_cc',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:true
-        },
-        {//#MDID-8
-            //configuracion del componente
-            config:{
-                labelSeparator:'',
-                inputType:'hidden',
-                name: 'id_estado_wf'
-            },
-            type:'Field',
-            form:true
-        },
-        {//#MDID-8
-            //configuracion del componente
-            config:{
-                labelSeparator:'',
-                inputType:'hidden',
-                name: 'id_proceso_wf'
-            },
-            type:'Field',
-            form:true
-        },
-        {
-            config:{//#MDID-8
-                name: 'nro_tramite',
-                fieldLabel: 'Nro Tramite',
-                allowBlank: true,
-                anchor: '80%',
-                gwidth: 100,
-                maxLength:30
-            },
-            type:'TextField',
-            filters:{pfiltro:'proana.estado',type:'string'},
-            id_grupo:1,
-            grid:true,
-            form:false
         },
         {
             config:{ //#MDID-10
@@ -401,7 +348,6 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
 
                 }
             },
-
             type:'NumberField',
             filters:{pfiltro:'proana.porc_diferido',type:'numeric'},
             id_grupo:1,
@@ -664,7 +610,7 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         {name:'id_proceso_wf', type: 'string'},//#MDID-8
         {name:'id_tipo_cc', type: 'numeric'},//#
         {name:'desc_tipo_cc', type: 'varchar'}, //#MDID-10 
-
+        
     ],
     sortInfo:{
         field: 'id_proyecto_analisis',
@@ -697,7 +643,6 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             height:'50%',
             cls:'ProyectoAnalisisDetGasto'
         }],
-
     tabeast : [
         {
             url:'../../../sis_proyectos/vista/proyecto_analisis/InfAnaDif.php',
@@ -706,13 +651,13 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             height:'50%',
             cls:'InfAnaDif',
 
-
         }
     ],
         onButtonNew:function(){
+            //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
 
-           if(!this.validarFiltros()){
 
+            if(!this.validarFiltros()){
                 alert('Especifique el Tipo Centro de Costo')
             }
             else{
@@ -722,10 +667,12 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
                 this.Cmp.id_tipo_cc.setValue(this.cmbTipoCC.getValue());
             }
 
+
+
+
         },
     onButtonEdit:function(){
         //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
-
             Phx.vista.ProyectoAnalisis.superclass.onButtonEdit.call(this);
             var data = this.getSelectedData();
             this.formr = 'edit';
@@ -733,7 +680,6 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
 
 
     },
-
 
     onButtonAct:function(){
         //llamamos primero a la funcion new de la clase padre por que reseta el valor los componentesSS
@@ -743,9 +689,7 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         else{
             Phx.vista.ProyectoAnalisis.superclass.onButtonAct.call(this);
         }
-
     },
-
     obtenerProveedor: function(config){
         Phx.CP.loadingShow();
         Ext.Ajax.request({
@@ -790,9 +734,7 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         });
 
     },
-
         sigEstado:function(){//#MDID-8
-
             var data = this.getSelectedData();
             this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
                 'Estado de Wf',
@@ -893,46 +835,15 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             this.reload();
 
         },
-
-   onBtnCbte: function(){
-    	var rec=this.sm.getSelected();
-    	var confirmado = true;
-    	if(rec){
-	     	if(confirm('¿Está seguro de generar el comprobante?' )) {            
-	           
-		                Phx.CP.loadingShow();
-			            Ext.Ajax.request({
-			                url:'../../sis_proyectos/control/ProyectoAnalisis/generarCbteContable',
-			                params: { id_proyecto: rec.data.id_proyecto, tipo:'pago', id_proyecto_analisis: rec.data.id_proyecto_analisis },
-			                success: this.successGenCbte,
-			                failure: this.conexionFailure,
-			                timeout: this.timeout,
-			                scope:this
-			            });
-			       
-	            
-	         }
-		 }
-         else {
-           alert('no selecciono ningun registro');
-         }
-     },
-     successGenCbte: function(resp){
-            Phx.CP.loadingHide();
-            this.reload();
-    },
-    preparaMenu: function(n){
-
+    preparaMenu:function(n){//#MDID-8
         var data = this.getSelectedData();
         var tb =this.tbar;
         Phx.vista.ProyectoAnalisis.superclass.preparaMenu.call(this,n);
         this.getBoton('diagrama_gantt').enable();
         this.getBoton('btnChequeoDocumentosWf').enable();
 
-
         if (data.estado == 'borrador') {
             this.getBoton('ant_estado').disable();
-
             this.getBoton('sig_estado').enable();
 
         }else if(data.estado == 'finalizado'){
@@ -944,10 +855,10 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
 
         };
 
-        return tb
-       },
-    
 
+
+        return tb
+    },
     liberaMenu:function(){//#MDID-8
         var tb = Phx.vista.ProyectoAnalisis.superclass.liberaMenu.call(this);
         if(tb){
@@ -971,13 +882,11 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
         contenedor = this.idContenedor +'-east-0';
 
         Phx.CP.getPagina(contenedor).actualizarInfAnaDif();
-
     },
     onButtonDel: function () {
         Phx.vista.ProyectoAnalisis.superclass.onButtonDel.call(this);
         contenedor = this.idContenedor +'-east-0';
         Phx.CP.getPagina(contenedor).actualizarInfAnaDif();
-
     }
 
     }
