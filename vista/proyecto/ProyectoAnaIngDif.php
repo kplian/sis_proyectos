@@ -49,8 +49,6 @@ Phx.vista.ProyectoAnaIngDif = {
         //this.Cmp.id_tipo_cc.store.baseParams.movimiento='si';
         this.Cmp.importe_max.allowBlank = true;
         this.ocultarComponente(this.Cmp.importe_max);
-        this.Cmp.id_moneda.allowBlank = true;
-        this.ocultarComponente(this.Cmp.id_moneda);
         this.Cmp.id_fase_plantilla.allowBlank = true;
         this.ocultarComponente(this.Cmp.id_fase_plantilla);
     	
