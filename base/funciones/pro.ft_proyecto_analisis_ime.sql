@@ -172,6 +172,7 @@ BEGIN
                 id_proceso_wf,--#MDID-8
                 id_estado_wf,--#MDID-8
                 id_tipo_cc --#MDID-10
+                ,id_depto_conta
             ) VALUES (
                          'activo',
                          v_parametros.id_proyecto,
@@ -191,6 +192,7 @@ BEGIN
                          v_id_proceso_wf,    --#MDID-8
                          v_id_estado_wf,     --#MDID-8
                          v_parametros.id_tipo_cc --#MDID-10
+                         ,v_parametros.id_depto
 
                      ) RETURNING id_proyecto_analisis into v_id_proyecto_analisis;
 

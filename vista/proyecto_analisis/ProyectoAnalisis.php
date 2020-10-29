@@ -381,7 +381,27 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
-
+{
+   			config:{
+   				name:'id_depto',
+   				 hiddenName: 'id_depto',
+   				 url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
+	   				origen:'DEPTO',
+	   				allowBlank:false,
+	   				fieldLabel: 'Depto',
+	   				gdisplayField:'desc_depto',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
+	   				width:250,
+   			        gwidth:180,
+	   				baseParams:{estado:'activo',codigo_subsistema:'CONTA'},//parametros adicionales que se le pasan al store
+	      			renderer:function (value, p, record){return String.format('{0}', record.data['desc_depto']);}
+   			},
+   			//type:'TrigguerCombo',
+   			type:'ComboRec',
+   			id_grupo:0,
+   			filters:{pfiltro:'depto.nombre',type:'string'},
+   		    grid:false,
+   			form:true
+       },
         {
             config:{
                 name: 'saldo_activo',

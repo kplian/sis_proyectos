@@ -84,7 +84,7 @@ class MODProyectoAnalisis extends MODbase{
         $this->setParametro('cerrar','cerrar','varchar');//
         $this->setParametro('id_funcionario','id_funcionario','integer');//#MDID-8
         $this->setParametro('id_tipo_cc','id_tipo_cc','integer');//#MDID-6
-
+		$this->setParametro('id_depto','id_depto','integer');//#MZM
 
 
 
