@@ -7,6 +7,7 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 	Issue 			Fecha 			Autor				Descripcion
  	#MDID-11    	29/10/2020		EGS					Tablero de informacion de saldos
+ *  #MDID-11    	29/10/2020		EGS					Vacio de datos al escoger  otro tipo cc
  * */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -60,6 +61,8 @@ Phx.vista.InfAnaDif=Ext.extend(Phx.frmInterfaz,{
                 });
 
 
+            }else{//#MDID-11
+                this.writeHtml(undefined);
             }
 
  
@@ -253,7 +256,10 @@ Phx.vista.InfAnaDif=Ext.extend(Phx.frmInterfaz,{
 	actualizarInfAnaDif: function (){
 		this.iniciarEventos();
 		
-	}
+	},
+    vaciarDatosHtml: function (){//#MDID-11
+        this.obtenerInfAnaDif(undefined);
+    }
 
 
 })

@@ -11,7 +11,7 @@ HISTORIAL DE MODIFICACIONES:
  #0                29-09-2020 12:44:10    egutierrez            Creacion    
  #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
  #MDID-10           13/10/2020              EGS                 Se agrega filtro po tipo cc
-
+ #MDID-11    	    29/10/2020		         EGS				Vaciado de saldos en tablero al escoger otro tipo cc
 *******************************************************************************************/
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -53,6 +53,10 @@ Phx.vista.ProyectoAnalisis=Ext.extend(Phx.gridInterfaz,{
                 this.store.reload();
 
             }
+            //#MDID-11
+            contenedor = this.idContenedor +'-east-0';
+            console.log('contenedor',contenedor);
+            Phx.CP.getPagina(contenedor).vaciarDatosHtml();
         },this);
         this.cmbTipoCC.store.baseParams.id_tipo_cc= this.maestro.id_tipo_cc;
 
