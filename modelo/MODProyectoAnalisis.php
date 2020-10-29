@@ -9,8 +9,9 @@
  HISTORIAL DE MODIFICACIONES:
  #ISSUE                FECHA                AUTOR                DESCRIPCION
   #0                29-09-2020 12:44:10    egutierrez             Creacion    
-  #
-*****************************************************************************************/
+  #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
+
+ *****************************************************************************************/
 
 class MODProyectoAnalisis extends MODbase{
     
@@ -45,7 +46,15 @@ class MODProyectoAnalisis extends MODbase{
         $this->captura('saldo_pasivo','numeric');
         $this->captura('saldo_ingreso','numeric');
         $this->captura('saldo_gasto','numeric');
-        
+        $this->captura('porc_diferido','numeric');//
+        $this->captura('cerrar','varchar');//
+        $this->captura('nro_tramite','varchar');//#MDID-8
+        $this->captura('id_estado_wf','integer');//#MDID-8
+        $this->captura('id_proceso_wf','integer');//#MDID-8
+        $this->captura('id_tipo_cc','integer');//#
+        $this->captura('desc_tipo_cc','varchar');//
+
+
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -67,6 +76,13 @@ class MODProyectoAnalisis extends MODbase{
 		$this->setParametro('glosa','glosa','varchar');
 		$this->setParametro('estado','estado','varchar');
         $this->setParametro('id_proveedor','id_proveedor','int4');
+        $this->setParametro('porc_diferido','porc_diferido','numeric');//
+        $this->setParametro('cerrar','cerrar','varchar');//
+        $this->setParametro('id_funcionario','id_funcionario','integer');//#MDID-8
+        $this->setParametro('id_tipo_cc','id_tipo_cc','integer');//#MDID-6
+
+
+
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -88,8 +104,9 @@ class MODProyectoAnalisis extends MODbase{
 		$this->setParametro('id_proyecto','id_proyecto','int4');
 		$this->setParametro('fecha','fecha','date');
 		$this->setParametro('glosa','glosa','varchar');
-		$this->setParametro('estado','estado','varchar');
         $this->setParametro('id_proveedor','id_proveedor','int4');
+        $this->setParametro('porc_diferido','porc_diferido','numeric');//
+        $this->setParametro('cerrar','cerrar','varchar');//
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -134,6 +151,87 @@ class MODProyectoAnalisis extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
-            
+    function siguienteEstado(){//#MDID-8
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento = 'pro.ft_proyecto_analisis_ime';
+        $this->transaccion = 'PRO_SIGEPROANA_INS';
+        $this->tipo_procedimiento = 'IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_proyecto_analisis','id_proyecto_analisis','int4');
+        $this->setParametro('id_proceso_wf_act','id_proceso_wf_act','int4');
+        $this->setParametro('id_estado_wf_act','id_estado_wf_act','int4');
+        $this->setParametro('id_funcionario_usu','id_funcionario_usu','int4');
+        $this->setParametro('id_tipo_estado','id_tipo_estado','int4');
+        $this->setParametro('id_funcionario_wf','id_funcionario_wf','int4');
+        $this->setParametro('id_depto_wf','id_depto_wf','int4');
+        $this->setParametro('obs','obs','text');
+        $this->setParametro('json_procesos','json_procesos','text');
+
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function anteriorEstado(){//#MDID-8
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='pro.ft_proyecto_analisis_ime';
+        $this->transaccion='PRO_ANTEPROANA_IME';
+        $this->tipo_procedimiento='IME';
+        //Define los parametros para la funcion
+        $this->setParametro('id_proyecto_analisis','id_proyecto_analisis','int4');
+        $this->setParametro('id_proceso_wf','id_proceso_wf','int4');
+        $this->setParametro('id_estado_wf','id_estado_wf','int4');
+        $this->setParametro('obs','obs','varchar');
+        $this->setParametro('estado_destino','estado_destino','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+          
+	function listarAnalisisDiferido(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='pro.f_analisis_diferido_sel';
+        $this->transaccion='PRO_ANADIF_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+        //var_dump('h',$this->objParam);
+        $this->setParametro('id_proyecto_analisis','id_proyecto_analisis','int4');
+
+        $this->captura('id_proyecto_analisis','int4');
+        $this->captura('saldo_activo','numeric');
+        $this->captura('saldo_pasivo','numeric');
+        $this->captura('saldo_ingreso','numeric');
+        $this->captura('saldo_gasto','numeric');
+
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }	  
+		function generarCbteContable(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='pro.ft_proyecto_analisis_ime';
+        $this->transaccion='PRO_GENCBTE_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_proyecto','id_proyecto','int4');
+        $this->setParametro('id_proyecto_analisis','id_proyecto_analisis','int4');
+        $this->setParametro('tipo','tipo','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }	      
 }
 ?>
