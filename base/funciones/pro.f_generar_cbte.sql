@@ -65,14 +65,14 @@ BEGIN
    END IF;
     
     
-    IF v_v_proyecto.porc_diferido > 1 THEN
-        IF v_porc_diferido = 100 THEN
+    IF v_proyecto.porc_diferido > 1 THEN
+        IF v_proyecto.porc_diferido = 100 THEN
             v_porc_diferido = 1 ;
         ELSE
-            v_porc_diferido = (v_porc_diferido/100);
+            v_porc_diferido = (v_proyecto.porc_diferido/100);
         END IF;
-    ELSIF  v_porc_diferido < 1 THEN
-        v_porc_diferido = v_porc_diferido;
+    ELSIF  v_proyecto.porc_diferido < 1 THEN
+        v_porc_diferido = v_proyecto.porc_diferido;
 
     ELSE
         v_porc_diferido = 1;
