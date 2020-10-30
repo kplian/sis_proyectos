@@ -4935,3 +4935,95 @@ AS
          END AS monto
   FROM pro.vcbte_proy_diferido_ing_det;
 /***********************************F-DEP-MZM-PRO-2-29/10/2020****************************************/  
+
+
+/***********************************I-DEP-MZM-PRO-2-30/10/2020****************************************/
+CREATE OR REPLACE VIEW pro.vcbte_proy_diferido_ing_det(
+    id_proyecto_analisis,
+    saldo_ingreso,
+    saldo_gasto,
+    saldo_activo,
+    porc_utilidad,
+    id_cuenta_ingreso,
+    id_auxiliar,
+    saldo_pasivo)
+AS
+  SELECT pro.id_proyecto_analisis,
+         (
+           SELECT sum(t.importe_haber_mb) - sum(t.importe_debe_mb)
+           FROM pro.tproyecto_analisis_det pd
+                JOIN conta.tint_transaccion t ON t.id_int_transaccion =
+                 pd.id_int_transaccion
+                JOIN conta.tcuenta c ON c.id_cuenta = t.id_cuenta
+           WHERE c.tipo_cuenta::text = 'ingreso' ::text AND
+                 pd.id_proyecto_analisis = pro.id_proyecto_analisis
+         ) AS saldo_ingreso,
+         (
+           SELECT sum(t.importe_debe_mb) - sum(t.importe_haber_mb)
+           FROM pro.tproyecto_analisis_det pd
+                JOIN conta.tint_transaccion t ON t.id_int_transaccion =
+                 pd.id_int_transaccion
+                JOIN conta.tcuenta c ON c.id_cuenta = t.id_cuenta
+           WHERE c.tipo_cuenta::text = 'gasto' ::text AND
+                 pd.id_proyecto_analisis = pro.id_proyecto_analisis
+         ) AS saldo_gasto,
+         (
+           SELECT sum(t.importe_debe_mb) - sum(t.importe_haber_mb)
+           FROM pro.tproyecto_analisis_det pd
+                JOIN conta.tint_transaccion t ON t.id_int_transaccion =
+                 pd.id_int_transaccion
+                JOIN conta.tcuenta c ON c.id_cuenta = t.id_cuenta
+           WHERE c.tipo_cuenta::text = 'activo' ::text AND
+                 pd.id_proyecto_analisis = pro.id_proyecto_analisis
+         ) AS saldo_activo,
+         ((
+            SELECT CASE
+                     WHEN pro.porc_diferido > 1::numeric THEN 1::numeric -
+                      pro.porc_diferido / 100::numeric
+                     ELSE 1::numeric - pro.porc_diferido
+                   END AS "case"
+         )) ::numeric(3, 2) AS porc_utilidad,
+         (
+           SELECT CASE
+                    WHEN cu.id_gestion =((
+                                           SELECT g.id_gestion
+                                           FROM param.tgestion g
+                                           WHERE pro.fecha >= g.fecha_ini AND
+                                                 pro.fecha <= g.fecha_fin
+                  )) THEN cu.id_cuenta
+                    ELSE conta.f_get_cuenta_ids(cu.id_cuenta, 'siguiente'
+                     ::character varying)
+                  END AS id_cuenta_ingreso
+           FROM conta.tint_transaccion t
+                JOIN conta.tint_comprobante c ON c.id_int_comprobante =
+                 t.id_int_comprobante
+                JOIN conta.tcuenta cu ON cu.id_cuenta = t.id_cuenta AND
+                 cu.tipo_cuenta::text = 'ingreso' ::text
+                JOIN param.tcentro_costo cc ON cc.id_centro_costo =
+                 t.id_centro_costo
+                JOIN param.ttipo_cc tc ON tc.id_tipo_cc = cc.id_tipo_cc
+                JOIN pro.tproyecto proy ON proy.id_tipo_cc = tc.id_tipo_cc
+           WHERE proy.id_proyecto = pro.id_proyecto AND
+                 c.estado_reg::text = 'validado' ::text AND
+                 c.fecha < pro.fecha
+           ORDER BY c.fecha DESC
+           LIMIT 1
+         ) AS id_cuenta_ingreso,
+         (
+           SELECT a.id_auxiliar
+           FROM conta.tauxiliar a
+                JOIN param.vproveedor p ON p.codigo::text =
+                 a.codigo_auxiliar::text
+           WHERE p.id_proveedor = pro.id_proveedor
+         ) AS id_auxiliar,
+         (
+           SELECT sum(t.importe_haber_mb) - sum(t.importe_debe_mb)
+           FROM pro.tproyecto_analisis_det pd
+                JOIN conta.tint_transaccion t ON t.id_int_transaccion =
+                 pd.id_int_transaccion
+                JOIN conta.tcuenta c ON c.id_cuenta = t.id_cuenta
+           WHERE c.tipo_cuenta::text = 'pasivo' ::text AND
+                 pd.id_proyecto_analisis = pro.id_proyecto_analisis
+         ) AS saldo_pasivo
+  FROM pro.tproyecto_analisis pro;
+/***********************************F-DEP-MZM-PRO-2-30/10/2020****************************************/  

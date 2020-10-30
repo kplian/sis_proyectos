@@ -43,6 +43,7 @@ DECLARE
     v_saldo_pasivo	numeric;
     v_saldo_gasto	numeric;
     v_saldo_ingreso	numeric;
+    v_porc_diferido	numeric;
 BEGIN
 
     v_nombre_funcion = 'pro.f_generar_cbte';
@@ -64,7 +65,19 @@ BEGIN
    END IF;
     
     
-   
+    IF v_v_proyecto.porc_diferido > 1 THEN
+        IF v_porc_diferido = 100 THEN
+            v_porc_diferido = 1 ;
+        ELSE
+            v_porc_diferido = (v_porc_diferido/100);
+        END IF;
+    ELSIF  v_porc_diferido < 1 THEN
+        v_porc_diferido = v_porc_diferido;
+
+    ELSE
+        v_porc_diferido = 1;
+    END if;
+
     
     
    IF p_tipo = 'pago' THEN -- gerar un cbte de pago especifico por id_obligacion_pago
@@ -118,7 +131,7 @@ BEGIN
 
              	--si existe saldo en activo== llevar a gasto
 		       if (v_saldo_activo!=0 --and v_saldo_ingreso > ((v_saldo_activo+v_saldo_gasto)/(1-v_registros.porc_diferido))
-               ) then
+               ) then v_id_int_comprobante_obli:=null;
 
           				v_id_int_comprobante_obli = conta.f_gen_comprobante (v_registros.id_proyecto_analisis,'PRO-DIFING',NULL,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL, FALSE, v_registros.nro_tramite);
                
@@ -131,10 +144,11 @@ BEGIN
                         where id_proyecto_analisis=p_id_proyecto_analisis;
         
              	end if;
-                if (v_saldo_ingreso > ((v_saldo_activo+v_saldo_gasto)/(1-v_registros.porc_diferido))) then
-                   
+                if (v_saldo_ingreso > ((v_saldo_activo+v_saldo_gasto)/(1-v_porc_diferido))) then
+
+                  
                      v_id_int_comprobante_obli = conta.f_gen_comprobante (v_registros.id_proyecto_analisis,'PRO-DIFING1',NULL,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL, FALSE,  v_registros.nro_tramite);
-                
+
                 		update  conta.tint_comprobante set
 						glosa1='REGISTRO POR RECONOCIMIENTO DE INGRESO A '||  glosa1
                 		where id_int_comprobante =  v_id_int_comprobante_obli;
@@ -147,8 +161,9 @@ BEGIN
                 --tercer cbte, si es un analisis de cierre toca validar que los procesos que esten relacionados al CC esten cerrados
                 --si no hay ingreso, pero si pasivo y tenemos gasto... compensar entonces como si fuera ingreso
                 --tb si es q el gasto cubre el ingreso osea es mayor y hay saldo en pasivo... llevar todo al ingreso
-                if (((v_saldo_pasivo-v_saldo_ingreso) > 0 and v_saldo_ingreso<((v_saldo_activo+v_saldo_gasto)/(1-v_registros.porc_diferido)))) then
+                if (((v_saldo_pasivo-v_saldo_ingreso) > 0 and v_saldo_ingreso<((v_saldo_activo+v_saldo_gasto)/(1-v_porc_diferido)))) then
 
+					 v_id_int_comprobante_obli:=null;
                      v_id_int_comprobante_obli = conta.f_gen_comprobante (v_registros.id_proyecto_analisis,'PRO-DIFING2',NULL,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL, FALSE,  v_registros.nro_tramite);
 
                 		update  conta.tint_comprobante set

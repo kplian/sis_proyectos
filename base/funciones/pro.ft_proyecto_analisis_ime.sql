@@ -1,13 +1,18 @@
---------------- SQL ---------------
+-- FUNCTION: pro.ft_proyecto_analisis_ime(integer, integer, character varying, character varying)
 
-CREATE OR REPLACE FUNCTION pro.ft_proyecto_analisis_ime (
-    p_administrador integer,
-    p_id_usuario integer,
-    p_tabla varchar,
-    p_transaccion varchar
-)
-    RETURNS varchar AS
-$body$
+-- DROP FUNCTION pro.ft_proyecto_analisis_ime(integer, integer, character varying, character varying);
+
+CREATE OR REPLACE FUNCTION pro.ft_proyecto_analisis_ime(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
 /**************************************************************************
  SISTEMA:        Sistema de Proyectos
  FUNCION:         pro.ft_proyecto_analisis_ime
@@ -21,6 +26,7 @@ $body$
  #0                29-09-2020 12:44:10    egutierrez             Creacion
  #MDID-8               08/10/2020           EGS                 Se agrega WF
  #MDID-10               13/10/2020          EGS                 Se agrega ampo de tipo_cc
+ 						30.10.2020			MZM					Adicion de funcionalidad para elimnacion de cbtes al cambio de estado previo (borrador)
  ***************************************************************************/
 
 DECLARE
@@ -480,7 +486,7 @@ BEGIN
                 c.id_proyecto_analisis,
                 ew.id_proceso_wf,
                 c.id_estado_wf,
-                c.estado
+                c.estado, c.id_int_comprobante_1, c.id_int_comprobante_2, c.id_int_comprobante_3
             into
                 v_registros_proc
             from pro.tproyecto_analisis c
@@ -520,6 +526,33 @@ BEGIN
                 v_titulo  = 'Visto Bueno';
             end if;
 
+
+ 			if v_codigo_estado_siguiente in ('borrador') then -- MZM 29.10.2020
+                  -- llamar a funcion q elimina los cbtes
+                  
+                  if (v_registros_proc.id_int_comprobante_1 is not null) then
+                  		v_res_cbte =    pro.f_gestionar_cbte_proyecto_analisis_eliminacion( p_id_usuario,
+                                                         v_parametros._id_usuario_ai,
+                                                         v_parametros._nombre_usuario_ai,
+                                                         v_registros_proc.id_int_comprobante_1
+                                                         );
+                  end if;
+                  if (v_registros_proc.id_int_comprobante_2 is not null) then
+                  
+                  	v_res_cbte =    pro.f_gestionar_cbte_proyecto_analisis_eliminacion( p_id_usuario,
+                                                         v_parametros._id_usuario_ai,
+                                                         v_parametros._nombre_usuario_ai,
+                                                         v_registros_proc.id_int_comprobante_2
+                                                         );
+            	end if;
+                 if (v_registros_proc.id_int_comprobante_3 is not null) then  
+                  	   v_res_cbte =    pro.f_gestionar_cbte_proyecto_analisis_eliminacion( p_id_usuario,
+                                                         v_parametros._id_usuario_ai,
+                                                         v_parametros._nombre_usuario_ai,
+                                                         v_registros_proc.id_int_comprobante_3
+                                                         );
+                 end if;
+            end if;
 
             --Registra nuevo estado
             v_id_estado_actual = wf.f_registra_estado_wf(
@@ -576,9 +609,7 @@ EXCEPTION
         raise exception '%',v_resp;
 
 END;
-$body$
-    LANGUAGE 'plpgsql'
-    VOLATILE
-    CALLED ON NULL INPUT
-    SECURITY INVOKER
-    COST 100;
+$BODY$;
+
+ALTER FUNCTION pro.ft_proyecto_analisis_ime(integer, integer, character varying, character varying)
+    OWNER TO postgres;
