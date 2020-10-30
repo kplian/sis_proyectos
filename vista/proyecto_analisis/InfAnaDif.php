@@ -8,6 +8,7 @@
 	Issue 			Fecha 			Autor				Descripcion
  	#MDID-11    	29/10/2020		EGS					Tablero de informacion de saldos
  *  #MDID-11    	29/10/2020		EGS					Vacio de datos al escoger  otro tipo cc
+ *  #MDID-11    	30/10/2020		EGS					se modifica etiqueta del saldo de pasivo
  * */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -120,7 +121,7 @@ Phx.vista.InfAnaDif=Ext.extend(Phx.frmInterfaz,{
 													    <td style='padding: 3px;'><font color='silver'>{0}</font></td> \
 													  </tr>\
 		   			    							  <tr>\
-													    <td ><font color='gray'>Saldo Pasivo:</font> </td>\
+													    <td ><font color='gray'>Ingreso Diferido (Saldo Pasivo):</font> </td>\
 													    <td style='padding: 3px;'><font color='gray'>{1}</font></td> \
 													  </tr >\
 													  <tr>\
@@ -148,7 +149,7 @@ Phx.vista.InfAnaDif=Ext.extend(Phx.frmInterfaz,{
 													    <td style='padding: 3px;'><font color='silver'>{0}</font></td> \
 													  </tr>\
 		   			    							  <tr>\
-													    <td ><font color='gray'>Saldo Pasivo:</font> </td>\
+													    <td ><font color='gray'>Ingreso Diferido (Saldo Pasivo):</font> </td>\
 													    <td style='padding: 3px;'><font color='gray'>{1}</font></td> \
 													  </tr >\
 													  <tr>\
@@ -176,7 +177,7 @@ Phx.vista.InfAnaDif=Ext.extend(Phx.frmInterfaz,{
 													    <td style='padding: 3px;'><font color='silver'>{0}</font></td> \
 													  </tr>\
 		   			    							  <tr>\
-													    <td ><font color='gray'>Saldo Pasivo:</font> </td>\
+													    <td ><font color='gray'>Ingreso Diferido (Saldo Pasivo):</font> </td>\
 													    <td style='padding: 3px;'><font color='olive'>{1}</font></td> \
 													  </tr >\
 													  <tr>\
@@ -204,7 +205,7 @@ Phx.vista.InfAnaDif=Ext.extend(Phx.frmInterfaz,{
 													    <td style='padding: 3px;'><font color='silver'>{0}</font></td> \
 													  </tr>\
 		   			    							  <tr>\
-													    <td ><font color='gray'>Saldo Pasivo:</font> </td>\
+													    <td ><font color='gray'>Ingreso Diferido (Saldo Pasivo):</font> </td>\
 													    <td style='padding: 3px;'><font color='gray'>{1}</font></td> \
 													  </tr >\
 													  <tr>\
