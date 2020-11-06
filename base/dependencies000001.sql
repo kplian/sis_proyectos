@@ -4698,49 +4698,49 @@ select pxp.f_insert_testructura_gui ('CUEINC', 'CFGPRO');
 /***********************************I-DEP-MZM-PRO-2-29/10/2020****************************************/
 ALTER TABLE pro.tproyecto_analisis
   ADD COLUMN id_depto_conta INTEGER;
-  
+
 ALTER TABLE pro.tproyecto_analisis
   ADD COLUMN id_int_comprobante_1 INTEGER;
-  
+
 ALTER TABLE pro.tproyecto_analisis
   ADD COLUMN id_int_comprobante_2 INTEGER;
-  
+
 ALTER TABLE pro.tproyecto_analisis
   ADD COLUMN id_int_comprobante_3 INTEGER;
-  
-  
+
+
 ALTER TABLE pro.tproyecto_analisis
   ADD CONSTRAINT fk_tproyecto_analisis__id_depto_conta FOREIGN KEY (id_depto_conta)
     REFERENCES param.tdepto(id_depto)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-    
+
+
 ALTER TABLE pro.tproyecto_analisis
   ADD CONSTRAINT fk_tproyecto_analisis__id_int_cbte1 FOREIGN KEY (id_int_comprobante_1)
     REFERENCES conta.tint_comprobante(id_int_comprobante)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-    
+
+
 ALTER TABLE pro.tproyecto_analisis
   ADD CONSTRAINT fk_tproyecto_analisis__id_int_cbte2 FOREIGN KEY (id_int_comprobante_2)
     REFERENCES conta.tint_comprobante(id_int_comprobante)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-    
+
+
 ALTER TABLE pro.tproyecto_analisis
   ADD CONSTRAINT fk_tproyecto_analisis__id_int_cbte3 FOREIGN KEY (id_int_comprobante_3)
     REFERENCES conta.tint_comprobante(id_int_comprobante)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-  
-  
+
+
 CREATE OR REPLACE VIEW pro.vcbte_proy_diferido(
     id_proyecto_analisis,
     glosa,
@@ -4782,12 +4782,12 @@ AS
        JOIN pro.tproyecto_analisis proya ON proy.id_proyecto = proya.id_proyecto
        JOIN param.vproveedor prov ON prov.id_proveedor = proya.id_proveedor AND
         proy.diferido::text = 'si' ::text;
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
 CREATE OR REPLACE VIEW pro.vcbte_proy_diferido_det(
     importe_debe,
     importe_haber,
@@ -4824,9 +4824,9 @@ AS
            cue.id_gestion,
            cue.tipo_cuenta,
            intra.id_centro_costo;
-           
-           
-           
+
+
+
 CREATE OR REPLACE VIEW pro.vcbte_proy_diferido_ing_det(
     id_proyecto_analisis,
     saldo_ingreso,
@@ -4909,9 +4909,9 @@ AS
                  pd.id_proyecto_analisis = pro.id_proyecto_analisis
          ) AS saldo_pasivo
   FROM pro.tproyecto_analisis pro;
-  
-  
-  
+
+
+
 CREATE OR REPLACE VIEW pro.cbte3_ingdif(
     id_proyecto_analisis,
     id_auxiliar,
@@ -4934,7 +4934,7 @@ AS
             COALESCE(vcbte_proy_diferido_ing_det.saldo_ingreso, 0::numeric)
          END AS monto
   FROM pro.vcbte_proy_diferido_ing_det;
-/***********************************F-DEP-MZM-PRO-2-29/10/2020****************************************/  
+/***********************************F-DEP-MZM-PRO-2-29/10/2020****************************************/
 
 
 /***********************************I-DEP-MZM-PRO-2-30/10/2020****************************************/
@@ -5026,4 +5026,91 @@ AS
                  pd.id_proyecto_analisis = pro.id_proyecto_analisis
          ) AS saldo_pasivo
   FROM pro.tproyecto_analisis pro;
-/***********************************F-DEP-MZM-PRO-2-30/10/2020****************************************/  
+/***********************************F-DEP-MZM-PRO-2-30/10/2020****************************************/
+
+/***********************************I-DEP-RCM-PRO-SIS-2-18/09/2020****************************************/
+CREATE OR REPLACE VIEW pro.v_cbte_cierre_proy_2_debe_detv2 (
+    id_proyecto,
+    id_proyecto_activo,
+    denominacion,
+    id_clasificacion,
+    id_moneda,
+    incremento)
+AS
+ WITH tprorrateo AS (
+         WITH tval_activo AS (
+SELECT DISTINCT pa_1.id_proyecto_activo,
+                    sum(pad.monto) OVER (PARTITION BY pa_1.id_proyecto_activo)
+                        AS parcial,
+                    sum(pad.monto) OVER (PARTITION BY pa_1.id_proyecto) AS total
+FROM pro.tproyecto_activo pa_1
+                     JOIN pro.tproyecto_activo_detalle pad ON
+                         pad.id_proyecto_activo = pa_1.id_proyecto_activo
+                )
+    SELECT pa.id_proyecto,
+            pa.id_proyecto_activo,
+            pa.denominacion,
+            va.parcial / va.total AS peso,
+            pa.id_clasificacion
+    FROM pro.tproyecto_activo pa
+             JOIN tval_activo va ON va.id_proyecto_activo = pa.id_proyecto_activo
+    ), ttotal AS (
+    SELECT py.id_proyecto,
+            sum(tr.importe_debe_mb - tr.importe_haber_mb) AS total
+    FROM pro.tproyecto py
+             JOIN pro.tproyecto_columna_tcc pc ON pc.id_proyecto = py.id_proyecto
+             JOIN param.ttipo_cc tcc ON tcc.id_tipo_cc = pc.id_tipo_cc
+             JOIN param.tcentro_costo cc ON cc.id_tipo_cc = tcc.id_tipo_cc
+             JOIN conta.tint_transaccion tr ON tr.id_centro_costo = cc.id_centro_costo
+             JOIN conta.tint_comprobante cbte ON cbte.id_int_comprobante =
+                 tr.id_int_comprobante AND cbte.estado_reg::text = 'validado'::text AND cbte.fecha >= date_trunc('MONTH'::text, COALESCE(py.fecha_rev_aitb, py.fecha_fin)::timestamp with time zone) AND cbte.fecha <= py.fecha_fin AND cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_1, 0) AND cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_2, 0) AND cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_3, 0)
+             JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
+             JOIN pre.tpartida par ON par.id_partida = tr.id_partida AND
+                 par.sw_movimiento::text = 'flujo'::text
+    WHERE NOT (cue.nro_cuenta::text IN (
+        SELECT tcuenta_excluir.nro_cuenta
+        FROM pro.tcuenta_excluir
+        )) AND tr.importe_debe_mt = 0::numeric AND tr.importe_haber_mt =
+            0::numeric AND tr.importe_debe_ma = 0::numeric AND tr.importe_haber_ma = 0::numeric AND cbte.cbte_aitb::text = 'si'::text AND cbte.cbte_apertura::text = 'no'::text
+    GROUP BY py.id_proyecto
+    )
+    SELECT ta.id_proyecto,
+    ta.id_proyecto_activo,
+    ta.denominacion,
+    ta.id_clasificacion,
+    param.f_get_moneda_base() AS id_moneda,
+    ta.peso * tt.total AS incremento
+    FROM tprorrateo ta
+     JOIN ttotal tt ON tt.id_proyecto = ta.id_proyecto;
+
+CREATE OR REPLACE VIEW pro.v_cbte_cierre_proy_2_haber_detv2 (
+    id_proyecto,
+    codigo_tcc,
+    id_cuenta,
+    id_partida,
+    id_centro_costo,
+    importe_bs)
+AS
+SELECT py.id_proyecto,
+    tcc.codigo AS codigo_tcc,
+    tr.id_cuenta,
+    tr.id_partida,
+    tr.id_centro_costo,
+    sum(tr.importe_debe_mb - tr.importe_haber_mb) AS importe_bs
+FROM pro.tproyecto py
+     JOIN pro.tproyecto_columna_tcc pc ON pc.id_proyecto = py.id_proyecto
+     JOIN param.ttipo_cc tcc ON tcc.id_tipo_cc = pc.id_tipo_cc
+     JOIN param.tcentro_costo cc ON cc.id_tipo_cc = tcc.id_tipo_cc
+     JOIN conta.tint_transaccion tr ON tr.id_centro_costo = cc.id_centro_costo
+     JOIN conta.tint_comprobante cbte ON cbte.id_int_comprobante =
+         tr.id_int_comprobante AND cbte.estado_reg::text = 'validado'::text AND cbte.fecha >= date_trunc('MONTH'::text, COALESCE(py.fecha_rev_aitb, py.fecha_fin)::timestamp with time zone) AND cbte.fecha <= py.fecha_fin AND cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_1, 0) AND cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_2, 0) AND cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_3, 0)
+     JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
+     JOIN pre.tpartida par ON par.id_partida = tr.id_partida AND
+         par.sw_movimiento::text = 'flujo'::text
+WHERE NOT (cue.nro_cuenta::text IN (
+    SELECT tcuenta_excluir.nro_cuenta
+    FROM pro.tcuenta_excluir
+    )) AND tr.importe_debe_mt = 0::numeric AND tr.importe_haber_mt = 0::numeric
+        AND tr.importe_debe_ma = 0::numeric AND tr.importe_haber_ma = 0::numeric AND cbte.cbte_aitb::text = 'si'::text AND cbte.cbte_apertura::text = 'no'::text
+GROUP BY py.id_proyecto, tcc.codigo, tr.id_cuenta, tr.id_partida, tr.id_centro_costo;
+/***********************************F-DEP-RCM-PRO-SIS-2-18/09/2020****************************************/
