@@ -5114,3 +5114,149 @@ WHERE NOT (cue.nro_cuenta::text IN (
         AND tr.importe_debe_ma = 0::numeric AND tr.importe_haber_ma = 0::numeric AND cbte.cbte_aitb::text = 'si'::text AND cbte.cbte_apertura::text = 'no'::text
 GROUP BY py.id_proyecto, tcc.codigo, tr.id_cuenta, tr.id_partida, tr.id_centro_costo;
 /***********************************F-DEP-RCM-PRO-SIS-2-18/09/2020****************************************/
+
+/***********************************I-DEP-RCM-PRO-SIS-ETR-2261-23/12/2020****************************************/
+CREATE OR REPLACE VIEW pro.v_cbte_cierre_proy_3_debe_detv3(
+    id_proyecto,
+    id_proyecto_activo,
+    id_clasificacion,
+    denominacion,
+    importe_actualiz,
+    id_almacen)
+AS
+WITH tmayor_total AS(
+  SELECT DISTINCT py.id_proyecto,
+         sum(tr.importe_debe_mb) AS debe_mb,
+         sum(tr.importe_haber_mb) AS haber_mb,
+         sum(tr.importe_debe_mb - tr.importe_haber_mb) AS saldo_mb
+  FROM pro.tproyecto py
+       JOIN pro.tproyecto_columna_tcc pc ON pc.id_proyecto = py.id_proyecto
+       JOIN param.ttipo_cc tcc ON tcc.id_tipo_cc = pc.id_tipo_cc
+       JOIN param.tcentro_costo cc ON cc.id_tipo_cc = tcc.id_tipo_cc
+       JOIN conta.tint_transaccion tr ON tr.id_centro_costo = cc.id_centro_costo
+       JOIN conta.tint_comprobante cbte ON cbte.id_int_comprobante =
+         tr.id_int_comprobante AND cbte.estado_reg::text = 'validado'::text AND
+         cbte.fecha >= py.fecha_ini AND cbte.fecha <= py.fecha_fin AND
+         cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_1, 0) AND
+         cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_2, 0) AND
+         cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_3, 0)
+       JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
+       JOIN pre.tpartida par ON par.id_partida = tr.id_partida
+  WHERE NOT (cue.nro_cuenta::text IN (
+                                       SELECT tcuenta_excluir.nro_cuenta
+                                       FROM pro.tcuenta_excluir
+        ))
+  GROUP BY py.id_proyecto), tcbte1_cbte2 AS(
+      SELECT py.id_proyecto,
+             sum(tr.importe_debe_mb) AS saldo_mb
+      FROM pro.tproyecto py
+           JOIN conta.tint_comprobante cb_1 ON cb_1.id_int_comprobante =
+             py.id_int_comprobante_1 OR cb_1.id_int_comprobante =
+             py.id_int_comprobante_2
+           JOIN conta.tint_transaccion tr ON tr.id_int_comprobante =
+             cb_1.id_int_comprobante
+      GROUP BY py.id_proyecto), tactivos_proy AS (
+          WITH tval_activo AS (
+                SELECT DISTINCT
+                pa_1_1.id_proyecto_activo,
+                pa_1_1.id_almacen,
+                SUM(pad.monto) OVER(PARTITION BY pa_1_1.id_proyecto_activo) AS parcial,
+                SUM(pad.monto) OVER(PARTITION BY pa_1_1.id_proyecto) AS total
+                FROM pro.tproyecto_activo pa_1_1
+                JOIN pro.tproyecto_activo_detalle pad
+                ON pad.id_proyecto_activo = pa_1_1.id_proyecto_activo
+                WHERE COALESCE(pa_1_1.codigo_af_rel, ''::character varying)::text <> 'GASTO'::text
+            )
+            SELECT pa_1.id_proyecto,
+            pa_1.id_proyecto_activo,
+            pa_1.denominacion,
+            va.parcial / va.total AS peso,
+            pa_1.id_clasificacion,
+            pa_1.id_almacen
+            FROM pro.tproyecto_activo pa_1
+            JOIN tval_activo va
+            ON va.id_proyecto_activo = pa_1.id_proyecto_activo
+            WHERE pa_1.id_almacen IS NULL
+        )
+        SELECT pa.id_proyecto,
+        pa.id_proyecto_activo,
+        pa.id_clasificacion,
+        pa.denominacion,
+        pa.peso * abs(my.saldo_mb - cb.saldo_mb) AS importe_actualiz,
+        pa.id_almacen
+        FROM tactivos_proy pa
+        JOIN tmayor_total my ON my.id_proyecto = pa.id_proyecto
+        JOIN tcbte1_cbte2 cb ON cb.id_proyecto = my.id_proyecto
+        WHERE pa.id_almacen IS NULL;
+
+CREATE OR REPLACE VIEW pro.v_cbte_cierre_proy_3_debe_det_alm(
+    id_proyecto,
+    id_almacen,
+    denominacion,
+    importe_actualiz)
+AS
+WITH tmayor_total AS(
+  SELECT DISTINCT py.id_proyecto,
+         sum(tr.importe_debe_mb) AS debe_mb,
+         sum(tr.importe_haber_mb) AS haber_mb,
+         sum(tr.importe_debe_mb - tr.importe_haber_mb) AS saldo_mb
+  FROM pro.tproyecto py
+       JOIN pro.tproyecto_columna_tcc pc ON pc.id_proyecto = py.id_proyecto
+       JOIN param.ttipo_cc tcc ON tcc.id_tipo_cc = pc.id_tipo_cc
+       JOIN param.tcentro_costo cc ON cc.id_tipo_cc = tcc.id_tipo_cc
+       JOIN conta.tint_transaccion tr ON tr.id_centro_costo = cc.id_centro_costo
+       JOIN conta.tint_comprobante cbte ON cbte.id_int_comprobante =
+         tr.id_int_comprobante AND cbte.estado_reg::text = 'validado'::text AND
+         cbte.fecha >= py.fecha_ini AND cbte.fecha <= py.fecha_fin AND
+         cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_1, 0) AND
+         cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_2, 0) AND
+         cbte.id_int_comprobante <> COALESCE(py.id_int_comprobante_3, 0)
+       JOIN conta.tcuenta cue ON cue.id_cuenta = tr.id_cuenta
+       JOIN pre.tpartida par ON par.id_partida = tr.id_partida
+  WHERE NOT (cue.nro_cuenta::text IN (
+                                       SELECT tcuenta_excluir.nro_cuenta
+                                       FROM pro.tcuenta_excluir
+        ))
+  GROUP BY py.id_proyecto), tcbte1_cbte2 AS(
+      SELECT py.id_proyecto,
+             sum(tr.importe_debe_mb) AS saldo_mb
+      FROM pro.tproyecto py
+           JOIN conta.tint_comprobante cb_1 ON cb_1.id_int_comprobante =
+             py.id_int_comprobante_1 OR cb_1.id_int_comprobante =
+             py.id_int_comprobante_2
+           JOIN conta.tint_transaccion tr ON tr.id_int_comprobante =
+             cb_1.id_int_comprobante
+      GROUP BY py.id_proyecto), tactivos_proy AS (
+            WITH tprorrateo AS (
+                SELECT DISTINCT
+                pa_1.id_proyecto,
+                pa_1.id_proyecto_activo,
+                pa_1.id_almacen,
+                SUM(pad.monto) OVER (PARTITION BY pa_1.id_proyecto_activo) AS parcial,
+                SUM(pad.monto) OVER(PARTITION BY pa_1.id_proyecto) AS total
+                FROM pro.tproyecto_activo pa_1
+                JOIN pro.tproyecto_activo_detalle pad
+                ON pad.id_proyecto_activo = pa_1.id_proyecto_activo
+                WHERE COALESCE(pa_1.codigo_af_rel, ''::character varying)::text <> 'GASTO'::text
+            )
+            SELECT
+            p.id_proyecto,
+            p.id_almacen,
+            SUM(p.parcial) AS parcial,
+            p.total,
+            al.nombre as denominacion,
+            SUM(p.parcial) / p.total AS peso
+            FROM tprorrateo p
+            JOIN alm.talmacen al
+            ON al.id_almacen = p.id_almacen
+            WHERE p.id_almacen IS NOT NULL
+            GROUP BY p.id_almacen, p.total, al.nombre, p.id_proyecto
+        )
+        SELECT pa.id_proyecto,
+        pa.id_almacen,
+        pa.denominacion,
+        pa.peso * abs(my.saldo_mb - cb.saldo_mb) AS importe_actualiz
+        FROM tactivos_proy pa
+        JOIN tmayor_total my ON my.id_proyecto = pa.id_proyecto
+        JOIN tcbte1_cbte2 cb ON cb.id_proyecto = my.id_proyecto;
+/***********************************F-DEP-RCM-PRO-SIS-ETR-2261-23/12/2020****************************************/
