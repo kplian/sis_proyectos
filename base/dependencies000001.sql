@@ -4938,6 +4938,7 @@ AS
 
 
 /***********************************I-DEP-MZM-PRO-2-30/10/2020****************************************/
+drop view pro.vcbte_proy_diferido_ing_det;
 CREATE OR REPLACE VIEW pro.vcbte_proy_diferido_ing_det(
     id_proyecto_analisis,
     saldo_ingreso,
@@ -5114,3 +5115,176 @@ WHERE NOT (cue.nro_cuenta::text IN (
         AND tr.importe_debe_ma = 0::numeric AND tr.importe_haber_ma = 0::numeric AND cbte.cbte_aitb::text = 'si'::text AND cbte.cbte_apertura::text = 'no'::text
 GROUP BY py.id_proyecto, tcc.codigo, tr.id_cuenta, tr.id_partida, tr.id_centro_costo;
 /***********************************F-DEP-RCM-PRO-SIS-2-18/09/2020****************************************/
+
+/***********************************I-DEP-MZM-PRO-SIS-2-18/11/2020****************************************/
+CREATE OR REPLACE VIEW pro.cbte3_ingdif(
+    id_proyecto_analisis,
+    id_auxiliar,
+    id_cuenta_ingreso,
+    monto)
+AS
+  SELECT vcbte_proy_diferido_ing_det.id_proyecto_analisis,
+         vcbte_proy_diferido_ing_det.id_auxiliar,
+         vcbte_proy_diferido_ing_det.id_cuenta_ingreso,
+         CASE
+           WHEN COALESCE(vcbte_proy_diferido_ing_det.saldo_pasivo, 0::numeric) >
+           ((COALESCE(vcbte_proy_diferido_ing_det.saldo_gasto, 0::numeric) +
+            COALESCE(vcbte_proy_diferido_ing_det.saldo_activo, 0::numeric)) /
+             vcbte_proy_diferido_ing_det.porc_utilidad -(COALESCE(
+             vcbte_proy_diferido_ing_det.saldo_gasto, 0::numeric) + COALESCE(
+             vcbte_proy_diferido_ing_det.saldo_activo, 0::numeric))) THEN (
+             COALESCE(vcbte_proy_diferido_ing_det.saldo_gasto, 0::numeric) +
+              COALESCE(vcbte_proy_diferido_ing_det.saldo_activo, 0::numeric)) /
+               vcbte_proy_diferido_ing_det.porc_utilidad - COALESCE(
+               vcbte_proy_diferido_ing_det.saldo_ingreso, 0::numeric)
+           ELSE COALESCE(vcbte_proy_diferido_ing_det.saldo_pasivo, 0::numeric)
+         END AS monto
+  FROM pro.vcbte_proy_diferido_ing_det;
+  
+  
+
+CREATE OR REPLACE VIEW pro.vcbte_proy_diferido_det(
+    id_proyecto_analisis,
+    saldo_activo,
+    saldo_pasivo,
+    saldo_ingreso,
+    saldo_gasto,
+    id_centro_costo)
+AS
+  SELECT p.id_proyecto_analisis,
+         (
+           SELECT f_get_saldo_analisis_diferido.op_saldo_activo
+           FROM pro.f_get_saldo_analisis_diferido(p.id_proyecto_analisis,
+            NULL::character varying) f_get_saldo_analisis_diferido(
+            op_saldo_activo, op_saldo_pasivo, op_saldo_ingreso, op_saldo_egreso)
+         ) AS saldo_activo,
+         (
+           SELECT f_get_saldo_analisis_diferido.op_saldo_pasivo
+           FROM pro.f_get_saldo_analisis_diferido(p.id_proyecto_analisis,
+            NULL::character varying) f_get_saldo_analisis_diferido(
+            op_saldo_activo, op_saldo_pasivo, op_saldo_ingreso, op_saldo_egreso)
+         ) AS saldo_pasivo,
+         (
+           SELECT f_get_saldo_analisis_diferido.op_saldo_ingreso
+           FROM pro.f_get_saldo_analisis_diferido(p.id_proyecto_analisis,
+            NULL::character varying) f_get_saldo_analisis_diferido(
+            op_saldo_activo, op_saldo_pasivo, op_saldo_ingreso, op_saldo_egreso)
+         ) AS saldo_ingreso,
+         (
+           SELECT f_get_saldo_analisis_diferido.op_saldo_egreso
+           FROM pro.f_get_saldo_analisis_diferido(p.id_proyecto_analisis,
+            NULL::character varying) f_get_saldo_analisis_diferido(
+            op_saldo_activo, op_saldo_pasivo, op_saldo_ingreso, op_saldo_egreso)
+         ) AS saldo_gasto,
+         (
+           SELECT DISTINCT CASE
+                             WHEN cc.id_gestion =((
+                                                    SELECT g.id_gestion
+                                                    FROM param.tgestion g
+                                                    WHERE p.fecha >= g.fecha_ini AND
+                                                    
+                                                          p.fecha <= g.fecha_fin
+                  )) THEN cc.id_centro_costo
+                             ELSE 
+                  (
+                    SELECT cn.id_centro_costo
+                    FROM param.tcentro_costo cn
+                    WHERE cc.id_tipo_cc = cn.id_tipo_cc AND
+                          cn.id_ep = cc.id_ep AND
+                          cn.id_uo = cc.id_uo AND
+                          cn.id_gestion =((
+                                            SELECT g.id_gestion
+                                            FROM param.tgestion g
+                                            WHERE p.fecha >= g.fecha_ini AND
+                                                  p.fecha <= g.fecha_fin
+                          ))
+                  )
+                           END AS id_centro_costo
+           FROM pro.tproyecto_analisis_det d
+                JOIN conta.tint_transaccion t ON t.id_int_transaccion =
+                 d.id_int_transaccion
+                JOIN param.tcentro_costo cc ON cc.id_centro_costo =
+                 t.id_centro_costo
+           WHERE d.id_proyecto_analisis = p.id_proyecto_analisis
+           LIMIT 1
+         ) AS id_centro_costo
+  FROM pro.tproyecto_analisis p;
+  
+  
+  CREATE OR REPLACE VIEW pro.vcbte_proy_diferido_ing_det(
+    id_proyecto_analisis,
+    saldo_ingreso,
+    saldo_gasto,
+    saldo_activo,
+    porc_utilidad,
+    id_cuenta_ingreso,
+    id_auxiliar,
+    saldo_pasivo)
+AS
+  SELECT pro.id_proyecto_analisis,
+         (
+           SELECT f_get_saldo_analisis_diferido.op_saldo_ingreso
+           FROM pro.f_get_saldo_analisis_diferido(pro.id_proyecto_analisis,
+            NULL::character varying) f_get_saldo_analisis_diferido(
+            op_saldo_activo, op_saldo_pasivo, op_saldo_ingreso, op_saldo_egreso)
+         ) AS saldo_ingreso,
+         (
+           SELECT f_get_saldo_analisis_diferido.op_saldo_egreso
+           FROM pro.f_get_saldo_analisis_diferido(pro.id_proyecto_analisis,
+            NULL::character varying) f_get_saldo_analisis_diferido(
+            op_saldo_activo, op_saldo_pasivo, op_saldo_ingreso, op_saldo_egreso)
+         ) AS saldo_gasto,
+         (
+           SELECT f_get_saldo_analisis_diferido.op_saldo_activo
+           FROM pro.f_get_saldo_analisis_diferido(pro.id_proyecto_analisis,
+            NULL::character varying) f_get_saldo_analisis_diferido(
+            op_saldo_activo, op_saldo_pasivo, op_saldo_ingreso, op_saldo_egreso)
+         ) AS saldo_activo,
+         (
+           SELECT CASE
+                    WHEN pro.porc_diferido > 1::numeric THEN 1::numeric -
+                     pro.porc_diferido / 100::numeric
+                    ELSE 1::numeric - pro.porc_diferido
+                  END AS "case"
+         ) AS porc_utilidad,
+         (
+           SELECT CASE
+                    WHEN cu.id_gestion =((
+                                           SELECT g.id_gestion
+                                           FROM param.tgestion g
+                                           WHERE pro.fecha >= g.fecha_ini AND
+                                                 pro.fecha <= g.fecha_fin
+                  )) THEN cu.id_cuenta
+                    ELSE conta.f_get_cuenta_ids(cu.id_cuenta, 'siguiente'
+                     ::character varying)
+                  END AS id_cuenta_ingreso
+           FROM conta.tint_transaccion t
+                JOIN conta.tint_comprobante c ON c.id_int_comprobante =
+                 t.id_int_comprobante
+                JOIN conta.tcuenta cu ON cu.id_cuenta = t.id_cuenta AND
+                 cu.tipo_cuenta::text = 'ingreso' ::text
+                JOIN param.tcentro_costo cc ON cc.id_centro_costo =
+                 t.id_centro_costo
+                JOIN param.ttipo_cc tc ON tc.id_tipo_cc = cc.id_tipo_cc
+                JOIN pro.tproyecto proy ON proy.id_tipo_cc = tc.id_tipo_cc
+           WHERE proy.id_proyecto = pro.id_proyecto AND
+                 c.estado_reg::text = 'validado' ::text AND
+                 c.fecha < pro.fecha
+           ORDER BY c.fecha DESC
+           LIMIT 1
+         ) AS id_cuenta_ingreso,
+         (
+           SELECT a.id_auxiliar
+           FROM conta.tauxiliar a
+                JOIN param.vproveedor p ON p.codigo::text =
+                 a.codigo_auxiliar::text
+           WHERE p.id_proveedor = pro.id_proveedor
+         ) AS id_auxiliar,
+         (
+           SELECT f_get_saldo_analisis_diferido.op_saldo_pasivo
+           FROM pro.f_get_saldo_analisis_diferido(pro.id_proyecto_analisis,
+            NULL::character varying) f_get_saldo_analisis_diferido(
+            op_saldo_activo, op_saldo_pasivo, op_saldo_ingreso, op_saldo_egreso)
+         ) AS saldo_pasivo
+  FROM pro.tproyecto_analisis pro;
+/***********************************I-DEP-MZM-PRO-SIS-2-18/11/2020****************************************/  
