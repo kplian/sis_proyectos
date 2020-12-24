@@ -4696,39 +4696,6 @@ select pxp.f_insert_testructura_gui ('CUEINC', 'CFGPRO');
 
 
 /***********************************I-DEP-MZM-PRO-2-29/10/2020****************************************/
-
-ALTER TABLE pro.tproyecto_analisis
-  ADD CONSTRAINT fk_tproyecto_analisis__id_depto_conta FOREIGN KEY (id_depto_conta)
-    REFERENCES param.tdepto(id_depto)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-    NOT DEFERRABLE;
-
-
-ALTER TABLE pro.tproyecto_analisis
-  ADD CONSTRAINT fk_tproyecto_analisis__id_int_cbte1 FOREIGN KEY (id_int_comprobante_1)
-    REFERENCES conta.tint_comprobante(id_int_comprobante)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-    NOT DEFERRABLE;
-
-
-ALTER TABLE pro.tproyecto_analisis
-  ADD CONSTRAINT fk_tproyecto_analisis__id_int_cbte2 FOREIGN KEY (id_int_comprobante_2)
-    REFERENCES conta.tint_comprobante(id_int_comprobante)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-    NOT DEFERRABLE;
-
-
-ALTER TABLE pro.tproyecto_analisis
-  ADD CONSTRAINT fk_tproyecto_analisis__id_int_cbte3 FOREIGN KEY (id_int_comprobante_3)
-    REFERENCES conta.tint_comprobante(id_int_comprobante)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-    NOT DEFERRABLE;
-
-
 CREATE OR REPLACE VIEW pro.vcbte_proy_diferido(
     id_proyecto_analisis,
     glosa,
