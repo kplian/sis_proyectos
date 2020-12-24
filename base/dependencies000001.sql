@@ -5116,7 +5116,6 @@ WHERE NOT (cue.nro_cuenta::text IN (
 GROUP BY py.id_proyecto, tcc.codigo, tr.id_cuenta, tr.id_partida, tr.id_centro_costo;
 /***********************************F-DEP-RCM-PRO-SIS-2-18/09/2020****************************************/
 
-<<<<<<< HEAD
 /***********************************I-DEP-MZM-PRO-SIS-2-18/11/2020****************************************/
 CREATE OR REPLACE VIEW pro.cbte3_ingdif(
     id_proyecto_analisis,
@@ -5289,7 +5288,7 @@ AS
          ) AS saldo_pasivo
   FROM pro.tproyecto_analisis pro;
 /***********************************I-DEP-MZM-PRO-SIS-2-18/11/2020****************************************/  
-=======
+
 /***********************************I-DEP-RCM-PRO-SIS-ETR-2261-23/12/2020****************************************/
 CREATE OR REPLACE VIEW pro.v_cbte_cierre_proy_3_debe_detv3(
     id_proyecto,
@@ -5435,4 +5434,3 @@ WITH tmayor_total AS(
         JOIN tmayor_total my ON my.id_proyecto = pa.id_proyecto
         JOIN tcbte1_cbte2 cb ON cb.id_proyecto = my.id_proyecto;
 /***********************************F-DEP-RCM-PRO-SIS-ETR-2261-23/12/2020****************************************/
->>>>>>> a7cb269d46b3de6ffeb1b8ef421b3c77649db831
