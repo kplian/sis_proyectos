@@ -4938,7 +4938,7 @@ AS
 
 
 /***********************************I-DEP-MZM-PRO-2-30/10/2020****************************************/
-drop view pro.vcbte_proy_diferido_ing_det;
+
 CREATE OR REPLACE VIEW pro.vcbte_proy_diferido_ing_det(
     id_proyecto_analisis,
     saldo_ingreso,
@@ -4983,7 +4983,7 @@ AS
                       pro.porc_diferido / 100::numeric
                      ELSE 1::numeric - pro.porc_diferido
                    END AS "case"
-         )) ::numeric(3, 2) AS porc_utilidad,
+         )) ::numeric AS porc_utilidad,
          (
            SELECT CASE
                     WHEN cu.id_gestion =((
