@@ -4696,15 +4696,6 @@ select pxp.f_insert_testructura_gui ('CUEINC', 'CFGPRO');
 
 
 /***********************************I-DEP-MZM-PRO-2-29/10/2020****************************************/
-ALTER TABLE pro.tproyecto_analisis
-  ADD COLUMN id_int_comprobante_1 INTEGER;
-
-ALTER TABLE pro.tproyecto_analisis
-  ADD COLUMN id_int_comprobante_2 INTEGER;
-
-ALTER TABLE pro.tproyecto_analisis
-  ADD COLUMN id_int_comprobante_3 INTEGER;
-
 
 ALTER TABLE pro.tproyecto_analisis
   ADD CONSTRAINT fk_tproyecto_analisis__id_depto_conta FOREIGN KEY (id_depto_conta)
