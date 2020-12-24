@@ -4983,7 +4983,7 @@ AS
                       pro.porc_diferido / 100::numeric
                      ELSE 1::numeric - pro.porc_diferido
                    END AS "case"
-         )) ::numeric AS porc_utilidad,
+         )) ::numeric(3,2) AS porc_utilidad,
          (
            SELECT CASE
                     WHEN cu.id_gestion =((
@@ -5246,7 +5246,7 @@ AS
                      pro.porc_diferido / 100::numeric
                     ELSE 1::numeric - pro.porc_diferido
                   END AS "case"
-         ) AS porc_utilidad,
+         )::numeric(3,2) AS porc_utilidad,
          (
            SELECT CASE
                     WHEN cu.id_gestion =((
