@@ -4697,9 +4697,6 @@ select pxp.f_insert_testructura_gui ('CUEINC', 'CFGPRO');
 
 /***********************************I-DEP-MZM-PRO-2-29/10/2020****************************************/
 ALTER TABLE pro.tproyecto_analisis
-  ADD COLUMN id_depto_conta INTEGER;
-
-ALTER TABLE pro.tproyecto_analisis
   ADD COLUMN id_int_comprobante_1 INTEGER;
 
 ALTER TABLE pro.tproyecto_analisis
@@ -4865,7 +4862,7 @@ AS
            WHERE c.tipo_cuenta::text = 'activo' ::text AND
                  pd.id_proyecto_analisis = pro.id_proyecto_analisis
          ) AS saldo_activo,
-         (1::numeric - pro.porc_diferido) ::numeric(3, 2) AS porc_utilidad,
+         (1::numeric - pro.porc_diferido) ::numeric(5, 2) AS porc_utilidad,
          (
            SELECT CASE
                     WHEN cu.id_gestion =((
@@ -4983,7 +4980,7 @@ AS
                       pro.porc_diferido / 100::numeric
                      ELSE 1::numeric - pro.porc_diferido
                    END AS "case"
-         )) ::numeric(3,2) AS porc_utilidad,
+         )) ::numeric(5,2) AS porc_utilidad,
          (
            SELECT CASE
                     WHEN cu.id_gestion =((
@@ -5246,7 +5243,7 @@ AS
                      pro.porc_diferido / 100::numeric
                     ELSE 1::numeric - pro.porc_diferido
                   END AS "case"
-         )::numeric(3,2) AS porc_utilidad,
+         )::numeric(5,2) AS porc_utilidad,
          (
            SELECT CASE
                     WHEN cu.id_gestion =((
