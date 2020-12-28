@@ -1,13 +1,18 @@
---------------- SQL ---------------
+-- FUNCTION: pro.ft_proyecto_analisis_sel(integer, integer, character varying, character varying)
 
-CREATE OR REPLACE FUNCTION pro.ft_proyecto_analisis_sel (
-    p_administrador integer,
-    p_id_usuario integer,
-    p_tabla varchar,
-    p_transaccion varchar
-)
-    RETURNS varchar AS
-$body$
+-- DROP FUNCTION pro.ft_proyecto_analisis_sel(integer, integer, character varying, character varying);
+
+CREATE OR REPLACE FUNCTION pro.ft_proyecto_analisis_sel(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
 /**************************************************************************
  SISTEMA:        Sistema de Proyectos
  FUNCION:         pro.ft_proyecto_analisis_sel
@@ -64,43 +69,41 @@ BEGIN
                         usu2.cuenta as usr_mod,
                         proana.id_proveedor,
                         pro.desc_proveedor,
+                          ( SELECT
+                              p.op_saldo_activo
+                          from pro.f_get_saldo_analisis_diferido(proana.id_proyecto_analisis,null) p) as saldo_activo,
                           (SELECT
-                            (sum(intra.importe_debe_mb)- sum(intra.importe_haber_mb))
-                            FROM pro.tproyecto_analisis_det p
-                            left join conta.tint_transaccion intra on intra.id_int_transaccion = p.id_int_transaccion
-                            left join conta.tcuenta cue on cue.id_cuenta = intra.id_cuenta
-                            WHERE cue.tipo_cuenta =''activo'' and p.id_proyecto_analisis = proana.id_proyecto_analisis) as saldo_activo,
-                          (SELECT
-                            (sum(intra.importe_haber_mb)-sum(intra.importe_debe_mb))
-                            FROM pro.tproyecto_analisis_det p
-                            left join conta.tint_transaccion intra on intra.id_int_transaccion = p.id_int_transaccion
-                            left join conta.tcuenta cue on cue.id_cuenta = intra.id_cuenta
-                            WHERE cue.tipo_cuenta =''pasivo'' and p.id_proyecto_analisis =  proana.id_proyecto_analisis) as saldo_pasivo,
+                              p.op_saldo_pasivo
+                          from pro.f_get_saldo_analisis_diferido(proana.id_proyecto_analisis,null) p) as saldo_pasivo,
 
                             (SELECT
-                            (sum(intra.importe_haber_mb)- sum(intra.importe_debe_mb))
-                            FROM pro.tproyecto_analisis_det p
-                            left join conta.tint_transaccion intra on intra.id_int_transaccion = p.id_int_transaccion
-                            left join conta.tcuenta cue on cue.id_cuenta = intra.id_cuenta
-                            WHERE cue.tipo_cuenta =''ingreso'' and p.id_proyecto_analisis =  proana.id_proyecto_analisis) as saldo_ingreso,
+                              p.op_saldo_ingreso
+                          from pro.f_get_saldo_analisis_diferido(proana.id_proyecto_analisis,null) p) as saldo_ingreso,
                             (SELECT
-                            (sum(intra.importe_debe_mb)- sum(intra.importe_haber_mb))
-                            FROM pro.tproyecto_analisis_det p
-                            left join conta.tint_transaccion intra on intra.id_int_transaccion = p.id_int_transaccion
-                            left join conta.tcuenta cue on cue.id_cuenta = intra.id_cuenta
-                            WHERE cue.tipo_cuenta =''gasto'' and p.id_proyecto_analisis =  proana.id_proyecto_analisis) as saldo_gasto,
+                              p.op_saldo_egreso
+                          from pro.f_get_saldo_analisis_diferido(proana.id_proyecto_analisis,null) p) as saldo_gasto,
                         proana.porc_diferido,--#MDID-8
                         proana.cerrar,--#MDID-8
                         proana.nro_tramite,--#MDID-8
                         proana.id_estado_wf,--#MDID-8
                         proana.id_proceso_wf,--#MDID-8
                         proana.id_tipo_cc,--#MDID-10
-                        tc.codigo as desc_tipo_cc --#MDID-10
+                        tc.codigo as desc_tipo_cc --#MDID-10,
+                        ,proana.id_depto_conta, dep.codigo, dep.nombre,
+                        proana.id_int_comprobante_1,
+                        proana.id_int_comprobante_2,
+                        proana.id_int_comprobante_3,
+                        c1.nro_cbte,c2.nro_cbte, c3.nro_cbte
                         FROM pro.tproyecto_analisis proana
                         JOIN segu.tusuario usu1 ON usu1.id_usuario = proana.id_usuario_reg
                         LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = proana.id_usuario_mod
                         LEFT JOIN param.vproveedor pro on pro.id_proveedor = proana.id_proveedor
                         LEFT JOIN param.ttipo_cc tc on tc.id_tipo_cc = proana.id_tipo_cc
+                        left join param.tdepto dep on dep.id_depto=proana.id_depto_conta
+                        left join conta.tint_comprobante c1 on c1.id_int_comprobante=proana.id_int_comprobante_1
+                        left join conta.tint_comprobante c2 on c2.id_int_comprobante=proana.id_int_comprobante_2
+                        left join conta.tint_comprobante c3 on c3.id_int_comprobante=proana.id_int_comprobante_3  
+
                         WHERE  ';
 
             --Definicion de la respuesta
@@ -127,6 +130,12 @@ BEGIN
                          FROM pro.tproyecto_analisis proana
                          JOIN segu.tusuario usu1 ON usu1.id_usuario = proana.id_usuario_reg
                          LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = proana.id_usuario_mod
+                         LEFT JOIN param.vproveedor pro on pro.id_proveedor = proana.id_proveedor
+                         LEFT JOIN param.ttipo_cc tc on tc.id_tipo_cc = proana.id_tipo_cc
+                         left join param.tdepto dep on dep.id_depto=proana.id_depto_conta
+                         left join conta.tint_comprobante c1 on c1.id_int_comprobante=proana.id_int_comprobante_1
+                         left join conta.tint_comprobante c2 on c2.id_int_comprobante=proana.id_int_comprobante_2
+                         left join conta.tint_comprobante c3 on c3.id_int_comprobante=proana.id_int_comprobante_3
                          WHERE ';
 
             --Definicion de la respuesta
@@ -184,9 +193,7 @@ EXCEPTION
         v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
         RAISE EXCEPTION '%',v_resp;
 END;
-$body$
-    LANGUAGE 'plpgsql'
-    VOLATILE
-    CALLED ON NULL INPUT
-    SECURITY INVOKER
-    COST 100;
+$BODY$;
+
+ALTER FUNCTION pro.ft_proyecto_analisis_sel(integer, integer, character varying, character varying)
+    OWNER TO postgres;

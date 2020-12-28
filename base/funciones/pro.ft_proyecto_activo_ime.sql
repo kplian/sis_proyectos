@@ -22,6 +22,7 @@ $body$
  #40    PRO     ETR      18/10/2019   RCM         En caso de incrementar valor a un AF existente, si el padre no tiene local que agarre el de la plantilla. Lo mismo con el CC
  #50    PRO  	ETR      09/12/2019   RCM         Inclusión de almacén en importación de cierre
  #55    PRO     ETR      26/02/2020   RCM         Adición de vldiación campo fecha de compra
+ #BB	PRO 	ETR 	 08/11/2020   RCM		  Afinación de validaciones para permitir subir desde excel los 4 casos: Nuevos AF, Incrementos, Gasto, Almacén
 ***************************************************************************/
 
 DECLARE
@@ -56,6 +57,7 @@ DECLARE
 	v_denominacion 			varchar;
 	v_observaciones 		varchar;
 	v_id_almacen 			INTEGER; --#50
+	v_fecha_compra 			DATE; --#BB
 
 BEGIN
 
@@ -186,6 +188,7 @@ BEGIN
 
 		end;
 
+	--Inicio #BB
 	/*********************************
  	#TRANSACCION:  'PRO_PRAF_XLS'
  	#DESCRIPCION:	Generar proyecto activo desde excel
@@ -236,45 +239,23 @@ BEGIN
 			-- VALIDACIONES POR TIPO
 			------------------------
 			--si es para activar
-			--si es para incremento
-			--si es para gasto
-			--FIN VALIDACIONES POR TIPO
+			IF COALESCE(v_codigo_af_rel, '') = '' AND NOT pxp.f_existe_parametro(p_tabla, 'almacen') THEN
 
-
-
-			--Obtiene el id_clasificacion
-			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
-			if coalesce(v_codigo_af_rel, '') <> '' then
-        		select id_clasificacion
-        		into v_id_clasificacion
-        		from kaf.tactivo_fijo
-        		where codigo = v_codigo_af_rel;
-        	else
-        		IF pxp.f_existe_parametro(p_tabla, 'clasificacion') THEN --#50
+				--Clasificación
+				IF pxp.f_existe_parametro(p_tabla, 'clasificacion') THEN --#50
 	        		SELECT
 					id_clasificacion
 					INTO v_id_clasificacion
 					FROM kaf.tclasificacion
 					WHERE codigo_completo_tmp = TRIM(v_parametros.clasificacion);
 				END IF; --#50
-            end if;
 
-            if COALESCE(v_codigo_af_rel, '') <> 'GASTO' AND NOT pxp.f_existe_parametro(p_tabla, 'almacen') then --#50
-	            if coalesce(v_id_clasificacion, 0) = 0 then
-	           		raise exception 'Clasificación no encontrada: % para el activo: %. (Fila %)', v_parametros.clasificacion, v_parametros.denominacion, v_parametros.item;
-	            end if;
-            end if;
+				IF COALESCE(v_id_clasificacion, 0) = 0 then
+	           		RAISE EXCEPTION 'Clasificación no encontrada: % para el activo: %. (Fila %)', v_parametros.clasificacion, v_parametros.denominacion, v_parametros.item;
+	            END IF;
 
-
-            --Centro costo
-			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
-			if coalesce(v_codigo_af_rel, '') <> '' then
-        		select id_centro_costo
-        		into v_id_centro_costo
-        		from kaf.tactivo_fijo
-        		where codigo = v_codigo_af_rel;
-        	else
-        		IF pxp.f_existe_parametro(p_tabla, 'centro_costo') THEN --#50
+	            --Centro de Costo
+	            IF pxp.f_existe_parametro(p_tabla, 'centro_costo') THEN --#50
 					select cc.id_centro_costo
 					into v_id_centro_costo
 					from param.ttipo_cc tcc
@@ -283,210 +264,290 @@ BEGIN
 					where tcc.codigo = v_parametros.centro_costo
 					and cc.id_gestion = v_id_gestion;
 				END IF; --#50
-            end if;
 
-            if COALESCE(v_codigo_af_rel, '') <> 'GASTO' AND NOT pxp.f_existe_parametro(p_tabla, 'almacen') then --#50
-				if coalesce(v_id_centro_costo, 0) = 0 then
-					raise exception 'Centro de Costo no definido para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+				IF COALESCE(v_id_centro_costo, 0) = 0 THEN
+					RAISE EXCEPTION 'Centro de Costo no definido para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+				END IF;
+
+				--Ubicación (Local)
+				SELECT id_ubicacion
+				INTO v_id_ubicacion
+				FROM kaf.tubicacion
+				WHERE LOWER(TRIM(codigo)) = LOWER(TRIM(v_parametros.local));
+
+				IF COALESCE(v_id_ubicacion, 0) = 0 THEN
+					RAISE EXCEPTION 'Local inexistente: %, para el activo: %. (Fila %)', v_parametros.local, v_parametros.denominacion, v_parametros.item;
+				END IF;
+
+				--Responsable
+				IF pxp.f_existe_parametro(p_tabla, 'responsable') THEN
+					v_responsable = v_parametros.responsable;
+				END IF;
+
+				--Verifica que exista el responsable
+				v_id_funcionario = null;
+				IF COALESCE(v_responsable,'') <> '' THEN
+
+					SELECT f.id_funcionario
+					INTO v_id_funcionario
+					FROM segu.tusuario u
+					INNER JOIN orga.tfuncionario f
+					ON f.id_persona = u.id_persona
+					WHERE LOWER(u.cuenta) = LOWER(TRIM(v_responsable));
+
+					IF COALESCE(v_id_funcionario,0) = 0 then
+						RAISE EXCEPTION 'Responsable del activo no encontrado: %, para el activo: %. (Fila %)', v_responsable, v_parametros.denominacion, v_parametros.item;
+					END IF;
+				END IF;
+
+				--Grupo
+				IF pxp.f_existe_parametro(p_tabla, 'grupo_ae') THEN
+	        		SELECT id_grupo
+					INTO v_id_grupo_ae
+					FROM kaf.tgrupo
+					WHERE tipo = 'grupo'
+					AND (codigo = v_parametros.grupo_ae OR codigo = '0' || v_parametros.grupo_ae);
+				END IF;
+
+				IF COALESCE(v_id_grupo_ae,0) = 0 THEN
+					RAISE EXCEPTION 'Grupo AE no definido para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+				END IF;
+
+				--Grupo Clasif
+				IF pxp.f_existe_parametro(p_tabla, 'clasificacion_ae') THEN
+	        		SELECT id_grupo
+					INTO v_id_grupo_clasif
+					FROM kaf.tgrupo
+					WHERE tipo = 'clasificacion'
+					AND (codigo = v_parametros.clasificacion_ae OR codigo = '0' || v_parametros.clasificacion_ae);
+				END IF;
+
+				IF COALESCE(v_id_grupo_clasif,0) = 0 THEN
+					RAISE EXCEPTION 'Clasificación AE no definido para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+				END IF;
+
+				--nro_serie
+				v_nro_serie = null;
+				IF pxp.f_existe_parametro(p_tabla, 'nro_serie') THEN
+					v_nro_serie = v_parametros.nro_serie;
+				END IF;
+
+				--marca
+				v_marca = null;
+				IF pxp.f_existe_parametro(p_tabla, 'marca') THEN
+					v_marca = v_parametros.marca;
+				END IF;
+
+				--Unidad de medida
+				IF pxp.f_existe_parametro(p_tabla, 'unidad') THEN
+					SELECT id_unidad_medida
+					INTO v_id_unidad_medida
+					FROM param.tunidad_medida
+					WHERE LOWER(codigo) = LOWER(v_parametros.unidad);
+
+					IF COALESCE(v_id_unidad_medida,0) = 0 THEN
+						RAISE EXCEPTION 'Unidad de Medida no encontrada para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+					END IF;
+				ELSE
+						RAISE EXCEPTION 'Unidad de Medida no definida para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+				END IF;
+
+				--descripcion
+				v_descripcion = coalesce(v_parametros.denominacion,null) ;
+				if pxp.f_existe_parametro(p_tabla, 'descripcion') then
+					v_descripcion = v_parametros.descripcion;
 				end if;
-			end if;
 
-			--id_ubicacion (local)
-			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
-			if coalesce(v_codigo_af_rel, '') <> '' then
-        		select id_ubicacion
-        		into v_id_ubicacion
-        		from kaf.tactivo_fijo
-        		where codigo = v_codigo_af_rel;
-
-        		--Inicio #40
-        		IF COALESCE(v_id_ubicacion, 0) = 0 THEN
-        			IF pxp.f_existe_parametro(p_tabla, 'local') THEN --#50
-	        			SELECT id_ubicacion
-						INTO v_id_ubicacion
-						FROM kaf.tubicacion
-						WHERE LOWER(TRIM(codigo)) = LOWER(TRIM(v_parametros.local));
-						END IF; --#50
-        		END IF;
-        		--Fin #40
-        	else
-				select id_ubicacion
-				into v_id_ubicacion
-				from kaf.tubicacion
-				where LOWER(TRIM(codigo)) = LOWER(TRIM(v_parametros.local));
-            end if;
-
-            IF COALESCE(v_codigo_af_rel, '') <> 'GASTO' AND NOT pxp.f_existe_parametro(p_tabla, 'almacen') THEN --#50
-				if coalesce(v_id_ubicacion,0) = 0 then
-					raise exception 'Local inexistente: %, para el activo: %. (Fila %)', v_parametros.local, v_parametros.denominacion, v_parametros.item; --#50
+				--ubicacion
+				v_ubicacion = null ;
+				if pxp.f_existe_parametro(p_tabla, 'ubicacion') then
+					v_ubicacion = v_parametros.ubicacion;
 				end if;
-			end if;
 
-			--responsable
-			v_responsable = null;
-			if pxp.f_existe_parametro(p_tabla, 'responsable') then
-				v_responsable = v_parametros.responsable;
-			end if;
-
-			--Verifica que exista el responsable
-			v_id_funcionario = null;
-			if coalesce(v_responsable,'') <> '' then
-
-				select f.id_funcionario
-				into v_id_funcionario
-				from segu.tusuario u
-				inner join orga.tfuncionario f
-				on f.id_persona = u.id_persona
-				where LOWER(u.cuenta) = LOWER(TRIM(v_responsable)); --#50
-
-				if coalesce(v_id_funcionario,0) = 0 then
-					raise exception 'Responsable del activo no encontrado: %, para el activo: %. (Fila %)', v_responsable, v_parametros.denominacion, v_parametros.item;
+				--cantidad_det
+				v_cantidad_det = 1 ;
+				if pxp.f_existe_parametro(p_tabla, 'cantidad_det') then
+					v_cantidad_det = v_parametros.cantidad_det;
 				end if;
-			end if;
 
-			--id_grupo
-			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
-			if coalesce(v_codigo_af_rel,'') <> '' then
-        		select id_grupo
-        		into v_id_grupo_ae
-        		from kaf.tactivo_fijo
-        		where codigo = v_codigo_af_rel;
-        	else
-        		IF pxp.f_existe_parametro(p_tabla, 'grupo_ae') THEN --#50
-	        		select id_grupo
-					into v_id_grupo_ae
-					from kaf.tgrupo
-					where tipo = 'grupo'
-					and (codigo = v_parametros.grupo_ae or codigo = '0' || v_parametros.grupo_ae); --#19 se agrega parámetros por error lógico
-				END IF; --#50
-            end if;
-
-            if COALESCE(v_codigo_af_rel, '') <> 'GASTO' AND NOT pxp.f_existe_parametro(p_tabla, 'almacen') then
-				if coalesce(v_id_grupo_ae,0) = 0 then
-					raise exception 'Grupo AE no definido para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+				--denominacion
+				v_denominacion = null ;
+				if pxp.f_existe_parametro(p_tabla, 'denominacion') then
+					v_denominacion = v_parametros.denominacion;
 				end if;
-			end if;
 
-			--id_grupo_clasif
-			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
-			if coalesce(v_codigo_af_rel,'') <> '' then
-        		select id_grupo
-        		into v_id_grupo_clasif
-        		from kaf.tactivo_fijo
-        		where codigo = v_codigo_af_rel;
-        	else
-        		IF pxp.f_existe_parametro(p_tabla, 'clasificacion_ae') THEN --#50
-	        		select id_grupo
-					into v_id_grupo_clasif
-					from kaf.tgrupo
-					where tipo = 'clasificacion'
-					and (codigo = v_parametros.clasificacion_ae or codigo = '0' || v_parametros.clasificacion_ae); --#19 se agrega parámetros por error lógico
-				END IF; --#50
-            end if;
-
-            if COALESCE(v_codigo_af_rel, '') <> 'GASTO' AND NOT pxp.f_existe_parametro(p_tabla, 'almacen') then
-				if coalesce(v_id_grupo_clasif,0) = 0 then
-					raise exception 'Clasificación AE no definido para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+				if coalesce(v_denominacion,'') = '' then
+					raise exception 'Falta definir la denominación para el activo. (Fila %)', v_parametros.item;
 				end if;
-			end if;
 
-			--nro_serie
-			v_nro_serie = null;
-			if pxp.f_existe_parametro(p_tabla, 'nro_serie') then
-				v_nro_serie = v_parametros.nro_serie;
-			end if;
-
-			--marca
-			v_marca = null;
-			if pxp.f_existe_parametro(p_tabla, 'marca') then
-				v_marca = v_parametros.marca;
-			end if;
-
-			--Unidad de medida
-			if pxp.f_existe_parametro(p_tabla, 'unidad') then
-				select id_unidad_medida
-				into v_id_unidad_medida
-				from param.tunidad_medida
-				where lower(codigo) = lower(v_parametros.unidad);
-
-				if coalesce(v_id_unidad_medida,0) = 0 then
-					raise exception 'Unidad de Medida no encontrada para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+				--observaciones
+				v_observaciones = null ;
+				if pxp.f_existe_parametro(p_tabla, 'observaciones') then
+					v_observaciones = v_parametros.observaciones;
 				end if;
-			else
-				IF NOT pxp.f_existe_parametro(p_tabla, 'almacen') THEN --#50
-					raise exception 'Unidad de Medida no definida para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
-				END IF; --#50
-			end if;
 
-			--descripcion
-			v_descripcion = coalesce(v_parametros.denominacion,null) ;
-			if pxp.f_existe_parametro(p_tabla, 'descripcion') then
-				v_descripcion = v_parametros.descripcion;
-			end if;
-
-			--ubicacion
-			v_ubicacion = null ;
-			if pxp.f_existe_parametro(p_tabla, 'ubicacion') then
-				v_ubicacion = v_parametros.ubicacion;
-			end if;
-
-			--cantidad_det
-			v_cantidad_det = 1 ;
-			if pxp.f_existe_parametro(p_tabla, 'cantidad_det') then
-				v_cantidad_det = v_parametros.cantidad_det;
-			end if;
-
-			--denominacion
-			v_denominacion = null ;
-			if pxp.f_existe_parametro(p_tabla, 'denominacion') then
-				v_denominacion = v_parametros.denominacion;
-			end if;
-
-			if coalesce(v_denominacion,'') = '' then
-				raise exception 'Falta definir la denominación para alguno de los activos. (Fila %)', v_parametros.item;
-			end if;
-
-			--observaciones
-			v_observaciones = null ;
-			if pxp.f_existe_parametro(p_tabla, 'observaciones') then
-				v_observaciones = v_parametros.observaciones;
-			end if;
-
-			--Si tiene activo fijo relacionado, lo obtiene de su activo previamente creado
-			if coalesce(v_codigo_af_rel,'') <> '' then
-        		select ubicacion
-        		into v_ubicacion
-        		from kaf.tactivo_fijo
-        		where codigo = v_codigo_af_rel;
-            end if;
-
-            --Verifica que exista la vida útil
-            --Si tiene activo fijo relacionado, coloca la vida útil en cero para luego hacer update con la vida útil residual del activo relacionado
-			if coalesce(v_codigo_af_rel,'') <> '' OR pxp.f_existe_parametro(p_tabla, 'almacen')  then --#50
-				v_vida_util_anios = 0;
-			else
+				--Vida útil
 				if not pxp.f_existe_parametro(p_tabla, 'vida_util_anios') then
 					raise exception 'Falta definir la vida útil para el activo: (%). (Fila %)',v_parametros.denominacion, v_parametros.item;
 				else
 					v_vida_util_anios = v_parametros.vida_util_anios;
 				end if;
-			end if;
 
-			--Fecha_ini_dep
-			--Si tiene activo fijo relacionado, la fecha de inicio dep se setea en nulo
-			if coalesce(v_codigo_af_rel,'') <> '' then
-				v_fecha_ini_dep = null;
-			else
+				--Fecha ini dep
 				if not pxp.f_existe_parametro(p_tabla, 'fecha_ini_dep') then
 					raise exception 'Falta definir la Fecha de Inicio Depreciación para el activo: (%). (Fila %)',v_parametros.denominacion, v_parametros.item;
 				else
 					v_fecha_ini_dep = v_parametros.fecha_ini_dep;
 				end if;
-			end if;
 
-			--Inicio #50
-			--almacen
-			IF pxp.f_existe_parametro(p_tabla, 'almacen') THEN
+				--Fecha compra
+				IF pxp.f_existe_parametro(p_tabla, 'fecha_compra') THEN
+					v_fecha_compra = v_parametros.fecha_compra;
+				END IF;
+
+			--Si es para incremento (cuando tiene un codigo de activo)
+			ELSIF COALESCE(v_codigo_af_rel, '') <> '' THEN
+
+				--Clasificacion
+				SELECT id_clasificacion
+        		INTO v_id_clasificacion
+        		FROM kaf.tactivo_fijo
+        		WHERE codigo = v_codigo_af_rel;
+
+        		--Centro Costo
+        		SELECT id_centro_costo
+        		INTO v_id_centro_costo
+        		FROM kaf.tactivo_fijo
+        		WHERE codigo = v_codigo_af_rel;
+
+        		--Ubicacion (Local)
+        		SELECT id_ubicacion
+        		INTO v_id_ubicacion
+        		FROM kaf.tactivo_fijo
+        		WHERE codigo = v_codigo_af_rel;
+
+        		IF COALESCE(v_id_ubicacion, 0) = 0 THEN
+        			IF pxp.f_existe_parametro(p_tabla, 'local') THEN
+	        			SELECT id_ubicacion
+						INTO v_id_ubicacion
+						FROM kaf.tubicacion
+						WHERE LOWER(TRIM(codigo)) = LOWER(TRIM(v_parametros.local));
+					END IF;
+        		END IF;
+
+        		--Responsable
+				IF pxp.f_existe_parametro(p_tabla, 'responsable') THEN
+					v_responsable = v_parametros.responsable;
+				END IF;
+
+				--Verifica que exista el responsable
+				v_id_funcionario = null;
+				IF COALESCE(v_responsable,'') <> '' THEN
+
+					SELECT f.id_funcionario
+					INTO v_id_funcionario
+					FROM segu.tusuario u
+					INNER JOIN orga.tfuncionario f
+					ON f.id_persona = u.id_persona
+					WHERE LOWER(u.cuenta) = LOWER(TRIM(v_responsable)); --#50
+
+					IF COALESCE(v_id_funcionario,0) = 0 then
+						RAISE EXCEPTION 'Responsable del activo no encontrado: %, para el activo: %. (Fila %)', v_responsable, v_parametros.denominacion, v_parametros.item;
+					END IF;
+				END IF;
+
+				--Grupo
+				SELECT id_grupo
+        		INTO v_id_grupo_ae
+        		FROM kaf.tactivo_fijo
+        		WHERE codigo = v_codigo_af_rel;
+
+        		--Grupo Clasif
+        		SELECT id_grupo
+        		INTO v_id_grupo_clasif
+        		FROM kaf.tactivo_fijo
+        		WHERE codigo = v_codigo_af_rel;
+
+        		--nro_serie
+				v_nro_serie = null;
+				IF pxp.f_existe_parametro(p_tabla, 'nro_serie') THEN
+					v_nro_serie = v_parametros.nro_serie;
+				END IF;
+
+				--marca
+				v_marca = null;
+				IF pxp.f_existe_parametro(p_tabla, 'marca') THEN
+					v_marca = v_parametros.marca;
+				END IF;
+
+				--Unidad de medida
+				IF pxp.f_existe_parametro(p_tabla, 'unidad') THEN
+					SELECT id_unidad_medida
+					INTO v_id_unidad_medida
+					FROM param.tunidad_medida
+					WHERE LOWER(codigo) = LOWER(v_parametros.unidad);
+
+					IF COALESCE(v_id_unidad_medida,0) = 0 THEN
+						RAISE EXCEPTION 'Unidad de Medida no encontrada para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+					END IF;
+				ELSE
+						RAISE EXCEPTION 'Unidad de Medida no definida para el activo: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
+				END IF;
+
+				--descripcion
+				v_descripcion = coalesce(v_parametros.denominacion,null) ;
+				if pxp.f_existe_parametro(p_tabla, 'descripcion') then
+					v_descripcion = v_parametros.descripcion;
+				end if;
+
+				--ubicacion
+				select ubicacion
+        		into v_ubicacion
+        		from kaf.tactivo_fijo
+        		where codigo = v_codigo_af_rel;
+
+				--cantidad_det
+				v_cantidad_det = 1 ;
+				if pxp.f_existe_parametro(p_tabla, 'cantidad_det') then
+					v_cantidad_det = v_parametros.cantidad_det;
+				end if;
+
+				--denominacion
+				v_denominacion = null ;
+				if pxp.f_existe_parametro(p_tabla, 'denominacion') then
+					v_denominacion = v_parametros.denominacion;
+				end if;
+
+				if coalesce(v_denominacion,'') = '' then
+					raise exception 'Falta definir la denominación para el activo. (Fila %)', v_parametros.item;
+				end if;
+
+				--observaciones
+				v_observaciones = null ;
+				if pxp.f_existe_parametro(p_tabla, 'observaciones') then
+					v_observaciones = v_parametros.observaciones;
+				end if;
+
+				--Vida útil
+				v_vida_util_anios = 0;
+
+				--Fecha ini dep
+				v_fecha_ini_dep = null;
+
+				--Fecha Compra
+				IF pxp.f_existe_parametro(p_tabla, 'fecha_compra') THEN
+					v_fecha_compra = v_parametros.fecha_compra;
+				END IF;
+
+			--si es para gasto
+			ELSIF COALESCE(v_codigo_af_rel, '') = 'GASTO' THEN
+
+			--Si es almacen
+			ELSIF pxp.f_existe_parametro(p_tabla, 'almacen') THEN
+				--Vida útil
+				v_vida_util_anios = 0;
+
+				--Almacén
 				SELECT id_almacen
 				INTO v_id_almacen
 				FROM alm.talmacen
@@ -495,14 +556,9 @@ BEGIN
 				IF COALESCE(v_id_almacen, 0) = 0 THEN
 					RAISE EXCEPTION 'Almacén no encontrado: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
 				END IF;
-			END IF;
-			--Fin #50
 
-			--Inicio #55
-			IF pxp.f_existe_parametro(p_tabla, 'almacen') THEN
-				RAISE EXCEPTION 'Fecha de compra no definida: %. (Fila %)', v_parametros.denominacion, v_parametros.item;
 			END IF;
-			--Fin #55
+			--FIN VALIDCIONES POR TIPO
 
 			--Preparación del record para la inserción
 			SELECT
@@ -528,7 +584,7 @@ BEGIN
 			COALESCE(v_codigo_af_rel, NULL) AS codigo_af_rel,
 			v_id_funcionario AS id_funcionario,
 			(SELECT id_activo_fijo FROM kaf.tactivo_fijo WHERE codigo = v_codigo_af_rel OR codigo_ant = v_codigo_af_rel) AS id_activo_fijo,
-			COALESCE(v_parametros.fecha_compra, NULL) AS fecha_compra, --#38
+			v_fecha_compra AS fecha_compra, --#38
 			COALESCE(v_id_almacen, NULL) AS id_almacen --#50
 	        INTO v_rec;
 
@@ -543,6 +599,7 @@ BEGIN
             return v_resp;
 
 		end;
+		--Fin #BB
 
 	/*********************************
  	#TRANSACCION:  'PRO_PRAFIMP_ELI'
