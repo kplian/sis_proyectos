@@ -12,7 +12,7 @@
   #MDID-8            08/10/2020              EGS                 Se agrega Campos de WF
   #MDID-10           13/10/2020              EGS                 Se agrega filto por tipo_cc
  *#MDID-11              29/10/2020           EGS                 se agrega saldos para el panel
-
+					 18.11.2020				 MZM				 adicion de campos de depto contable y cbtes
 
  *****************************************************************************************/
 
@@ -56,9 +56,15 @@ class MODProyectoAnalisis extends MODbase{
         $this->captura('id_proceso_wf','integer');//#MDID-8
         $this->captura('id_tipo_cc','integer');//#MDID-10
         $this->captura('desc_tipo_cc','varchar');//#MDID-10
-
-
-
+		$this->captura('id_depto_conta','integer');
+		$this->captura('codigo','varchar');
+		$this->captura('nombre','varchar');
+		$this->captura('id_int_comprobante_1','integer');
+		$this->captura('id_int_comprobante_2','integer');
+		$this->captura('id_int_comprobante_3','integer');
+		$this->captura('nro_cbte1','varchar');
+		$this->captura('nro_cbte2','varchar');
+		$this->captura('nro_cbte3','varchar');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -84,7 +90,7 @@ class MODProyectoAnalisis extends MODbase{
         $this->setParametro('cerrar','cerrar','varchar');//
         $this->setParametro('id_funcionario','id_funcionario','integer');//#MDID-8
         $this->setParametro('id_tipo_cc','id_tipo_cc','integer');//#MDID-6
-		$this->setParametro('id_depto','id_depto','integer');//#MZM
+		$this->setParametro('id_depto','id_depto_conta','integer');//#MZM
 
 
 
@@ -111,7 +117,7 @@ class MODProyectoAnalisis extends MODbase{
         $this->setParametro('id_proveedor','id_proveedor','int4');
         $this->setParametro('porc_diferido','porc_diferido','numeric');//
         $this->setParametro('cerrar','cerrar','varchar');//
-
+		$this->setParametro('id_depto','id_depto_conta','integer');//#MZM
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

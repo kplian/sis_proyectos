@@ -1,3 +1,7 @@
+-- FUNCTION: pro.f_gestionar_cbte_proyecto_analisis_eliminacion(integer, integer, character varying, integer, character varying)
+
+-- DROP FUNCTION pro.f_gestionar_cbte_proyecto_analisis_eliminacion(integer, integer, character varying, integer, character varying);
+
 CREATE OR REPLACE FUNCTION pro.f_gestionar_cbte_proyecto_analisis_eliminacion(
 	p_id_usuario integer,
 	p_id_usuario_ai integer,
@@ -112,7 +116,9 @@ BEGIN
     if v_cbte != 'uno' and coalesce(v_registros.id_int_comprobante_1,0)<>0 then 
         perform conta.f_cambia_estado_wf_cbte(p_id_usuario, p_id_usuario_ai, p_usuario_ai, v_registros.id_int_comprobante_1, 'eliminado', 'Cbte eliminado');
 
-        --Eliminación de las transacciones
+		update pro.tproyecto_analisis set id_int_comprobante_1	=null
+        where id_int_comprobante_1=v_registros.id_int_comprobante_1;
+		--Eliminación de las transacciones
         delete from conta.tint_transaccion
         where id_int_comprobante=v_registros.id_int_comprobante_1;
 
@@ -123,7 +129,9 @@ BEGIN
     end if;
     if v_cbte != 'dos' and coalesce(v_registros.id_int_comprobante_2,0)<>0 then 
         perform conta.f_cambia_estado_wf_cbte(p_id_usuario, p_id_usuario_ai, p_usuario_ai, v_registros.id_int_comprobante_2, 'eliminado', 'Cbte eliminado');
-
+		
+        update pro.tproyecto_analisis set id_int_comprobante_2	=null
+        where id_int_comprobante_1=v_registros.id_int_comprobante_2;
         --Eliminación de las transacciones
         delete from conta.tint_transaccion
         where id_int_comprobante=v_registros.id_int_comprobante_2;
@@ -135,6 +143,8 @@ BEGIN
     if v_cbte != 'tres' and coalesce(v_registros.id_int_comprobante_3,0)<>0 then 
         perform conta.f_cambia_estado_wf_cbte(p_id_usuario, p_id_usuario_ai, p_usuario_ai, v_registros.id_int_comprobante_3, 'eliminado', 'Cbte eliminado');
 
+		update pro.tproyecto_analisis set id_int_comprobante_3	=null
+        where id_int_comprobante_1=v_registros.id_int_comprobante_3;
         --Eliminación de las transacciones
         delete from conta.tint_transaccion
         where id_int_comprobante=v_registros.id_int_comprobante_3;
@@ -172,7 +182,7 @@ BEGIN
         v_id_proceso_wf
     from wf.testado_wf ew
     where ew.id_estado_wf = v_id_estado_wf_ant;
---raise exception 'F: %', (select 1 from conta.tint_comprobante where id_int_comprobante = v_registros.id_int_comprobante_1);
+--raise exception 'v_id_tipo_estado%, v_id_funcionario%, v_registros.id_estado_wf%, v_id_proceso_wf%, v_id_depto%', v_id_tipo_estado, v_id_funcionario, v_registros.id_estado_wf,v_id_proceso_wf, v_id_depto ;
     --Registra el nuevo estado
     v_id_estado_actual = wf.f_registra_estado_wf
                         (

@@ -20,11 +20,12 @@ $body$
  FECHA:         24/09/2018
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
-  0     PRO       ETR           24/09/2018  RCM         Creación del archivo
- #18    PRO       ETR           08/08/2019  RCM         Modificación generación comprobante 1 para insertar directamente en las 3 monedas sin utilizar la plantilla
- #50    PRO       ETR           09/12/2019  RCM         Inclusión de almacén en importación de cierre
- #60    PRO       ETR           28/07/2020  RCM         Lógica para la generación cbte. 2 y 3. Nueva plantilla para cbte 3
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+  0         PRO       ETR           24/09/2018  RCM         Creación del archivo
+ #18        PRO       ETR           08/08/2019  RCM         Modificación generación comprobante 1 para insertar directamente en las 3 monedas sin utilizar la plantilla
+ #50        PRO       ETR           09/12/2019  RCM         Inclusión de almacén en importación de cierre
+ #60        PRO       ETR           28/07/2020  RCM         Lógica para la generación cbte. 2 y 3. Nueva plantilla para cbte 3
+ #ETR-2261  PRO       ETR           23/12/2020  RCM         En el 3er comprobante se aumenta en el prorrateo a almacén
 ***************************************************************************
 */
 DECLARE
@@ -51,7 +52,7 @@ BEGIN
     v_nombre_funcion = 'pro.f_fun_inicio_proyecto_cierre_wf';
     v_plantilla_cbte[0] = 'PRO-CIE1V2';--#18 cambio de versión de la plantilla que sólo genera la cabecera
     v_plantilla_cbte[1] = 'PRO-CIE2';
-    v_plantilla_cbte[2] = 'PRO-CIE3V2'; --#60 'PRO-CIE3'
+    v_plantilla_cbte[2] = 'PRO-CIE3V3'; --#60 'PRO-CIE3' #ETR-2261
     v_plantilla_cbte[3] = 'PRO-CIE4';
 
     ---------------------
@@ -577,6 +578,24 @@ BEGIN
         END IF;
         --Fin #60
 
+        --Inicio #ETR-2261: Coloca el TC
+        UPDATE conta.tint_transaccion SET
+        tipo_cambio = 1,
+        tipo_cambio_2 = CASE
+                            WHEN COALESCE(importe_debe, 0) > 0 THEN
+                                ROUND(importe_debe_mb / importe_debe_mt, 5)
+                            ELSE
+                                ROUND(importe_haber_mb / importe_haber_mt, 5)
+                        END,
+        tipo_cambio_3 = CASE
+                            WHEN COALESCE(importe_debe, 0) > 0 THEN
+                                ROUND(importe_debe_mb / importe_debe_ma, 5)
+                            ELSE
+                                ROUND(importe_haber_mb / importe_haber_ma, 5)
+                        END
+        WHERE id_int_comprobante = v_id_int_comprobante;
+        --Fin #ETR-2261
+
         --Actualización del Id del comprobante
         update pro.tproyecto set
         id_int_comprobante_1 = v_id_int_comprobante
@@ -621,8 +640,14 @@ BEGIN
             importe_haber_ma = 0,
             importe_recurso_ma = 0,
             importe_gasto_ma = 0,
-            actualizacion = 'si'
+            actualizacion = 'si',
+            --Inicio #ETR-2261: Coloca el TC
+            tipo_cambio = 1,
+            tipo_cambio_2 = 0,
+            tipo_cambio_3 = 0
+            --Fin #ETR-2261
             where id_int_comprobante = v_id_int_comprobante;
+
         ELSE
             DELETE FROM conta.tint_comprobante WHERE id_int_comprobante = v_id_int_comprobante;
         END IF;
@@ -739,7 +764,12 @@ BEGIN
             importe_haber_ma = 0,
             importe_recurso_ma = 0,
             importe_gasto_ma = 0,
-            actualizacion = 'si'
+            actualizacion = 'si',
+            --Inicio #ETR-2261: Coloca el TC
+            tipo_cambio = 1,
+            tipo_cambio_2 = 0,
+            tipo_cambio_3 = 0
+            --Fin #ETR-2261
             where id_int_comprobante = v_id_int_comprobante;
 
         END IF;

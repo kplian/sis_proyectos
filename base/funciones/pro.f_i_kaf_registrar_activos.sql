@@ -23,6 +23,7 @@ $body$
  #57    PRO     ETR      25/03/2020   RCM         Adición de id_proyecto_activo y id_movimiento_af_especial para creación de activos fijos
  #58    PRO     ETR      29/04/2020   RCM         Inclusión de fecha para TC inicial predefinido para la primera depreciación del AF enla creación de AFVs
  #60    PRO     ETR      29/07/2020   RCM         Modificación de cálculo auxiliar de depreciación en caso de adiciones, considerando fecha de inicio depreciación
+ #SIS-2  PRO     ETR      24/09/2020   RCM        Modificación de fecha fin del proyecto por fecha del cbte. para las adiciones, para que prevalezca la fecha del cbte.
 ***************************************************************************
 */
 DECLARE
@@ -160,12 +161,21 @@ BEGIN
         raise exception 'El usuario responsable del Dpto. no está registrado como funcionario';
     end if;
 
-    select fun.id_funcionario
-    into v_id_funcionario
-    from segu.tusuario usu
-    inner join orga.vfuncionario_persona fun
-    on fun.id_persona = usu.id_persona
-    where usu.id_usuario = v_id_responsable_depto;
+    --Inicio #SIS-2
+    SELECT id_funcionario
+    INTO v_id_funcionario
+    FROM orga.tfuncionario
+    WHERE codigo = 'FUNADM';
+
+    IF v_id_funcionario IS NULL THEN
+        select fun.id_funcionario
+        into v_id_funcionario
+        from segu.tusuario usu
+        inner join orga.vfuncionario_persona fun
+        on fun.id_persona = usu.id_persona
+        where usu.id_usuario = v_id_responsable_depto;
+    END IF;
+    --Fin #SIS-2
 
     --Oficina del responsable
     if not exists(select 1
@@ -590,6 +600,7 @@ BEGIN
             ), tcbtes AS (
                 SELECT
                 py.id_proyecto,
+                cb.fecha, --#SIS-2
                 SUM(tr.importe_debe_mb) AS importe_mb,
                 SUM(tr.importe_debe_mt) AS importe_mt,
                 SUM(tr.importe_debe_ma) AS importe_ma
@@ -597,16 +608,20 @@ BEGIN
                 INNER JOIN pro.tproyecto py
                 ON py.id_int_comprobante_1 = tr.id_int_comprobante
                 OR py.id_int_comprobante_3 = tr.id_int_comprobante
+                --Inicio #SIS-2
+                INNER JOIN conta.tint_comprobante cb
+                ON cb.id_int_comprobante = tr.id_int_comprobante
+                --Fin #SIS-2
                 WHERE py.id_proyecto = p_id_proyecto
-                GROUP BY py.id_proyecto
+                GROUP BY py.id_proyecto, cb.fecha --#SIS-2
             ), tfecha_ult_dep AS (
                 SELECT
-                mdep.id_activo_fijo_valor, maf.id_activo_fijo, mdep.id_moneda,
+                mdep.id_activo_fijo_valor, afv.id_activo_fijo, mdep.id_moneda,
                 MAX(mdep.fecha) AS max_fecha
-                FROM kaf.tmovimiento_af maf
-                INNER JOIN kaf.tmovimiento_af_dep mdep
-                ON mdep.id_movimiento_af = maf.id_movimiento_af
-                GROUP BY mdep.id_activo_fijo_valor, maf.id_activo_fijo, mdep.id_moneda
+                FROM kaf.tmovimiento_af_dep mdep
+                INNER JOIN kaf.tactivo_fijo_valores afv
+                ON afv.id_activo_fijo_valor = mdep.id_activo_fijo_valor
+                GROUP BY mdep.id_activo_fijo_valor, afv.id_activo_fijo, mdep.id_moneda
             )
             SELECT
             af.id_activo_fijo,
@@ -1135,4 +1150,8 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
+
+ALTER FUNCTION pro.f_i_kaf_registrar_activos (p_id_usuario integer, p_id_proyecto integer)
+  OWNER TO postgres;
