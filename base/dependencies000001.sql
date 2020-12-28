@@ -5119,7 +5119,7 @@ GROUP BY py.id_proyecto, tcc.codigo, tr.id_cuenta, tr.id_partida, tr.id_centro_c
 /***********************************I-DEP-MZM-PRO-SIS-2-18/11/2020****************************************/
 
 drop view pro.cbte3_ingdif;
-pro.vcbte_proy_diferido_ing_det;
+drop view pro.vcbte_proy_diferido_ing_det;
 CREATE OR REPLACE VIEW pro.cbte3_ingdif(
     id_proyecto_analisis,
     id_auxiliar,

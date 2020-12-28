@@ -259,6 +259,7 @@ BEGIN
                                               id_proveedor = v_parametros.id_proveedor,
                                               porc_diferido = v_parametros.porc_diferido, ----#MDID-8
                                               cerrar = v_parametros.cerrar ----#MDID-8
+                                              ,id_depto_conta=v_parametros.id_depto
             WHERE id_proyecto_analisis=v_parametros.id_proyecto_analisis;
             --Solo insertamos transacciones si se modifica la fecha
             IF (v_record.fecha <> v_parametros.fecha) or (v_record.id_proveedor <> v_parametros.id_proveedor) THEN
