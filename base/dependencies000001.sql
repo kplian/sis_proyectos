@@ -5120,30 +5120,7 @@ GROUP BY py.id_proyecto, tcc.codigo, tr.id_cuenta, tr.id_partida, tr.id_centro_c
 
 drop view pro.cbte3_ingdif;
 drop view pro.vcbte_proy_diferido_ing_det;
-CREATE OR REPLACE VIEW pro.cbte3_ingdif(
-    id_proyecto_analisis,
-    id_auxiliar,
-    id_cuenta_ingreso,
-    monto)
-AS
-  SELECT vcbte_proy_diferido_ing_det.id_proyecto_analisis,
-         vcbte_proy_diferido_ing_det.id_auxiliar,
-         vcbte_proy_diferido_ing_det.id_cuenta_ingreso,
-         CASE
-           WHEN COALESCE(vcbte_proy_diferido_ing_det.saldo_pasivo, 0::numeric) >
-           ((COALESCE(vcbte_proy_diferido_ing_det.saldo_gasto, 0::numeric) +
-            COALESCE(vcbte_proy_diferido_ing_det.saldo_activo, 0::numeric)) /
-             vcbte_proy_diferido_ing_det.porc_utilidad -(COALESCE(
-             vcbte_proy_diferido_ing_det.saldo_gasto, 0::numeric) + COALESCE(
-             vcbte_proy_diferido_ing_det.saldo_activo, 0::numeric))) THEN (
-             COALESCE(vcbte_proy_diferido_ing_det.saldo_gasto, 0::numeric) +
-              COALESCE(vcbte_proy_diferido_ing_det.saldo_activo, 0::numeric)) /
-               vcbte_proy_diferido_ing_det.porc_utilidad - COALESCE(
-               vcbte_proy_diferido_ing_det.saldo_ingreso, 0::numeric)
-           ELSE COALESCE(vcbte_proy_diferido_ing_det.saldo_pasivo, 0::numeric)
-         END AS monto
-  FROM pro.vcbte_proy_diferido_ing_det;
-  
+
   
 
 CREATE OR REPLACE VIEW pro.vcbte_proy_diferido_det(
@@ -5290,6 +5267,32 @@ AS
             op_saldo_activo, op_saldo_pasivo, op_saldo_ingreso, op_saldo_egreso)
          ) AS saldo_pasivo
   FROM pro.tproyecto_analisis pro;
+  
+  CREATE OR REPLACE VIEW pro.cbte3_ingdif(
+    id_proyecto_analisis,
+    id_auxiliar,
+    id_cuenta_ingreso,
+    monto)
+AS
+  SELECT vcbte_proy_diferido_ing_det.id_proyecto_analisis,
+         vcbte_proy_diferido_ing_det.id_auxiliar,
+         vcbte_proy_diferido_ing_det.id_cuenta_ingreso,
+         CASE
+           WHEN COALESCE(vcbte_proy_diferido_ing_det.saldo_pasivo, 0::numeric) >
+           ((COALESCE(vcbte_proy_diferido_ing_det.saldo_gasto, 0::numeric) +
+            COALESCE(vcbte_proy_diferido_ing_det.saldo_activo, 0::numeric)) /
+             vcbte_proy_diferido_ing_det.porc_utilidad -(COALESCE(
+             vcbte_proy_diferido_ing_det.saldo_gasto, 0::numeric) + COALESCE(
+             vcbte_proy_diferido_ing_det.saldo_activo, 0::numeric))) THEN (
+             COALESCE(vcbte_proy_diferido_ing_det.saldo_gasto, 0::numeric) +
+              COALESCE(vcbte_proy_diferido_ing_det.saldo_activo, 0::numeric)) /
+               vcbte_proy_diferido_ing_det.porc_utilidad - COALESCE(
+               vcbte_proy_diferido_ing_det.saldo_ingreso, 0::numeric)
+           ELSE COALESCE(vcbte_proy_diferido_ing_det.saldo_pasivo, 0::numeric)
+         END AS monto
+  FROM pro.vcbte_proy_diferido_ing_det;
+  
+  
 /***********************************F-DEP-MZM-PRO-SIS-2-18/11/2020****************************************/  
 
 /***********************************I-DEP-RCM-PRO-SIS-ETR-2261-23/12/2020****************************************/
