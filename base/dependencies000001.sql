@@ -4696,6 +4696,51 @@ select pxp.f_insert_testructura_gui ('CUEINC', 'CFGPRO');
 
 
 /***********************************I-DEP-MZM-PRO-2-29/10/2020****************************************/
+ALTER TABLE pro.tproyecto_analisis
+  ADD COLUMN id_depto_conta INTEGER;
+
+ALTER TABLE pro.tproyecto_analisis
+  ADD COLUMN id_int_comprobante_1 INTEGER;
+
+ALTER TABLE pro.tproyecto_analisis
+  ADD COLUMN id_int_comprobante_2 INTEGER;
+
+ALTER TABLE pro.tproyecto_analisis
+  ADD COLUMN id_int_comprobante_3 INTEGER;
+
+
+ALTER TABLE pro.tproyecto_analisis
+  ADD CONSTRAINT fk_tproyecto_analisis__id_depto_conta FOREIGN KEY (id_depto_conta)
+    REFERENCES param.tdepto(id_depto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+
+ALTER TABLE pro.tproyecto_analisis
+  ADD CONSTRAINT fk_tproyecto_analisis__id_int_cbte1 FOREIGN KEY (id_int_comprobante_1)
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+
+ALTER TABLE pro.tproyecto_analisis
+  ADD CONSTRAINT fk_tproyecto_analisis__id_int_cbte2 FOREIGN KEY (id_int_comprobante_2)
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+
+ALTER TABLE pro.tproyecto_analisis
+  ADD CONSTRAINT fk_tproyecto_analisis__id_int_cbte3 FOREIGN KEY (id_int_comprobante_3)
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+
 CREATE OR REPLACE VIEW pro.vcbte_proy_diferido(
     id_proyecto_analisis,
     glosa,
@@ -4820,7 +4865,7 @@ AS
            WHERE c.tipo_cuenta::text = 'activo' ::text AND
                  pd.id_proyecto_analisis = pro.id_proyecto_analisis
          ) AS saldo_activo,
-         (1::numeric - pro.porc_diferido) ::numeric(5, 2) AS porc_utilidad,
+         (1::numeric - pro.porc_diferido) ::numeric(3, 2) AS porc_utilidad,
          (
            SELECT CASE
                     WHEN cu.id_gestion =((
@@ -4938,7 +4983,7 @@ AS
                       pro.porc_diferido / 100::numeric
                      ELSE 1::numeric - pro.porc_diferido
                    END AS "case"
-         )) ::numeric(5,2) AS porc_utilidad,
+         )) ::numeric(3, 2) AS porc_utilidad,
          (
            SELECT CASE
                     WHEN cu.id_gestion =((
@@ -5072,6 +5117,9 @@ GROUP BY py.id_proyecto, tcc.codigo, tr.id_cuenta, tr.id_partida, tr.id_centro_c
 /***********************************F-DEP-RCM-PRO-SIS-2-18/09/2020****************************************/
 
 /***********************************I-DEP-MZM-PRO-SIS-2-18/11/2020****************************************/
+
+drop view pro.cbte3_ingdif;
+pro.vcbte_proy_diferido_ing_det;
 CREATE OR REPLACE VIEW pro.cbte3_ingdif(
     id_proyecto_analisis,
     id_auxiliar,
@@ -5201,7 +5249,7 @@ AS
                      pro.porc_diferido / 100::numeric
                     ELSE 1::numeric - pro.porc_diferido
                   END AS "case"
-         )::numeric(5,2) AS porc_utilidad,
+         ) AS porc_utilidad,
          (
            SELECT CASE
                     WHEN cu.id_gestion =((
@@ -5242,7 +5290,7 @@ AS
             op_saldo_activo, op_saldo_pasivo, op_saldo_ingreso, op_saldo_egreso)
          ) AS saldo_pasivo
   FROM pro.tproyecto_analisis pro;
-/***********************************F-DEP-MZM-PRO-SIS-2-18/11/2020****************************************/  
+/***********************************I-DEP-MZM-PRO-SIS-2-18/11/2020****************************************/  
 
 /***********************************I-DEP-RCM-PRO-SIS-ETR-2261-23/12/2020****************************************/
 CREATE OR REPLACE VIEW pro.v_cbte_cierre_proy_3_debe_detv3(
