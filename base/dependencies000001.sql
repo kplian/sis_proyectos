@@ -5290,7 +5290,7 @@ AS
             op_saldo_activo, op_saldo_pasivo, op_saldo_ingreso, op_saldo_egreso)
          ) AS saldo_pasivo
   FROM pro.tproyecto_analisis pro;
-/***********************************I-DEP-MZM-PRO-SIS-2-18/11/2020****************************************/  
+/***********************************F-DEP-MZM-PRO-SIS-2-18/11/2020****************************************/  
 
 /***********************************I-DEP-RCM-PRO-SIS-ETR-2261-23/12/2020****************************************/
 CREATE OR REPLACE VIEW pro.v_cbte_cierre_proy_3_debe_detv3(
