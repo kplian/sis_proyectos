@@ -5,7 +5,9 @@
 *@author  (admin)
 *@date 29-09-2017 17:05:43
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+    ISSUE       FECHA       AUTHOR          DESCRIPCION
+ *  #MDID-2     28/09/2020  EGS             Se agrgan los capos de fecha_orden_proceder,plazo_dias,monto_anticipo,observaciones
+ */
 
 class MODProyectoContrato extends MODbase{
 	
@@ -44,6 +46,10 @@ class MODProyectoContrato extends MODbase{
 		$this->captura('usr_mod','varchar');
 		$this->captura('desc_proveedor','varchar');
 		$this->captura('moneda','varchar');
+        $this->captura('fecha_orden_proceder','date');//#MDID-2
+        $this->captura('plazo_dias','integer');//#MDID-2
+        $this->captura('monto_anticipo','numeric');//#MDID-2
+        $this->captura('observaciones','varchar');//#MDID-2
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -73,6 +79,10 @@ class MODProyectoContrato extends MODbase{
 		$this->setParametro('estado','estado','varchar');
 		$this->setParametro('id_proveedor','id_proveedor','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
+        $this->setParametro('fecha_orden_proceder','fecha_orden_proceder','date');//#MDID-2
+        $this->setParametro('plazo_dias','plazo_dias','integer');//#MDID-2
+        $this->setParametro('monto_anticipo','monto_anticipo','numeric');//#MDID-2
+        $this->setParametro('observaciones','observaciones','varchar');//#MDID-2
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -103,6 +113,10 @@ class MODProyectoContrato extends MODbase{
 		$this->setParametro('estado','estado','varchar');
 		$this->setParametro('id_proveedor','id_proveedor','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
+        $this->setParametro('fecha_orden_proceder','fecha_orden_proceder','date');//#MDID-2
+        $this->setParametro('plazo_dias','plazo_dias','integer');//#MDID-2
+        $this->setParametro('monto_anticipo','monto_anticipo','numeric');//#MDID-2
+        $this->setParametro('observaciones','observaciones','varchar');//#MDID-2
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

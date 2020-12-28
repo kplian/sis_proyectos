@@ -9,6 +9,7 @@
 ***************************************************************************
  ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
  #51    PRO       ETR           06/01/2020  RCM         Creación del archivo
+ * #MDID-9          ETR           30/03/2020  EGS         Se agrega tipo
 ***************************************************************************
 */
 
@@ -52,6 +53,29 @@ Phx.vista.CuentaExcluir = Ext.extend(Phx.gridInterfaz, {
 			form: true,
 			bottom_filter: true
 		},
+        {//#MDID9
+            config: {
+                name: 'tipo',
+                fieldLabel: 'Tipo',
+                anchor: '100%',
+                tinit: false,
+                allowBlank: false,
+                origen: 'CATALOGO',
+                gdisplayField: 'tipo',
+                hiddenName: 'tipo',
+                gwidth: 150,
+                baseParams:{
+                    cod_subsistema:'PRO',
+                    catalogo_tipo:'tcuenta_excluir_tipo'
+                },
+                valueField: 'codigo',
+                hidden: false
+            },
+            type: 'ComboRec',
+            id_grupo: 0,
+            grid: true,
+            form: true
+        },
 		{
 			config: {
 				name: 'estado_reg',
@@ -183,6 +207,7 @@ Phx.vista.CuentaExcluir = Ext.extend(Phx.gridInterfaz, {
 		{ name: 'id_usuario_mod', type: 'numeric' },
 		{ name: 'usr_reg', type: 'string' },
 		{ name: 'usr_mod', type: 'string' },
+        { name: 'tipo', type: 'string' },//#MDID9
 
 	],
 	sortInfo:{

@@ -9,6 +9,7 @@
  	#3				31/12/2018		EGS					Aumentar Importe Stea
  *  #10	EndeEtr		02/04/2019		EGS					Se agrego Totalizadores de fase_concepto y det invitacion
  *  #56             10/03/2020      EGS                 Se agrega los campos justificacion, id_lugar ,caracteristica_tecnica
+ * #MDID-4          29/09/2020      EGS                 Se agrega si el proyecto es diferido
 
  * */
 header("content-type: text/javascript; charset=UTF-8");
@@ -36,16 +37,16 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true
 		},
-		/*{
-			//configuracion del componente
-			config:{
-					labelSeparator:'',
-					inputType:'hidden',
-					name: 'estado'
-			},
-			type:'Field',
-			form:true
-		},*/
+        {
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'nombreVista'
+            },
+            type:'Field',
+            form:true
+        },
 		{
 			config:{
 				name: 'codigo',
@@ -223,7 +224,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
 			config: {
 				name: 'id_fase_plantilla',
 				fieldLabel: 'Plantilla Proyecto:',
-				allowBlank: true,
+				allowBlank: false,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
 					url: '../../sis_proyectos/control/FasePlantilla/listarFasePlantilla',
@@ -385,6 +386,33 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:true
         },
+        {//MDID-4
+            config:{
+                name:'diferido',
+                fieldLabel:'es diferido?',
+                allowBlank:false,
+                emptyText:'...',
+                typeAhead: true,
+                triggerAction: 'all',
+                lazyRender:true,
+                mode: 'local',
+                gwidth: 100,
+                store:new Ext.data.ArrayStore({
+                    fields: ['ID', 'valor'],
+                    data :    [['si','si'],
+                        ['no','no']]
+
+                }),
+                valueField:'ID',
+                displayField:'valor',
+                //renderer:function (value, p, record){if (value == 1) {return 'si'} else {return 'no'}}
+            },
+            type:'ComboBox',
+            valorInicial: 'no',
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
 		{
 			config:{
 				name: 'estado_reg',
@@ -532,6 +560,7 @@ Phx.vista.ProyectoBase=Ext.extend(Phx.gridInterfaz,{
         {name:'justificacion', type: 'string'},//#56
         {name:'id_lugar', type: 'numeric'},'lugar',//#56
         {name:'caracteristica_tecnica', type: 'string'},//#56
+        {name:'diferido', type: 'string'},//#MDID-4
 
 
 	],

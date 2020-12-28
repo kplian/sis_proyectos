@@ -1,12 +1,12 @@
 --------------- SQL ---------------
 
 CREATE OR REPLACE FUNCTION pro.ft_proyecto_sel (
-    p_administrador integer,
-    p_id_usuario integer,
-    p_tabla varchar,
-    p_transaccion varchar
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
 )
-    RETURNS varchar AS
+RETURNS varchar AS
 $body$
 /**************************************************************************
  SISTEMA:		Sistema de Proyectos
@@ -153,12 +153,13 @@ BEGIN
                         proy.id_lugar,   --#56
                         proy.caracteristica_tecnica, --#56
                         lug.nombre as lugar,   --#56
-                        proy.fecha_rev_aitb --#60
+                        proy.fecha_rev_aitb, --#60
+                        proy.diferido  --#MDID-4
 						from pro.tproyecto proy
 						inner join segu.tusuario usu1 on usu1.id_usuario = proy.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = proy.id_usuario_mod
 						inner join param.vtipo_cc tcc on tcc.id_tipo_cc = proy.id_tipo_cc
-						inner join param.tmoneda mon on mon.id_moneda = proy.id_moneda
+						left join param.tmoneda mon on mon.id_moneda = proy.id_moneda
 						left join param.tdepto dep on dep.id_depto = proy.id_depto_conta
 						left join conta.tint_comprobante cbte1 on cbte1.id_int_comprobante = proy.id_int_comprobante_1
 						left join conta.tint_comprobante cbte2 on cbte2.id_int_comprobante = proy.id_int_comprobante_2
@@ -193,7 +194,7 @@ BEGIN
 					    inner join segu.tusuario usu1 on usu1.id_usuario = proy.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = proy.id_usuario_mod
 						inner join param.vtipo_cc tcc on tcc.id_tipo_cc = proy.id_tipo_cc
-						inner join param.tmoneda mon on mon.id_moneda = proy.id_moneda
+						left join param.tmoneda mon on mon.id_moneda = proy.id_moneda
 						left join param.tdepto dep on dep.id_depto = proy.id_depto_conta
 						left join conta.tint_comprobante cbte1 on cbte1.id_int_comprobante = proy.id_int_comprobante_1
 						left join conta.tint_comprobante cbte2 on cbte2.id_int_comprobante = proy.id_int_comprobante_2
@@ -253,8 +254,8 @@ EXCEPTION
         raise exception '%',v_resp;
 END;
 $body$
-    LANGUAGE 'plpgsql'
-    VOLATILE
-    CALLED ON NULL INPUT
-    SECURITY INVOKER
-    COST 100;
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;

@@ -15,6 +15,7 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.ProyectoPr = {
 	require:'../../../sis_proyectos/vista/proyecto/ProyectoBase.php',
     requireclase:'Phx.vista.ProyectoBase',
+    nombreVista:'Proyecto',
     constructor: function(config) {
     	//this.initButtons=[this.cmbEstado];//Un combo que da la opcion de recargar el estado que se elija
 
@@ -84,8 +85,12 @@ Phx.vista.ProyectoPr = {
        	   
 		this.cmbEstado.on('select',this.capturaFiltros,this);
 		this.cmbEstado.fireEvent('select');
-     
-    this.load({params:{start:0, limit:this.tam_pag, planificacion:'si'}});//#8
+
+        this.store.baseParams = {
+            diferido: 'no',
+            planificacion:'si'
+        };
+        this.load({ params: {start: 0,limit: 50 }});
     },
     
     capturaFiltros:function(combo, record, index){
@@ -113,7 +118,7 @@ Phx.vista.ProyectoPr = {
     
     
     iniciarEventos: function(){
-
+        this.Cmp.nombreVista.setValue(this.nombreVista);
     	
     },
     	loadCheckDocumentosWf:function() {
@@ -415,7 +420,7 @@ Phx.vista.ProyectoPr = {
  		
  		console.log('hola');
 		Phx.vista.ProyectoPr.superclass.onButtonNew.call(this);
-		
+        this.Cmp.nombreVista.setValue(this.nombreVista);
 	   //this.Cmp.fecha_ini_real.disable(true);
 	   //this.Cmp.fecha_fin_real.disable(true);
 	   		
@@ -445,6 +450,7 @@ Phx.vista.ProyectoPr = {
 	     	  //this.Cmp.fecha_fin_real.disable(true);
     		
     	};
+        this.Cmp.nombreVista.setValue(this.nombreVista);
     	   	
  
     },
