@@ -7,10 +7,11 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 
 ***************************************************************************
- ISSUE  SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
- #14    PRO       ETR           24/07/2019  RCM         Corrección filtro por columnas y adición filtro rápido
- #52	PRO		  ETR			16/01/2020	MZM			Adicion de campo nro_tramite_cierre en grid
- #60    PRO       ETR           27/07/2020  RCM         Adicion de fecha de reversión AITB cierre de proyectos
+ ISSUE      SIS       EMPRESA       FECHA       AUTOR       DESCRIPCION
+ #14        PRO       ETR           24/07/2019  RCM         Corrección filtro por columnas y adición filtro rápido
+ #52	    PRO		  ETR			16/01/2020	MZM			Adicion de campo nro_tramite_cierre en grid
+ #60        PRO       ETR           27/07/2020  RCM         Adicion de fecha de reversión AITB cierre de proyectos
+ #ETR-2261  PRO       ETR           29/12/2020  RCM         Adición de fecha para el comprobante de cierre
 ***************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -344,6 +345,24 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
             grid: true,
             form: true
         },
+        //Inicio #ETR-2261
+        {
+            config:{
+                name: 'fecha_cbte_cierre',
+                fieldLabel: 'Fecha Cbte.Cierre',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+            },
+            type:'DateField',
+            filters:{pfiltro:'proy.fecha_cbte_cierre',type:'date'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        //Fin #ETR-2261
         {
             config:{
                 name: 'id_depto_conta',
@@ -580,7 +599,9 @@ Phx.vista.ProyectoCierre=Ext.extend(Phx.gridInterfaz,{
         {name:'id_proceso_wf_cbte_3', type: 'numeric'},
         {name:'fecha_ini_real', type: 'date',dateFormat:'Y-m-d'},
         {name:'fecha_fin_real', type: 'date',dateFormat:'Y-m-d'},
-        {name:'fecha_rev_aitb', type: 'date',dateFormat:'Y-m-d'} //#60
+        {name:'fecha_rev_aitb', type: 'date',dateFormat:'Y-m-d'}, //#60
+        {name:'fecha_cbte_cierre', type: 'date',dateFormat:'Y-m-d'} //#ETR-2261
+
     ],
     sortInfo:{
         field: 'id_proyecto',

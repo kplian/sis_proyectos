@@ -1245,8 +1245,7 @@ COMMENT ON COLUMN pro.tproyecto_analisis.cerrar
     IS 'Cierra la insercion de registros en el analisis dieridos';
 /***********************************F-SCP-EGS-PRO-36-29/10/2020****************************************/
 
-
-
-
-
-
+/***********************************I-SCP-RCM-PRO-ETR-2261-29/12/2020****************************************/
+ALTER TABLE pro.tproyecto
+    ADD COLUMN fecha_cbte_cierre DATE;
+/***********************************F-SCP-RCM-PRO-ETR-2261-29/12/2020****************************************/
