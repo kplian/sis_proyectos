@@ -10,6 +10,7 @@
  *  #10 EndeEtr		02/04/2019		EGS					Se agrego totalizadores de faseconceptoingas i det invitaion por proyecto
  *  #56 EndeEtr     10/02/2020      EGS                 Se agregan campos justificacion, id_lugar, caracteristicas tecnicas
  *  #60 EndeEtr     27/07/2020      RCM                 Adición fecha de reversión AITB cierre de proyectos
+ *  #ETR-2261  		29/12/2020  	RCM         		Adición de fecha para el comprobante de cierre
  * */
 
 class MODProyecto extends MODbase{
@@ -73,6 +74,7 @@ class MODProyecto extends MODbase{
         $this->captura('lugar','varchar');//#56
         $this->captura('fecha_rev_aitb','date');//#60
         $this->captura('diferido','varchar');//#MDID-4
+        $this->captura('fecha_cbte_cierre','date'); //#ETR-2261
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -302,6 +304,7 @@ class MODProyecto extends MODbase{
 		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
 		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
 		$this->setParametro('fecha_rev_aitb','fecha_rev_aitb','date'); //#60
+		$this->setParametro('fecha_cbte_cierre','fecha_cbte_cierre','date'); //#ETR-2261
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -332,6 +335,7 @@ class MODProyecto extends MODbase{
 		$this->setParametro('fecha_ini_real','fecha_ini_real','date');
 		$this->setParametro('fecha_fin_real','fecha_fin_real','date');
 		$this->setParametro('fecha_rev_aitb','fecha_rev_aitb','date'); //#60
+		$this->setParametro('fecha_cbte_cierre','fecha_cbte_cierre','date'); //#ETR-2261
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

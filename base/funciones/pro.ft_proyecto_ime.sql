@@ -27,6 +27,7 @@ $body$
     #60             27/07/2020      RCM                 Adición fecha reversión AITB para cierre de proyectos
     #MDID-4         06/10/2020      EGS                 Se agrega Diferido
     #MDIS-8         08/10/202       EGS                 Se agrega nombre de vista
+    #ETR-2261       23/12/2020      RCM                 Adición de fecha para el comprobante de cierre
 ***************************************************************************/
 
 DECLARE
@@ -1267,7 +1268,8 @@ BEGIN
             id_tipo_cc,
             estado,
             id_depto_conta,
-            fecha_rev_aitb --#60
+            fecha_rev_aitb, --#60
+            fecha_cbte_cierre --#ETR-2261
             ) VALUES (
             v_codigo,
             v_parametros.nombre,
@@ -1284,7 +1286,8 @@ BEGIN
             v_parametros.id_tipo_cc,
             'cierre',
             v_id_depto_conta,
-            v_parametros.fecha_rev_aitb --#60
+            v_parametros.fecha_rev_aitb, --#60
+            v_parametros.fecha_cbte_cierre --#ETR-2261
             )RETURNING id_proyecto into v_id_proyecto;
 
             --Definicion de la respuesta
@@ -1340,7 +1343,8 @@ BEGIN
             fecha_fin_real = v_parametros.fecha_fin_real,
             id_tipo_cc = v_parametros.id_tipo_cc,
             id_depto_conta = v_id_depto_conta,
-            fecha_rev_aitb = v_parametros.fecha_rev_aitb --#60
+            fecha_rev_aitb = v_parametros.fecha_rev_aitb, --#60
+            fecha_cbte_cierre = v_parametros.fecha_cbte_cierre --#ETR-2261
             WHERE id_proyecto = v_parametros.id_proyecto;
 
             --Definicion de la respuesta

@@ -62,7 +62,8 @@ BEGIN
     p.id_proyecto,
     p.estado_cierre,
     p.id_estado_wf_cierre,
-    p.fecha_fin
+    p.fecha_fin,
+    p.fecha_cbte_cierre --#ETR-2261
     into v_rec
     from pro.tproyecto p
     where p.id_proceso_wf_cierre = p_id_proceso_wf;
@@ -580,19 +581,26 @@ BEGIN
 
         --Inicio #ETR-2261: Coloca el TC
         UPDATE conta.tint_transaccion SET
-        tipo_cambio = 1,
-        tipo_cambio_2 = CASE
+        tipo_cambio = CASE
                             WHEN COALESCE(importe_debe, 0) > 0 THEN
                                 ROUND(importe_debe_mb / importe_debe_mt, 5)
                             ELSE
                                 ROUND(importe_haber_mb / importe_haber_mt, 5)
                         END,
+        tipo_cambio_2 = 1,
         tipo_cambio_3 = CASE
                             WHEN COALESCE(importe_debe, 0) > 0 THEN
                                 ROUND(importe_debe_mb / importe_debe_ma, 5)
                             ELSE
                                 ROUND(importe_haber_mb / importe_haber_ma, 5)
-                        END
+                        END --,
+        --actualizacion = 'si'
+        WHERE id_int_comprobante = v_id_int_comprobante;
+
+        UPDATE conta.tint_comprobante SET
+        --forma_cambio = 'convenido',
+        --cbte_aitb = 'si'
+        fecha = v_rec.fecha_cbte_cierre
         WHERE id_int_comprobante = v_id_int_comprobante;
         --Fin #ETR-2261
 
@@ -627,7 +635,8 @@ BEGIN
             update conta.tint_comprobante set
             cbte_aitb = 'si',
             tipo_cambio_2 = 0,
-            tipo_cambio_3 = 0
+            tipo_cambio_3 = 0,
+            fecha = v_rec.fecha_cbte_cierre --#ETR-2261
             where id_int_comprobante = v_id_int_comprobante;
 
             --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
@@ -751,7 +760,8 @@ BEGIN
             update conta.tint_comprobante set
             cbte_aitb = 'si',
             tipo_cambio_2 = 0,
-            tipo_cambio_3 = 0
+            tipo_cambio_3 = 0,
+            fecha = v_rec.fecha_cbte_cierre --#ETR-2261
             where id_int_comprobante = v_id_int_comprobante;
 
             --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización
