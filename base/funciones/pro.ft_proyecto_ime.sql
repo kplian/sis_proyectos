@@ -690,9 +690,11 @@ BEGIN
             where cat.codigo = 'deprec';
 
             --La fecha de cierre debe ser mayo con un mes a la fecha de última depreciación
-            if date_trunc('month',v_fecha_ult_dep) <> date_trunc('month',v_fecha_cierre - interval '1 month') then
+            --Inicio #ETR-2261: se comenta validación para permitir relizar cierres con fechas pasadas
+            /*if date_trunc('month',v_fecha_ult_dep) <> date_trunc('month',v_fecha_cierre - interval '1 month') then
                 raise exception 'La fecha de cierre (%) debería ser al mes siguiente de la última depreciación (%)', v_fecha_cierre, v_fecha_ult_dep;
-            end if;
+            end if;*/
+            --Fin
             ----------------
             --FIN VALIDACION
             ----------------
