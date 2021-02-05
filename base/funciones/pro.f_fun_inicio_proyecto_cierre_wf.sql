@@ -26,6 +26,7 @@ $body$
  #50        PRO       ETR           09/12/2019  RCM         Inclusión de almacén en importación de cierre
  #60        PRO       ETR           28/07/2020  RCM         Lógica para la generación cbte. 2 y 3. Nueva plantilla para cbte 3
  #ETR-2261  PRO       ETR           23/12/2020  RCM         En el 3er comprobante se aumenta en el prorrateo a almacén
+ #SIS-5     PRO       ETR           05/02/2021  RCM         El tipo de cambio de ser convenido
 ***************************************************************************
 */
 DECLARE
@@ -598,7 +599,7 @@ BEGIN
         WHERE id_int_comprobante = v_id_int_comprobante;
 
         UPDATE conta.tint_comprobante SET
-        --forma_cambio = 'convenido',
+        forma_cambio = 'convenido', --#SIS-5
         --cbte_aitb = 'si'
         fecha = v_rec.fecha_cbte_cierre
         WHERE id_int_comprobante = v_id_int_comprobante;
