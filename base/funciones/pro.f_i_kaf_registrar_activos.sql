@@ -12,18 +12,19 @@ $body$
  FECHA:         28/09/2018
  COMENTARIOS:
 ***************************************************************************
- ISSUE  SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
-        PRO     ETR      28/09/2019   RCM         Creación del archivo
- #19    PRO     ETR      19/08/2019   RCM         Corrección importes de alta considerando la actualización
- #33    PRO     ETR      30/09/2019   RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
- #36    PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
- #38    PRO     ETR      17/10/2019   RCM         Adición de campo Fecha de compra
- #41    PRO     ETR      22/10/2019   RCM         Adición de condición fecha is null en la consulta de AF existentes
- #50    PRO     ETR      09/12/2019   RCM         Inclusión de almacén en importación de cierre
- #57    PRO     ETR      25/03/2020   RCM         Adición de id_proyecto_activo y id_movimiento_af_especial para creación de activos fijos
- #58    PRO     ETR      29/04/2020   RCM         Inclusión de fecha para TC inicial predefinido para la primera depreciación del AF enla creación de AFVs
- #60    PRO     ETR      29/07/2020   RCM         Modificación de cálculo auxiliar de depreciación en caso de adiciones, considerando fecha de inicio depreciación
- #SIS-2  PRO     ETR      24/09/2020   RCM        Modificación de fecha fin del proyecto por fecha del cbte. para las adiciones, para que prevalezca la fecha del cbte.
+ ISSUE      SIS     EMPRESA  FECHA        AUTOR       DESCRIPCION
+            PRO     ETR      28/09/2019   RCM         Creación del archivo
+ #19        PRO     ETR      19/08/2019   RCM         Corrección importes de alta considerando la actualización
+ #33        PRO     ETR      30/09/2019   RCM         Inclusión de total depreciación mensual del incremento y total inc. dep. acum.
+ #36        PRO     ETR      16/10/2019   RCM         Adición de campo Funcionario
+ #38        PRO     ETR      17/10/2019   RCM         Adición de campo Fecha de compra
+ #41        PRO     ETR      22/10/2019   RCM         Adición de condición fecha is null en la consulta de AF existentes
+ #50        PRO     ETR      09/12/2019   RCM         Inclusión de almacén en importación de cierre
+ #57        PRO     ETR      25/03/2020   RCM         Adición de id_proyecto_activo y id_movimiento_af_especial para creación de activos fijos
+ #58        PRO     ETR      29/04/2020   RCM         Inclusión de fecha para TC inicial predefinido para la primera depreciación del AF enla creación de AFVs
+ #60        PRO     ETR      29/07/2020   RCM         Modificación de cálculo auxiliar de depreciación en caso de adiciones, considerando fecha de inicio depreciación
+ #SIS-2     PRO     ETR      24/09/2020   RCM         Modificación de fecha fin del proyecto por fecha del cbte. para las adiciones, para que prevalezca la fecha del cbte.
+ #SIS-4     PRO     ETR      12/01/2020   RCM         En caso de cierre de proyectos, para las adiciones el importe sin modificación debe ser por moneda no sólo en moneda base
 ***************************************************************************
 */
 DECLARE
@@ -918,7 +919,16 @@ BEGIN
                     )) + mdep.monto_vigente
             END as valor_neto,
             --Fin #33
-            COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0) AS importe_modif_sin_act--#60
+            --Inicio #SIS-4
+            CASE afv.id_moneda
+                WHEN 1 THEN
+                    COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0)
+                WHEN 2 THEN
+                    COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0)
+                WHEN 3 THEN
+                    COALESCE(cb.importe_ma * ac.importe_activo / ac.importe_total, 0)
+            END AS importe_modif_sin_act
+            --Fin #SIS-4
             FROM pro.tproyecto_activo pa
             INNER JOIN pro.tproyecto py
             ON py.id_proyecto = pa.id_proyecto
