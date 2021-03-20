@@ -25,6 +25,7 @@ $body$
  #60        PRO     ETR      29/07/2020   RCM         Modificación de cálculo auxiliar de depreciación en caso de adiciones, considerando fecha de inicio depreciación
  #SIS-2     PRO     ETR      24/09/2020   RCM         Modificación de fecha fin del proyecto por fecha del cbte. para las adiciones, para que prevalezca la fecha del cbte.
  #SIS-4     PRO     ETR      12/01/2020   RCM         En caso de cierre de proyectos, para las adiciones el importe sin modificación debe ser por moneda no sólo en moneda base
+ #ETR-3360  PRO     ETR      20/03/2021   RCM         No actualización de importes ni en cáluclo auxiliar de depreciación (por UFV en baja)
 ***************************************************************************
 */
 DECLARE
@@ -67,6 +68,7 @@ DECLARE
     v_id_estado_wf_act      integer;
     v_id_proceso_wf_act     integer;
     --Fin #19
+    v_act_x_ufv             VARCHAR; --#ETR-3360
 
 BEGIN
 
@@ -108,6 +110,9 @@ BEGIN
     into v_id_moneda_ufv
     from param.tmoneda
     where codigo = 'UFV';
+
+    --Obtención de variable global para verificar si se actualizará o no
+    v_act_x_ufv = pxp.f_get_variable_global('kaf_actualizar_baja_ufv');--#ETR-3360
 
     --Estado funcional
     select cat.id_catalogo
@@ -393,7 +398,12 @@ BEGIN
             v_rec.fecha_ini_dep,           --  fecha_ini  desde cuando se considera el activo valor
             v_rec.monto_bs,
             v_rec.id_proyecto_activo, --#57
-            DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
+            --Inicio #ETR-3360
+            CASE COALESCE(v_act_x_ufv, '')
+                WHEN '' THEN DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
+                ELSE DATE_TRUNC('month', v_rec.fecha_ini_dep)
+            END
+            --Fin #ETR-3360
         );
 
         --USD
@@ -456,7 +466,12 @@ BEGIN
             v_rec.fecha_ini_dep,           --  fecha_ini  desde cuando se considera el activo valor
             v_rec.monto_usd,
             v_rec.id_proyecto_activo, --#57
-            DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
+            --Inicio #ETR-3360
+            CASE COALESCE(v_act_x_ufv, '')
+                WHEN '' THEN DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
+                ELSE DATE_TRUNC('month', v_rec.fecha_ini_dep)
+            END
+            --Fin #ETR-3360
         );
 
         --UFV
@@ -519,7 +534,12 @@ BEGIN
             v_rec.fecha_ini_dep,           --  fecha_ini  desde cuando se considera el activo valor
             v_rec.monto_ufv,
             v_rec.id_proyecto_activo,
-            DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
+            --Inicio #ETR-3360
+            CASE COALESCE(v_act_x_ufv, '')
+                WHEN '' THEN DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
+                ELSE DATE_TRUNC('month', v_rec.fecha_ini_dep)
+            END
+            --Fin #ETR-3360
         );
 
         --Actualización del ID activo fijo en proyecto activo
@@ -630,12 +650,19 @@ BEGIN
             mdep.vida_util AS vida_util,
             CASE afv.id_moneda
                 WHEN 1 THEN
-                    --Actualización del importe a incrementar
-                    (
-                        param.f_get_tipo_cambio(3, (date_trunc('month', py.fecha_fin) - interval '1 day')::date, 'O') /
-                        param.f_get_tipo_cambio(3, date_trunc('month', py.fecha_ini)::date, 'O') * --RCM 12/01/2020
-                        COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0)
-                    ) + COALESCE(mdep.monto_vigente, 0)
+                    --Inicio #ETR-3360
+                    CASE COALESCE(v_act_x_ufv, '')
+                        WHEN '' THEN
+                            --Actualización del importe a incrementar
+                            (
+                                param.f_get_tipo_cambio(3, (date_trunc('month', py.fecha_fin) - interval '1 day')::date, 'O') /
+                                param.f_get_tipo_cambio(3, date_trunc('month', py.fecha_ini)::date, 'O') * --RCM 12/01/2020
+                                COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0)
+                            ) + COALESCE(mdep.monto_vigente, 0)
+                        ELSE 
+                            COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0) + COALESCE(mdep.monto_vigente, 0)
+                    END
+                    --Fin #ETR-3360
                 WHEN 2 THEN
                     COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0) + COALESCE(mdep.monto_vigente, 0)
                 WHEN 3 THEN
@@ -777,13 +804,19 @@ BEGIN
             mdep.fecha + INTERVAL '1 MONTH' AS fecha_ini_dep,
             CASE afv.id_moneda
                 WHEN 1 THEN
-                    --Actualización del importe a incrementar
-                    (
-                        param.f_get_tipo_cambio(3, (date_trunc('month', py.fecha_fin) - interval '1 day')::date, 'O') /
-                        param.f_get_tipo_cambio(3, (DATE_TRUNC('month', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, 'O') * --#60
-                        COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0)
-                    )
-
+                    --Inicio #ETR-3360
+                    CASE COALESCE(v_act_x_ufv, '')
+                        WHEN '' THEN
+                            --Actualización del importe a incrementar
+                            (
+                                param.f_get_tipo_cambio(3, (date_trunc('month', py.fecha_fin) - interval '1 day')::date, 'O') /
+                                param.f_get_tipo_cambio(3, (DATE_TRUNC('month', COALESCE(py.fecha_rev_aitb, py.fecha_ini)) - INTERVAL '1 day')::DATE, 'O') * --#60
+                                COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0)
+                            )
+                        ELSE
+                            COALESCE(cb.importe_mb * ac.importe_activo / ac.importe_total, 0)
+                    END
+                    --Fin #ETR-3360
                 WHEN 2 THEN
                     COALESCE(cb.importe_mt * ac.importe_activo / ac.importe_total, 0)
                 WHEN 3 THEN
@@ -1070,7 +1103,14 @@ BEGIN
                 v_rec.total_depreciacion_mes,
                 v_rec.total_inc_dep_acum,
                 --Fin #33
-                DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL, --#58
+                --Inicio #ETR-3360
+                CASE COALESCE(v_act_x_ufv, '')
+                    WHEN '' THEN 
+                        DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
+                    ELSE
+                        v_act_x_ufv::date
+                END,
+                --Fin #ETR-3360
                 v_rec.id_proyecto_activo, --#60
                 v_rec.importe_modif_sin_act --#60
             );
