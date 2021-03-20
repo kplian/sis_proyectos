@@ -26,6 +26,7 @@ $body$
  #SIS-2     PRO     ETR      24/09/2020   RCM         Modificación de fecha fin del proyecto por fecha del cbte. para las adiciones, para que prevalezca la fecha del cbte.
  #SIS-4     PRO     ETR      12/01/2020   RCM         En caso de cierre de proyectos, para las adiciones el importe sin modificación debe ser por moneda no sólo en moneda base
  #ETR-3360  PRO     ETR      20/03/2021   RCM         No actualización de importes ni en cáluclo auxiliar de depreciación (por UFV en baja)
+ #ETR-3333  PRO     ETR      20/03/2021   RCM         Glosa del movimiento de ajuste se generaba con codigo y nombre de poryecto incorrecto por error en condicion al saca los datos
 ***************************************************************************
 */
 DECLARE
@@ -98,7 +99,7 @@ BEGIN
     select fecha_fin, codigo, nombre
     into v_rec_proy
     from pro.tproyecto
-    where p_id_proyecto = p_id_proyecto;
+    where id_proyecto = p_id_proyecto; --#ETR-3333
 
     --Obtención de las monedas
     select id_moneda
