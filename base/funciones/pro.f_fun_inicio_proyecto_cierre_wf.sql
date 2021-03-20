@@ -27,6 +27,7 @@ $body$
  #60        PRO       ETR           28/07/2020  RCM         Lógica para la generación cbte. 2 y 3. Nueva plantilla para cbte 3
  #ETR-2261  PRO       ETR           23/12/2020  RCM         En el 3er comprobante se aumenta en el prorrateo a almacén
  #SIS-5     PRO       ETR           05/02/2021  RCM         El tipo de cambio de ser convenido
+ #ETR-3345  PRO       ETR           20/03/2021  RCM         Cambio de la forma de cambio a convenido
 ***************************************************************************
 */
 DECLARE
@@ -762,7 +763,8 @@ BEGIN
             cbte_aitb = 'si',
             tipo_cambio_2 = 0,
             tipo_cambio_3 = 0,
-            fecha = v_rec.fecha_cbte_cierre --#ETR-2261
+            fecha = v_rec.fecha_cbte_cierre, --#ETR-2261
+            forma_cambio = 'convenido' --#ETR-3354
             where id_int_comprobante = v_id_int_comprobante;
 
             --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización

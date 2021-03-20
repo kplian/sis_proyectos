@@ -229,3 +229,8 @@ select conta.f_import_tdetalle_plantilla_comprobante ('insert','PRO-CIE3V3','GAS
 select conta.f_import_tdetalle_plantilla_comprobante ('insert','PRO-CIE3V3','Haber','haber','no','si','','','PRO-CIEREV','{$tabla.id_cuenta}','{$tabla.importe}','','','no','{$tabla.id_centro_costo}','','','si','','id_proyecto','','Reversión actualización','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','pro.v_cbte_cierre_proy_3_haber_det_V2',NULL,'','','','','todos','','si','','','si');
 
 /***********************************F-DAT-EGS-PRO-ETR-2261-23/12/2020****************************************/
+
+/***********************************I-DAT-RCM-PRO-ETR-3345-17/03/2021****************************************/
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','PRO-CIE3V3','Debe Almacenes','debe','no','si','','{$tabla.denominacion}','ALMING','','{$tabla.importe_actualiz}','{$tabla.id_almacen}','','no','','','','si','','id_proyecto','','Activos','{$tabla.importe_actualiz}',NULL,'simple','','','no','','','','','','','','2','','pro.v_cbte_cierre_proy_3_debe_det_alm',NULL,'','CCDEPCON','','','todos','','si','','','si');
+select conta.f_import_tdetalle_plantilla_comprobante ('insert','PRO-CIE3V3','Haber','haber','no','si','','{$tabla.codigo}','PRO-CIEREV','{$tabla.id_cuenta}','{$tabla.importe}','','','no','{$tabla.id_centro_costo}','','','si','','id_proyecto','','Reversión actualización','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','pro.v_cbte_cierre_proy_3_haber_det_V2',NULL,'','','','','todos','','si','','','si');
+/***********************************F-DAT-RCM-PRO-ETR-3345-17/03/2021****************************************/
