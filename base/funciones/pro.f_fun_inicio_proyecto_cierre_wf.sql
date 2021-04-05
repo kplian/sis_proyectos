@@ -27,6 +27,7 @@ $body$
  #60        PRO       ETR           28/07/2020  RCM         Lógica para la generación cbte. 2 y 3. Nueva plantilla para cbte 3
  #ETR-2261  PRO       ETR           23/12/2020  RCM         En el 3er comprobante se aumenta en el prorrateo a almacén
  #SIS-5     PRO       ETR           05/02/2021  RCM         El tipo de cambio de ser convenido
+ #ETR-3345  PRO       ETR           20/03/2021  RCM         Cambio de la forma de cambio a convenido
 ***************************************************************************
 */
 DECLARE
@@ -447,7 +448,7 @@ BEGIN
         0 AS importe_recurso_ma,
         p_id_usuario,
         now(),
-        pa.denominacion
+        (al.nombre || ' (' || pa.id_proyecto_activo || ')')::varchar AS denominacion --#ETR-3360
         FROM pro.tproyecto_activo_detalle pad
         JOIN pro.tproyecto_activo pa
         ON pa.id_proyecto_activo = pad.id_proyecto_activo
@@ -460,10 +461,14 @@ BEGIN
         AND rcalm.gestion = date_part('year', py.fecha_fin)::integer
         JOIN trel_contable rc
         ON rc.gestion = date_part('year', py.fecha_fin)::integer
+        --Inicio #ETR-3360
+        JOIN alm.talmacen al
+        ON al.id_almacen = pa.id_almacen
+        --FIn #ETR-3360
         WHERE pa.id_almacen IS NOT NULL
         AND py.id_proyecto = v_rec.id_proyecto
         GROUP BY py.id_proyecto, pa.id_proyecto_activo, pa.denominacion, pa.id_clasificacion,
-        py.id_moneda, rcalm.id_cuenta, rcalm.id_partida, rcalm.gestion, rc.id_centro_costo
+        py.id_moneda, rcalm.id_cuenta, rcalm.id_partida, rcalm.gestion, rc.id_centro_costo, al.nombre
         HAVING SUM(pad.monto) > 0;
         --Fin #50
 
@@ -762,7 +767,8 @@ BEGIN
             cbte_aitb = 'si',
             tipo_cambio_2 = 0,
             tipo_cambio_3 = 0,
-            fecha = v_rec.fecha_cbte_cierre --#ETR-2261
+            fecha = v_rec.fecha_cbte_cierre, --#ETR-2261
+            forma_cambio = 'convenido' --#ETR-3354
             where id_int_comprobante = v_id_int_comprobante;
 
             --Eliminación de importes en dólares y UFV, y marcado como transacciones de actualización

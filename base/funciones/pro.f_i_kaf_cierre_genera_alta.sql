@@ -13,9 +13,11 @@ $body$
  COMENTARIOS:
 
 ***************************************************************************
-  ISSUE  SIS  EMPRESA  FECHA        AUTOR       DESCRIPCION
-  #0     PRO  ETR      14/11/2018   RCM         Creación de archivo
-  #18    PRO  ETR      02/09/2019   RCM         Filtro de activos ya existentes para no incluirlo en el movimiento
+  ISSUE     SIS  EMPRESA  FECHA        AUTOR       DESCRIPCION
+  #0        PRO  ETR      14/11/2018   RCM         Creación de archivo
+  #18       PRO  ETR      02/09/2019   RCM         Filtro de activos ya existentes para no incluirlo en el movimiento
+  #ETR-3345 PRO  ETR      26/03/2021   RCM         Cambio en glosa del alta igual que el Ajuste
+  #ETR-3360 PRO  ETR      04-04-2021   RCM         Cambio de la fecha de Alta
 ***************************************************************************
 */
 DECLARE
@@ -25,11 +27,12 @@ DECLARE
     v_rec               record;
     v_rec_det           record;
     v_rec_af            record;
-    v_rec_af_det        record;
+    v_rec_af_det        record; 
     v_id_cat_movimiento integer;
     v_id_movimiento     integer;
     v_id_movimiento_af  integer;
     v_id_depto          integer;
+    v_fecha_mov         DATE; --#ETR-3360
 
 BEGIN
 
@@ -82,14 +85,28 @@ BEGIN
     where dep.codigo = 'AF'
     and dep.modulo = 'KAF';
 
+    --Inicio #ETR-3360: obtencion de fecha para el movimiento de los comprobantes del cierre
+    SELECT
+    cb.fecha
+    INTO v_fecha_mov
+    FROM conta.tint_transaccion tr
+    INNER JOIN pro.tproyecto py
+    ON py.id_int_comprobante_1 = tr.id_int_comprobante
+    OR py.id_int_comprobante_3 = tr.id_int_comprobante
+    INNER JOIN conta.tint_comprobante cb
+    ON cb.id_int_comprobante = tr.id_int_comprobante
+    WHERE py.id_proyecto = p_id_proyecto
+    LIMIT 1;
+    --Fin #ETR-3360
+
     --Definción de parámetros
     select
     'N/D' as direccion,
     null as fecha_hasta,
     v_id_cat_movimiento as id_cat_movimiento,
-    v_rec.fecha_fin as fecha_mov,
+    v_fecha_mov as fecha_mov,
     v_id_depto as id_depto,
-    'Alta de los activos fijos, cierre proyecto '|| v_rec.codigo||' - '||v_rec.nombre as glosa,
+    'Alta de los activos fijos por Cierre de Proyecto '|| v_rec.codigo||' - '||v_rec.nombre as glosa, --#ETR-3345
     null as id_funcionario,
     null as id_oficina,
     null as _id_usuario_ai,
