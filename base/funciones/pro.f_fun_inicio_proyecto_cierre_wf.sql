@@ -448,7 +448,7 @@ BEGIN
         0 AS importe_recurso_ma,
         p_id_usuario,
         now(),
-        pa.denominacion
+        (al.nombre || ' (' || pa.id_proyecto_activo || ')')::varchar AS denominacion --#ETR-3360
         FROM pro.tproyecto_activo_detalle pad
         JOIN pro.tproyecto_activo pa
         ON pa.id_proyecto_activo = pad.id_proyecto_activo
@@ -461,10 +461,14 @@ BEGIN
         AND rcalm.gestion = date_part('year', py.fecha_fin)::integer
         JOIN trel_contable rc
         ON rc.gestion = date_part('year', py.fecha_fin)::integer
+        --Inicio #ETR-3360
+        JOIN alm.talmacen al
+        ON al.id_almacen = pa.id_almacen
+        --FIn #ETR-3360
         WHERE pa.id_almacen IS NOT NULL
         AND py.id_proyecto = v_rec.id_proyecto
         GROUP BY py.id_proyecto, pa.id_proyecto_activo, pa.denominacion, pa.id_clasificacion,
-        py.id_moneda, rcalm.id_cuenta, rcalm.id_partida, rcalm.gestion, rc.id_centro_costo
+        py.id_moneda, rcalm.id_cuenta, rcalm.id_partida, rcalm.gestion, rc.id_centro_costo, al.nombre
         HAVING SUM(pad.monto) > 0;
         --Fin #50
 
