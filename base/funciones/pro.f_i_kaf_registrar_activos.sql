@@ -471,7 +471,7 @@ BEGIN
             --Inicio #ETR-3360
             CASE COALESCE(v_act_x_ufv, '')
                 WHEN '' THEN DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
-                ELSE v_act_x_ufv::date --DATE_TRUNC('month', v_rec.fecha_ini_dep) #ETR-3360
+                ELSE NULL --v_act_x_ufv::date --DATE_TRUNC('month', v_rec.fecha_ini_dep) #ETR-3360
             END
             --Fin #ETR-3360
         );
@@ -539,7 +539,7 @@ BEGIN
             --Inicio #ETR-3360
             CASE COALESCE(v_act_x_ufv, '')
                 WHEN '' THEN DATE_TRUNC('month', v_rec.fecha_ini_dep) - '1 day'::INTERVAL --#58
-                ELSE v_act_x_ufv::date --DATE_TRUNC('month', v_rec.fecha_ini_dep) #ETR-3360
+                ELSE NULL v_act_x_ufv::date --DATE_TRUNC('month', v_rec.fecha_ini_dep) #ETR-3360
             END
             --Fin #ETR-3360
         );
