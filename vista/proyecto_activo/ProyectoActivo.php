@@ -6,13 +6,14 @@
 *@date 31-08-2017 16:52:19
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 ******************************************************************************
-* ISSUE  SIS     EMPRESA    FECHA          AUTOR       DESCRIPCION
-* #11  	 PRO     ETR        09/05/2019     MZM         Se incrementa opcion (boton) para exportar datos en CSV
-* #23    PRO     ETR        03/09/2019     RCM         Colorear celda para activos fijos existentes
-* #36    PRO     ETR        16/10/2019     RCM         Adición de campo Funcionario
-* #38    PRO     ETR        17/10/2019     RCM         Adición de campo Fecha Compra
-* #50    PRO     ETR        09/12/2019     RCM         Inclusión de almacén en importación de cierre
-* #53   PRO      ETR        24/01/2020     RCM         Adicion de columnas en la grilla de datos
+* ISSUE     SIS     EMPRESA    FECHA          AUTOR       DESCRIPCION
+* #11  	    PRO     ETR        09/05/2019     MZM         Se incrementa opcion (boton) para exportar datos en CSV
+* #23       PRO     ETR        03/09/2019     RCM         Colorear celda para activos fijos existentes
+* #36       PRO     ETR        16/10/2019     RCM         Adición de campo Funcionario
+* #38       PRO     ETR        17/10/2019     RCM         Adición de campo Fecha Compra
+* #50       PRO     ETR        09/12/2019     RCM         Inclusión de almacén en importación de cierre
+* #53       PRO     ETR        24/01/2020     RCM         Adicion de columnas en la grilla de datos
+#ETR-3627   KAF     ETR        12/04/2021     RCM         Adición de filtro para imprimir por movimiento y por proyecto
 * ****************************************************************************
 */
 header("content-type: text/javascript; charset=UTF-8");
@@ -471,6 +472,24 @@ Ext.define('Phx.vista.ProyectoActivo', {
             scope: this
         });
 
+        //Inicio #ETR-3627
+        this.tbBtnQR = new Ext.Button({
+            text: 'QR Todos',
+            iconCls: 'bprintcheck',
+            handler: this.imprimirQR,
+            tooltip: '<b>Impresión masiva de QR</b><br/>Genera los códigos QR de todos los activos fijos del Proyecto',
+            scope: this
+        });
+
+        this.tbBtnQRsimple = new Ext.Button({
+            text: 'QR',
+            iconCls: 'bprintcheck',
+            handler: this.imprimirQRsimple,
+            tooltip: '<b>Impresión de QR</b><br/>Genera QR del activo fijo seleccionado',
+            scope: this
+        });
+        //Fin #ETR-3627
+
 
         this.tbar = new Ext.Toolbar({
           enableOverflow: true,
@@ -480,7 +499,7 @@ Ext.define('Phx.vista.ProyectoActivo', {
                minWidth: 50,
                boxMinWidth: 50
             },
-            items: [this.tbBtnNew,this.tbBtnEdit,this.tbBtnDel,this.tbBtnAct,this.tbBtnDet,this.tbBtnExport]
+            items: [this.tbBtnNew,this.tbBtnEdit,this.tbBtnDel,this.tbBtnAct,this.tbBtnDet,this.tbBtnExport, this.tbBtnQR, this.tbBtnQRsimple]
         });
 		//Fin #11 Proyectos, adiciona el boton para exportacion de datos y añade a tbar
 
@@ -1328,6 +1347,24 @@ Ext.define('Phx.vista.ProyectoActivo', {
         var objTotal={}
         objTotal.observaciones = label;
         objTotal.desc_clasificacion = '';
+        //#Inicio ETR-3367
+        objTotal.cantidad_det = '';
+        objTotal.desc_unmed = '';
+        objTotal.desc_depto = '';
+        objTotal.ubicacion = '';
+        objTotal.desc_centro_costo = '';
+        objTotal.desc_ubicacion = '';
+        objTotal.desc_grupo = '';
+        objTotal.desc_clasif_ae = '';
+        objTotal.nro_serie = '';
+        objTotal.marca = '';
+        objTotal.fecha_ini_dep = '';
+        objTotal.vida_util_anios = '';
+        objTotal.codigo_af_rel = '';
+        objTotal.desc_person = '';
+        objTotal.fecha_compra = '';
+        objTotal.desc_almacen = '';
+        //Fin #ETR-3367
         objTotal.costo = rec.total;
         Ext.iterate(rec, function(key,value,collection){
             objTotal[key] = value;
@@ -1340,6 +1377,25 @@ Ext.define('Phx.vista.ProyectoActivo', {
         var objTotal={}
         objTotal.observaciones = label;
         objTotal.desc_clasificacion = '';
+        //#Inicio ETR-3367
+        objTotal.cantidad_det = '';
+        objTotal.desc_unmed = '';
+        objTotal.desc_depto = '';
+        objTotal.ubicacion = '';
+        objTotal.desc_centro_costo = '';
+        objTotal.desc_ubicacion = '';
+        objTotal.desc_grupo = '';
+        objTotal.desc_clasif_ae = '';
+        objTotal.nro_serie = '';
+        objTotal.marca = '';
+        objTotal.fecha_ini_dep = '';
+        objTotal.vida_util_anios = '';
+        objTotal.codigo_af_rel = '';
+        objTotal.desc_person = '';
+        objTotal.fecha_compra = '';
+        objTotal.desc_almacen = '';
+        //Fin #ETR-3367
+
         Ext.iterate(rec[0], function(key,value,collection){
             objTotal[key] = rec[0][key]-rec[1][key];
         },this);
@@ -1483,7 +1539,49 @@ Ext.define('Phx.vista.ProyectoActivo', {
 				});
 
 
-    } //Fin #11 Proyectos, funciones para exportacion
+    }, //Fin #11 Proyectos, funciones para exportacion
+
+    //Inicio #ETR-3627
+    imprimirQR: function() {
+        Phx.CP.loadingShow();
+        var idProyecto = this.id_proyecto;
+
+        if(this.id_proyecto) {
+            Ext.Ajax.request({
+                url: '../../sis_kactivos_fijos/control/ActivoFijo/repCodigoQRVarios',
+                params: {
+                    id_proyecto: idProyecto
+                },
+                success: this.successExport,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });    
+        }
+
+    },
+    imprimirQRsimple: function() {
+        var idProyecto = this.id_proyecto;
+        var rec = this.gridCierre.getSelectionModel().getSelected();
+
+        if(rec && rec.data.id_activo_fijo) {
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url: '../../sis_kactivos_fijos/control/ActivoFijo/repCodigoQRVarios',
+                params: {
+                    id_activo_fijo: rec.data.id_activo_fijo
+                },
+                success: this.successExport,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            }); 
+        } else {
+            Ext.Msg.alert('Advertencia', 'Seleccione un activo fijo previamente');
+        }
+
+    },
+    //Fin #ETR-3627
 
 });
 </script>
