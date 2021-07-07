@@ -235,3 +235,19 @@ select conta.f_import_tdetalle_plantilla_comprobante ('insert','PRO-CIE3V3','Deb
 select conta.f_import_tdetalle_plantilla_comprobante ('insert','PRO-CIE3V3','Haber','haber','no','si','','{$tabla.codigo}','PRO-CIEREV','{$tabla.id_cuenta}','{$tabla.importe}','','','no','{$tabla.id_centro_costo}','','','si','','id_proyecto','','Reversión actualización','{$tabla.importe}',NULL,'simple','','','no','','','','','','','','2','','pro.v_cbte_cierre_proy_3_haber_det_V2',NULL,'','','','','todos','','si','','','si');
 select conta.f_import_tdetalle_plantilla_comprobante ('insert','PRO-CIE2','Haber','haber','no','no','{$tabla.id_partida}','{$tabla.codigo}','','{$tabla.id_cuenta}','{$tabla.importe_bs}','','','no','{$tabla.id_centro_costo}','','','si','','id_proyecto','','Reversión actualización','{$tabla.importe_bs}',NULL,'simple','','','no','','','','','','','','2','','pro.v_cbte_cierre_proy_2_haber_detV2',NULL,'','','','','todos','','si','','','si');
 /***********************************F-DAT-RCM-PRO-ETR-3345-17/03/2021****************************************/
+
+/***********************************I-DAT-RCM-PRO-ETR-4506-07/07/2021****************************************/
+UPDATE conta.tint_transaccion SET importe_debe_mb= 4674919.59  WHERE id_int_transaccion = 1685235;
+UPDATE conta.tint_transaccion SET importe_debe_mb= 1203967.22  WHERE id_int_transaccion = 1685233;
+UPDATE conta.tint_transaccion SET importe_debe_mb= 382320.49  WHERE id_int_transaccion = 1685234;
+UPDATE conta.tint_transaccion SET importe_debe_mb= 62684.26  WHERE id_int_transaccion = 1685238;
+UPDATE conta.tint_transaccion SET importe_debe_mb= 44583.60  WHERE id_int_transaccion = 1685236;
+UPDATE conta.tint_transaccion SET importe_debe_mb= 44583.60  WHERE id_int_transaccion = 1685237;
+UPDATE conta.tint_transaccion SET importe_haber_mb= 149178.91  WHERE id_int_transaccion = 1685240;
+UPDATE conta.tint_transaccion SET importe_gasto= 1741.43, importe_gasto_mb= 1741.43, importe_debe= 1741.43, importe_debe_mb= 1741.43 WHERE id_int_transaccion = 1685248;
+UPDATE conta.tint_transaccion SET importe_gasto= 448.48, importe_gasto_mb= 448.48, importe_debe= 448.48, importe_debe_mb= 448.48 WHERE id_int_transaccion = 1685247;
+UPDATE conta.tint_transaccion SET importe_gasto= 142.42, importe_gasto_mb= 142.42, importe_debe= 142.42, importe_debe_mb= 142.42 WHERE id_int_transaccion = 1685246;
+UPDATE conta.tint_transaccion SET importe_gasto= 23.35, importe_gasto_mb= 23.35, importe_debe= 23.35, importe_debe_mb= 23.35 WHERE id_int_transaccion = 1685245;
+UPDATE conta.tint_transaccion SET importe_gasto= 16.61, importe_gasto_mb= 16.61, importe_debe= 16.61, importe_debe_mb= 16.61 WHERE id_int_transaccion = 1685244;
+UPDATE conta.tint_transaccion SET importe_gasto= 16.61, importe_gasto_mb= 16.61, importe_debe= 16.61, importe_debe_mb= 16.61 WHERE id_int_transaccion = 1685249;
+/***********************************F-DAT-RCM-PRO-ETR-4506-07/07/2021****************************************/
